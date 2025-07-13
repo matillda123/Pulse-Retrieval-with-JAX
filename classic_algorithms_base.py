@@ -46,12 +46,14 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         gradient_sum = jnp.sum(grad, axis=1)
 
 
-        if use_hessian!=False:
+        if use_hessian=="diagonal" or use_hessian=="full":
             newton_direction = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, measurement_info, descent_info, 
                                                                  use_hessian, pulse_or_gate)
             setattr(descent_state.hessian_state.newton_direction_prev, pulse_or_gate, newton_direction)
 
             descent_direction = -1*newton_direction
+        elif use_hessian=="bfgs":
+            pass
         else:
             descent_direction = -1*gradient_sum
 
@@ -143,6 +145,31 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
     
 
 
+
+
+    def initialize_CG(self, descent_state):
+        shape = jnp.shape(descent_state.population.pulse)
+        init_arr = jnp.zeros(shape, dtype=jnp.complex64)
+
+        descent_state.cg=MyNamespace(CG_direction_prev=MyNamespace(pulse=None, gate=None), 
+                                     descent_direction_prev=MyNamespace(pulse=None, gate=None))
+        descent_state.cg.descent_direction_prev.pulse = init_arr
+        descent_state.cg.CG_direction_prev.pulse = init_arr
+        descent_state.cg.descent_direction_prev.gate = init_arr
+        descent_state.cg.CG_direction_prev.gate = init_arr
+        return descent_state
+    
+    
+    def initialize_pseudo_newton(self, descent_state):
+        shape = jnp.shape(descent_state.population.pulse)
+        init_arr = jnp.zeros(shape, dtype=jnp.complex64)
+
+        descent_state.hessian_state=MyNamespace(newton_direction_prev = MyNamespace(pulse=None, gate=None))
+        descent_state.hessian_state.newton_direction_prev.pulse = init_arr
+        descent_state.hessian_state.newton_direction_prev.gate = init_arr
+        return descent_state
+
+
     def initialize_run(self, population):
         measurement_info=self.measurement_info
 
@@ -166,21 +193,27 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
         self.descent_state.population=population
 
-        shape = jnp.shape(population.pulse)
-        init_arr = jnp.zeros(shape, dtype=jnp.complex64)
-        self.descent_state.cg=MyNamespace(CG_direction_prev=MyNamespace(pulse=None, gate=None), 
-                                          descent_direction_prev=MyNamespace(pulse=None, gate=None))
-        self.descent_state.cg.descent_direction_prev.pulse = init_arr
-        self.descent_state.cg.CG_direction_prev.pulse = init_arr
-        self.descent_state.cg.descent_direction_prev.gate = init_arr
-        self.descent_state.cg.CG_direction_prev.gate = init_arr
+        self.descent_state = self.initialize_CG(self.descent_state)
+        self.descent_state = self.initialize_pseudo_newton(self.descent_state)
+        
 
-        self.descent_state.hessian_state=MyNamespace(newton_direction_prev=MyNamespace(pulse=None, gate=None))
-        self.descent_state.hessian_state.newton_direction_prev.pulse = init_arr
-        self.descent_state.hessian_state.newton_direction_prev.gate = init_arr
-
+    
         shape=(shape[0], jnp.shape(measurement_info.measured_trace)[0], jnp.shape(measurement_info.measured_trace)[1])
         self.descent_state.signal_t_new=jnp.zeros(shape, dtype=jnp.complex64)
+
+
+        bfgs_init_pulse = MyNamespace(B_inv=jnp.zeros(shape),
+                                grad_prev = jnp.zeros(shape),
+                                descent_direction_prev = jnp.zeros(shape),
+                                step_size_prev = jnp.zeros(shape))
+        
+        bfgs_init_gate = MyNamespace(B_inv=jnp.zeros(shape), # needs to be done like this because otherwise pulse and gate would use the same bfgs_state object
+                                grad_prev = jnp.zeros(shape),
+                                descent_direction_prev = jnp.zeros(shape),
+                                step_size_prev = jnp.zeros(shape))
+    
+        self.descent_state.bfgs=MyNamespace(pulse=bfgs_init_pulse, gate=bfgs_init_gate)
+
         descent_state=self.descent_state
 
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
