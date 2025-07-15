@@ -103,6 +103,19 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
         signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
         Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
         return Z_error_new
+    
+
+
+    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+        descent_direction, signal_t_new = linesearch_info.descent_direction, linesearch_info.signal_t_new
+        phase_matrix = measurement_info.phase_matrix
+
+        pulse = linesearch_info.population.pulse + gamma*descent_direction
+        
+        individual = MyNamespace(pulse=pulse, gate=None)
+        signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
+        grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
+        return jnp.sum(grad, axis=0)
 
 
 

@@ -192,6 +192,36 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
         Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
         return Z_error_new
+    
+
+    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+        population, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
+        pulse = population.pulse
+        gate = population.gate
+
+        tau_arr = measurement_info.tau_arr
+        sk, rn = measurement_info.sk, measurement_info.rn
+        measured_trace = measurement_info.measured_trace
+
+        if pulse_or_gate=="pulse":
+            pulse_f=do_fft(pulse, sk, rn)
+            pulse_f=pulse_f+gamma*descent_direction
+            pulse=do_ifft(pulse_f, sk, rn)
+
+        elif pulse_or_gate=="gate":
+            gate=do_fft(gate, sk, rn)
+            gate=gate+gamma*descent_direction
+            gate=do_ifft(gate, sk, rn)
+
+        individual = MyNamespace(pulse=pulse, gate=gate)
+        signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
+        trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
+        mu = calculate_mu(trace, measured_trace)
+        signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, mu, measurement_info)
+
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, pulse, signal_t.pulse_t_shifted, 
+                                    signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
+        return jnp.sum(grad, axis=0) 
 
 
 

@@ -58,7 +58,6 @@ def get_pseudo_newton_direction(grad, lbfgs_state, descent_info):
     grad_arr = grad_arr.at[:,1:].set(grad_arr[:,:-1])
     grad_arr = grad_arr.at[:,0].set(grad)
 
-
     newton_arr = lbfgs_state.newton_direction_prev
     newton_arr = newton_arr.at[:,1:].set(newton_arr[:,:-1])
     newton_arr = newton_arr.at[:,0].set(newton_direction)

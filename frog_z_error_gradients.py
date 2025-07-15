@@ -34,7 +34,8 @@ def Z_gradient_xfrog_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_a
 
 def Z_gradient_xfrog_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     # gradient with respect to the whole gate-function, not the actual pulse that is used 
-    # in ifrog the gradient with respect to the actual pulse is used
+    # in ifrog the gradient with respect to the actual pulse is used 
+    # maybe this should be changed ?
     grad=exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t), sk, rn)
     return -2*grad
 

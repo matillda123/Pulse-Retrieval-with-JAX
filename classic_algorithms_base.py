@@ -16,22 +16,24 @@ from BaseClasses import AlgorithmsBASE
 
 
 class GeneralizedProjectionBASE(AlgorithmsBASE):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        self.no_steps_gradient_descent=15
-        self.max_steps_linesearch=25
-        self.gamma=1e3
-        self.delta_gamma=0.5
+        self.no_steps_gradient_descent = 15
+        self.max_steps_linesearch = 25
+        self.wolfe_linesearch = False
+        self.gamma = 1e3
+        self.delta_gamma = (0.5, 1.5)
         
-        self.c1=1e-4
+        self.c1 = 1e-4
+        self.c2 = 0.9
 
-        self.use_hessian=False
-        self.lambda_lm=1e-3
+        self.use_hessian = False
+        self.lambda_lm = 1e-3
         self.lbfgs_memory = 10
 
-        self.use_conjugate_gradients=False
-        self.beta_parameter_version="average"
+        self.use_conjugate_gradients = False
+        self.beta_parameter_version = "fletcher_reeves"
 
         self.linalg_solver="lineax"
 
@@ -78,13 +80,14 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
             descent_direction = CG_direction
 
 
-        pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.dot(jnp.conjugate(x),y)), in_axes=(0,0))(descent_direction, gradient_sum)
+        pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, gradient_sum)
         
         linesearch_info=MyNamespace(population=population, descent_direction=descent_direction, signal_t_new=signal_t_new, 
-                                    error=Z_error, pk_dot_gradient=pk_dot_gradient)
+                                    error=Z_error, pk_dot_gradient=pk_dot_gradient, pk=descent_direction)
         
-        gamma_new=jax.vmap(do_linesearch, in_axes=(0,None,None,None))(linesearch_info, measurement_info, descent_info, 
-                                                                     Partial(self.calc_Z_error_for_linesearch, pulse_or_gate=pulse_or_gate))
+        gamma_new=jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+                                                                           Partial(self.calc_Z_error_for_linesearch, pulse_or_gate=pulse_or_gate),
+                                                                           Partial(self.calc_Z_grad_for_linesearch, pulse_or_gate=pulse_or_gate))
 
         if use_hessian=="lbfgs":
            step_size_arr = lbfgs_state.step_size_prev
@@ -206,6 +209,8 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
         # parameters for linesearch
         self.descent_info.c1=self.c1
+        self.descent_info.c2=self.c2
+        self.descent_info.wolfe_linesearch=self.wolfe_linesearch
         self.descent_info.gamma=self.gamma
         self.descent_info.delta_gamma=self.delta_gamma
         self.descent_info.max_steps_linesearch=self.max_steps_linesearch
@@ -251,8 +256,8 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
 class TimeDomainPtychographyBASE(AlgorithmsBASE):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.use_global_step=False
         self.use_hessian=False#"diagonal"
@@ -267,6 +272,12 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         self.lambda_lm=1e-2
 
         self.linalg_solver = "lineax"
+
+
+
+        # self.delta_gamma = (0.5, 1.5)
+        # self.wolfe_linesearch = False
+        # self.c2 = 0.9
 
 
     def calculate_PIE_error(self, signal_f, measured_trace):
@@ -344,7 +355,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
         gamma_new=jax.vmap(do_linesearch, in_axes=(0, None, None, None))(linesearch_info, measurement_info, descent_info, 
-                                                                    Partial(self.calc_error_for_linesearch, pulse_or_gate=pulse_or_gate))
+                                                                         Partial(self.calc_error_for_linesearch, pulse_or_gate=pulse_or_gate))
 
         descent_state.population = self.update_population_global(signal_t, population, gamma_new, descent_direction, measurement_info, descent_info, pulse_or_gate)
         return descent_state     
@@ -440,8 +451,8 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
 class COPRABASE(AlgorithmsBASE):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.weights=1.0
 
