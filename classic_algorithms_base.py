@@ -191,9 +191,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         init_arr1 = jnp.zeros((N,m,n), dtype=jnp.complex64)
         init_arr2 = jnp.zeros((N,m,1), dtype=jnp.float32)
 
-        # needs to be done like this because otherwise pulse and gate would use the same bfgs_state object
         lbfgs_init_pulse = MyNamespace(grad_prev = init_arr1, newton_direction_prev = init_arr1, step_size_prev = init_arr2)
-
         if measurement_info.doubleblind==True:
             lbfgs_init_gate = MyNamespace(grad_prev = init_arr1, newton_direction_prev = init_arr1, step_size_prev = init_arr2)
         else:

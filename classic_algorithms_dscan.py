@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 from jax.tree_util import Partial
 
-from BaseClasses import RetrievePulsesDSCAN, AlgorithmsBase
+from BaseClasses import RetrievePulsesDSCAN, AlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
 
@@ -21,7 +21,7 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction_gate
 
 
 
-class Basic(RetrievePulsesDSCAN, AlgorithmsBase):
+class Basic(RetrievePulsesDSCAN, AlgorithmsBASE):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
