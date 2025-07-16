@@ -6,9 +6,6 @@ from utilities import MyNamespace, generate_random_continuous_function, do_inter
 
 
 
-
-
-
 def get_initial_amp_for_shg_thg(frequency, measured_trace, nonlinear_method):
     mean_trace=jnp.mean(measured_trace, axis=0)
     amp=jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
@@ -22,6 +19,9 @@ def get_initial_amp_for_shg_thg(frequency, measured_trace, nonlinear_method):
 
     amp=do_interpolation_1d(frequency, frequency/factor, amp)
     return amp
+
+
+
 
 
 
@@ -147,7 +147,9 @@ def spline_guess(key, population, shape, measurement_info):
 def discrete_guess_phase(key, population, shape, measurement_info):
     frequency = measurement_info.frequency
     key, subkey = jax.random.split(key, 2)
-    phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(subkey, shape[1], frequency, 
+    keys = jax.random.split(subkey, shape[0])
+
+    phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(keys, shape[1], frequency, 
                                                                                                         -4*jnp.pi, 4*jnp.pi, jnp.ones(jnp.size(frequency)))
     population.phase = phase
     return key, population
@@ -176,7 +178,7 @@ def discrete_guess_amp(key, population, shape, measurement_info):
         mean_trace=jnp.mean(measurement_info.measured_trace, axis=0)
         amp=jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
-    noise = jax.random.uniform(subkey, shape, minval=-0.05, maxval=0.05)
+    noise = jax.random.uniform(subkey, (shape[0], jnp.size(measurement_info.frequency)), minval=-0.05, maxval=0.05)
     amp = amp + noise
     amp=amp/jnp.linalg.norm(amp)
 
@@ -204,6 +206,7 @@ def create_amp(key, amp_type, population, shape, measurement_info):
     
     key, population = amp_guess_func_dict[amp_type](key, population, shape, measurement_info)
     return key, population
+
 
 
 def create_population_general(key, amp_type, phase_type, population, population_size, no_funcs_amp, no_funcs_phase, spectrum_provided, measurement_info):
