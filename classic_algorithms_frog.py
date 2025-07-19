@@ -170,56 +170,47 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
 
 
 
-    def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        population, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
-        pulse = population.pulse
-        gate = population.gate
+    # def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+    #     population, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
+    #     pulse = population.pulse
+    #     gate = population.gate
 
-        tau_arr = measurement_info.tau_arr
-        sk, rn = measurement_info.sk, measurement_info.rn
+    #     transform_arr = measurement_info.transform_arr
+    #     sk, rn = measurement_info.sk, measurement_info.rn
 
-        if pulse_or_gate=="pulse":
-            pulse_f=do_fft(pulse, sk, rn)
-            pulse_f=pulse_f+gamma*descent_direction
-            pulse=do_ifft(pulse_f, sk, rn)
+    #     # if pulse_or_gate=="pulse":
+    #     #     pulse_f=do_fft(pulse, sk, rn)
+    #     #     pulse_f=pulse_f+gamma*descent_direction
+    #     #     pulse=do_ifft(pulse_f, sk, rn)
 
-        elif pulse_or_gate=="gate":
-            gate=do_fft(gate, sk, rn)
-            gate=gate+gamma*descent_direction
-            gate=do_ifft(gate, sk, rn)
+    #     # elif pulse_or_gate=="gate":
+    #     #     gate=do_fft(gate, sk, rn)
+    #     #     gate=gate+gamma*descent_direction
+    #     #     gate=do_ifft(gate, sk, rn)
 
-        individual = MyNamespace(pulse=pulse, gate=gate)
-        signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
-        Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
-        return Z_error_new
+    #     # individual = MyNamespace(pulse=pulse, gate=gate)
+
+    #     individual = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate)
+
+    #     signal_t=self.calculate_signal_t(individual, transform_arr, measurement_info)
+    #     Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
+    #     return Z_error_new
     
 
     def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        population, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
-        pulse = population.pulse
-        gate = population.gate
+        individual, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
 
         tau_arr = measurement_info.tau_arr
         sk, rn = measurement_info.sk, measurement_info.rn
         measured_trace = measurement_info.measured_trace
 
-        if pulse_or_gate=="pulse":
-            pulse_f=do_fft(pulse, sk, rn)
-            pulse_f=pulse_f+gamma*descent_direction
-            pulse=do_ifft(pulse_f, sk, rn)
-
-        elif pulse_or_gate=="gate":
-            gate=do_fft(gate, sk, rn)
-            gate=gate+gamma*descent_direction
-            gate=do_ifft(gate, sk, rn)
-
-        individual = MyNamespace(pulse=pulse, gate=gate)
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
         trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
         mu = calculate_mu(trace, measured_trace)
         signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, mu, measurement_info)
 
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, pulse, signal_t.pulse_t_shifted, 
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, individual.pulse, signal_t.pulse_t_shifted, 
                                     signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return jnp.sum(grad, axis=0) 
 
@@ -238,17 +229,15 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
 
 
 
-    def update_population(self, population, gamma_new, descent_direction, measurement_info, pulse_or_gate):
+    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn
 
-        pulse_f = do_fft(getattr(population, pulse_or_gate), sk, rn)
-        pulse_f = pulse_f + gamma_new[:,jnp.newaxis]*descent_direction
+        pulse_f = do_fft(getattr(individual, pulse_or_gate), sk, rn)
+        pulse_f = pulse_f + gamma*descent_direction
         pulse = do_ifft(pulse_f, sk, rn)
 
-        setattr(population, pulse_or_gate, pulse)  
-        return population
-    
-
+        setattr(individual, pulse_or_gate, pulse)  
+        return individual
 
 
 
@@ -435,18 +424,16 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
 
 
 
-
-    def update_population_global(self, population, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        alpha = descent_info.alpha
+    def update_individual_global(self, individual, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn
 
-        signal = getattr(population, pulse_or_gate)
+        signal = getattr(individual, pulse_or_gate)
         signal_f = do_fft(signal, sk, rn)
-        signal_f = signal_f + alpha*eta[:,jnp.newaxis]*descent_direction
+        signal_f = signal_f + alpha*eta*descent_direction
         signal = do_ifft(signal_f, sk, rn)
 
-        setattr(population, pulse_or_gate, signal)
-        return population
+        setattr(individual, pulse_or_gate, signal)
+        return individual
 
 
 
@@ -474,6 +461,24 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
         return newton_direction
             
     
+
+
+
+
+
+
+
+    def calc_Z_grad_for_linesearch(self, alpha, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+        tau_arr = measurement_info.tau_arr
+
+        signal_t_new, eta, descent_direction = linesearch_info.signal_t_new, linesearch_info.eta, linesearch_info.descent_direction
+
+        individual = self.update_individual_global(linesearch_info.population, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        signal_t = self.calculate_signal_t(individual, tau_arr, measurement_info)
+        
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, individual.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
+                                    tau_arr, measurement_info, pulse_or_gate)        
+        return jnp.sum(grad, axis=1)
 
 
 

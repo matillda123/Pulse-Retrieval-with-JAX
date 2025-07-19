@@ -93,16 +93,16 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
 
 
 
-    def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        descent_direction, signal_t_new = linesearch_info.descent_direction, linesearch_info.signal_t_new
-        phase_matrix = measurement_info.phase_matrix
+    # def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+    #     descent_direction, signal_t_new = linesearch_info.descent_direction, linesearch_info.signal_t_new
+    #     phase_matrix = measurement_info.phase_matrix
 
-        pulse = linesearch_info.population.pulse + gamma*descent_direction
+    #     pulse = linesearch_info.population.pulse + gamma*descent_direction
         
-        individual = MyNamespace(pulse=pulse, gate=None)
-        signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
-        Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
-        return Z_error_new
+    #     individual = MyNamespace(pulse=pulse, gate=None)
+    #     signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
+    #     Z_error_new=calculate_Z_error(signal_t.signal_t, signal_t_new)
+    #     return Z_error_new
     
 
 
@@ -110,9 +110,9 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
         descent_direction, signal_t_new = linesearch_info.descent_direction, linesearch_info.signal_t_new
         phase_matrix = measurement_info.phase_matrix
 
-        pulse = linesearch_info.population.pulse + gamma*descent_direction
-        
-        individual = MyNamespace(pulse=pulse, gate=None)
+        individual = linesearch_info.population
+
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return jnp.sum(grad, axis=0)
@@ -132,14 +132,9 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
 
 
 
-    def update_population(self, population, gamma_new, descent_direction, measurement_info, pulse_or_gate):
-        population.pulse = population.pulse + gamma_new[:,jnp.newaxis]*descent_direction
-        return population
-    
-
-
-
-
+    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        individual.pulse = individual.pulse + gamma*descent_direction
+        return individual
 
 
 
@@ -252,11 +247,9 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
 
 
 
-
-    def update_population_global(self, population, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        alpha = descent_info.alpha
-        population.pulse=population.pulse + alpha*eta[:,jnp.newaxis]*descent_direction
-        return population
+    def update_individual_global(self, individual, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        individual.pulse = individual.pulse + alpha*eta*descent_direction
+        return individual
 
 
 
@@ -291,3 +284,14 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
     
 
     
+
+    def calc_Z_grad_for_linesearch(self, alpha, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+        eta, descent_direction, signal_t_new = linesearch_info.eta, linesearch_info.descent_direction, linesearch_info.signal_t_new 
+        phase_matrix = measurement_info.phase_matrix
+        
+        individual = linesearch_info.population
+        
+        individual = self.update_individual_global(individual, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
+        grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
+        return jnp.sum(grad, axis=1)
