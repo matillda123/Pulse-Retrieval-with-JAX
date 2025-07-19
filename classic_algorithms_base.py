@@ -476,6 +476,12 @@ class COPRABASE(AlgorithmsBASE):
         self.alpha=0.25
         self.beta=1
 
+        self.delta_alpha=0.5
+        self.max_steps_linesearch=25
+        self.c1=1e-4
+        self.c2=0.9
+        self.wolfe_linesearch=False
+
 
         self.use_hessian="diagonal"
         self.lambda_lm=1e-3
@@ -765,6 +771,12 @@ class COPRABASE(AlgorithmsBASE):
         self.descent_info.alpha=self.alpha
         self.descent_info.beta=self.beta
         self.descent_info.xi=self.xi
+
+        self.descent_info.delta_alpha=self.delta_alpha
+        self.descent_info.max_steps_linesearch=self.max_steps_linesearch
+        self.descent_info.c1 = self.c1
+        self.descent_info.c2 = self.c2
+        self.descent_info.wolfe_linesearch = self.wolfe_linesearch
 
         # parameters for optional modifications -> damped pseudo-hessian Z-error, r-gradient for amplitude loss
         if type(self.use_hessian)==tuple or type(self.use_hessian)==list:
