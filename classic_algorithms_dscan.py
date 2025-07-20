@@ -11,7 +11,7 @@ from utilities import scan_helper, MyNamespace, do_fft, do_ifft, calculate_mu, c
 
 from dscan_z_error_gradients import calculate_Z_gradient
 from dscan_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
-from pie_pseudo_hessian import PIE_get_pseudo_newton_direction_gate
+from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 
@@ -150,6 +150,16 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
 
 
 
+
+    def reverse_transform(self, signal, phase_matrix, measurement_info):
+        sk, rn = measurement_info.sk, measurement_info.rn
+        signal_f = do_fft(signal, sk, rn)
+        signal_f = signal_f*jnp.exp(-1j*phase_matrix)
+        signal = do_ifft(signal_f, sk, rn)
+        return signal
+
+
+
     def update_population_local(self, population, signal_t, signal_t_new, phase_matrix, measurement_info, descent_info, pulse_or_gate):
         alpha, beta, PIE_method = descent_info.alpha, descent_info.beta, descent_info.PIE_method
         sk, rn = measurement_info.sk, measurement_info.rn
@@ -158,49 +168,43 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
         grad = -1*jnp.conjugate(signal_t.gate_disp)*difference_signal_t
         U = self.get_PIE_weights(signal_t.gate_disp, alpha, PIE_method)
 
-        pulse_t_dispersed = signal_t.pulse_t_disp - beta*U*grad
-        population.pulse = do_fft(pulse_t_dispersed, sk, rn)*jnp.exp(-1*1j*phase_matrix) # maybe there will be a shape error here ?
-        return population
+        descent_direction = self.reverse_transform(U*grad, phase_matrix, measurement_info)
 
-
-
-    def update_population_global(self, population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        phase_matrix, sk, rn = measurement_info.phase_matrix, measurement_info.sk, measurement_info.rn
-        
-        pulse_t_disp=do_ifft(pulse[:,jnp.newaxis,:]*jnp.exp(1j*phase_matrix), sk, rn)
-        pulse_t_disp=pulse_t_disp + gamma[:, jnp.newaxis, jnp.newaxis]*descent_direction
-        pulse = do_fft(pulse_t_disp, sk, rn)*jnp.exp(-1*1j*phase_matrix)
-
-        population.pulse = jnp.mean(pulse, axis=1)
+        pulse_t = do_ifft(population.pulse, sk, rn)
+        pulse_t = pulse_t - beta*descent_direction
+        population.pulse = do_fft(pulse_t, sk, rn)
         return population
 
 
 
 
-    def calc_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        phase_matrix, measured_trace = measurement_info.phase_matrix, measurement_info.measured_trace
+    def update_individual_global(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn
-
-        pulse, descent_direction = linesearch_info.pulse, linesearch_info.descent_direction
-
-        pulse_t_disp=do_ifft(pulse*jnp.exp(1j*phase_matrix), sk, rn)
-        pulse_t_disp=pulse_t_disp + gamma*descent_direction
-        pulse = do_fft(pulse_t_disp, sk, rn)*jnp.exp(-1*1j*phase_matrix)
-        pulse = jnp.mean(pulse, axis=0)
+        
+        pulse_t=do_ifft(individual.pulse, sk, rn)
+        pulse_t=pulse_t + gamma*descent_direction
+        pulse = do_fft(pulse_t, sk, rn)
 
         individual = MyNamespace(pulse=pulse, gate=None)
-        signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
-        error_new=self.calculate_PIE_error(do_fft(signal_t.signal_t, sk, rn), measured_trace)
-        return error_new
+        return individual
     
 
+    def update_population_global(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
+        return population
 
 
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, descent_info, pulse_or_gate):
+
+
+    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, measurement_info, descent_info, pulse_or_gate):
+        phase_matrix = measurement_info.phase_matrix
         alpha, PIE_method = descent_info.alpha, descent_info.PIE_method
         
         U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(signal_t.gate_disp, alpha, PIE_method)
         grad_all_m = -1*jnp.conjugate(signal_t.gate_disp)*(signal_t_new - signal_t.signal_t)
+
+        U = self.reverse_transform(U, phase_matrix, measurement_info)
+        grad_all_m = self.reverse_transform(grad_all_m, phase_matrix, measurement_info)
         return grad_all_m, U
 
 
@@ -208,23 +212,11 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
     def calculate_PIE_descent_direction_hessian(self, grad, signal_t, descent_state, measurement_info, descent_info, pulse_or_gate):
         signal_f = do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
         
-        newton_direction_prev = descent_state.hessian_state.newton_direction_prev.gate
-        descent_direction = PIE_get_pseudo_newton_direction_gate(grad, signal_t.gate_disp, signal_f, newton_direction_prev, measurement_info, descent_info, "dscan_pie")
+        reverse_transform = Partial(self.reverse_transform, phase_matrix=measurement_info.phase_matrix, measurement_info=measurement_info)
+        newton_direction_prev = descent_state.hessian_state.newton_direction_prev.pulse
+        descent_direction = PIE_get_pseudo_newton_direction(grad, signal_t.gate_disp, signal_f, newton_direction_prev, 
+                                                            measurement_info, descent_info, "gate", reverse_transform)
         return descent_direction
-
-
-
-    def get_descent_direction(self, grad, U, pulse_or_gate):
-        return -1*grad*U
-
-
-
-    def calculate_pk_dot_gradient(self, grad, gradient_sum, descent_direction, pulse_or_gate):
-        pk_dot_gradient=jax.vmap(lambda x,y: jnp.sum(jnp.real(jax.vmap(jnp.dot, in_axes=(0,0))(jnp.conjugate(x), y))), in_axes=(0,0))(descent_direction, grad)        
-        return pk_dot_gradient
-
-    
-
 
 
 

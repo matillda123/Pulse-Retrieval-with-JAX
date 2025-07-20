@@ -292,8 +292,6 @@ class RetrievePulses:
 
 
     def create_initial_population(self, population_size=1, guess_type="random"):
-        print("refactor this and only generate gate when doubleblind is true")
-
         self.key, subkey = jax.random.split(self.key, 2)
         pulse_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
 
@@ -563,21 +561,24 @@ class RetrievePulsesFROG(RetrievePulses):
         return signal
 
 
-    def calculate_shifted_pulse_t(self, pulse_t, frequency, tau_arr, time):
+    def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
 
         # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary
         # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
+        # the reason for this issue could be the padding pattern? Im padding before and afterwards, maybe one should only pad afterwards ?
         frequency = frequency - (frequency[-1] + frequency[0])/2
 
-        N=jnp.size(frequency)
-        pulse_t = jnp.pad(pulse_t, (N,N))
+        N = jnp.size(frequency)
+        pad_arr = [(0,0)]*(signal.ndim-1) + [(N,N)]
+        signal = jnp.pad(signal, pad_arr) # this is annoying, id like to only pad axis=-1 but thats only availble througnt he shape of the padwidth, but that can be different for different cases
+
         frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
         time = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
 
         sk, rn = get_sk_rn(time, frequency)
 
-        pulse_t_shifted=jax.vmap(self.shift_signal_in_time, in_axes=(None, 0, None, None, None))(pulse_t, tau_arr, frequency, sk, rn)
-        return pulse_t_shifted[ ... , N:2*N]
+        signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
+        return signal_shifted[ ... , N:2*N]
 
 
 
@@ -590,15 +591,18 @@ class RetrievePulsesFROG(RetrievePulses):
         pulse, gate = individual.pulse, individual.gate
 
 
-        pulse_t_shifted=self.calculate_shifted_pulse_t(pulse, frequency, tau_arr, time)
+        pulse_t_shifted=self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
         if xfrog==True:
-            gate_pulse_shifted=self.calculate_shifted_pulse_t(measurement_info.xfrog_gate, frequency, tau_arr, time)
+            gate_pulse_shifted=self.calculate_shifted_signal(measurement_info.xfrog_gate, frequency, tau_arr, time)
             gate_shifted=calculate_gate(gate_pulse_shifted, frogmethod)
+
         elif doubleblind==True:
-            gate_pulse_shifted=self.calculate_shifted_pulse_t(gate, frequency, tau_arr, time)
-            gate_shifted=jnp.copy(gate_pulse_shifted)
+            gate_pulse_shifted=self.calculate_shifted_signal(gate, frequency, tau_arr, time)
+            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
+
         else:
+            gate_pulse_shifted=None
             gate_shifted=calculate_gate(pulse_t_shifted, frogmethod)
 
 
@@ -610,7 +614,7 @@ class RetrievePulsesFROG(RetrievePulses):
             signal_t=pulse*gate_shifted
             
 
-        signal_t = MyNamespace(signal_t=signal_t, pulse_t_shifted=pulse_t_shifted, gate_shifted=gate_shifted)
+        signal_t = MyNamespace(signal_t=signal_t, pulse_t_shifted=pulse_t_shifted, gate_shifted=gate_shifted, gate_pulse_shifted=gate_pulse_shifted)
         return signal_t
 
 
@@ -732,7 +736,13 @@ class RetrievePulsesDSCAN(RetrievePulses):
 
     def create_initial_population(self, population_size=1, guess_type="random"):
         pulse_f_arr, gate_f_arr = super().create_initial_population(population_size, guess_type)
-        population = MyNamespace(pulse=pulse_f_arr, gate=pulse_f_arr)
+
+        if self.doubleblind==True:
+            gate_arr = gate_f_arr
+        else:
+            gate_arr = None
+
+        population = MyNamespace(pulse=pulse_f_arr, gate=gate_arr)
         return population
     
     
@@ -789,7 +799,7 @@ class RetrievePulsesDSCAN(RetrievePulses):
         idx = self.get_idx_best_individual(descent_state)
 
         individual = self.get_individual_from_idx(idx, descent_state.population)
-        pulse_f = individual.pulse, individual.gate
+        pulse_f = individual.pulse
         pulse_t = do_ifft(pulse_f, sk, rn)
 
         if measurement_info.doubleblind==True:

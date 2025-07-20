@@ -1090,6 +1090,9 @@ class AutoGradBASE(GeneralOptimization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        print("using jax.scipy minimize might work with vmap")
+
+
         self.solver=optimistix.BFGS
         self.alternating_optimization=False
 

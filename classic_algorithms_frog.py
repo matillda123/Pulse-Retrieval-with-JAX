@@ -236,7 +236,8 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         pulse_f = pulse_f + gamma*descent_direction
         pulse = do_ifft(pulse_f, sk, rn)
 
-        setattr(individual, pulse_or_gate, pulse)  
+        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
+        setattr(individual, pulse_or_gate, pulse)
         return individual
 
 
@@ -250,12 +251,41 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         self.PIE_method=PIE_method
 
 
+    def reverse_transform(self, signal, tau_arr, measurement_info, local):
+        frequency, time = measurement_info.frequency, measurement_info.time
+        
+        if local==True:
+            signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
+        elif local==False:
+            signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(1, 0, None, None, None))
+            signal = jnp.transpose(signal, axes=(1,0,2))
+
+        return signal
+    
+
+    def get_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):
+        if nonlinear_method=="shg":
+            grad = 1
+        elif nonlinear_method=="thg":
+            grad = 2*gate_pulse_shifted
+        elif nonlinear_method=="pg":
+            grad = jnp.conjugate(gate_pulse_shifted)
+        elif nonlinear_method=="sd":
+            grad = 1 # trying to incorprate this doesnt work, the gradient with respect to the actual pulse is zero.
+        else:
+            print("soethong is wrong")
+
+        grad_all_m = grad_all_m*jnp.conjugate(grad)
+        return grad_all_m
+
 
     def update_population_local(self, population, signal_t, signal_t_new, tau, measurement_info, descent_info, pulse_or_gate):
         alpha, beta, PIE_method = descent_info.alpha, descent_info.beta, descent_info.PIE_method
-        pulse = population.pulse
-        gate_shifted = jnp.squeeze(signal_t.gate_shifted)
 
+        pulse = population.pulse
+        gate = population.gate
+
+        gate_shifted = jnp.squeeze(signal_t.gate_shifted)
         difference_signal_t = signal_t_new - jnp.squeeze(signal_t.signal_t)
 
         if pulse_or_gate=="pulse":
@@ -264,62 +294,37 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
             population.pulse = pulse - beta*U*grad
 
         elif pulse_or_gate=="gate":
-            time, frequency = measurement_info.time, measurement_info.frequency
             grad = -1*jnp.conjugate(pulse)*difference_signal_t
             U = self.get_PIE_weights(pulse, alpha, PIE_method)
-            
-            gate_shifted = gate_shifted - beta*U*grad
-            gate=jax.vmap(self.reverse_time_shift_for_gate, in_axes=(0,0,None,None))(gate_shifted[:,jnp.newaxis,:], tau, frequency, time)
-            population.gate=jnp.squeeze(gate)
-            
-        return population
 
+            grad = self.get_grad_for_gate_pulse(grad, jnp.squeeze(signal_t.gate_pulse_shifted), measurement_info.nonlinear_method)
 
-
-    def update_population_global(self, signal_t, population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        if pulse_or_gate=="pulse":
-            pulse = population.pulse + gamma[:,jnp.newaxis]*descent_direction
-            population.pulse=pulse
-            
-        elif pulse_or_gate=="gate":
-            time, frequency = measurement_info.time, measurement_info.frequency
-            gate_shifted = signal_t.gate_shifted + gamma[:,jnp.newaxis,jnp.newaxis]*descent_direction
-            gate_shifted_back = jax.vmap(self.reverse_time_shift_for_gate, in_axes=(0,None,None,None))(gate_shifted, measurement_info.tau_arr, frequency, time)
-            population.gate=jnp.mean(gate_shifted_back, axis=1)
+            descent_direction = self.reverse_transform(U*grad, tau, measurement_info, local=True)
+            population.gate = gate - beta*descent_direction
 
         return population
-
-
-
-
-    def calc_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        tau_arr, time, frequency, measured_trace = measurement_info.tau_arr, measurement_info.time, measurement_info.frequency, measurement_info.measured_trace
-        sk, rn = measurement_info.sk, measurement_info.rn
-
-        individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
-
-        if pulse_or_gate=="pulse":
-            gate = individual.gate
-            pulse = individual.pulse + gamma*descent_direction
-
-        elif pulse_or_gate=="gate":
-            pulse = individual.pulse
-            gate_shifted = linesearch_info.signal_t.gate_shifted
-            gate_shifted = gate_shifted + gamma*descent_direction
-            gate_shifted_back = self.reverse_time_shift_for_gate(gate_shifted, tau_arr, frequency, time)
-            gate = jnp.mean(gate_shifted_back, axis=0)
-
-        individual = MyNamespace(pulse=pulse, gate=gate)
-
-        signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
-        signal_f=do_fft(signal_t.signal_t, sk, rn)
-        error_new=self.calculate_PIE_error(signal_f, measured_trace)
-        return error_new
     
 
 
+    def update_individual_global(self, individual, beta, descent_direction, measurement_info, pulse_or_gate):
+        signal = getattr(individual, pulse_or_gate)
+        signal = signal + beta*descent_direction
 
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, descent_info, pulse_or_gate):
+        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
+        setattr(individual, pulse_or_gate, signal)
+        return individual
+
+
+    def update_population_global(self, population, beta, descent_direction, measurement_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,None,None))(population, beta, descent_direction, measurement_info, pulse_or_gate)
+        return population
+
+
+
+
+    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, measurement_info, descent_info, pulse_or_gate):
+        tau_arr = measurement_info.tau_arr
+
         alpha, PIE_method = descent_info.alpha, descent_info.PIE_method
         difference_signal_t = signal_t_new - signal_t.signal_t
 
@@ -328,8 +333,14 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
             grad_all_m=-1*jnp.conjugate(signal_t.gate_shifted)*difference_signal_t
 
         elif pulse_or_gate=="gate":
-            U=jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(population.pulse, alpha, PIE_method)[:,:,jnp.newaxis]
-            grad_all_m=-1*jnp.conjugate(population.pulse)[:,:,jnp.newaxis]*difference_signal_t
+            pulse = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(difference_signal_t))
+            U=jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(pulse, alpha, PIE_method)
+            grad_all_m=-1*jnp.conjugate(pulse)*difference_signal_t
+
+            grad_all_m = self.get_grad_for_gate_pulse(grad_all_m, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
+
+            U=self.reverse_transform(U, tau_arr, measurement_info, local=False)
+            grad_all_m=self.reverse_transform(grad_all_m, tau_arr, measurement_info, local=False)
 
         return grad_all_m, U
 
@@ -339,62 +350,19 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         newton_direction_prev = getattr(descent_state.hessian_state.newton_direction_prev, pulse_or_gate)
 
         if pulse_or_gate=="pulse":
-            probe=signal_t.gate_shifted
+            probe = signal_t.gate_shifted
 
         elif pulse_or_gate=="gate":
-            probe=descent_state.population.pulse
+            probe = jnp.broadcast_to(descent_state.population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
 
+        tau_arr = measurement_info.tau_arr
+        reverse_transform = Partial(self.reverse_transform, tau_arr=tau_arr, measurement_info=measurement_info, local=False)
 
         signal_f = do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
-        descent_direction=PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, measurement_info, descent_info, pulse_or_gate)
+        descent_direction=PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, 
+                                                          measurement_info, descent_info, pulse_or_gate, reverse_transform)
         return descent_direction
-
-
-
-    def get_descent_direction(self, grad, U, pulse_or_gate):
-        if pulse_or_gate=="pulse":
-            descent_direction=-1*jnp.sum(grad*U, axis=1)
-
-        elif pulse_or_gate=="gate":
-            descent_direction=-1*grad*U
-
-        return descent_direction
-
-
-
-    def calculate_pk_dot_gradient(self, grad, gradient_sum, descent_direction, pulse_or_gate):
-        if pulse_or_gate=="pulse":
-            pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.dot(jnp.conjugate(x),y)), in_axes=(0,0))(descent_direction, gradient_sum)
-
-        elif pulse_or_gate=="gate":
-            pk_dot_gradient=jax.vmap(lambda x,y: jnp.sum(jnp.real(jax.vmap(jnp.dot, in_axes=(0,0))(jnp.conjugate(x), y))), in_axes=(0,0))(descent_direction, grad)
-
-        return pk_dot_gradient
-
     
-
-
-
-    def reverse_time_shift_for_gate(self, gate_shifted, x_arr, frequency, time):
-        frequency = frequency - (frequency[-1] + frequency[0])/2
-
-        N=jnp.size(frequency)
-        gate_shifted = jnp.pad(gate_shifted, ((0,0),(N,N)))
-        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
-        time = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
-
-        sk, rn = get_sk_rn(time, frequency)
-
-        gate_shifted_back=jax.vmap(self.shift_signal_in_time, in_axes=(0, 0, None, None, None))(gate_shifted, -1*x_arr, frequency, sk, rn)
-        return gate_shifted_back[:, N:2*N]
-
-    
-
-
-
-
-
-
 
 
 
@@ -424,14 +392,15 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
 
 
 
-    def update_individual_global(self, individual, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
+    def update_individual_global(self, individual, gamma, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn
 
         signal = getattr(individual, pulse_or_gate)
         signal_f = do_fft(signal, sk, rn)
-        signal_f = signal_f + alpha*eta*descent_direction
+        signal_f = signal_f + gamma*eta*descent_direction
         signal = do_ifft(signal_f, sk, rn)
 
+        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
         setattr(individual, pulse_or_gate, signal)
         return individual
 
@@ -468,12 +437,12 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
 
 
 
-    def calc_Z_grad_for_linesearch(self, alpha, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, descent_info, pulse_or_gate):
         tau_arr = measurement_info.tau_arr
 
         signal_t_new, eta, descent_direction = linesearch_info.signal_t_new, linesearch_info.eta, linesearch_info.descent_direction
 
-        individual = self.update_individual_global(linesearch_info.population, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        individual = self.update_individual_global(linesearch_info.population, gamma, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, tau_arr, measurement_info)
         
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, individual.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 

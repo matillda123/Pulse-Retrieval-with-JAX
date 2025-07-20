@@ -170,14 +170,17 @@ def do_interpolation_1d(x_new, x, y):
 def calculate_gate(pulse_t, method):
     assert method!="tg", "For TG, depending on the definition either pg or sd needs to be used."
 
-    if method=="shg":
-        gate=pulse_t
-    elif method=="thg":
-        gate=pulse_t**2
-    elif method=="pg":
-        gate=jnp.abs(pulse_t)**2
-    elif method=="sd":
-        gate=jnp.conjugate(pulse_t)**2
+    if method == "shg":
+        gate = pulse_t
+
+    elif method == "thg":
+        gate = pulse_t**2
+
+    elif method =="pg":
+        gate = jnp.abs(pulse_t)**2
+        
+    elif method == "sd":
+        gate = jnp.conjugate(pulse_t)**2
 
     return gate
 
@@ -219,7 +222,7 @@ def calculate_mu(trace, measured_trace):
 
 def calculate_trace_error(trace, measured_trace):
     mu = calculate_mu(trace, measured_trace)
-    return jnp.mean(jnp.abs(mu*trace-measured_trace)**2)
+    return jnp.mean(jnp.abs(measured_trace - mu*trace)**2)
 
 
 

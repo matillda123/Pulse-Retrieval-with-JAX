@@ -22,8 +22,8 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         self.no_steps_gradient_descent = 15
         self.max_steps_linesearch = 25
         self.wolfe_linesearch = False
-        self.alpha = 1e3
-        self.delta_alpha = (0.5, 1.5)
+        self.gamma = 1e3
+        self.delta_gamma = (0.5, 1.5)
         
         self.c1 = 1e-4
         self.c2 = 0.9
@@ -40,17 +40,17 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
     
-    def update_population(self, population, alpha, descent_direction, measurement_info, pulse_or_gate):
-        population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, alpha, descent_direction, measurement_info, pulse_or_gate)
+    def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return population
     
 
-    def calc_Z_error_for_linesearch(self, alpha, linesearch_info, measurement_info, pulse_or_gate):
+    def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
         individual, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
        
         transform_arr = measurement_info.transform_arr
 
-        individual = self.update_individual(individual, alpha, descent_direction, measurement_info, pulse_or_gate)
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         Z_error_new = calculate_Z_error(signal_t.signal_t, signal_t_new)
         return Z_error_new
@@ -102,19 +102,19 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         linesearch_info=MyNamespace(population=population, descent_direction=descent_direction, signal_t_new=signal_t_new, 
                                     error=Z_error, pk_dot_gradient=pk_dot_gradient, pk=descent_direction)
         
-        alpha = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+        gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
                                                                            Partial(self.calc_Z_error_for_linesearch, pulse_or_gate=pulse_or_gate),
                                                                            Partial(self.calc_Z_grad_for_linesearch, pulse_or_gate=pulse_or_gate))
 
         if use_hessian=="lbfgs":
            step_size_arr = lbfgs_state.step_size_prev
            step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
-           step_size_arr = step_size_arr.at[:,0].set(alpha[:,jnp.newaxis])
+           step_size_arr = step_size_arr.at[:,0].set(gamma[:,jnp.newaxis])
 
            lbfgs_state.step_size_prev = step_size_arr 
            setattr(descent_state.lbfgs, pulse_or_gate, lbfgs_state)
 
-        descent_state.population = self.update_population(population, alpha, descent_direction, measurement_info, pulse_or_gate) 
+        descent_state.population = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate) 
         return descent_state
     
 
@@ -228,8 +228,8 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         self.descent_info.c1=self.c1
         self.descent_info.c2=self.c2
         self.descent_info.wolfe_linesearch=self.wolfe_linesearch
-        self.descent_info.alpha=self.alpha
-        self.descent_info.delta_alpha=self.delta_alpha
+        self.descent_info.gamma=self.gamma
+        self.descent_info.delta_gamma=self.delta_gamma
         self.descent_info.max_steps_linesearch=self.max_steps_linesearch
 
         # parameters for gradient descent/damped newton method
@@ -283,18 +283,19 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         self.beta=1
 
         self.max_steps_linesearch=25
-        self.alpha=self.beta
-        self.delta_alpha=0.5
+        self.gamma=self.beta
+
         self.c1=1e-3
         self.lambda_lm=1e-2
 
         self.linalg_solver = "lineax"
 
 
+        self.delta_gamma = (0.5, 1.5)
+        self.wolfe_linesearch = False
+        self.c2 = 0.9
 
-        # self.delta_alpha = (0.5, 1.5)
-        # self.wolfe_linesearch = False
-        # self.c2 = 0.9
+
 
 
     def calculate_PIE_error(self, signal_f, measured_trace):
@@ -305,23 +306,24 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         """
         elif PIE_method=="lm":
-            U=2/(jnp.abs(probe_shifted)**2+1e-6) # -> rPIE is eqivalent to pseudo-gauss-newton/levenberg-marquardt for small alpha. 
+            U=2/(jnp.abs(probe_shifted)**2+1e-6) # -> rPIE is eqivalent to pseudo-gauss-newton/levenberg-marquardt for small gamma. 
 
-        alpha=>1 -> rPIE=>ePIE
+        gamma=>1 -> rPIE=>ePIE
         """
         
         if PIE_method=="PIE":
-            U=1/(jnp.abs(probe_shifted)**2+alpha*jnp.max(jnp.abs(probe_shifted)**2))*jnp.abs(probe_shifted)/jnp.max(jnp.abs(probe_shifted))
+            U = 1/(jnp.abs(probe_shifted)**2+alpha*jnp.max(jnp.abs(probe_shifted)**2))*jnp.abs(probe_shifted)/jnp.max(jnp.abs(probe_shifted))
         elif PIE_method=="ePIE":
-            U=1/jnp.max(jnp.abs(probe_shifted)**2)
+            U = 1/jnp.max(jnp.abs(probe_shifted)**2)
+            U = U*jnp.ones(jnp.shape(probe_shifted))
         elif PIE_method=="rPIE":
-            U=1/((1-alpha)*jnp.abs(probe_shifted)**2+alpha*jnp.max(jnp.abs(probe_shifted)**2))
+            U = 1/((1-alpha)*jnp.abs(probe_shifted)**2+alpha*jnp.max(jnp.abs(probe_shifted)**2))
         elif PIE_method=="gradient":
-            U=1
+            U = jnp.ones(jnp.shape(probe_shifted))
         else:
             print(f"PIE_method={PIE_method} not defined.")
         
-        return U*jnp.ones(jnp.shape(probe_shifted))
+        return U
 
 
 
@@ -341,6 +343,41 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         return descent_state, None
     
 
+
+
+
+
+    def get_descent_direction(self, grad, U):
+        descent_direction=-1*jnp.sum(grad*U, axis=1)
+        return descent_direction
+
+
+    def calculate_pk_dot_gradient(self, gradient_sum, descent_direction):
+        pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.dot(jnp.conjugate(x),y)), in_axes=(0,0))(descent_direction, gradient_sum)
+        return pk_dot_gradient
+        
+
+    def calc_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
+        sk, rn = measurement_info.sk, measurement_info.rn
+
+        individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
+
+        individual = self.update_individual_global(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
+        error_new=self.calculate_PIE_error(do_fft(signal_t.signal_t, sk, rn), measured_trace)
+        return error_new
+    
+
+    def calc_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
+        individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
+        
+        individual = self.update_individual_global(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
+        signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, 1, measurement_info)
+        grad_all_m,U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, measurement_info, descent_info, pulse_or_gate)
+        return jnp.sum(grad_all_m, axis=1)
     
 
     def do_global_step(self, descent_state, measurement_info, descent_info, pulse_or_gate):
@@ -355,26 +392,29 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         signal_f = do_fft(signal_t.signal_t, sk, rn)
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_f, measured_trace)
 
-        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, descent_info, pulse_or_gate)
+        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, measurement_info, descent_info, pulse_or_gate)
         gradient_sum = jnp.sum(grad, axis=1)
 
         
         if use_hessian!=False:
             descent_direction = self.calculate_PIE_descent_direction_hessian(grad, signal_t, descent_state, measurement_info, descent_info, pulse_or_gate)
             setattr(descent_state.hessian_state.newton_direction_prev, pulse_or_gate, -1*descent_direction)
+
         else:
-            descent_direction = self.get_descent_direction(grad, U, pulse_or_gate)
+            descent_direction = self.get_descent_direction(grad, U)
 
 
-        pk_dot_gradient = self.calculate_pk_dot_gradient(grad, gradient_sum, descent_direction, pulse_or_gate)
+        pk_dot_gradient = self.calculate_pk_dot_gradient(gradient_sum, descent_direction)
 
-        linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, pk_dot_gradient=pk_dot_gradient, error=pie_error)     
+        linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
+                                    pk_dot_gradient=pk_dot_gradient, pk=gradient_sum, error=pie_error)     
 
 
-        alpha_new=jax.vmap(do_linesearch, in_axes=(0, None, None, None))(linesearch_info, measurement_info, descent_info, 
-                                                                         Partial(self.calc_error_for_linesearch, pulse_or_gate=pulse_or_gate))
+        gamma = jax.vmap(do_linesearch, in_axes=(0, None, None, None, None))(linesearch_info, measurement_info, descent_info, 
+                                                                             Partial(self.calc_error_for_linesearch, pulse_or_gate=pulse_or_gate),
+                                                                             Partial(self.calc_grad_for_linesearch, descent_info=descent_info, pulse_or_gate=pulse_or_gate),)
 
-        descent_state.population = self.update_population_global(signal_t, population, alpha_new, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        descent_state.population = self.update_population_global(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return descent_state     
 
 
@@ -432,9 +472,12 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         # parameters for linesearch in global step
         self.descent_info.c1=self.c1
-        self.descent_info.alpha=self.alpha
-        self.descent_info.delta_alpha=self.delta_alpha
+        self.descent_info.gamma=self.gamma
+        self.descent_info.delta_gamma=self.delta_gamma
         self.descent_info.max_steps_linesearch=self.max_steps_linesearch
+
+        self.descent_info.c2 = self.c2
+        self.descent_info.wolfe_linesearch = self.wolfe_linesearch
 
         # randomize local iterations with these 
         self.descent_info.idx_arr=self.idx_arr
@@ -447,7 +490,9 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         self.descent_state.hessian_state=MyNamespace(newton_direction_prev=MyNamespace(pulse=None,gate=None))
         self.descent_state.hessian_state.newton_direction_prev.pulse = jnp.zeros(jnp.shape(population.pulse), dtype=jnp.complex64)
-        self.descent_state.hessian_state.newton_direction_prev.gate = jnp.zeros((descent_info.population_size, ) + jnp.shape(measurement_info.measured_trace), dtype=jnp.complex64)
+        if self.measurement_info.doubleblind==True:
+            self.descent_state.hessian_state.newton_direction_prev.gate = jnp.zeros(jnp.shape(population.gate), dtype=jnp.complex64)
+    
         descent_state=self.descent_state
 
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -473,10 +518,10 @@ class COPRABASE(AlgorithmsBASE):
 
         self.weights=1.0
 
-        self.alpha=0.25
+        self.gamma=0.25
         self.beta=1
 
-        self.delta_alpha=0.5
+        self.delta_gamma=0.5
         self.max_steps_linesearch=25
         self.c1=1e-4
         self.c2=0.9
@@ -521,9 +566,9 @@ class COPRABASE(AlgorithmsBASE):
         setattr(descent_state.local.max_grad_norm, pulse_or_gate, max_grad_norm)
 
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
-        alpha = Z_error/max_grad_norm
+        gamma = Z_error/max_grad_norm
 
-        descent_state.population = self.update_population_local(population, alpha, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        descent_state.population = self.update_population_local(population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate)
         return  descent_state, Z_error
     
 
@@ -564,8 +609,8 @@ class COPRABASE(AlgorithmsBASE):
 
 
 
-    def update_population_global(self, population, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,0,None,None,None))(population, alpha, eta, descent_direction, 
+    def update_population_global(self, population, gamma, eta, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,0,None,None,None))(population, gamma, eta, descent_direction, 
                                                                                                measurement_info, descent_info, pulse_or_gate)
         return population
 
@@ -604,26 +649,26 @@ class COPRABASE(AlgorithmsBASE):
     
 
 
-    def calc_r_error_for_linesearch(self, alpha, linesearch_info, measurement_info, pulse_or_gate):
+    def calc_r_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
         measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
         
         descent_direction, eta = linesearch_info.descent_direction, linesearch_info.eta
         signal_t = linesearch_info.signal_t
 
-        signal_t_new = signal_t.signal_t + alpha*eta*descent_direction
+        signal_t_new = signal_t.signal_t + gamma*eta*descent_direction
         trace = calculate_trace(do_fft(signal_t_new, sk, rn))
         error = self.calculate_r_error(trace, measured_trace)
         return error
     
 
-    def calc_r_grad_for_linesearch(self, alpha, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+    def calc_r_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, descent_info, pulse_or_gate):
         measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
         weights = descent_info.weights
         
         descent_direction, eta = linesearch_info.descent_direction, linesearch_info.eta
         signal_t = linesearch_info.signal_t
 
-        signal_t_new = signal_t.signal_t + alpha*eta*descent_direction
+        signal_t_new = signal_t.signal_t + gamma*eta*descent_direction
         signal_f = do_fft(signal_t_new, sk, rn)
         trace = calculate_trace(signal_f)
 
@@ -638,12 +683,12 @@ class COPRABASE(AlgorithmsBASE):
     
 
 
-    def calc_Z_error_for_linesearch(self, alpha, linesearch_info, measurement_info, descent_info, pulse_or_gate):
+    def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, descent_info, pulse_or_gate):
         transform_arr = measurement_info.transform_arr
 
         signal_t_new, eta, descent_direction = linesearch_info.signal_t_new, linesearch_info.eta, linesearch_info.descent_direction
 
-        individual = self.update_population_global(linesearch_info.population, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        individual = self.update_population_global(linesearch_info.population, gamma, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         error = calculate_Z_error(signal_t.signal_t, signal_t_new)
         return error
@@ -652,7 +697,7 @@ class COPRABASE(AlgorithmsBASE):
 
     def do_global_iteration(self, descent_state, measurement_info, descent_info, pulse_or_gate):
         transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
-        alpha, use_hessian = descent_info.alpha, descent_info.hessian
+        gamma, use_hessian = descent_info.gamma, descent_info.hessian
         xi = descent_info.xi
         sk, rn = measurement_info.sk, measurement_info.rn
 
@@ -673,11 +718,11 @@ class COPRABASE(AlgorithmsBASE):
         linesearch_info=MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
                                     pk_dot_gradient=pk_dot_gradient, pk=descent_direction, eta=eta)
         
-        alpha = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+        gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
                                                                          Partial(self.calc_r_error_for_linesearch, descent_info=descent_info, pulse_or_gate=pulse_or_gate),
                                                                          Partial(self.calc_r_grad_for_linesearch, descent_info=descent_info, pulse_or_gate=pulse_or_gate))
 
-        signal_t_new = signal_t.signal_t + alpha*eta[:, jnp.newaxis, jnp.newaxis]*descent_direction
+        signal_t_new = signal_t.signal_t + gamma*eta[:, jnp.newaxis, jnp.newaxis]*descent_direction
 
 
 
@@ -700,12 +745,12 @@ class COPRABASE(AlgorithmsBASE):
         linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 
                                     pk_dot_gradient=pk_dot_gradient, pk=descent_direction, eta=eta)
         
-        alpha = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+        gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
                                                                          Partial(self.calc_Z_error_for_linesearch, descent_info=descent_info, pulse_or_gate=pulse_or_gate),
                                                                          Partial(self.calc_Z_grad_for_linesearch, descent_info=descent_info, pulse_or_gate=pulse_or_gate))
 
 
-        descent_state.population = self.update_population_global(population, alpha, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        descent_state.population = self.update_population_global(population, gamma, eta, descent_direction, measurement_info, descent_info, pulse_or_gate)
         return descent_state
     
 
@@ -765,14 +810,15 @@ class COPRABASE(AlgorithmsBASE):
 
 
     def initialize_run(self, population):
+        print("this should be split such that everything happens inside initialize_local/global")
         measurement_info=self.measurement_info
         
-        # general parameters, alpha (global), beta (local)
-        self.descent_info.alpha=self.alpha
+        # general parameters, gamma (global), beta (local)
+        self.descent_info.gamma=self.gamma
         self.descent_info.beta=self.beta
         self.descent_info.xi=self.xi
 
-        self.descent_info.delta_alpha=self.delta_alpha
+        self.descent_info.delta_gamma=self.delta_gamma
         self.descent_info.max_steps_linesearch=self.max_steps_linesearch
         self.descent_info.c1 = self.c1
         self.descent_info.c2 = self.c2
