@@ -14,11 +14,12 @@ def do_linesearch_step(condition, gamma, iteration, linesearch_info, measurement
     error_new = error_func(gamma, linesearch_info, measurement_info)
 
     # Armijio Condition
-    x = jnp.sign((error_new-error) - gamma*c1*pk_dot_gradient)
-    condition_one = jnp.real(1-(x+1)/2).astype(jnp.int16)
+    if descent_info.use_linesearch=="backtracking" or descent_info.use_linesearch=="wolfe":
+        x = jnp.sign((error_new-error) - gamma*c1*pk_dot_gradient)
+        condition_one = jnp.real(1-(x+1)/2).astype(jnp.int16)
 
     # Strong Wolfe Condition
-    if descent_info.wolfe_linesearch==True:
+    if descent_info.use_linesearch=="wolfe":
         grad = grad_func(gamma, linesearch_info, measurement_info)
         x = jnp.sign(jnp.abs(jnp.real(jnp.vdot(pk, grad))) - c2*jnp.abs(pk_dot_gradient)) # negative -> True
         condition_two = jnp.real(1-(x+1)/2).astype(jnp.int16)

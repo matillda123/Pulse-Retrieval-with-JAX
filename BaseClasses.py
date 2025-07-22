@@ -17,6 +17,8 @@ class AlgorithmsBASE:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.use_copra_style_step_scaling = True
+
 
     def shuffle_data_along_m(self, descent_state, measurement_info, descent_info):
         descent_state.key, subkey=jax.random.split(descent_state.key, 2)

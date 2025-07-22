@@ -99,8 +99,8 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
     signal_t_new = signal_t.signal_t + gamma*eta*descent_direction
     signal_f = do_fft(signal_t_new, sk, rn)
 
-    calc_r_grad_dict={"amplitude":calculate_r_gradient_amplitude,
-                        "intensity": calculate_r_gradient_intensity}
+    calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
+                      "intensity": calculate_r_gradient_intensity}
     gradient = calc_r_grad_dict[descent_info.r_gradient](signal_f, measured_trace, weights, sk, rn)
 
     return gradient
@@ -115,20 +115,24 @@ def calculate_S_prime_iterative_step(signal_t, measurement_info, descent_info):
     trace=calculate_trace(signal_f)
 
     gradient = calculate_r_gradient(signal_f, measurement_info, descent_info)
+
+    
+
     descent_direction = -1*gradient
 
     r_error = jax.vmap(calculate_r_error, in_axes=(0, None))(trace, measured_trace)
     eta = r_error/(jnp.sum(jnp.abs(descent_direction)**2, axis=(1, 2)) + xi)
 
 
-    pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, gradient)        
-    linesearch_info=MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
-                                pk_dot_gradient=pk_dot_gradient, pk=descent_direction, eta=eta)
-    
-    gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
-                                                                        Partial(calc_r_error_for_linesearch, descent_info=descent_info),
-                                                                        Partial(calc_r_grad_for_linesearch, descent_info=descent_info))
-    
+    if descent_info.use_linesearch=="backtracking" or descent_info.use_linesearch=="wolfe":
+        pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, gradient)        
+        linesearch_info=MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
+                                    pk_dot_gradient=pk_dot_gradient, pk=descent_direction, eta=eta)
+        
+        gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+                                                                            Partial(calc_r_error_for_linesearch, descent_info=descent_info),
+                                                                            Partial(calc_r_grad_for_linesearch, descent_info=descent_info))
+        
     signal_t_new = signal_t.signal_t + gamma[:, jnp.newaxis, jnp.newaxis]*eta[:, jnp.newaxis, jnp.newaxis]*descent_direction
 
     return signal_t_new
@@ -141,9 +145,11 @@ def calculate_S_prime_iterative_step(signal_t, measurement_info, descent_info):
 def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_info, method="projection"):
 
     if method=="projection":
+        # this one needs to be vmapped over
         signal_t_new = calculate_S_prime_projection(signal_t, measured_trace, mu, measurement_info)
 
     elif method=="iteratively":
+        # this one is not made to be vmapped over 
         signal_t_new = calculate_S_prime_iterative_step(signal_t, measurement_info, descent_info)
 
     else:

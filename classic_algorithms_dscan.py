@@ -231,19 +231,19 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
 
 
 
-    def update_individual_global(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+    def update_individual_global(self, individual, beta, eta, descent_direction, measurement_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn
         
         pulse_t=do_ifft(individual.pulse, sk, rn)
-        pulse_t=pulse_t + gamma*descent_direction
+        pulse_t=pulse_t + eta*beta*descent_direction
         pulse = do_fft(pulse_t, sk, rn)
 
         individual = MyNamespace(pulse=pulse, gate=individual.gate)
         return individual
     
 
-    def update_population_global(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
-        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
+    def update_population_global(self, population, beta, eta, descent_direction, measurement_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,0,None,None))(population, beta, eta, descent_direction, measurement_info, pulse_or_gate)
         return population
 
 

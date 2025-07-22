@@ -361,17 +361,17 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
     
 
 
-    def update_individual_global(self, individual, beta, descent_direction, measurement_info, pulse_or_gate):
+    def update_individual_global(self, individual, beta, eta, descent_direction, measurement_info, pulse_or_gate):
         signal = getattr(individual, pulse_or_gate)
-        signal = signal + beta*descent_direction
+        signal = signal + eta*beta*descent_direction
 
         individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
         setattr(individual, pulse_or_gate, signal)
         return individual
 
 
-    def update_population_global(self, population, beta, descent_direction, measurement_info, pulse_or_gate):
-        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,None,None))(population, beta, descent_direction, measurement_info, pulse_or_gate)
+    def update_population_global(self, population, beta, eta, descent_direction, measurement_info, pulse_or_gate):
+        population = jax.vmap(self.update_individual_global, in_axes=(0,0,0,0,None,None))(population, beta, eta, descent_direction, measurement_info, pulse_or_gate)
         return population
 
 
@@ -427,6 +427,13 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
                                                           measurement_info, descent_info, pulse_or_gate, reverse_transform)
         return descent_direction
     
+
+
+
+
+
+
+
 
 
 
