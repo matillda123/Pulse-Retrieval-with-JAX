@@ -2,6 +2,8 @@ import jax
 import jax.numpy as jnp
 from jax.tree_util import Partial
 
+from equinox import tree_at
+
 
 
 from BaseClasses import RetrievePulsesFROG, AlgorithmsBASE
@@ -24,6 +26,7 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs)
+        self.name = "Vanilla"
         
 
         # for some reason vanilla only works when the trace is centered around f=0. No idea why. Is undone when using LSGPA.
@@ -34,9 +37,9 @@ class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        self.measurement_info.sk=self.sk
-        self.measurement_info.rn=self.rn
-        self.measurement_info.frequency=self.frequency
+        self.measurement_info = tree_at(lambda x: x.sk, self.measurement_info, self.sk)
+        self.measurement_info = tree_at(lambda x: x.rn, self.measurement_info, self.rn)
+        self.measurement_info = tree_at(lambda x: x.frequency, self.measurement_info, self.frequency)
 
 
 
@@ -58,38 +61,35 @@ class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
 
         population = descent_state.population
         
-        signal_t=self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace=calculate_trace(do_fft(signal_t.signal_t, sk, rn))
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new=jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
 
-        trace_error=jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
-        descent_state.population.pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
+        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population_pulse)
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
-            signal_t=self.generate_signal_t(descent_state, measurement_info, descent_info)
-            trace=calculate_trace(do_fft(signal_t.signal_t, sk, rn))
+            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+            trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
 
             mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-            signal_t_new=jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
-            descent_state.population.gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
+            signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+            population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
-        descent_state.population.pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
         return descent_state, trace_error.reshape(-1,1)
 
 
 
     def initialize_run(self, population):
-        if hasattr(self, "lambda_lm"):
-            self.descent_info.lambda_lm = self.lambda_lm
-        if hasattr(self, "beta"):
-            self.descent_info.beta = self.beta
+        measurement_info = self.measurement_info
+        descent_info = self.descent_info
 
-        measurement_info=self.measurement_info
-        descent_info=self.descent_info
-
-        self.descent_state.population=population
+        self.descent_state = self.descent_state.expand(population=population)
         descent_state=self.descent_state
 
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -107,20 +107,20 @@ class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
 class LSGPA(Vanilla):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs)
+        self.name="LSGPA"
 
 
         self.frequency = self.frequency + self.f0
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
-        self.measurement_info.sk=self.sk
-        self.measurement_info.rn=self.rn
-        self.measurement_info.frequency=self.frequency
+        
+        self.measurement_info = tree_at(lambda x: x.sk, self.measurement_info, self.sk)
+        self.measurement_info = tree_at(lambda x: x.rn, self.measurement_info, self.rn)
+        self.measurement_info = tree_at(lambda x: x.frequency, self.measurement_info, self.frequency)
 
         self.f0=0
 
-
         self.lambda_lm = 1e-3
-        self.beta=0.1
+        self.beta = 0.1
 
         
 
@@ -177,7 +177,7 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         tau_arr = measurement_info.tau_arr
 
         individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
-        signal_t=self.calculate_signal_t(individual, tau_arr, measurement_info)
+        signal_t = self.calculate_signal_t(individual, tau_arr, measurement_info)
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, individual.pulse, signal_t.pulse_t_shifted, 
                                     signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return jnp.sum(grad, axis=0) 
@@ -205,8 +205,8 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         pulse_f = pulse_f + gamma*descent_direction
         pulse = do_ifft(pulse_f, sk, rn)
 
-        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
-        setattr(individual, pulse_or_gate, pulse)
+        #individual = MyNamespace(pulse=individual.pulse, gate=individual.gate) # i dont need to do this, since tree_at will make a copy.
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse)
         return individual
 
 
@@ -316,7 +316,8 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         if pulse_or_gate=="pulse":
             grad = -1*jnp.conjugate(gate_shifted)*difference_signal_t
             U = self.get_PIE_weights(gate_shifted, alpha, PIE_method)
-            population.pulse = pulse - gamma*U*grad
+            pulse = pulse - gamma*U*grad
+            population = tree_at(lambda x: x.pulse, population, pulse)
 
         elif pulse_or_gate=="gate":
             grad = -1*jnp.conjugate(pulse)*difference_signal_t
@@ -325,7 +326,8 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
             grad = self.modify_grad_for_gate_pulse(grad, jnp.squeeze(signal_t.gate_pulse_shifted), measurement_info.nonlinear_method)
 
             descent_direction = self.reverse_transform_grad(U*grad, tau, measurement_info, local=True)
-            population.gate = gate - gamma*descent_direction
+            gate = gate - gamma*descent_direction
+            population = tree_at(lambda x: x.gate, population, gate)
 
         return population
     
@@ -335,8 +337,7 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         signal = getattr(individual, pulse_or_gate)
         signal = signal + gamma*descent_direction
 
-        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
-        setattr(individual, pulse_or_gate, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
         return individual
 
 
@@ -354,18 +355,18 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         difference_signal_t = signal_t_new - signal_t.signal_t
 
         if pulse_or_gate=="pulse":
-            U=jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(signal_t.gate_shifted, alpha, PIE_method)
-            grad_all_m=-1*jnp.conjugate(signal_t.gate_shifted)*difference_signal_t
+            U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(signal_t.gate_shifted, alpha, PIE_method)
+            grad_all_m = -1*jnp.conjugate(signal_t.gate_shifted)*difference_signal_t
 
         elif pulse_or_gate=="gate":
             pulse = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(difference_signal_t))
-            U=jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(pulse, alpha, PIE_method)
-            grad_all_m=-1*jnp.conjugate(pulse)*difference_signal_t
+            U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(pulse, alpha, PIE_method)
+            grad_all_m = -1*jnp.conjugate(pulse)*difference_signal_t
 
             grad_all_m = self.modify_grad_for_gate_pulse(grad_all_m, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
-            U=self.reverse_transform_grad(U, tau_arr, measurement_info, local=False)
-            grad_all_m=self.reverse_transform_grad(grad_all_m, tau_arr, measurement_info, local=False)
+            U = self.reverse_transform_grad(U, tau_arr, measurement_info, local=False)
+            grad_all_m = self.reverse_transform_grad(grad_all_m, tau_arr, measurement_info, local=False)
 
         return grad_all_m, U
 
@@ -428,7 +429,7 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
         signal_f = signal_f + beta*gamma[:,jnp.newaxis]*descent_direction
         signal = do_ifft(signal_f, sk, rn)
 
-        setattr(population, pulse_or_gate, signal)
+        population = tree_at(lambda x: getattr(x, pulse_or_gate), population, signal)
         return population
 
 
@@ -441,8 +442,7 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
         signal_f = signal_f + gamma*descent_direction
         signal = do_ifft(signal_f, sk, rn)
 
-        individual = MyNamespace(pulse=individual.pulse, gate=individual.gate)
-        setattr(individual, pulse_or_gate, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
         return individual
 
 

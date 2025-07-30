@@ -1,14 +1,16 @@
 import jax.numpy as jnp
 import jax
 
+from equinox import tree_at
+
 from utilities import MyNamespace, generate_random_continuous_function, do_interpolation_1d
 
 
 
 
 def get_initial_amp_for_shg_thg(frequency, measured_trace, nonlinear_method):
-    mean_trace=jnp.mean(measured_trace, axis=0)
-    amp=jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
+    mean_trace = jnp.mean(measured_trace, axis=0)
+    amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
     if nonlinear_method=="shg":
         factor=2
@@ -17,7 +19,7 @@ def get_initial_amp_for_shg_thg(frequency, measured_trace, nonlinear_method):
     else:
         print("something went wrong")
 
-    amp=do_interpolation_1d(frequency, frequency/factor, amp)
+    amp = do_interpolation_1d(frequency, frequency/factor, amp)
     return amp
 
 
@@ -57,11 +59,11 @@ def constant_phase(key, shape, amp):
 
 def create_population_classic(key, population_size, guess_type, measurement_info):
     if measurement_info.nonlinear_method=="shg" or measurement_info.nonlinear_method=="thg":
-        amp=get_initial_amp_for_shg_thg(measurement_info.frequency, measurement_info.measured_trace, measurement_info.nonlinear_method)
+        amp = get_initial_amp_for_shg_thg(measurement_info.frequency, measurement_info.measured_trace, measurement_info.nonlinear_method)
     else:
-        mean_trace=jnp.mean(measurement_info.measured_trace, axis=0)
-        amp=jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
-    amp=amp/jnp.linalg.norm(amp)
+        mean_trace = jnp.mean(measurement_info.measured_trace, axis=0)
+        amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
+    amp = amp/jnp.linalg.norm(amp)
 
     shape=(population_size, jnp.size(measurement_info.frequency))
 
@@ -98,7 +100,7 @@ def create_population_classic(key, population_size, guess_type, measurement_info
 def polynomial_guess(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
     c = jax.random.uniform(subkey, shape, minval=-1e3, maxval=1e3)
-    population.phase=c
+    population = tree_at(lambda x: x.phase, population, c)
     return key, population
 
 
@@ -114,7 +116,7 @@ def sinusoidal_guess(key, population, shape, measurement_info):
     b = jax.random.uniform(key2, shape, minval=bmin, maxval=bmax)
     c = jax.random.uniform(key3, shape, minval=0, maxval=2*jnp.pi)
 
-    population.phase=MyNamespace(a=a, b=b, c=c)
+    population = tree_at(lambda x: x.phase, population, MyNamespace(a=a, b=b, c=c))
     return key, population
         
 
@@ -127,7 +129,7 @@ def sigmoidal_guess(key, population, shape, measurement_info):
     c=jax.random.uniform(key2, shape, minval=jnp.min(frequency), maxval=jnp.max(frequency))
     k=jax.random.uniform(key3, shape, minval=-2, maxval=2)
 
-    population.phase=MyNamespace(a=a, c=c, k=k)
+    population = tree_at(lambda x: x.phase, population, MyNamespace(a=a, c=c, k=k))
     return key, population
 
 
@@ -140,7 +142,7 @@ def spline_guess(key, population, shape, measurement_info):
     n = int(nn[jnp.round(nn%1, 5)==0][-1])
 
     c = jax.random.uniform(subkey, (shape[0], n), minval=-2*jnp.pi, maxval=2*jnp.pi)
-    population.phase=MyNamespace(c=c)
+    population = tree_at(lambda x: x.phase, population, MyNamespace(c=c))
     return key, population
     
 
@@ -151,7 +153,7 @@ def discrete_guess_phase(key, population, shape, measurement_info):
 
     phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(keys, shape[1], frequency, 
                                                                                                         -4*jnp.pi, 4*jnp.pi, jnp.ones(jnp.size(frequency)))
-    population.phase = phase
+    population = tree_at(lambda x: x.phase, population, phase)
     return key, population
 
 
@@ -164,7 +166,7 @@ def gaussian_or_lorentzian_guess(key, population, shape, measurement_info):
     b = jax.random.uniform(key2, shape, minval=1e-3, maxval=(jnp.max(frequency)-jnp.min(frequency))/3)
     c = jax.random.uniform(key3, shape, minval=jnp.min(frequency), maxval=jnp.max(frequency))
     
-    population.amp = MyNamespace(a=a, b=b, c=c)
+    population = tree_at(lambda x: x.amp, population, MyNamespace(a=a, b=b, c=c))
     return key, population
 
 
@@ -180,9 +182,9 @@ def discrete_guess_amp(key, population, shape, measurement_info):
 
     noise = jax.random.uniform(subkey, (shape[0], jnp.size(measurement_info.frequency)), minval=-0.05, maxval=0.05)
     amp = amp + noise
-    amp=amp/jnp.linalg.norm(amp)
+    amp = amp/jnp.linalg.norm(amp)
 
-    population.amp = amp
+    population = tree_at(lambda x: x.amp, population, amp)
     return key, population
 
 
@@ -193,7 +195,7 @@ def random_general_phase(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
     shape = (shape[0], jnp.size(measurement_info.frequency))
     signal_f = random(subkey, shape)
-    population.phase = jnp.angle(signal_f)
+    population = tree_at(lambda x: x.phase, population, jnp.angle(signal_f))
     return key, population
 
 
@@ -201,7 +203,7 @@ def random_general_amp(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
     shape = (shape[0], jnp.size(measurement_info.frequency))
     signal_f = random(subkey, shape)
-    population.amp = jnp.abs(signal_f)
+    population = tree_at(lambda x: x.amp, population, jnp.abs(signal_f))
     return key, population
 
 

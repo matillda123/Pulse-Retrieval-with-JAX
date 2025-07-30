@@ -1,6 +1,7 @@
 import jax
 import jax.numpy as jnp
 from jax.tree_util import Partial
+from equinox import tree_at
 
 from BaseClasses import RetrievePulsesDSCAN, AlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
@@ -25,22 +26,22 @@ class Basic(RetrievePulsesDSCAN, AlgorithmsBASE):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
-        self.child_class="Basic"
+        self.name = "Basic"
 
 
     def update_pulse(self, signal_t_new, gate, phase_matrix, nonlinear_method, sk, rn):
-        signal_t_new=signal_t_new*jnp.conjugate(gate)
+        signal_t_new = signal_t_new*jnp.conjugate(gate)
 
         if nonlinear_method=="shg":
             n=3
         else: 
             n=5
-        signal_t_new=jnp.abs(signal_t_new)**(1/n)*jnp.exp(1j*jnp.angle(signal_t_new))
+        signal_t_new = jnp.abs(signal_t_new)**(1/n)*jnp.exp(1j*jnp.angle(signal_t_new))
 
-        signal_f_new=do_fft(signal_t_new, sk, rn)
-        signal_f_new=signal_f_new*jnp.exp(-1j*phase_matrix)
+        signal_f_new = do_fft(signal_t_new, sk, rn)
+        signal_f_new = signal_f_new*jnp.exp(-1j*phase_matrix)
 
-        pulse_f=jnp.mean(signal_f_new, axis=0)
+        pulse_f = jnp.mean(signal_f_new, axis=0)
         return pulse_f
     
     
@@ -51,24 +52,24 @@ class Basic(RetrievePulsesDSCAN, AlgorithmsBASE):
         measured_trace=measurement_info.measured_trace
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        signal_f=do_fft(signal_t.signal_t, sk, rn)
-        trace=calculate_trace(signal_f)
+        signal_f = do_fft(signal_t.signal_t, sk, rn)
+        trace = calculate_trace(signal_f)
 
 
-        mu=jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new=jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
-        trace_error=jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)
 
-        descent_state.population.pulse=pulse
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, pulse)
         return descent_state, trace_error.reshape(-1,1)
     
 
 
     def initialize_run(self, population):
 
-        self.descent_state.population = population
+        self.descent_state = self.descent_state.expand(population = population)
        
         measurement_info=self.measurement_info
         descent_info=self.descent_info
@@ -120,7 +121,8 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
-        individual.pulse = individual.pulse + gamma*descent_direction
+        pulse = individual.pulse + gamma*descent_direction
+        individual = tree_at(lambda x: x.pulse, individual, pulse)
         return individual
 
 
@@ -213,7 +215,8 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
 
         pulse_t = do_ifft(population.pulse, sk, rn)
         pulse_t = pulse_t - gamma*descent_direction
-        population.pulse = do_fft(pulse_t, sk, rn)
+        pulse = do_fft(pulse_t, sk, rn)
+        population = tree_at(lambda x: x.pulse, population, pulse)
         return population
 
 
@@ -226,7 +229,7 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
         pulse_t=pulse_t + gamma*descent_direction
         pulse = do_fft(pulse_t, sk, rn)
 
-        individual = MyNamespace(pulse=pulse, gate=individual.gate)
+        individual = tree_at(lambda x: x.pulse, individual, pulse)
         return individual
     
 
@@ -282,13 +285,15 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
 
     def update_population_local(self, population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
         beta = descent_info.beta
-        population.pulse = population.pulse + beta*gamma[:,jnp.newaxis]*descent_direction
+        pulse = population.pulse + beta*gamma[:,jnp.newaxis]*descent_direction
+        population = tree_at(lambda x: x.pulse, population, pulse)
         return population
 
 
 
     def update_individual_global(self, individual, alpha, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        individual.pulse = individual.pulse + alpha*descent_direction
+        pulse = individual.pulse + alpha*descent_direction
+        individual = tree_at(lambda x: x.pulse, individual, pulse)
         return individual
 
 
@@ -306,14 +311,14 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
     def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, phase_matrix, descent_state, measurement_info, descent_info, 
                                            use_hessian, pulse_or_gate, local=False):
         if local==True:
-            in_axes=(0,0,0,0,None,None)
+            in_axes = (0,0,0,0,None,None)
             phase_matrix = phase_matrix[:,jnp.newaxis,:]
             grad = grad[:,jnp.newaxis,:]
             pulse_t_disp = signal_t.pulse_t_disp[:,jnp.newaxis,:]
             signal_t = signal_t.signal_t[:,jnp.newaxis,:]
             signal_t_new = signal_t_new[:,jnp.newaxis,:]
         else:
-            in_axes=(0,0,0,None,None,None)
+            in_axes = (0,0,0,None,None,None)
             pulse_t_disp = signal_t.pulse_t_disp
             signal_t = signal_t.signal_t
         

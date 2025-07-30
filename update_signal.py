@@ -128,8 +128,8 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
                       "intensity": calculate_r_gradient_intensity}
+    
     gradient = calc_r_grad_dict[descent_info.S_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
-
     return gradient
 
 

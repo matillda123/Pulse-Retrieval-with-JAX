@@ -3,6 +3,7 @@ import numpy as np
 import jax.numpy as jnp
 import jax
 from jax.tree_util import Partial
+from equinox import tree_at
 
 import equinox
 import optimistix
@@ -62,8 +63,8 @@ class GeneralOptimization(AlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.use_fd_grad=False
-        self.amplitude_or_intensity="intensity"
+        self.use_fd_grad = False
+        self.amplitude_or_intensity = "intensity"
         self.error_metric = calculate_trace_error
 
         
@@ -74,43 +75,38 @@ class GeneralOptimization(AlgorithmsBASE):
         population=MyNamespace(pulse=MyNamespace(amp=None, phase=None), 
                                gate=MyNamespace(amp=None, phase=None))
         
-        subkey, population.pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
+        subkey, population_pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
                                                              self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info)
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
         
         if self.doubleblind==True:
-            subkey, population.gate = create_population_general(subkey, amp_type, phase_type, population.gate, population_size, no_funcs_amp, no_funcs_phase, 
+            subkey, population_gate = create_population_general(subkey, amp_type, phase_type, population.gate, population_size, no_funcs_amp, no_funcs_phase, 
                                                                 self.descent_info.measured_spectrum_is_provided.gate, self.measurement_info)
+            population = tree_at(lambda x: x.gate, population, population_gate)
             
         if phase_type=="random":
-            phase_type="discrete"
+            phase_type = "discrete"
         if amp_type=="random":
-            amp_type="discrete"
+            amp_type = "discrete"
         
-        self.descent_info.population_size=population_size
-        self.descent_info.phase_type=phase_type
-        self.descent_info.amp_type=amp_type
+        self.descent_info = self.descent_info.expand(population_size=population_size, phase_type=phase_type, amp_type=amp_type)
         return population
     
 
 
     def split_population_in_amp_and_phase(self, population):
-        population_amp = MyNamespace(pulse=MyNamespace(amp=None, phase=None), gate=MyNamespace(amp=None, phase=None))
-        population_phase = MyNamespace(pulse=MyNamespace(amp=None, phase=None), gate=MyNamespace(amp=None, phase=None))
-        population_amp.pulse.amp=population.pulse.amp
-        population_amp.gate.amp=population.gate.amp
-        population_phase.pulse.phase=population.pulse.phase
-        population_phase.gate.phase=population.gate.phase
+        population_amp = MyNamespace(pulse=MyNamespace(amp=population.pulse.amp, phase=None), 
+                                     gate=MyNamespace(amp=population.gate.amp, phase=None))
+        
+        population_phase = MyNamespace(pulse=MyNamespace(amp=None, phase=population.pulse.phase), 
+                                       gate=MyNamespace(amp=None, phase=population.gate.phase))
 
         return population_amp, population_phase
     
 
     def merge_population_from_amp_and_phase(self, population_amp, population_phase):
-        population = MyNamespace(pulse=MyNamespace(amp=None, phase=None), gate=MyNamespace(amp=None, phase=None))
-        population.pulse.amp = population_amp.pulse.amp
-        population.gate.amp = population_amp.gate.amp
-        population.pulse.phase = population_phase.pulse.phase
-        population.gate.phase = population_phase.gate.phase
-
+        population = MyNamespace(pulse=MyNamespace(amp=population_amp.pulse.amp, phase=population_phase.pulse.phase), 
+                                 gate=MyNamespace(amp=population_amp.gate.amp, phase=population_phase.gate.phase))
         return population
 
 
@@ -121,20 +117,20 @@ class GeneralOptimization(AlgorithmsBASE):
     
 
     def polynomial_phase(self, coefficients, central_f, measurement_info):
-        phase=jax.vmap(self.polynomial_term, in_axes=(0, 0, None, None))(coefficients, jnp.arange(jnp.size(coefficients))+1, central_f, measurement_info.frequency)
-        phase=jnp.sum(phase, axis=0)
+        phase = jax.vmap(self.polynomial_term, in_axes=(0, 0, None, None))(coefficients, jnp.arange(jnp.size(coefficients))+1, central_f, measurement_info.frequency)
+        phase = jnp.sum(phase, axis=0)
         return phase
     
     
 
     def sinusoidal_term(self, a, b, c, x):
-        phase=a*jnp.sin(2*jnp.pi*b*x+c)
+        phase = a*jnp.sin(2*jnp.pi*b*x+c)
         return phase
     
     def sinusoidal_phase(self, coefficients, central_f, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        phase_arr=jax.vmap(self.sinusoidal_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
-        phase=jnp.sum(phase_arr, axis=0)
+        phase_arr = jax.vmap(self.sinusoidal_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        phase = jnp.sum(phase_arr, axis=0)
         return phase
     
 
@@ -155,35 +151,34 @@ class GeneralOptimization(AlgorithmsBASE):
     
 
     def bspline_phase(self, coefficients, central_f, measurement_info):
-        c=coefficients.c
-        phase = b_spline(c, measurement_info.frequency)
+        phase = b_spline(coefficients.c, measurement_info.frequency)
         return phase
 
 
 
     def gaussian_term(self, a, b, c, frequency):
-        b=b/2.355
+        b = b/2.355 # go from fwhm to sigma
         return a*jnp.exp(-(frequency-c)**2/(2*b**2+1e-9))
     
 
     def gaussian_amplitude(self, coefficients, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        amp_f=jax.vmap(self.gaussian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
-        amp_f=jnp.sum(amp_f, axis=0)
+        amp_f = jax.vmap(self.gaussian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        amp_f = jnp.sum(amp_f, axis=0)
         return amp_f
 
 
 
     
     def lorentzian_term(self, a, b, c, frequency):
-        b=b/2
+        b = b/2 # go from fwhm to sigma
         return a/((frequency-c)**2+b**2)
     
 
     def lorentzian_amplitude(self, coefficients, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        amp_f=jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
-        amp_f=jnp.sum(amp_f, axis=0)
+        amp_f = jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        amp_f = jnp.sum(amp_f, axis=0)
         return amp_f
     
 
@@ -195,8 +190,7 @@ class GeneralOptimization(AlgorithmsBASE):
     
 
     def bspline_amplitude(self, coefficients, measurement_info):
-        c=coefficients.c
-        amp_f = b_spline(c, measurement_info.frequency)
+        amp_f = b_spline(coefficients.c, measurement_info.frequency)
         return amp_f
     
 
@@ -209,8 +203,7 @@ class GeneralOptimization(AlgorithmsBASE):
                                   "splines": self.bspline_phase,
                                   "discrete": self.discrete_phase}
         
-        spectral_phase_func=spectral_phase_func_dict[descent_info.phase_type]
-
+        spectral_phase_func = spectral_phase_func_dict[descent_info.phase_type]
         return spectral_phase_func(coefficients, central_f, measurement_info)
     
 
@@ -228,7 +221,6 @@ class GeneralOptimization(AlgorithmsBASE):
         idx_arr = jnp.arange(jnp.size(frequency))
         idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
         central_f = frequency[idx.astype(int)]
-
         return amp_f, central_f
     
 
@@ -251,11 +243,11 @@ class GeneralOptimization(AlgorithmsBASE):
 
 
     def get_pulses_f_from_population(self, population, measurement_info, descent_info):
-        make_pulse=Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="pulse")
+        make_pulse = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="pulse")
         pulse_f_arr = jax.vmap(make_pulse)(population)
 
         if measurement_info.doubleblind==True:
-            make_gate=Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="gate")
+            make_gate = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="gate")
             gate_arr = jax.vmap(make_gate)(population)
         else:
             gate_arr = pulse_f_arr
@@ -290,8 +282,8 @@ class GeneralOptimization(AlgorithmsBASE):
         sk, rn = measurement_info.sk, measurement_info.rn
         
         signal_t = self.calculate_signal_t(individual, measurement_info.transform_arr, measurement_info)
-        signal_f=do_fft(signal_t.signal_t, sk, rn)
-        trace=calculate_trace(signal_f)
+        signal_f = do_fft(signal_t.signal_t, sk, rn)
+        trace = calculate_trace(signal_f)
         return x_arr, frequency, trace
     
 
@@ -322,26 +314,27 @@ class GeneralOptimization(AlgorithmsBASE):
     def initialize_general_optimizer(self, population):
         if self.descent_info.measured_spectrum_is_provided.pulse==True:
             spectrum = self.measurement_info.spectral_amplitude.pulse
-            idx=get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info.central_f.pulse=self.frequency[int(idx)]
+            idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
+            self.measurement_info = tree_at(lambda x: x.central_f.pulse, self.measurement_info, self.frequency[int(idx)])
+
 
         if self.descent_info.measured_spectrum_is_provided.gate==True:
             spectrum = self.measurement_info.spectral_amplitude.gate
-            idx=get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info.central_f.gate=self.frequency[int(idx)]
+            idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
+            self.measurement_info = tree_at(lambda x: x.central_f.gate, self.measurement_info, self.frequency[int(idx)])
 
 
-        self.descent_info.use_fd_grad=self.use_fd_grad
-        self.descent_info.amplitude_or_intensity=self.amplitude_or_intensity
-        self.descent_info.error_metric = self.error_metric
+        self.descent_info = self.descent_info.expand(use_fd_grad = self.use_fd_grad,
+                                                     amplitude_or_intensity = self.amplitude_or_intensity,
+                                                     error_metric = self.error_metric)
 
-        self.descent_state.population = population
+        self.descent_state = self.descent_state.expand(population = population)
 
 
 
 
     def get_idx_best_individual(self, descent_state):
-        population=descent_state.population
+        population = descent_state.population
         pulse_arr, gate_arr = self.get_pulses_from_population(population, self.measurement_info, self.descent_info)
         error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(MyNamespace(pulse=pulse_arr, gate=gate_arr), 
                                                                                        self.measurement_info, self.descent_info)
@@ -384,7 +377,7 @@ class DifferentialEvolutionBASE(GeneralOptimization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.child_class="DifferentialEvolution"
+        self.name = "DifferentialEvolution"
 
         self.strategy = "best1_bin"
         self.mutation_rate = 0.5
@@ -521,7 +514,8 @@ class DifferentialEvolutionBASE(GeneralOptimization):
         mutation_strategy, mutation_rate, crossover_strategy, crossover_rate = descent_info.mutation_strategy, descent_info.mutation_rate, descent_info.crossover_strategy, descent_info.crossover_rate
         best_individual, parent_population, key = descent_state.best_individual, descent_state.population, descent_state.key
 
-        descent_state.key, subkey = jax.random.split(key, 2)
+        key, subkey = jax.random.split(key, 2)
+        descent_state = tree_at(lambda x: x.key, descent_state, key)
         key1, key2, key3 = jax.random.split(subkey, 3)
 
         mutant_population = self.do_mutation(mutation_strategy, mutation_rate, best_individual, parent_population, key1)
@@ -532,12 +526,12 @@ class DifferentialEvolutionBASE(GeneralOptimization):
 
         population, error = self.select_population(key3, trace_error_parents, trace_error_trial, parent_population, trial_population, descent_info)
 
-        descent_state.population = population
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
         error_mean = jnp.mean(error)
         error_min = jnp.min(error)
         error_max = jnp.max(error)
 
-        descent_state.best_individual = self.get_individual_from_idx(jnp.argmin(error), population)
+        descent_state = tree_at(lambda x: x.best_individual, descent_state, self.get_individual_from_idx(jnp.argmin(error), population))
         return descent_state, (error_mean, error_min, error_max)
     
 
@@ -546,16 +540,18 @@ class DifferentialEvolutionBASE(GeneralOptimization):
         self.initialize_general_optimizer(population)
         measurement_info = self.measurement_info
 
-        self.descent_info.mutation_strategy, self.descent_info.crossover_strategy  = self.strategy.split("_")
-        self.descent_info.mutation_rate = self.mutation_rate
-        self.descent_info.crossover_rate = self.crossover_rate
-        self.descent_info.selection_mechanism=self.selection_mechanism
-        self.descent_info.temperature = self.temperature
+        mutation_strategy, crossover_strategy  = self.strategy.split("_")
+        self.descent_info = self.descent_info.expand(mutation_strategy = mutation_strategy, 
+                                                     crossover_strategy = crossover_strategy,
+                                                     mutation_rate = self.mutation_rate,
+                                                     crossover_rate = self.crossover_rate,
+                                                     selection_mechanism = self.selection_mechanism,
+                                                     temperature = self.temperature)
         descent_info = self.descent_info
         
         trace_error = self.calculate_error_population(population, measurement_info, descent_info)
-        self.descent_state.best_individual = self.get_individual_from_idx(jnp.argmin(trace_error), population)
-        self.descent_state.key=self.key
+        self.descent_state = self.descent_state.expand(best_individual = self.get_individual_from_idx(jnp.argmin(trace_error), population), 
+                                                       key=self.key)
         descent_state=self.descent_state
         
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -712,8 +708,9 @@ def currenttobest2(F, best_individual, population, key):
 class EvosaxBASE(GeneralOptimization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.solver=None
+        
+        self.name = "Evosax"
+        self.solver = None
         
 
 
@@ -740,9 +737,9 @@ class EvosaxBASE(GeneralOptimization):
 
         population, state = solver.ask(key_ask_2, state, params)
 
-        setattr(descent_state.evosax.state, amp_or_phase, state)
-        descent_state.key=key
 
+        descent_state = tree_at(lambda x: getattr(x.evosax.state, amp_or_phase), descent_state, state)
+        descent_state = tree_at(lambda x: x.key, descent_state, key)
         return descent_state, population, fitness
 
 
@@ -755,7 +752,9 @@ class EvosaxBASE(GeneralOptimization):
 
         descent_state, population_phase, fitness = self.step_amp_or_phase(population_amp, descent_state, measurement_info, descent_info, "phase")
 
-        descent_state.population = self.merge_population_from_amp_and_phase(population_amp, population_phase)
+        population = self.merge_population_from_amp_and_phase(population_amp, population_phase)
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+
         errors = (jnp.mean(fitness), jnp.min(fitness), jnp.max(fitness))
         return descent_state, errors
     
@@ -808,16 +807,15 @@ class EvosaxBASE(GeneralOptimization):
         else:
             print("something is wrong")
 
-        self.descent_info.solver = MyNamespace(amp=solver_amp(population_size=population_size, solution=individual_amp), 
-                                               phase=solver_phase(population_size=population_size, solution=individual_phase))
+        self.descent_info = self.descent_info.expand(solver = MyNamespace(amp=solver_amp(population_size=population_size, solution=individual_amp), 
+                                                                          phase=solver_phase(population_size=population_size, solution=individual_phase)))
         descent_info=self.descent_info
 
         state_amp, params_amp, self.key = self.initialize_evosax_solver(self.key, descent_info.solver.amp, population, individual_amp, "amp")
         state_phase, params_phase, self.key = self.initialize_evosax_solver(self.key, descent_info.solver.phase, population, individual_phase, "phase")
-        self.descent_state.evosax=MyNamespace(state=MyNamespace(amp=state_amp, phase=state_phase),
-                                              params=MyNamespace(amp=params_amp, phase=params_phase))
-        
-        self.descent_state.key = self.key
+        self.descent_state = self.descent_state.expand(evosax=MyNamespace(state=MyNamespace(amp=state_amp, phase=state_phase), 
+                                                                          params=MyNamespace(amp=params_amp, phase=params_phase)), 
+                                                       key = self.key)
         descent_state=self.descent_state
         
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -838,12 +836,13 @@ class LSFBASE(GeneralOptimization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.name = "LSF"
+
+
         self.number_of_bisection_iterations=12
 
         self.random_direction_mode="random"
         self.no_points_for_continuous=5
-
-        self.child_class="LSF"
 
     
 
@@ -884,7 +883,8 @@ class LSFBASE(GeneralOptimization):
         d_pulse_re=self.get_random_values(key1, shape_pulse, -1, 1, descent_info)
         d_pulse_im=self.get_random_values(key2, shape_pulse, -1, 1, descent_info)
         d = d_pulse_re + 1j*d_pulse_im
-        direction.pulse = d/jnp.linalg.norm(d)
+        direction_pulse = d/jnp.linalg.norm(d)
+        direction = tree_at(lambda x: x.pulse, direction, direction_pulse)
 
         if measurement_info.doubleblind==True:
             key3, key4 = keys.gate
@@ -894,7 +894,8 @@ class LSFBASE(GeneralOptimization):
             d_gate_re=self.get_random_values(key3, shape_gate, -1, 1, descent_info)
             d_gate_im=self.get_random_values(key4, shape_gate, -1, 1, descent_info)
             d=d_gate_re + 1j*d_gate_im
-            direction.gate = d/jnp.linalg.norm(d)
+            direction_gate = d/jnp.linalg.norm(d)
+            direction = tree_at(lambda x: x.gate, direction, direction_gate)
 
         return direction
 
@@ -960,8 +961,8 @@ class LSFBASE(GeneralOptimization):
     def do_bisection_search(self, direction, population, measurement_info, descent_info, pulse_or_gate):
         s1, s2 = self.get_scalars(direction, getattr(population, pulse_or_gate))
 
-        El=getattr(population, pulse_or_gate) + s1*direction
-        Er=getattr(population, pulse_or_gate) + s2*direction
+        El = getattr(population, pulse_or_gate) + s1*direction
+        Er = getattr(population, pulse_or_gate) + s2*direction
         
         no_iterations = descent_info.number_of_bisection_iterations
         do_bisection_step = Partial(self.bisection_step, population=population, measurement_info=measurement_info, 
@@ -972,7 +973,7 @@ class LSFBASE(GeneralOptimization):
         E_arr = jnp.array(E_arr)
 
         error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
-        idx=jnp.argmin(error_arr, axis=0)
+        idx = jnp.argmin(error_arr, axis=0)
         return jax.vmap(jax.lax.switch, in_axes=(0, None, 0))(idx, [lambda x: x[0], lambda x: x[1]], jnp.transpose(E_arr, axes=(1,0,2)))
 
 
@@ -980,11 +981,13 @@ class LSFBASE(GeneralOptimization):
 
     def search_along_direction(self, direction, population, measurement_info, descent_info):
         direction_pulse=direction.pulse
-        population.pulse = self.do_bisection_search(direction_pulse, population, measurement_info, descent_info, "pulse")
+        population_pulse = self.do_bisection_search(direction_pulse, population, measurement_info, descent_info, "pulse")
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
         
         if measurement_info.doubleblind==True:
             direction_gate=direction.gate
-            population.gate = self.do_bisection_search(direction_gate, population, measurement_info, descent_info, "gate")
+            population_gate = self.do_bisection_search(direction_gate, population, measurement_info, descent_info, "gate")
+            population = tree_at(lambda x: x.gate, population, population_gate)
 
         return population
     
@@ -1010,13 +1013,14 @@ class LSFBASE(GeneralOptimization):
 
     def step(self, descent_state, measurement_info, descent_info):
         population = descent_state.population
-        descent_state.key, subkey = jax.random.split(descent_state.key, 2)
+        key, subkey = jax.random.split(descent_state.key, 2)
+        descent_state = tree_at(lambda x: x.key, descent_state, key)
         
         direction = self.get_search_direction(subkey, population, measurement_info, descent_info)
         population = self.search_along_direction(direction, population, measurement_info, descent_info)
 
         error_arr = self.calculate_error_population(population, measurement_info, descent_info)
-        descent_state.population=population
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
         return descent_state, error_arr.reshape(-1,1)
     
 
@@ -1027,24 +1031,25 @@ class LSFBASE(GeneralOptimization):
             print("LSF is only implemented for amp_type=discrete, phase_type=discrete and converts the populations accordingly.")
 
         population = self.convert_population(population, self.measurement_info, self.descent_info)
-        population.pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
+        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
         self.initialize_general_optimizer(population)
 
-        self.descent_state.key=self.key
-        descent_state=self.descent_state
-
-
-        self.descent_info.number_of_bisection_iterations=self.number_of_bisection_iterations
-        self.descent_info.no_points_for_continuous=self.no_points_for_continuous
-        self.descent_info.random_direction_mode=self.random_direction_mode
-
-        descent_info=self.descent_info
         measurement_info=self.measurement_info
+
+        
+        self.descent_info = self.descent_info.expand(number_of_bisection_iterations = self.number_of_bisection_iterations,
+                                                     no_points_for_continuous = self.no_points_for_continuous,
+                                                     random_direction_mode = self.random_direction_mode)
+        descent_info=self.descent_info
+
+
+        self.descent_state = self.descent_state.expand(key = self.key)
+        descent_state = self.descent_state
 
 
         do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
         do_step=Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
-        
         return descent_state, do_step
 
 
@@ -1078,7 +1083,7 @@ class LSFBASE(GeneralOptimization):
 
 
 
-class AutoGradBASE(GeneralOptimization):
+class AutoDiffBASE(GeneralOptimization):
     # Making this work for a population: (?) 
     #    vmap over solver.init and over solver.step 
     #          -> currently only equinox.filter_vmap for solver.init 
@@ -1086,17 +1091,17 @@ class AutoGradBASE(GeneralOptimization):
     #          -> vmap over solver.step doesnt work becasue of wrong leaf dimensions
     #   
     #    repeatedly calling optimistix.minimise does not work because of limited recursion depth for jax. 
+
+    #        print("using jax.scipy minimize might work with vmap") -> jay.scipy is not really developed. only a prelimiary version of lbfgs
+
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        print("using jax.scipy minimize might work with vmap")
-
+        self.name = "AutoDiff"
 
         self.solver=optimistix.BFGS
         self.alternating_optimization=False
-
-        self.child_class="AutoDiff"
 
         self.optimize_individual_idx = 0
 
@@ -1141,7 +1146,9 @@ class AutoGradBASE(GeneralOptimization):
         if descent_info.alternating_optimization==False:
             individual, optimistix_state = descent_state.individual, descent_state.optimistix_state
             individual, optimistix_state, error = self.optimistix_step(y=individual, state=optimistix_state)
-            descent_state.individual, descent_state.optimistix_state = individual, optimistix_state
+
+            descent_state = tree_at(lambda x: x.individual, descent_state, individual)
+            descent_state = tree_at(lambda x: x.optimistix_state, descent_state, optimistix_state)
 
         elif descent_info.alternating_optimization==True:
             individual, optimistix_state_amp, optimistix_state_phase = descent_state.individual, descent_state.optimistix_state_amp, descent_state.optimistix_state_phase
@@ -1152,8 +1159,11 @@ class AutoGradBASE(GeneralOptimization):
             individual_phase, optimistix_state_phase, error = self.optimistix_step_phase(y=individual_phase, args=individual_amp, state=optimistix_state_phase)
             
             individual = self.merge_population_from_amp_and_phase(individual_amp, individual_phase)
+
+            descent_state = tree_at(lambda x: x.individual, descent_state, individual)
+            descent_state = tree_at(lambda x: x.optimistix_state_amp, descent_state, optimistix_state_amp)
+            descent_state = tree_at(lambda x: x.optimistix_state_phase, descent_state, optimistix_state_phase)
             
-            descent_state.individual, descent_state.optimistix_state_amp, descent_state.optimistix_state_phase = individual, optimistix_state_amp, optimistix_state_phase
         else:
             print("something is wrong")
 
@@ -1168,10 +1178,10 @@ class AutoGradBASE(GeneralOptimization):
         individual_amp, individual_phase = self.split_population_in_amp_and_phase(individual)
 
         loss_function_amp=Partial(self.loss_function_amp, measurement_info=measurement_info, descent_info=descent_info)
-        loss_function_amp=Partial(optimistix_helper_alternating_loss_function, function=loss_function_amp)
+        loss_function_amp=Partial(optimistix_helper_loss_function, function=loss_function_amp)
         
         loss_function_phase=Partial(self.loss_function_phase, measurement_info=measurement_info, descent_info=descent_info)
-        loss_function_phase=Partial(optimistix_helper_alternating_loss_function, function=loss_function_phase)
+        loss_function_phase=Partial(optimistix_helper_loss_function, function=loss_function_phase)
 
 
         state_amp = solver.init(loss_function_amp, individual_amp, individual_phase, options, f_struct, aux_struct, tags)
@@ -1180,8 +1190,8 @@ class AutoGradBASE(GeneralOptimization):
         self.optimistix_step_amp = Partial(solver.step, fn=loss_function_amp, options=options, tags=tags)
         self.optimistix_step_phase = Partial(solver.step, fn=loss_function_phase, options=options, tags=tags)
 
-        descent_state.optimistix_state_amp = state_amp
-        descent_state.optimistix_state_phase = state_phase
+        descent_state = descent_state.expand(optimistix_state_amp = state_amp,
+                                             optimistix_state_phase = state_phase)
         return descent_state
         
 
@@ -1193,8 +1203,8 @@ class AutoGradBASE(GeneralOptimization):
         else:
             solver=solver(rtol=1, atol=1)
 
-        loss_function=Partial(self.loss_function, measurement_info=measurement_info, descent_info=descent_info)
-        loss_function=Partial(optimistix_helper_loss_function, function=loss_function)
+        loss_function = Partial(self.loss_function, measurement_info=measurement_info, descent_info=descent_info)
+        loss_function = Partial(optimistix_helper_loss_function, function=loss_function)
 
         args = None
         options = dict()
@@ -1206,7 +1216,7 @@ class AutoGradBASE(GeneralOptimization):
         if descent_info.alternating_optimization==False:
             state = solver.init(loss_function, individual, args, options, f_struct, aux_struct, tags)
             self.optimistix_step = Partial(solver.step, args=args, fn=loss_function, options=options, tags=tags)
-            descent_state.optimistix_state = state
+            descent_state = descent_state.expand(optimistix_state = state)
 
         elif descent_info.alternating_optimization==True:
             optimistix_args = (options, f_struct, aux_struct, tags)
@@ -1231,12 +1241,13 @@ class AutoGradBASE(GeneralOptimization):
             
         self.initialize_general_optimizer(population)
 
-        self.descent_state.individual = self.get_individual_from_idx(self.optimize_individual_idx, population)
         measurement_info=self.measurement_info
 
-        self.descent_info.alternating_optimization=self.alternating_optimization
+        self.descent_info = self.descent_info.expand(alternating_optimization=self.alternating_optimization)
         descent_info=self.descent_info
 
+
+        self.descent_state = self.descent_state.expand(individual = self.get_individual_from_idx(self.optimize_individual_idx, population))
         descent_state=self.descent_state
 
         descent_state, do_scan = self.initialize_optimistix(descent_state, self.solver, measurement_info, descent_info)

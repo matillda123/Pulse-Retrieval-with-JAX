@@ -7,8 +7,9 @@ import jax
 import jax.numpy as jnp
 
 from jax.tree_util import Partial
+from equinox import tree_at
 
-from utilities import MyNamespace, get_com, center_signal, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, project_onto_amplitude
+from utilities import MyNamespace, get_com, center_signal, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, project_onto_amplitude, run_scan
 from create_population import create_population_classic
 
 
@@ -17,7 +18,9 @@ class AlgorithmsBASE:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.use_copra_style_step_scaling = True
+        self.use_copra_style_step_scaling = False
+        self.use_jit = False
+
 
 
     def shuffle_data_along_m(self, descent_state, measurement_info, descent_info):
@@ -39,17 +42,20 @@ class AlgorithmsBASE:
         return transform_arr, measured_trace, descent_state
 
 
-
-
     def run(self, init_vals, no_iterations=100):
         if self.spectrum_is_being_used==True:
             assert self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
 
         carry, do_scan = self.initialize_run(init_vals)
-        carry, error_arr = jax.lax.scan(do_scan, carry, length=no_iterations)
+
+        if self.use_jit==True:
+            scan = jax.jit(run_scan, static_argnames=("do_scan", "no_iterations"))
+        else:
+            scan = do_scan
+
+        carry, error_arr = scan(do_scan, carry, no_iterations)
         
         error_arr = jnp.squeeze(error_arr)
-
         final_result = self.post_process(carry, error_arr)
         return final_result
     
@@ -60,16 +66,17 @@ class AlgorithmsBASE:
         population = descent_state.population
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
-            population.pulse=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
-                                                                                       measurement_info.sk, measurement_info.rn)
+            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
+                                                                              measurement_info.sk, measurement_info.rn)
+            population = tree_at(lambda x: x.pulse, population, pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
-            population.gate=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
-                                                                                      measurement_info.sk, measurement_info.rn)
+            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
+                                                                             measurement_info.sk, measurement_info.rn)
+            population = tree_at(lambda x: x.gate, population, gate)
             
-        descent_info.population = population
-
-        descent_state, trace_error=self.step_pre_chaining__apply_spectrum(descent_state, measurement_info, descent_info)
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        descent_state, trace_error = self.step_pre_chaining__apply_spectrum(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
     
 
@@ -79,14 +86,16 @@ class AlgorithmsBASE:
         population = descent_state.population
 
         if descent_info.measured_spectrum_is_provided.pulse==True:
-            population.pulse=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
+            pulse=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
                                                                                        measurement_info.sk, measurement_info.rn)
+            population = tree_at(lambda x: x.pulse, population, pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
-            population.gate=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
+            gate=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
                                                                                       measurement_info.sk, measurement_info.rn)
+            population = tree_at(lambda x: x.gate, population, gate)
 
-        descent_state.population = population
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state, trace_error=self.global_iteration_pre_chaining__apply_spectrum(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
 
@@ -98,18 +107,19 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            if self.child_class=="COPRA":
+            names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
+            if self.name=="COPRA":
                 # applying_spectrum on local stage in COPRA doesnt seem to work nicely -> maybe this conclusion is wrong, maybe test again some time
-                self.global_iteration_pre_chaining__apply_spectrum=self.global_iteration
-                self.global_iteration=self.do_global_iteration_and_apply_spectrum_COPRA
-            elif self.child_class=="DifferentialEvolution" or self.child_class=="GeneticAlgorithm" or self.child_class=="AutoDiff":
+                self.global_iteration_pre_chaining__apply_spectrum = self.global_iteration
+                self.global_iteration = self.do_global_iteration_and_apply_spectrum_COPRA
+            elif any([self.name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
             else:
-                self.step_pre_chaining__apply_spectrum=self.step
-                self.step=self.do_step_and_apply_spectrum
+                self.step_pre_chaining__apply_spectrum = self.step
+                self.step = self.do_step_and_apply_spectrum
 
-            self.spectrum_is_being_used=True
+            self.spectrum_is_being_used = True
             return self
         
 
@@ -119,12 +129,17 @@ class AlgorithmsBASE:
         population = descent_state.population
         momentum = descent_state.momentum
 
-        population.pulse, momentum.pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
+        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
 
         if measurement_info.doubleblind==True:
-            population.gate, momentum.gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population = tree_at(lambda x: x.gate, population, population_gate)
+            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
 
-        descent_state.population, descent_state.momentum = population, momentum
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
 
         descent_state, trace_error = self.step_pre_chaining__momentum(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
@@ -135,9 +150,17 @@ class AlgorithmsBASE:
         population = descent_state.population
         momentum = descent_state.momentum
         
-        population.pulse, momentum.pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
+        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
+
         if measurement_info.doubleblind==True:
-            population.gate, momentum = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population = tree_at(lambda x: x.gate, population, population_gate)
+            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
+
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
 
         descent_state = self.local_iteration_pre_chaining__apply_momentum(descent_state, measurement_info, descent_info)
         return descent_state
@@ -148,9 +171,17 @@ class AlgorithmsBASE:
         population = descent_state.population
         momentum = descent_state.momentum
         
-        population.pulse, momentum.pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
+        population = tree_at(lambda x: x.pulse, population, population_pulse)
+        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
+
         if measurement_info.doubleblind==True:
-            population.gate, momentum = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
+            population = tree_at(lambda x: x.gate, population, population_gate)
+            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
+
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
 
         descent_state = self.global_iteration_pre_chaining__apply_momentum(descent_state, measurement_info, descent_info)
         return descent_state
@@ -162,28 +193,25 @@ class AlgorithmsBASE:
             return self
         else:
             shape=(population_size, jnp.size(self.frequency))
+            init_arr = jnp.zeros(shape, dtype=jnp.complex64)
             
-            self.descent_info.eta=eta
-            self.descent_state.momentum=MyNamespace(pulse=MyNamespace(), gate=MyNamespace())
-    
-            self.descent_state.momentum.pulse.update_for_velocity_map=jnp.zeros(shape, dtype=jnp.complex64)
-            self.descent_state.momentum.pulse.velocity_map=jnp.zeros(shape, dtype=jnp.complex64)
-
-            self.descent_state.momentum.gate.update_for_velocity_map=jnp.zeros(shape, dtype=jnp.complex64)
-            self.descent_state.momentum.gate.velocity_map=jnp.zeros(shape, dtype=jnp.complex64)
-
-            if self.child_class=="COPRA":
-                self.local_iteration_pre_chaining__apply_momentum=self.local_iteration
-                self.global_iteration_pre_chaining__apply_momentum=self.global_iteration
-                self.local_iteration=self.do_local_iteration_and_apply_momentum_COPRA
-                self.global_iteration=self.do_global_iteration_and_apply_momentum_COPRA
-            elif self.child_class=="DifferentialEvolution" or self.child_class=="GeneticAlgorithm" or self.child_class=="AutoDiff":
+            self.descent_info = self.descent_info.expand(eta=eta)
+            self.descent_state = self.descent_state.expand(momentum = MyNamespace(pulse = MyNamespace(update_for_velocity_map=init_arr, velocity_map=init_arr), 
+                                                                                  gate = MyNamespace(update_for_velocity_map=init_arr, velocity_map=init_arr)))
+            
+            names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
+            if self.name=="COPRA":
+                self.local_iteration_pre_chaining__apply_momentum = self.local_iteration
+                self.global_iteration_pre_chaining__apply_momentum = self.global_iteration
+                self.local_iteration = self.do_local_iteration_and_apply_momentum_COPRA
+                self.global_iteration = self.do_global_iteration_and_apply_momentum_COPRA
+            elif any([self.name==name for name in names_list])==True:
                 pass
             else:
-                self.step_pre_chaining__momentum=self.step
-                self.step=self.do_step_and_apply_momentum
+                self.step_pre_chaining__momentum = self.step
+                self.step = self.do_step_and_apply_momentum
             
-            self.momentum_is_being_used=True
+            self.momentum_is_being_used = True
             return self
     
 
@@ -194,7 +222,7 @@ class AlgorithmsBASE:
         velocity_map = eta*velocity_map + (signal - update_for_velocity_map)
         signal = signal + eta*velocity_map
 
-        momentum.update_for_velocity_map, momentum.velocity_map = signal, velocity_map
+        momentum = MyNamespace(update_for_velocity_map=signal, velocity_map=velocity_map)
         return signal, momentum
 
     
@@ -250,7 +278,7 @@ class RetrievePulses:
 
 
     def get_data(self, x_arr, frequency, measured_trace):
-        measured_trace=measured_trace*1/jnp.linalg.norm(measured_trace)
+        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
 
         self.x_arr=jnp.array(x_arr)
         self.frequency=jnp.array(frequency)
@@ -268,7 +296,7 @@ class RetrievePulses:
         spectral_amplitude = jnp.sqrt(jnp.abs(spectral_intensity))*jnp.sign(spectral_intensity)
         
         if pulse_or_gate=="pulse":
-            self.measurement_info.spectral_amplitude.pulse=spectral_amplitude
+            self.measurement_info.spectral_amplitude.pulse = spectral_amplitude
             self.descent_info.measured_spectrum_is_provided.pulse=True
 
         elif pulse_or_gate=="gate":
@@ -301,7 +329,7 @@ class RetrievePulses:
         else:
             gate_f_arr=None
 
-        self.descent_info.population_size=population_size
+        self.descent_info = self.descent_info.expand(population_size=population_size)
         return pulse_f_arr, gate_f_arr
 
 
@@ -429,7 +457,7 @@ class RetrievePulses:
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
 
         measured_trace = self.measurement_info.measured_trace
-        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
+        measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
         
         trace = self.post_process_create_trace(pulse_t, gate_t)
         trace=trace/jnp.linalg.norm(trace)
@@ -488,41 +516,36 @@ class RetrievePulsesFROG(RetrievePulses):
         self.tau_arr, self.time, self.frequency, self.measured_trace = self.get_data(delay, frequency, measured_trace)
         self.gate = jnp.zeros(jnp.size(self.time))
 
-        self.dt=jnp.mean(jnp.diff(self.time))
-        self.df=jnp.mean(jnp.diff(self.frequency))
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
-        self.xfrog=xfrog
-        self.ifrog=ifrog
-
-        if self.xfrog=="doubleblind":
-            self.doubleblind=True
-            self.xfrog=False
-
-
-        self.measurement_info.tau_arr=self.tau_arr
-        self.measurement_info.frequency=self.frequency
-        self.measurement_info.time=self.time
-        self.measurement_info.measured_trace=self.measured_trace
-        self.measurement_info.xfrog=self.xfrog
-        self.measurement_info.doubleblind=self.doubleblind
-        self.measurement_info.ifrog=self.ifrog
-        self.measurement_info.dt=self.dt
-        self.measurement_info.df=self.df
-        self.measurement_info.sk=self.sk
-        self.measurement_info.rn=self.rn
-        self.measurement_info.gate=self.gate
-
-
         self.transform_arr = self.tau_arr
-        self.measurement_info.transform_arr=self.transform_arr
-        self.idx_arr=jnp.arange(jnp.shape(self.transform_arr)[0])   
-
-        self.measurement_info.x_arr=self.x_arr
-
-
+        self.idx_arr = jnp.arange(jnp.shape(self.transform_arr)[0])   
         
 
+        self.dt = jnp.mean(jnp.diff(self.time))
+        self.df = jnp.mean(jnp.diff(self.frequency))
+        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
+
+        self.xfrog = xfrog
+        self.ifrog = ifrog
+
+        if self.xfrog=="doubleblind":
+            self.doubleblind = True
+            self.xfrog = False
+
+        self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
+                                                             frequency = self.frequency,
+                                                             time = self.time,
+                                                             measured_trace = self.measured_trace,
+                                                             xfrog = self.xfrog,
+                                                             doubleblind = self.doubleblind,
+                                                             ifrog = self.ifrog,
+                                                             dt = self.dt,
+                                                             df = self.df,
+                                                             sk = self.sk,
+                                                             rn = self.rn,
+                                                             gate = self.gate,
+                                                             transform_arr = self.transform_arr,
+                                                             x_arr = self.x_arr)
+        
 
 
     def create_initial_population(self, population_size=1, guess_type="random"):
@@ -636,11 +659,11 @@ class RetrievePulsesFROG(RetrievePulses):
 
         individual = self.get_individual_from_idx(idx, descent_state.population)
         pulse_t = individual.pulse
-        pulse_f=do_fft(pulse_t, sk, rn)
+        pulse_f = do_fft(pulse_t, sk, rn)
 
         if measurement_info.doubleblind==True:
-            gate_t=individual.gate
-            gate_f=do_fft(gate_t, sk, rn)
+            gate_t = individual.gate
+            gate_f = do_fft(gate_t, sk, rn)
         else:
             gate_t, gate_f = pulse_t, pulse_f
 
@@ -653,8 +676,8 @@ class RetrievePulsesFROG(RetrievePulses):
         tau_arr = self.measurement_info.tau_arr
     
         signal_t = self.calculate_signal_t(MyNamespace(pulse=pulse_t, gate=gate_t), tau_arr, self.measurement_info)
-        signal_f=do_fft(signal_t.signal_t, sk, rn)
-        trace=calculate_trace(signal_f)
+        signal_f = do_fft(signal_t.signal_t, sk, rn)
+        trace = calculate_trace(signal_f)
         return trace
     
 
@@ -668,9 +691,9 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def apply_spectrum(self, pulse_t, spectrum, sk, rn):
-        pulse_f=do_fft(pulse_t, sk, rn)
-        pulse_f_new=project_onto_amplitude(pulse_f, spectrum)
-        pulse_t=do_ifft(pulse_f_new, sk, rn)
+        pulse_f = do_fft(pulse_t, sk, rn)
+        pulse_f_new = project_onto_amplitude(pulse_f, spectrum)
+        pulse_t = do_ifft(pulse_f_new, sk, rn)
         return pulse_t
     
 
@@ -703,33 +726,33 @@ class RetrievePulsesDSCAN(RetrievePulses):
 
         self.z_arr, self.time, self.frequency, self.measured_trace = self.get_data(z_arr, frequency, measured_trace)
 
-        self.dt=jnp.mean(jnp.diff(self.time))
-        self.df=jnp.mean(jnp.diff(self.frequency))
+        self.dt = jnp.mean(jnp.diff(self.time))
+        self.df = jnp.mean(jnp.diff(self.frequency))
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        self.refractive_index=refractive_index
+        self.refractive_index = refractive_index
         self.c0 = c0
 
-        self.measurement_info.z_arr=self.z_arr # needs to be in mm
-        self.measurement_info.frequency=self.frequency
-        self.measurement_info.time=self.time
-        self.measurement_info.measured_trace=self.measured_trace
-        self.measurement_info.doubleblind=self.doubleblind
-        self.measurement_info.dt=self.dt
-        self.measurement_info.df=self.df
-        self.measurement_info.sk=self.sk
-        self.measurement_info.rn=self.rn
-        
-        self.measurement_info.c0=self.c0
+
+        self.measurement_info = self.measurement_info.expand(z_arr = self.z_arr, # needs to be in mm
+                                                             frequency = self.frequency,
+                                                             time = self.time,
+                                                             measured_trace = self.measured_trace,
+                                                             doubleblind = self.doubleblind,
+                                                             dt = self.dt,
+                                                             df = self.df,
+                                                             sk = self.sk,
+                                                             rn = self.rn,
+                                                             c0 = self.c0)
+
+
         self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.z_arr, self.measurement_info)
-        self.measurement_info.phase_matrix = self.phase_matrix
-
-
         self.transform_arr = self.phase_matrix
-        self.measurement_info.transform_arr = self.transform_arr
         self.idx_arr=jnp.arange(jnp.shape(self.transform_arr)[0])   
 
-        self.measurement_info.x_arr=self.x_arr
+        self.measurement_info = self.measurement_info.expand(phase_matrix = self.phase_matrix,
+                                                             transform_arr = self.transform_arr,
+                                                             x_arr = self.x_arr)
 
 
 
@@ -756,7 +779,7 @@ class RetrievePulsesDSCAN(RetrievePulses):
         n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength)*1e6 + 1e-9, bounds_error=False) # wavelength needs to be in nm
         n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
         k_arr = 2*jnp.pi/(wavelength + 1e-9)*n_arr
-        phase_matrix=jnp.outer(z_arr, k_arr)
+        phase_matrix = jnp.outer(z_arr, k_arr)
         return phase_matrix
 
 
@@ -829,6 +852,32 @@ class RetrievePulsesDSCAN(RetrievePulses):
 
 
     def apply_spectrum(self, pulse, spectrum, sk, rn):
-        pulse=project_onto_amplitude(pulse, spectrum)
+        pulse = project_onto_amplitude(pulse, spectrum)
         return pulse
     
+
+
+
+
+
+
+
+
+
+class RetrievePulsesFROGwithRealFields(RetrievePulses):
+    pass
+
+
+
+class RetrievePulsesDSCANwithRealFields(RetrievePulses):
+    pass
+
+
+
+
+
+
+
+
+class RetrievePulses2DSI(RetrievePulses):
+    pass

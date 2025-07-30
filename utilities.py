@@ -19,24 +19,17 @@ def flatten_MyNamespace(MyNamespace):
 
 
 def unflatten_MyNamespace(aux_data, leaves):
-    custom_namespace_instance = MyNamespace(**dict(zip(aux_data, leaves)))
-    #custom_namespace_instance.__dict__ = dict(zip(aux_data, leaves))
-    return custom_namespace_instance
+    return MyNamespace(**dict(zip(aux_data, leaves)))
 
 
 class MyNamespace:
-    # "it should be doable to let this inherit from equinox.module"
-    # then add things like init, replace, expand and maybe math stuff -> should be fine since replace and expand return new objects
+    # using dynamic fields is bad. should be replaced, but there are so many different instances of this, that its really tedious and would make this unreadable
+    # so one would need to do some restructuring of the pytrees which are used
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
 
-    def replace(self, **kwargs):
-        # works because keys in **kwargs overwrite equivalent keys in self.__dict__
-        new_dict = {**self.__dict__, **kwargs}
-        return MyNamespace(**new_dict)
-    
     def expand(self, **kwargs):
         new_dict = {**self.__dict__, **kwargs}
         return MyNamespace(**new_dict)
@@ -52,15 +45,13 @@ class MyNamespace:
 
             if type(value)==MyNamespace:
                 myoutput.append([key, value.__repr__()])
-
-            elif type(value)==str or type(value)==bool:
-                myoutput.append([key, value])
-                
             else:
                 try:
-                    myoutput.append([key, jnp.shape(value)]) 
-                except:
-                    myoutput.append([key, value])
+                    myoutput.append([key, jnp.shape(value), value.dtype])
+                except Exception:
+                    myoutput.append([key, jnp.shape(value), type(value).__name__])
+                except Exception:
+                    myoutput.append([key, value, type(value).__name__])
                     
         return f"{myoutput}"
         
@@ -71,8 +62,6 @@ class MyNamespace:
         if isinstance(other, MyNamespace):
             leaves1, treedef = jax.tree.flatten(self)
             leaves2, treedef = jax.tree.flatten(other)
-
-            # adding len() implicitely ensures that both trees have the same number of leaves
             leaves_new = [leaves1[i] + leaves2[i] for i in range((len(leaves1) + len(leaves2))//2)]
             tree_new = jax.tree.unflatten(treedef, leaves_new)
         else:
@@ -91,7 +80,6 @@ class MyNamespace:
         if isinstance(other, MyNamespace):
             leaves1, treedef = jax.tree.flatten(self)
             leaves2, treedef = jax.tree.flatten(other)
-
             leaves_new = [leaves1[i]*leaves2[i] for i in range((len(leaves1)+len(leaves2))//2)]
             tree_new = jax.tree.unflatten(treedef, leaves_new)
         else:
@@ -116,6 +104,11 @@ jax.tree_util.register_pytree_node(MyNamespace, flatten_MyNamespace, unflatten_M
 
 
 
+
+
+# helper to effectively use jax.jit(jax.lax.scan)
+def run_scan(do_scan, carry, no_iterations):
+    return jax.lax.scan(do_scan, carry, length=no_iterations)
 
 
 
@@ -153,11 +146,6 @@ def while_loop_helper(carry, actual_function, number_of_args):
 
 
 def optimistix_helper_loss_function(input, dummy, function):
-    error=function(input)
-    return error, error
-
-
-def optimistix_helper_alternating_loss_function(input, dummy, function):
     error=function(input)
     return error, error
 
@@ -202,6 +190,8 @@ def get_sk_rn(time, frequency):
 
 
 
+
+
 def do_interpolation_1d(x_new, x, y):
     # this exists to possibly switch to a jax.scipy based interpolation
     y_new = interp1d(x_new, x, y, method="cubic", extrap=1e-12)
@@ -232,7 +222,6 @@ def calculate_gate(pulse_t, method):
 
 def project_onto_intensity(signal_f, measured_intensity):
     return jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)*jnp.exp(1j*jnp.angle(signal_f))
-
 
 
 def project_onto_amplitude(signal_f, measured_amplitude):
@@ -310,7 +299,7 @@ def solve_system_using_lineax_iteratively(A, b, x_prev, solver):
 def solve_linear_system(A, b, x_prev, solver):
 
     if solver=="scipy":
-        print("unclear if this is still correct with non stacked A and b")
+        print("unclear if this is still correct, maybe jax now does batching this by default?")
         newton_direction=jax.scipy.linalg.solve(A, b[..., None], assume_a="her").squeeze(-1)
         return newton_direction
     
@@ -334,8 +323,8 @@ def get_idx_arr(N, M, key):
     idx=jnp.arange(N, dtype=jnp.int32)
     idx_arr=jnp.zeros((M,N), dtype=jnp.int32)
     for i in range(M):
-        idx_arr=idx_arr.at[i].set(jax.random.permutation(key, idx))
-        key=jax.random.split(key, 1)[0]
+        idx_arr = idx_arr.at[i].set(jax.random.permutation(key, idx))
+        key = jax.random.split(key, 1)[0]
     return jnp.array(idx_arr, dtype=jnp.int32)
 
 
@@ -402,6 +391,7 @@ def loss_function_modifications(trace, measured_trace, time_or_zarr, frequency, 
         print("something is wrong")
 
     if use_fd_grad!=False:
+        print("gradient id missing dx, dy")
         measured_trace_0, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=0)(x), None), measured_trace, length=use_fd_grad)
         measured_trace_1, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=1)(x), None), measured_trace, length=use_fd_grad)
 
