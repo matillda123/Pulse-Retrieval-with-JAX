@@ -34,6 +34,7 @@ class MyNamespace:
         new_dict = {**self.__dict__, **kwargs}
         return MyNamespace(**new_dict)
     
+    
 
     def __repr__(self):
         mydict = self.__dict__
@@ -54,6 +55,7 @@ class MyNamespace:
                     myoutput.append([key, value, type(value).__name__])
                     
         return f"{myoutput}"
+    
         
     
 

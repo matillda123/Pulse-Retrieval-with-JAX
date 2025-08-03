@@ -1,8 +1,12 @@
-from BaseClasses import RetrievePulsesFROG
-from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoGradBASE
+from BaseClasses import RetrievePulsesFROG, RetrievePulsesFROGwithRealFields
+from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
 from utilities import MyNamespace, do_fft, do_ifft
 
+
+
+
+# RetrievePulsesFROG = RetrievePulsesFROGwithRealFields
 
 
 
@@ -77,7 +81,7 @@ class LSF(LSFBASE, RetrievePulsesFROG):
 
 
 
-class AutoGrad(AutoGradBASE, RetrievePulsesFROG):
+class AutoDiff(AutoDiffBASE, RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 

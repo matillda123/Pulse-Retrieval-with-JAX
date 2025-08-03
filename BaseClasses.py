@@ -935,6 +935,13 @@ class RetrievePulsesDSCANwithRealFields(RetrievePulsesDSCAN):
 
 
 
+class RetrievePulsesMIIPS(RetrievePulses):
+    # this method is essentially a generalized version of dscan -> make dscan inherit from this -> classical algorithms dscan should work 
+    # only difference is generation of phase matrix -> at least i think so
+    pass
+
+
+
 
 class RetrievePulses2DSI(RetrievePulses):
     pass

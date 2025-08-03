@@ -437,7 +437,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
 
-    def do_global_step(self, descent_state, measurement_info, descent_info, pulse_or_gate):
+    def do_global_step(self, signal_t, signal_t_new, descent_state, measurement_info, descent_info, pulse_or_gate):
         measured_trace = measurement_info.measured_trace
         sk, rn = measurement_info.sk, measurement_info.rn
 
@@ -446,9 +446,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         hessian, conjugate_gradients = descent_info.hessian, descent_info.conjugate_gradients
         population = descent_state.population
 
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
-        signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,None,None,None))(signal_t.signal_t, measured_trace, 1, measurement_info, descent_info)
+        
         signal_f = do_fft(signal_t.signal_t, sk, rn)
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_f, measured_trace)
 
@@ -515,14 +513,19 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
     
     
     def global_step(self, descent_state, measurement_info, descent_info):
-        descent_state = self.do_global_step(descent_state, measurement_info, descent_info, "pulse")
+
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
+        signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,None,None,None))(signal_t.signal_t, measurement_info.measured_trace, 1, measurement_info, descent_info)
+
+        descent_state = self.do_global_step(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "pulse")
+        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
+
 
         if measurement_info.doubleblind==True:
-            descent_state = self.do_global_step(descent_state, measurement_info, descent_info, "gate")
+            descent_state = self.do_global_step(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "gate")
 
-
-        #population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
-        #descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         signal_f=do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
@@ -642,14 +645,10 @@ class COPRABASE(AlgorithmsBASE):
 
 
 
-    def one_local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info, pulse_or_gate):
+    def one_local_iteration(self, signal_t, signal_t_new, transform_arr_m, descent_state, measurement_info, descent_info, pulse_or_gate):
         hessian = descent_info.hessian
-        mu = descent_state.local.mu
         population = descent_state.population
 
-        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(population, transform_arr_m, measurement_info)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.local_method)
-        signal_t_new=jax.vmap(get_S_prime, in_axes=(0,0,0,None,None))(signal_t.signal_t, trace_line, mu, measurement_info, descent_info)
 
         grad = self.calculate_Z_gradient(signal_t_new, signal_t, population, transform_arr_m, measurement_info, pulse_or_gate, local=True)
         
@@ -679,11 +678,18 @@ class COPRABASE(AlgorithmsBASE):
 
 
 
-    def do_one_local_iteration(self, descent_state, tau, trace_line, measurement_info, descent_info):
-        descent_state, Z_error=self.one_local_iteration(descent_state, tau, trace_line, measurement_info, descent_info, "pulse")
+    def do_one_local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
+
+        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.local_method)
+        signal_t_new=jax.vmap(get_S_prime, in_axes=(0,0,0,None,None))(signal_t.signal_t, trace_line, descent_state.local.mu, measurement_info, descent_info)
+
+        descent_state, Z_error = self.one_local_iteration(signal_t, signal_t_new, transform_arr_m, 
+                                                          descent_state, measurement_info, descent_info, "pulse")
 
         if measurement_info.doubleblind==True:
-           descent_state, Z_error = self.one_local_iteration(descent_state, tau, trace_line, measurement_info, descent_info, "gate")
+           descent_state, Z_error = self.one_local_iteration(signal_t, signal_t_new, transform_arr_m, 
+                                                             descent_state, measurement_info, descent_info, "gate")
 
         return descent_state, Z_error
     
@@ -734,19 +740,12 @@ class COPRABASE(AlgorithmsBASE):
 
 
 
-    def do_global_iteration(self, descent_state, measurement_info, descent_info, pulse_or_gate):
-        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
+    def do_global_iteration(self, signal_t, signal_t_new, descent_state, measurement_info, descent_info, pulse_or_gate):
+        transform_arr = measurement_info.transform_arr
         gamma, hessian = descent_info.gamma, descent_info.hessian
         xi = descent_info.xi
 
         population = descent_state.population
-
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
-        signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
-
 
         grad = self.calculate_Z_gradient(signal_t_new, signal_t, population, transform_arr, measurement_info, pulse_or_gate, local=False)
         grad_sum = jnp.sum(grad, axis=1)
@@ -788,12 +787,19 @@ class COPRABASE(AlgorithmsBASE):
     def step_global_iteration(self, descent_state, measurement_info, descent_info):
         measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
 
-        descent_state = self.do_global_iteration(descent_state, measurement_info, descent_info, "pulse")
-        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
-        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        trace = calculate_trace(do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
+        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
+        signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
+
+
+        descent_state = self.do_global_iteration(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "pulse")
+        #population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
+        #descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
-            descent_state = self.do_global_iteration(descent_state, measurement_info, descent_info, "gate")
+            descent_state = self.do_global_iteration(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "gate")
 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)

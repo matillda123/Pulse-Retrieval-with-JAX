@@ -1,9 +1,10 @@
-from BaseClasses import RetrievePulsesDSCAN
-from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoGradBASE
+from BaseClasses import RetrievePulsesDSCAN, RetrievePulsesDSCANwithRealFields
+from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
 from utilities import MyNamespace, do_fft, do_ifft
 
 
+# RetrievePulsesDSCAN = RetrievePulsesDSCANwithRealFields
 
 
 
@@ -76,7 +77,7 @@ class LSF(LSFBASE, RetrievePulsesDSCAN):
 
 
 
-class AutoGrad(AutoGradBASE, RetrievePulsesDSCAN):
+class AutoDiff(AutoDiffBASE, RetrievePulsesDSCAN):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
