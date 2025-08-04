@@ -86,6 +86,7 @@ class GeneralOptimization(AlgorithmsBASE):
             
         if phase_type=="random":
             phase_type = "discrete"
+            
         if amp_type=="random":
             amp_type = "discrete"
         

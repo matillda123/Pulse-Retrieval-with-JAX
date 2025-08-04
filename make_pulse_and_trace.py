@@ -9,7 +9,7 @@ import jax.numpy as jnp
 import jax
 
 from utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, generate_random_continuous_function, do_interpolation_1d
-from BaseClasses import RetrievePulsesFROG, RetrievePulsesDSCAN
+from BaseClasses import RetrievePulsesFROG, RetrievePulsesDSCAN, RetrievePulsesFROGwithRealFields, RetrievePulsesDSCANwithRealFields
 
 
 

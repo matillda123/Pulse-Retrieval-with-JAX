@@ -50,11 +50,10 @@ class AlgorithmsBASE:
 
         if self.use_jit==True:
             scan = jax.jit(run_scan, static_argnames=("do_scan", "no_iterations"))
+            carry, error_arr = scan(do_scan, carry, no_iterations)
         else:
-            scan = do_scan
+            carry, error_arr = jax.lax.scan(do_scan, carry, length=no_iterations)
 
-        carry, error_arr = scan(do_scan, carry, no_iterations)
-        
         error_arr = jnp.squeeze(error_arr)
         final_result = self.post_process(carry, error_arr)
         return final_result
@@ -107,7 +106,7 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
+            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff"]
             if self.name=="COPRA":
                 # applying_spectrum on local stage in COPRA doesnt seem to work nicely -> maybe this conclusion is wrong, maybe test again some time
                 self.global_iteration_pre_chaining__apply_spectrum = self.global_iteration

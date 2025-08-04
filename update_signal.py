@@ -47,7 +47,7 @@ def calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info):
 
     calc_r_hessian_diag_dict={"amplitude": calculate_r_hessian_diagonal_amplitude,
                               "intensity": calculate_r_hessian_diagonal_intensity}
-    return calc_r_hessian_diag_dict[descent_info.S_prime_params.r_gradient](trace, measured_trace) # r_gradient is true here, no need for extra r_hessian with amp/int
+    return calc_r_hessian_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace) # r_gradient is true here, no need for extra r_hessian with amp/int
 
 
 
@@ -66,19 +66,19 @@ def calculate_r_gradient_amplitude(signal_f, mu, measured_trace, weights, sk, rn
 
 def calculate_r_gradient(signal_f, mu, measurement_info, descent_info):
     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn
-    weights = descent_info.S_prime_params.weights
+    weights = descent_info.s_prime_params.weights
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
                       "intensity": calculate_r_gradient_intensity}
     
-    gradient = calc_r_grad_dict[descent_info.S_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
+    gradient = calc_r_grad_dict[descent_info.s_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
     return gradient
 
 
 def calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info):
     gradient = calculate_r_gradient(signal_f, mu, measurement_info, descent_info)
 
-    if descent_info.S_prime_params.r_hessian!=False:
+    if descent_info.s_prime_params.r_hessian!=False:
         hessian_diag = calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info)
         descent_direction = -1*gradient/(hessian_diag[:,jnp.newaxis] + 1e-12)
     else:
@@ -99,7 +99,7 @@ def calculate_r_error_amplitude(trace, measured_trace, mu):
 def calculate_r_error(trace, measured_trace, mu, descent_info):
     r_error_dict={"intensity": calculate_r_error_intensity,
                   "amplitude": calculate_r_error_amplitude}
-    r_error=r_error_dict[descent_info.S_prime_params.r_gradient](trace, measured_trace, mu)
+    r_error=r_error_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace, mu)
     return r_error
 
 
@@ -118,7 +118,7 @@ def calc_r_error_for_linesearch(gamma, linesearch_info, measurement_info, descen
 
 def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent_info):
     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
-    weights = descent_info.S_prime_params.weights
+    weights = descent_info.s_prime_params.weights
     
     descent_direction, eta, mu = linesearch_info.descent_direction, linesearch_info.eta, linesearch_info.mu
     signal_t = linesearch_info.signal_t
@@ -129,7 +129,7 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
                       "intensity": calculate_r_gradient_intensity}
     
-    gradient = calc_r_grad_dict[descent_info.S_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
+    gradient = calc_r_grad_dict[descent_info.s_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
     return gradient
 
 
@@ -182,7 +182,7 @@ def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_in
         signal_t_new = calculate_S_prime_projection(signal_t, measured_trace, mu, measurement_info)
 
     elif method=="iteration":
-        number_of_iterations = descent_info.S_prime_params.number_of_iterations
+        number_of_iterations = descent_info.s_prime_params.number_of_iterations
         signal_t_new = calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, descent_info, number_of_iterations)
 
     else:

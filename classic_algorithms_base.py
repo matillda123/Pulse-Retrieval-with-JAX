@@ -16,6 +16,9 @@ from update_signal import calculate_S_prime
 
 
 
+
+
+
 def initialize_CG(descent_state, measurement_info):
     shape = jnp.shape(descent_state.population.pulse)
     init_arr = jnp.zeros(shape, dtype=jnp.complex64)
@@ -138,7 +141,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
             newton_direction = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, measurement_info, descent_info, 
                                                                        hessian.use_hessian, pulse_or_gate)
 
-            descent_state = tree_at(lambda x: getattr(hessian.newton_direction_prev, pulse_or_gate).newton_direction, descent_state, newton_direction)
+            descent_state = tree_at(lambda x: getattr(x.hessian.newton_direction_prev, pulse_or_gate).newton_direction, descent_state, newton_direction)
             descent_direction = -1*newton_direction
 
         elif hessian.use_hessian=="lbfgs":
@@ -151,7 +154,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
         if conjugate_gradients!=False:
-            cg=descent_state.cg
+            cg = descent_state.cg
             descent_direction_prev, CG_direction_prev = getattr(cg.descent_direction_prev, pulse_or_gate), getattr(cg.CG_direction_prev, pulse_or_gate)
 
             CG_direction=jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,0,None))(-1*descent_direction, descent_direction_prev, CG_direction_prev, 
@@ -234,7 +237,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         trace = calculate_trace(signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.global_method)
         signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
         descent_state = self.do_gradient_descent_Z_error(descent_state, signal_t_new, measurement_info, descent_info)
 
@@ -256,19 +259,32 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         measurement_info = self.measurement_info
 
         
-        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, c1=self.c1, c2=self.c2, 
-                                                           max_steps=self.max_steps_linesearch, delta_gamma=self.delta_gamma)
-        S_prime_params = MyNamespace(local_method=None, global_method=self.r_global_method, number_of_iterations=1, 
-                                                       r_gradient=self.r_gradient, r_hessian=self.r_hessian, weights=self.r_weights)
-        hessian = MyNamespace(use_hessian=self.use_hessian, lbfgs_memory=self.lbfgs_memory, linalg_solver=self.linalg_solver, 
-                                                lambda_lm=self.lambda_lm)
+        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, 
+                                        c1=self.c1, 
+                                        c2=self.c2, 
+                                        max_steps=self.max_steps_linesearch, 
+                                        delta_gamma=self.delta_gamma)
+        
+        s_prime_params = MyNamespace(local_method=None, 
+                                     global_method=self.r_global_method, 
+                                     number_of_iterations=1, 
+                                     r_gradient=self.r_gradient, 
+                                     r_hessian=self.r_hessian, 
+                                     weights=self.r_weights)
+        
+        hessian = MyNamespace(use_hessian=self.use_hessian, 
+                              lbfgs_memory=self.lbfgs_memory, 
+                              linalg_solver=self.linalg_solver, 
+                              lambda_lm=self.lambda_lm)
 
         self.descent_info = self.descent_info.expand(gamma = self.gamma, 
                                                      no_steps_descent = self.no_steps_descent, 
+                                                     
                                                      conjugate_gradients = self.use_conjugate_gradients,
                                                      linesearch_params = linesearch_params, 
-                                                     S_prime_params = S_prime_params, 
+                                                     s_prime_params = s_prime_params, 
                                                      hessian = hessian, 
+
                                                      xi = self.xi, 
                                                      use_copra_style_step_scaling = self.use_copra_style_step_scaling)
     
@@ -343,30 +359,30 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         return jnp.mean(jnp.abs(jnp.sqrt(jnp.abs(measured_trace))*jnp.sign(measured_trace) - jnp.abs(signal_f))**2)
 
 
-    def get_PIE_weights(self, probe_shifted, alpha, PIE_method):
+    def get_PIE_weights(self, probe_shifted, alpha, pie_method):
 
         """
-        elif PIE_method=="lm":
+        elif pie_method=="lm":
             U=2/(jnp.abs(probe_shifted)**2+1e-6) # -> rPIE is eqivalent to pseudo-gauss-newton/levenberg-marquardt for small gamma. 
 
         gamma=>1 -> rPIE=>ePIE
         """
         
-        if PIE_method=="PIE":
+        if pie_method=="PIE":
             U = 1/(jnp.abs(probe_shifted)**2 + alpha*jnp.max(jnp.abs(probe_shifted)**2))*jnp.abs(probe_shifted)/jnp.max(jnp.abs(probe_shifted))
 
-        elif PIE_method=="ePIE":
+        elif pie_method=="ePIE":
             U = 1/jnp.max(jnp.abs(probe_shifted)**2)
             U = U*jnp.ones(jnp.shape(probe_shifted))
 
-        elif PIE_method=="rPIE":
+        elif pie_method=="rPIE":
             U = 1/((1-alpha)*jnp.abs(probe_shifted)**2 + alpha*jnp.max(jnp.abs(probe_shifted)**2))
 
-        elif PIE_method==None:
+        elif pie_method==None:
             U = jnp.ones(jnp.shape(probe_shifted))
 
         else:
-            print(f"PIE_method={PIE_method} not defined.")
+            print(f"pie_method={pie_method} not defined.")
         
         return U
 
@@ -374,17 +390,17 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
     def do_local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
-        PIE_method = descent_info.PIE_method.local_pie
+        pie_method = descent_info.pie_method.local_pie
         population = descent_state.population
         
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(population, transform_arr_m, measurement_info)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.local_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.local_method)
         signal_t_new = jax.vmap(get_S_prime, in_axes=(0,0,None,None,None))(jnp.squeeze(signal_t.signal_t), trace_line, 1, measurement_info, descent_info)
 
-        population = self.update_population_local(population, signal_t, signal_t_new, transform_arr_m, PIE_method, measurement_info, descent_info, "pulse")
+        population = self.update_population_local(population, signal_t, signal_t_new, transform_arr_m, pie_method, measurement_info, descent_info, "pulse")
 
         if measurement_info.doubleblind==True:
-            population = self.update_population_local(population, signal_t, signal_t_new, transform_arr_m, PIE_method, measurement_info, descent_info, "gate")
+            population = self.update_population_local(population, signal_t, signal_t_new, transform_arr_m, pie_method, measurement_info, descent_info, "gate")
 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         return descent_state, None
@@ -429,8 +445,8 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         
         individual = self.update_individual_global(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, 1, measurement_info, descent_info, method=descent_info.S_prime_params.global_method)
-        grad_all_m, U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, descent_info.PIE_method.global_pie, 
+        signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, 1, measurement_info, descent_info, method=descent_info.s_prime_params.global_method)
+        grad_all_m, U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, descent_info.pie_method.global_pie, 
                                                              measurement_info, descent_info, pulse_or_gate)
         return jnp.sum(grad_all_m, axis=1)
     
@@ -442,7 +458,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         sk, rn = measurement_info.sk, measurement_info.rn
 
         xi = descent_info.xi
-        PIE_method = descent_info.PIE_method.global_pie
+        pie_method = descent_info.pie_method.global_pie
         hessian, conjugate_gradients = descent_info.hessian, descent_info.conjugate_gradients
         population = descent_state.population
 
@@ -450,7 +466,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         signal_f = do_fft(signal_t.signal_t, sk, rn)
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_f, measured_trace)
 
-        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, PIE_method, measurement_info, descent_info, pulse_or_gate)
+        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, pie_method, measurement_info, descent_info, pulse_or_gate)
         gradient_sum = jnp.sum(grad, axis=1)
         eta = pie_error/(jnp.sum(jnp.abs(gradient_sum)**2, axis=1) + xi)
 
@@ -515,13 +531,13 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
     def global_step(self, descent_state, measurement_info, descent_info):
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.global_method)
         signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,None,None,None))(signal_t.signal_t, measurement_info.measured_trace, 1, measurement_info, descent_info)
+
 
         descent_state = self.do_global_step(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "pulse")
         population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
-
 
         if measurement_info.doubleblind==True:
             descent_state = self.do_global_step(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "gate")
@@ -542,24 +558,41 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
     def initialize_run(self, population):
         measurement_info = self.measurement_info
 
-        if type(self.PIE_method)==tuple or type(self.PIE_method)==list:
-            PIE_method_local, PIE_method_global = self.PIE_method
+        if type(self.pie_method)==tuple or type(self.pie_method)==list:
+            local_pie, global_pie = self.pie_method
         else:
-            PIE_method_local, PIE_method_global = self.PIE_method, self.PIE_method
+            local_pie, global_pie = self.pie_method, self.pie_method
 
-        PIE_method = MyNamespace(local_pie=PIE_method_local, global_pie=PIE_method_global)
-        hessian = MyNamespace(use_hessian=self.use_hessian, lbfgs_memory=self.lbfgs_memory, linalg_solver=self.linalg_solver, lambda_lm=self.lambda_lm)
-        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, c1=self.c1, c2=self.c2, max_steps=self.max_steps_linesearch, delta_gamma=self.delta_gamma)
-        S_prime_params = MyNamespace(local_method="projection", global_method=self.r_global_method, number_of_iterations=1, r_gradient=self.r_gradient, r_hessian=self.r_hessian, weights=self.r_weights)
+        pie_method = MyNamespace(local_pie=local_pie, 
+                                 global_pie=global_pie)
         
+        hessian = MyNamespace(use_hessian=self.use_hessian, 
+                              lbfgs_memory=self.lbfgs_memory, 
+                              linalg_solver=self.linalg_solver, 
+                              lambda_lm=self.lambda_lm)
+        
+        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, 
+                                        c1=self.c1, 
+                                        c2=self.c2, 
+                                        max_steps=self.max_steps_linesearch, 
+                                        delta_gamma=self.delta_gamma)
+        
+        s_prime_params = MyNamespace(local_method="projection", 
+                                     global_method=self.r_global_method, 
+                                     number_of_iterations=1, 
+                                     r_gradient=self.r_gradient, 
+                                     r_hessian=self.r_hessian, 
+                                     weights=self.r_weights)
+
         self.descent_info = self.descent_info.expand(alpha = self.alpha, 
                                                      gamma = self.gamma, 
-                                                     PIE_method = PIE_method,
+                                                     pie_method = pie_method,
+
                                                      conjugate_gradients = self.use_conjugate_gradients,
                                                      hessian = hessian,
                                                      linesearch_params = linesearch_params,
-                                                     S_prime_params = S_prime_params,
-                                                     idx_arr = self.idx_arr,
+                                                     s_prime_params = s_prime_params,
+
                                                      xi = self.xi,
                                                      use_copra_style_step_scaling = self.use_copra_style_step_scaling)
         
@@ -681,7 +714,7 @@ class COPRABASE(AlgorithmsBASE):
     def do_one_local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
 
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.local_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.local_method)
         signal_t_new=jax.vmap(get_S_prime, in_axes=(0,0,0,None,None))(signal_t.signal_t, trace_line, descent_state.local.mu, measurement_info, descent_info)
 
         descent_state, Z_error = self.one_local_iteration(signal_t, signal_t_new, transform_arr_m, 
@@ -790,13 +823,13 @@ class COPRABASE(AlgorithmsBASE):
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.global_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.global_method)
         signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
 
 
         descent_state = self.do_global_iteration(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "pulse")
-        #population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
-        #descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
+        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(descent_state.population.pulse)
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
             descent_state = self.do_global_iteration(signal_t, signal_t_new, descent_state, measurement_info, descent_info, "gate")
@@ -821,7 +854,7 @@ class COPRABASE(AlgorithmsBASE):
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.S_prime_params.local_method)
+        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.local_method)
         signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
 
         
@@ -856,17 +889,30 @@ class COPRABASE(AlgorithmsBASE):
         else:
             local_hessian, global_hessian = self.use_hessian, self.use_hessian
 
-        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, c1=self.c1, c2=self.c2, max_steps=self.max_steps_linesearch, delta_gamma=self.delta_gamma)
-        hessian = MyNamespace(local_hessian=local_hessian, global_hessian=global_hessian, linalg_solver=self.linalg_solver, lambda_lm=self.lambda_lm)
-        S_prime_params = MyNamespace(local_method="projection", global_method=self.r_global_method, number_of_iterations=1, r_gradient=self.r_gradient, r_hessian=self.r_hessian, weights=self.r_weights)
+        linesearch_params = MyNamespace(use_linesearch=self.use_linesearch, 
+                                        c1=self.c1, 
+                                        c2=self.c2, 
+                                        max_steps=self.max_steps_linesearch, 
+                                        delta_gamma=self.delta_gamma)
+        
+        hessian = MyNamespace(local_hessian=local_hessian, 
+                              global_hessian=global_hessian, 
+                              linalg_solver=self.linalg_solver, 
+                              lambda_lm=self.lambda_lm)
+        
+        s_prime_params = MyNamespace(local_method="projection", 
+                                     global_method=self.r_global_method, 
+                                     number_of_iterations=1, 
+                                     r_gradient=self.r_gradient, 
+                                     r_hessian=self.r_hessian, 
+                                     weights=self.r_weights)
         
         self.descent_info = self.descent_info.expand(gamma = self.gamma, 
                                                      beta = self.beta, 
                                                      xi = self.xi, 
                                                      linesearch_params = linesearch_params,
                                                      hessian = hessian,
-                                                     S_prime_params = S_prime_params,
-                                                     idx_arr = self.idx_arr)
+                                                     s_prime_params = s_prime_params)
         descent_info=self.descent_info
 
 

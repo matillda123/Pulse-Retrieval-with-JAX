@@ -49,8 +49,6 @@ def do_lbfgs(grad_current, lbfgs_state, hessian):
 
 
 # lbfgs isnt sensible when doing alternating optimization 
-# -> e.g. as one does in doubleblind frog or with the global optimizations in TDP and copra 
-# -> not worth generalizing to other algorithms  
 def get_pseudo_newton_direction(grad, lbfgs_state, descent_info):
     newton_direction = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info.hessian)
 
