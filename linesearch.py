@@ -63,3 +63,45 @@ def do_linesearch(linesearch_info, measurement_info, descent_info, error_func, g
     condition, gamma, iteration_no=jax.lax.while_loop(linesearch_end, linesearch_step, initial_vals)
 
     return gamma
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def calc_adaptive_step_size(error, gradient, hessian, xi, order):
+    if order=="linear":
+        eta = error/(jnp.sum(jnp.abs(gradient)**2) + xi)
+
+    elif order=="nonlinear":
+        curv = jnp.conjugate(gradient) @ hessian @ gradient + xi
+        grad_norm2 = jnp.sum(jnp.abs(gradient)**2)
+        diskriminante = (grad_norm2/curv)**2 - error/curv
+        diskriminante = jnp.maximum(diskriminante, 1e-12)
+        eta = grad_norm2/curv - jnp.sqrt(diskriminante)
+        
+    else:
+        print("not available")
+
+    return eta 
+
+
+def adaptive_scaling_of_step(descent_direction, error, gradient, hessian, descent_info):
+    if descent_info.adaptive_scaling!=False:
+        eta = jax.vmap(calc_adaptive_step_size, in_axes=(0,0,0,None,None))(error, gradient, hessian.hessian, descent_info.xi, descent_info.adaptive_scaling)
+    else:
+        eta=1
+
+    return eta*descent_direction

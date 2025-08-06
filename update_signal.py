@@ -5,7 +5,7 @@ from jax.tree_util import Partial
 
 
 from utilities import scan_helper, MyNamespace, do_fft, do_ifft, project_onto_intensity, calculate_mu, calculate_trace
-from linesearch import do_linesearch
+from linesearch import do_linesearch, adaptive_scaling_of_step
 
 
 
@@ -47,7 +47,7 @@ def calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info):
 
     calc_r_hessian_diag_dict={"amplitude": calculate_r_hessian_diagonal_amplitude,
                               "intensity": calculate_r_hessian_diagonal_intensity}
-    return calc_r_hessian_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace) # r_gradient is true here, no need for extra r_hessian with amp/int
+    return calc_r_hessian_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace) # r_gradient is correct here, no need for extra r_hessian with amp/int
 
 
 
@@ -79,12 +79,13 @@ def calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info):
     gradient = calculate_r_gradient(signal_f, mu, measurement_info, descent_info)
 
     if descent_info.s_prime_params.r_hessian!=False:
-        hessian_diag = calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info)
-        descent_direction = -1*gradient/(hessian_diag[:,jnp.newaxis] + 1e-12)
+        hessian = calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info)
+        descent_direction = -1*gradient/(hessian[:,jnp.newaxis] + 1e-12)
     else:
+        hessian = jnp.ones(jnp.shape(gradient))
         descent_direction = -1*gradient
         
-    return descent_direction, gradient
+    return descent_direction, gradient, jax.vmap(jnp.diag)(hessian)
 
 
 
@@ -107,10 +108,10 @@ def calculate_r_error(trace, measured_trace, mu, descent_info):
 def calc_r_error_for_linesearch(gamma, linesearch_info, measurement_info, descent_info):
     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
     
-    descent_direction, eta, mu = linesearch_info.descent_direction, linesearch_info.eta, linesearch_info.mu
+    descent_direction, mu = linesearch_info.descent_direction, linesearch_info.mu
     signal_t = linesearch_info.signal_t
 
-    signal_t_new = signal_t + gamma*eta*descent_direction
+    signal_t_new = signal_t + gamma*descent_direction
     trace = calculate_trace(do_fft(signal_t_new, sk, rn))
     error = calculate_r_error(trace, measured_trace, mu, descent_info)
     return error
@@ -120,10 +121,10 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
     weights = descent_info.s_prime_params.weights
     
-    descent_direction, eta, mu = linesearch_info.descent_direction, linesearch_info.eta, linesearch_info.mu
+    descent_direction, mu = linesearch_info.descent_direction, linesearch_info.mu
     signal_t = linesearch_info.signal_t
 
-    signal_t_new = signal_t + gamma*eta*descent_direction
+    signal_t_new = signal_t + gamma*descent_direction
     signal_f = do_fft(signal_t_new, sk, rn)
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
@@ -136,21 +137,19 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
 
 def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_info, descent_info):
     sk, rn = measurement_info.sk, measurement_info.rn
-    xi = descent_info.xi
 
     signal_f=do_fft(signal_t, sk, rn)
     trace=calculate_trace(signal_f)
 
-    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
+    descent_direction, gradient, hessian = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
 
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
-    eta = r_error/(jnp.sum(jnp.abs(descent_direction)**2) + xi)
-
+    descent_direction = adaptive_scaling_of_step(descent_direction, r_error, gradient, hessian, descent_info)
 
     if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
         pk_dot_gradient = jnp.sum(jnp.real(jnp.vecdot(descent_direction, gradient)))
         linesearch_info = MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
-                                    pk_dot_gradient=pk_dot_gradient, pk=descent_direction, eta=eta, mu=mu)
+                                    pk_dot_gradient=pk_dot_gradient, pk=descent_direction, mu=mu)
         
         gamma = do_linesearch(linesearch_info, measurement_info, descent_info, 
                               Partial(calc_r_error_for_linesearch, descent_info=descent_info), 
@@ -158,7 +157,7 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_i
     else:
         gamma = descent_info.gamma
         
-    signal_t_new = signal_t + gamma*eta*descent_direction
+    signal_t_new = signal_t + gamma*descent_direction
     return signal_t_new, None
 
 

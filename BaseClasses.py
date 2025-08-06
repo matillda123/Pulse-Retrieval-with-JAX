@@ -18,7 +18,7 @@ class AlgorithmsBASE:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.use_copra_style_step_scaling = False
+        self.adaptive_scaling = False
         self.use_jit = False
 
 

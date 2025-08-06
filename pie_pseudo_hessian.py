@@ -74,6 +74,7 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev
     elif full_or_diagonal=="diagonal":
         hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis]
         newton_direction=grad/hessian
+        hessian = jax.vmap(jnp.diag)(hessian)
 
     else:
         print(f"{full_or_diagonal} not available. needs to be diagonal or full")

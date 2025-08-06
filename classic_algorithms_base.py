@@ -5,7 +5,7 @@ from jax.tree_util import Partial
 from equinox import tree_at
 
 
-from linesearch import do_linesearch
+from linesearch import do_linesearch, adaptive_scaling_of_step
 from nonlinear_cg import get_nonlinear_CG_direction
 from lbfgs import get_pseudo_newton_direction
 
@@ -80,21 +80,6 @@ def initialize_lbfgs(descent_state, measurement_info, descent_info):
 
 
 
-def adaptive_step_size(error, gradient, hessian, xi, order):
-    if order=="first":
-        eta = error/(jnp.sum(jnp.abs(gradient)**2) + xi)
-
-    elif order=="second":
-        curv = jnp.conjugate(gradient) @ hessian @ gradient
-        grad_norm2 = jnp.sum(jnp.abs(gradient)**2)
-        diskriminante = (grad_norm2/(curv+xi))**2 - error/(curv+xi)
-        diskriminante = jnp.maximum(diskriminante, 1e-12)
-        eta = grad_norm2/(curv+xi) - jnp.sqrt(diskriminante)
-        
-    else:
-        print("not available")
-
-    return eta 
 
 
 
@@ -156,7 +141,6 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
     def gradient_descent_Z_error_step(self, signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, pulse_or_gate):        
         hessian, conjugate_gradients = descent_info.hessian, descent_info.conjugate_gradients
-        xi = descent_info.xi
 
         population = descent_state.population
         transform_arr = measurement_info.transform_arr
@@ -164,7 +148,6 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
         grad = self.calculate_Z_error_gradient(signal_t_new, signal_t, population, transform_arr, measurement_info, pulse_or_gate)
         gradient_sum = jnp.sum(grad, axis=1)
-        eta = Z_error/(jnp.sum(jnp.abs(gradient_sum)**2) + xi)
 
 
         if hessian.use_hessian=="diagonal" or hessian.use_hessian=="full":
@@ -179,6 +162,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
             descent_direction = -1*gradient_sum
 
 
+
         if conjugate_gradients!=False:
             cg = getattr(descent_state.cg, pulse_or_gate)
             descent_direction, cg =jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, conjugate_gradients)
@@ -186,7 +170,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
 
-        descent_direction = descent_direction*(eta*descent_info.use_copra_style_step_scaling + 1*(1 - descent_info.use_copra_style_step_scaling))[:,jnp.newaxis]
+        descent_direction = adaptive_scaling_of_step(descent_direction, Z_error, gradient_sum, getattr(descent_state.hessian, pulse_or_gate), descent_info)
 
 
         if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
@@ -200,6 +184,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
                                                                              Partial(self.calc_Z_grad_for_linesearch, pulse_or_gate=pulse_or_gate))
         else:
             gamma = jnp.ones(descent_info.population_size)*descent_info.gamma
+
 
 
         if hessian.use_hessian=="lbfgs":
@@ -305,7 +290,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
                                                      hessian = hessian, 
 
                                                      xi = self.xi, 
-                                                     use_copra_style_step_scaling = self.use_copra_style_step_scaling)
+                                                     adaptive_scaling = self.adaptive_scaling)
     
         descent_info=self.descent_info
 
@@ -476,7 +461,6 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         measured_trace = measurement_info.measured_trace
         sk, rn = measurement_info.sk, measurement_info.rn
 
-        xi = descent_info.xi
         pie_method = descent_info.pie_method.global_pie
         hessian, conjugate_gradients = descent_info.hessian, descent_info.conjugate_gradients
         population = descent_state.population
@@ -487,7 +471,6 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, pie_method, measurement_info, descent_info, pulse_or_gate)
         gradient_sum = jnp.sum(grad, axis=1)
-        eta = pie_error/(jnp.sum(jnp.abs(gradient_sum)**2, axis=1) + xi)
 
         
         if hessian.use_hessian=="diagonal" or hessian.use_hessian=="full":
@@ -508,7 +491,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
 
-        descent_direction = descent_direction*(eta*descent_info.use_copra_style_step_scaling + 1*(1 - descent_info.use_copra_style_step_scaling))[:,jnp.newaxis]
+        descent_direction = adaptive_scaling_of_step(descent_direction, pie_error, gradient_sum, getattr(descent_state.hessian, pulse_or_gate), descent_info)
 
 
 
@@ -522,6 +505,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
                                                                                 Partial(self.calc_error_for_linesearch, pulse_or_gate=pulse_or_gate),
                                                                                 Partial(self.calc_grad_for_linesearch, descent_info=descent_info, 
                                                                                         pulse_or_gate=pulse_or_gate))
+            
         else:
             gamma = jnp.ones(descent_info.population_size)*descent_info.gamma
 
@@ -607,7 +591,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
                                                      s_prime_params = s_prime_params,
 
                                                      xi = self.xi,
-                                                     use_copra_style_step_scaling = self.use_copra_style_step_scaling)
+                                                     adaptive_scaling = self.adaptive_scaling)
         
         descent_info = self.descent_info
 
@@ -789,7 +773,6 @@ class COPRABASE(AlgorithmsBASE):
     def do_global_iteration(self, signal_t, signal_t_new, descent_state, measurement_info, descent_info, pulse_or_gate):
         transform_arr = measurement_info.transform_arr
         gamma, hessian = descent_info.gamma, descent_info.hessian
-        xi = descent_info.xi
 
         population = descent_state.population
 
@@ -805,10 +788,9 @@ class COPRABASE(AlgorithmsBASE):
         else: 
             descent_direction = -1*grad_sum
 
-        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
-        eta = Z_error/(jnp.sum(jnp.abs(descent_direction)**2, axis=1) + xi)
 
-        descent_direction = descent_direction*eta[:,jnp.newaxis]
+        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
+        descent_direction = adaptive_scaling_of_step(descent_direction, Z_error, grad_sum, getattr(descent_state.global_state.hessian, pulse_or_gate), descent_info)
 
 
         if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
@@ -925,7 +907,8 @@ class COPRABASE(AlgorithmsBASE):
                                                      xi = self.xi, 
                                                      linesearch_params = linesearch_params,
                                                      hessian = hessian,
-                                                     s_prime_params = s_prime_params)
+                                                     s_prime_params = s_prime_params,
+                                                     adaptive_scaling = self.adaptive_scaling)
         descent_info=self.descent_info
 
 
@@ -933,7 +916,7 @@ class COPRABASE(AlgorithmsBASE):
         hessian_state_global = get_init_state_pseudo_newton(jnp.shape(population.pulse), measurement_info)
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
-                                                       global_state = hessian_state_global,
+                                                       global_state = MyNamespace(hessian = hessian_state_global),
                                                        local_state = MyNamespace(hessian = hessian_state_local,
                                                                            max_grad_norm2 = MyNamespace(pulse=0.0, gate=0.0), 
                                                                            mu = jnp.ones(self.descent_info.population_size)))
