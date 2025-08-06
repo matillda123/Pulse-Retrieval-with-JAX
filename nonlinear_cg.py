@@ -1,13 +1,19 @@
 import jax.numpy as jnp
+from utilities import MyNamespace
 
 
 
-def get_nonlinear_CG_direction(grad, grad_prev, descent_direction_prev, beta_parameter_version):
+def get_nonlinear_CG_direction(descent_direction, cg, beta_parameter_version):
+    descent_direction_prev, CG_direction_prev = cg.descent_direction_prev, cg.CG_direction_prev
     
-    beta=get_beta_parameter(grad, grad_prev, descent_direction_prev, beta_parameter_version)
-    descent_direction = -grad + beta*descent_direction_prev
+    # negative one to convert descent_direction to grad or pseudo-newton direction
+    beta=get_beta_parameter(-1*descent_direction, descent_direction_prev, CG_direction_prev, beta_parameter_version)
+    CG_direction = descent_direction + beta*CG_direction_prev
 
-    return descent_direction
+    cg = MyNamespace(descent_direction_prev = -1*descent_direction, CG_direction_prev=CG_direction)
+    return CG_direction, cg
+
+
 
 
 def get_beta_parameter(grad, grad_prev, descent_direction_prev, beta_parameter_version):

@@ -191,10 +191,10 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
 
 
     def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
-        newton_direction = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr, 
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr, 
                                                                descent_state, measurement_info, descent_info.hessian, use_hessian, pulse_or_gate,
                                                                in_axes=(0,0,0,0,0,None,None,None,None))
-        return newton_direction
+        return descent_direction, hessian
 
 
 
@@ -205,7 +205,6 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         pulse_f = pulse_f + gamma*descent_direction
         pulse = do_ifft(pulse_f, sk, rn)
 
-        #individual = MyNamespace(pulse=individual.pulse, gate=individual.gate) # i dont need to do this, since tree_at will make a copy.
         individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse)
         return individual
 
@@ -395,9 +394,9 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
         reverse_transform = Partial(reverse_transform_hessian, tau_arr=measurement_info.tau_arr, measurement_info=measurement_info)
 
         signal_f = do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
-        descent_direction=PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, 
-                                                          measurement_info, descent_info, pulse_or_gate, reverse_transform)
-        return descent_direction
+        descent_direction, hessian = PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, 
+                                                                     measurement_info, descent_info, pulse_or_gate, reverse_transform)
+        return descent_direction, hessian
     
 
 
@@ -467,9 +466,9 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
         else:
             in_axes=(0,0,0,0,0,None,None,None,None)
 
-        newton_direction = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr,
-                                                               descent_state, measurement_info, descent_info.hessian, use_hessian, pulse_or_gate, in_axes=in_axes)
-        return newton_direction
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr,
+                                                                        descent_state, measurement_info, descent_info.hessian, use_hessian, pulse_or_gate, in_axes=in_axes)
+        return descent_direction, hessian
             
     
 

@@ -20,29 +20,39 @@ from update_signal import calculate_S_prime
 
 
 def initialize_CG(descent_state, measurement_info):
-    shape = jnp.shape(descent_state.population.pulse)
-    init_arr = jnp.zeros(shape, dtype=jnp.complex64)
+    init_arr = jnp.zeros(jnp.shape(descent_state.population.pulse), dtype=jnp.complex64)
 
-    descent_state = descent_state.expand(cg = MyNamespace(CG_direction_prev = MyNamespace(pulse=init_arr, gate=None), 
-                                                            descent_direction_prev = MyNamespace(pulse=init_arr, gate=None)))
+    cg_pulse = MyNamespace(CG_direction_prev = init_arr, 
+                           descent_direction_prev = init_arr)
 
     if measurement_info.doubleblind==True:
-        descent_state = tree_at(lambda x: x.cg.descent_direction_prev.gate, descent_state, init_arr)
-        descent_state = tree_at(lambda x: x.cg.CG_direction_prev.gate, descent_state, init_arr)
+        cg_gate = MyNamespace(CG_direction_prev = init_arr, 
+                              descent_direction_prev = init_arr)
+    else:
+        cg_gate = None
 
+    descent_state = descent_state.expand(cg = MyNamespace(pulse=cg_pulse, gate=cg_gate))
     return descent_state
 
 
 
+
+def get_init_state_pseudo_newton(shape, measurement_info):
+    init_arr1 = jnp.zeros(shape, dtype=jnp.complex64)
+    init_arr2 = jnp.broadcast_to(jnp.eye(shape[1], dtype=jnp.complex64), (shape[0], shape[1], shape[1]))
+
+    hessian_pulse = MyNamespace(newton_direction_prev=init_arr1, hessian=init_arr2)
+    if measurement_info.doubleblind==True:
+        hessian_gate = MyNamespace(newton_direction_prev=init_arr1, hessian=init_arr2)
+    else:
+        hessian_gate = None
+    hessian=MyNamespace(pulse=hessian_pulse, gate=hessian_gate)
+    return hessian
+
 def initialize_pseudo_newton(descent_state, measurement_info):
     shape = jnp.shape(descent_state.population.pulse)
-    init_arr = jnp.zeros(shape, dtype=jnp.complex64)
-
-    descent_state = descent_state.expand(hessian=MyNamespace(newton_direction_prev = MyNamespace(pulse=init_arr, gate=None)))
-
-    if measurement_info.doubleblind==True:
-        descent_state = tree_at(lambda x: x.hessian.newton_direction_prev.gate, descent_state, init_arr)
-
+    hessian = get_init_state_pseudo_newton(shape, measurement_info)
+    descent_state = descent_state.expand(hessian=hessian)
     return descent_state
 
 
@@ -65,6 +75,26 @@ def initialize_lbfgs(descent_state, measurement_info, descent_info):
     descent_state = descent_state.expand(lbfgs=MyNamespace(pulse=lbfgs_init_pulse, gate=lbfgs_init_gate))
     return descent_state
 
+
+
+
+
+
+def adaptive_step_size(error, gradient, hessian, xi, order):
+    if order=="first":
+        eta = error/(jnp.sum(jnp.abs(gradient)**2) + xi)
+
+    elif order=="second":
+        curv = jnp.conjugate(gradient) @ hessian @ gradient
+        grad_norm2 = jnp.sum(jnp.abs(gradient)**2)
+        diskriminante = (grad_norm2/(curv+xi))**2 - error/(curv+xi)
+        diskriminante = jnp.maximum(diskriminante, 1e-12)
+        eta = grad_norm2/(curv+xi) - jnp.sqrt(diskriminante)
+        
+    else:
+        print("not available")
+
+    return eta 
 
 
 
@@ -138,32 +168,21 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
         if hessian.use_hessian=="diagonal" or hessian.use_hessian=="full":
-            newton_direction = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, measurement_info, descent_info, 
-                                                                       hessian.use_hessian, pulse_or_gate)
-
-            descent_state = tree_at(lambda x: getattr(x.hessian.newton_direction_prev, pulse_or_gate).newton_direction, descent_state, newton_direction)
-            descent_direction = -1*newton_direction
+            descent_direction, hessian_state = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, 
+                                                                                       measurement_info, descent_info, hessian.use_hessian, pulse_or_gate)
+            descent_state = tree_at(lambda x: getattr(x.hessian, pulse_or_gate), descent_state, hessian_state)
 
         elif hessian.use_hessian=="lbfgs":
-            newton_direction, lbfgs_state = get_pseudo_newton_direction(gradient_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
-            descent_direction = -1*newton_direction
+            descent_direction, lbfgs_state = get_pseudo_newton_direction(gradient_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
 
         else:
             descent_direction = -1*gradient_sum
 
 
-
         if conjugate_gradients!=False:
-            cg = descent_state.cg
-            descent_direction_prev, CG_direction_prev = getattr(cg.descent_direction_prev, pulse_or_gate), getattr(cg.CG_direction_prev, pulse_or_gate)
-
-            CG_direction=jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,0,None))(-1*descent_direction, descent_direction_prev, CG_direction_prev, 
-                                                                                    conjugate_gradients)
-            
-            descent_state = tree_at(lambda x: getattr(x.cg.descent_direction_prev, pulse_or_gate), descent_state, -1*descent_direction)
-            descent_state = tree_at(lambda x: getattr(x.cg.CG_direction_prev, pulse_or_gate), descent_state, CG_direction)
-            
-            descent_direction = CG_direction
+            cg = getattr(descent_state.cg, pulse_or_gate)
+            descent_direction, cg =jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, conjugate_gradients)
+            descent_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), descent_state, cg)
 
 
 
@@ -472,32 +491,26 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         
         if hessian.use_hessian=="diagonal" or hessian.use_hessian=="full":
-            descent_direction = self.calculate_PIE_descent_direction_hessian(grad*U, signal_t, descent_state, measurement_info, descent_info, pulse_or_gate)
-            descent_state = tree_at(lambda x: getattr(x.hessian.newton_direction_prev, pulse_or_gate), descent_state, -1*descent_direction)
+            descent_direction, hessian_state = self.calculate_PIE_descent_direction_hessian(grad*U, signal_t, descent_state, measurement_info, descent_info, pulse_or_gate)
+            descent_state = tree_at(lambda x: getattr(x.hessian, pulse_or_gate), descent_state, hessian_state)
 
         if hessian.use_hessian=="lbfgs":
-            newton_direction, lbfgs_state = get_pseudo_newton_direction(gradient_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
-            descent_direction = -1*newton_direction
+            descent_direction, lbfgs_state = get_pseudo_newton_direction(gradient_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
         else:
             descent_direction = -1*jnp.sum(grad*U, axis=1)
 
 
 
         if conjugate_gradients!=False:
-            cg=descent_state.cg
-            descent_direction_prev, CG_direction_prev = getattr(cg.descent_direction_prev, pulse_or_gate), getattr(cg.CG_direction_prev, pulse_or_gate)
-
-            CG_direction=jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,0,None))(-1*descent_direction, descent_direction_prev, CG_direction_prev, 
-                                                                                    conjugate_gradients)
-            
-            descent_state = tree_at(lambda x: getattr(x.cg.descent_direction_prev, pulse_or_gate), descent_state, -1*descent_direction)
-            descent_state = tree_at(lambda x: getattr(x.cg.CG_direction_prev, pulse_or_gate), descent_state, CG_direction)
-            
-            descent_direction = CG_direction
+            cg = getattr(descent_state.cg, pulse_or_gate)
+            descent_direction, cg = jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, conjugate_gradients)
+            descent_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), descent_state, cg)
 
 
 
         descent_direction = descent_direction*(eta*descent_info.use_copra_style_step_scaling + 1*(1 - descent_info.use_copra_style_step_scaling))[:,jnp.newaxis]
+
+
 
         if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
             pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.dot(jnp.conjugate(x),y)), in_axes=(0,0))(descent_direction, gradient_sum)
@@ -686,19 +699,19 @@ class COPRABASE(AlgorithmsBASE):
         grad = self.calculate_Z_gradient(signal_t_new, signal_t, population, transform_arr_m, measurement_info, pulse_or_gate, local=True)
         
         if hessian.local_hessian!=False:
-            newton_direction = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr_m, descent_state, measurement_info, descent_info, 
-                                                                       hessian.local_hessian, pulse_or_gate, local=True)
+            descent_direction, hessian_state = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr_m, descent_state, 
+                                                                                       measurement_info, descent_info, hessian.local_hessian, 
+                                                                                       pulse_or_gate, local=True)
 
-            descent_state = tree_at(lambda x: getattr(x.hessian.newton_direction_prev, pulse_or_gate), descent_state, newton_direction)
-            descent_direction = -1*newton_direction
+            descent_state = tree_at(lambda x: getattr(x.local_state.hessian, pulse_or_gate), descent_state, hessian_state)
         else:
             descent_direction = -1*jnp.squeeze(grad)
             
 
         grad_norm2 = jnp.sum(jnp.abs(descent_direction)**2)
-        max_grad_norm2 = getattr(descent_state.local.max_grad_norm2, pulse_or_gate)
+        max_grad_norm2 = getattr(descent_state.local_state.max_grad_norm2, pulse_or_gate)
         max_grad_norm2 = jnp.greater(grad_norm2, max_grad_norm2)*grad_norm2 + jnp.greater(max_grad_norm2, grad_norm2)*max_grad_norm2
-        descent_state = tree_at(lambda x: getattr(x.local.max_grad_norm2, pulse_or_gate), descent_state, max_grad_norm2)
+        descent_state = tree_at(lambda x: getattr(x.local_state.max_grad_norm2, pulse_or_gate), descent_state, max_grad_norm2)
 
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
         gamma = Z_error/max_grad_norm2
@@ -735,7 +748,7 @@ class COPRABASE(AlgorithmsBASE):
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
         local_mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measurement_info.measured_trace)
-        descent_state = tree_at(lambda x: x.local.mu, descent_state, local_mu)
+        descent_state = tree_at(lambda x: x.local_state.mu, descent_state, local_mu)
 
         one_local_iteration=Partial(self.do_one_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
         one_local_iteration=Partial(scan_helper, actual_function=one_local_iteration, number_of_args=1, number_of_xs=2)
@@ -784,11 +797,11 @@ class COPRABASE(AlgorithmsBASE):
         grad_sum = jnp.sum(grad, axis=1)
 
         if hessian.global_hessian=="diagonal" or hessian.global_hessian=="full":
-            newton_direction = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, measurement_info, descent_info, 
-                                                                       hessian.global_hessian, pulse_or_gate, local=False)
+            descent_direction, hessian_state = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, 
+                                                                                       measurement_info, descent_info, hessian.global_hessian, 
+                                                                                       pulse_or_gate, local=False)
 
-            descent_state = tree_at(lambda x: getattr(x.hessian.newton_direction_prev, pulse_or_gate), descent_state, newton_direction)
-            descent_direction = -1*newton_direction
+            descent_state = tree_at(lambda x: getattr(x.global_state.hessian, pulse_or_gate), descent_state, hessian_state)
         else: 
             descent_direction = -1*grad_sum
 
@@ -860,12 +873,12 @@ class COPRABASE(AlgorithmsBASE):
         
         grad = self.calculate_Z_gradient(signal_t_new, signal_t, population, transform_arr, measurement_info, "pulse")
         max_grad_norm2_pulse=jnp.max(jnp.sum(jnp.abs(grad)**2, axis=1))
-        descent_state = tree_at(lambda x: x.local.max_grad_norm2.pulse, descent_state, max_grad_norm2_pulse)
+        descent_state = tree_at(lambda x: x.local_state.max_grad_norm2.pulse, descent_state, max_grad_norm2_pulse)
 
         if measurement_info.doubleblind==True:
             grad = self.calculate_Z_gradient(signal_t_new, signal_t, population, transform_arr, measurement_info, "gate")
             max_grad_norm2_gate=jnp.max(jnp.sum(jnp.abs(grad)**2, axis=1))
-            descent_state = tree_at(lambda x: x.local.max_grad_norm2.gate, descent_state, max_grad_norm2_gate)
+            descent_state = tree_at(lambda x: x.local_state.max_grad_norm2.gate, descent_state, max_grad_norm2_gate)
 
 
         do_local = Partial(self.step_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
@@ -916,12 +929,14 @@ class COPRABASE(AlgorithmsBASE):
         descent_info=self.descent_info
 
 
-        init_arr = jnp.zeros(jnp.shape(population.pulse), dtype=jnp.complex64)
+        hessian_state_local = get_init_state_pseudo_newton(jnp.shape(population.pulse), measurement_info)
+        hessian_state_global = get_init_state_pseudo_newton(jnp.shape(population.pulse), measurement_info)
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
-                                                       hessian = MyNamespace(newton_direction_prev=MyNamespace(pulse=init_arr, gate=init_arr)), 
-                                                       local = MyNamespace(max_grad_norm2 = MyNamespace(pulse=0.0, gate=0.0), 
-                                                                         mu = jnp.ones(self.descent_info.population_size)))
+                                                       global_state = hessian_state_global,
+                                                       local_state = MyNamespace(hessian = hessian_state_local,
+                                                                           max_grad_norm2 = MyNamespace(pulse=0.0, gate=0.0), 
+                                                                           mu = jnp.ones(self.descent_info.population_size)))
         descent_state=self.descent_state
 
 

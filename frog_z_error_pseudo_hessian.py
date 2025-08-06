@@ -2,7 +2,7 @@ import jax.numpy as jnp
 import jax
 from jax.tree_util import Partial
 
-from utilities import solve_linear_system, scan_helper
+from utilities import solve_linear_system, scan_helper, MyNamespace
 
 
 
@@ -332,7 +332,7 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t_shifted, gate_shifted, s
     solver = hessian.linalg_solver
 
     pulse_t_arr = descent_state.population.pulse
-    newton_direction_prev = getattr(descent_state.hessian.newton_direction_prev, pulse_or_gate)
+    newton_direction_prev = getattr(descent_state.hessian, pulse_or_gate).newton_direction_prev
 
     # vmap over population here -> only for small populations since memory will explode. 
     hessian_m=jax.vmap(calc_Z_error_pseudo_hessian_all_m, in_axes=in_axes)(pulse_t_arr, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, 
@@ -349,12 +349,14 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t_shifted, gate_shifted, s
         newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
 
     elif full_or_diagonal=="diagonal":
-        newton_direction=grad/(hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis])
+        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis]
+        newton_direction=grad/hessian
 
     else:
         print("something is wrong")
 
-    return newton_direction
+    hessian = MyNamespace(hessian=hessian, newton_direction_prev = newton_direction)
+    return -1*newton_direction, hessian
         
 
 

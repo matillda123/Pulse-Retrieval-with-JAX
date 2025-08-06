@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 import jax
 from jax.tree_util import Partial
-from utilities import scan_helper, solve_linear_system
+from utilities import scan_helper, solve_linear_system, MyNamespace
 
 
 
@@ -72,9 +72,11 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev
         newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
 
     elif full_or_diagonal=="diagonal":
-        newton_direction=grad/(hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis])
+        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis]
+        newton_direction=grad/hessian
 
     else:
         print(f"{full_or_diagonal} not available. needs to be diagonal or full")
 
-    return -1*newton_direction
+    hessian = MyNamespace(hessian=hessian, newton_direction_prev=newton_direction)
+    return -1*newton_direction, hessian

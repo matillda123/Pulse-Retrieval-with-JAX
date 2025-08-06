@@ -63,4 +63,4 @@ def get_pseudo_newton_direction(grad, lbfgs_state, descent_info):
     lbfgs_state = MyNamespace(grad_prev = grad_arr, 
                               newton_direction_prev=newton_arr,
                               step_size_prev = lbfgs_state.step_size_prev)
-    return newton_direction, lbfgs_state
+    return -1*newton_direction, lbfgs_state
