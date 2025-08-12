@@ -90,13 +90,13 @@ def calc_Z_error_pseudo_hessian_all_m(pulse_t_dispersed, signal_t, signal_t_new,
 
 
 
-def get_pseudo_newton_direction_Z_error(grad_m, pulse_t_dispersed, signal_t, signal_t_new, phase_matrix, descent_state, measurement_info, hessian, 
+def get_pseudo_newton_direction_Z_error(grad_m, pulse_t_dispersed, signal_t, signal_t_new, phase_matrix, measurement_info, hessian_state, hessian_info, 
                                         full_or_diagonal, in_axes=None):
 
-    lambda_lm = hessian.lambda_lm
-    solver = hessian.linalg_solver
+    lambda_lm = hessian_info.lambda_lm
+    solver = hessian_info.linalg_solver
 
-    newton_direction_prev = descent_state.hessian.newton_direction_prev.pulse
+    newton_direction_prev = hessian_state.newton_direction_prev.pulse
 
     # vmap over population here -> only for small populations since memory will explode. 
     hessian_m=jax.vmap(calc_Z_error_pseudo_hessian_all_m, in_axes=in_axes)(pulse_t_dispersed, signal_t, signal_t_new, phase_matrix, measurement_info, full_or_diagonal)

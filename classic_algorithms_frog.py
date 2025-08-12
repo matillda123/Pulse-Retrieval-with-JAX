@@ -191,9 +191,10 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
 
 
     def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
-        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr, 
-                                                               descent_state, measurement_info, descent_info.hessian, use_hessian, pulse_or_gate,
-                                                               in_axes=(0,0,0,0,0,None,None,None,None))
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         descent_state.hessian, descent_info.hessian, use_hessian, pulse_or_gate,
+                                                                         in_axes=(0,0,0,0,0,None,None,None,None))
         return descent_direction, hessian
 
 
@@ -443,11 +444,15 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
                                            use_hessian, pulse_or_gate, local=False):
         if local==True:
             in_axes=(0,0,0,0,0,0,None,None,None)
+            hessian_state = descent_state.local_state.hessian
         else:
             in_axes=(0,0,0,0,0,None,None,None,None)
+            hessian_state = descent_state.global_state.hessian
 
-        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_shifted, signal_t.gate_shifted, signal_t.signal_t, signal_t_new, tau_arr,
-                                                                        descent_state, measurement_info, descent_info.hessian, use_hessian, pulse_or_gate, in_axes=in_axes)
+
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         hessian_state, descent_info.hessian, use_hessian, pulse_or_gate, in_axes=in_axes)
         return descent_direction, hessian
             
     

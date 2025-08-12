@@ -115,7 +115,8 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
 
     def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, phase_matrix, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, 
-                                                                        descent_state, measurement_info, descent_info.hessian, use_hessian, in_axes=(0,0,0,None,None,None))
+                                                                        measurement_info, descent_state.hessian, descent_info.hessian, use_hessian, 
+                                                                        in_axes=(0,0,0,None,None,None))
         return descent_direction, hessian
 
 
@@ -307,13 +308,15 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
             pulse_t_disp = signal_t.pulse_t_disp[:,jnp.newaxis,:]
             signal_t = signal_t.signal_t[:,jnp.newaxis,:]
             signal_t_new = signal_t_new[:,jnp.newaxis,:]
+            hessian_state = descent_state.local_state.hessian
         else:
             in_axes = (0,0,0,None,None,None)
             pulse_t_disp = signal_t.pulse_t_disp
             signal_t = signal_t.signal_t
+            hessian_state = descent_state.global_state.hessian
         
-        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, pulse_t_disp, signal_t, signal_t_new, phase_matrix, 
-                                                                        descent_state, measurement_info, descent_info.hessian, use_hessian, in_axes=in_axes)
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, pulse_t_disp, signal_t, signal_t_new, phase_matrix, measurement_info, 
+                                                                         hessian_state, descent_info.hessian, use_hessian, in_axes=in_axes)
         return descent_direction, hessian
             
     

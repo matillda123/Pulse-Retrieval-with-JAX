@@ -54,7 +54,7 @@ def PIE_get_pseudo_hessian_all_m(probe_all_m, signal_f, measurement_info, use_he
 
 def PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, measurement_info, descent_info, pulse_or_gate, reverse_transform):
     hessian = descent_info.hessian
-    full_or_diagonal, lambda_lm, solver = hessian.use_hessian, hessian.lambda_lm, hessian.linalg_solver
+    full_or_diagonal, lambda_lm, solver = hessian.global_hessian, hessian.lambda_lm, hessian.linalg_solver
 
     hessian_all_m=jax.vmap(PIE_get_pseudo_hessian_all_m, in_axes=(0,0,None,None))(probe, signal_f, measurement_info, full_or_diagonal)
 

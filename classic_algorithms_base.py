@@ -5,7 +5,7 @@ from jax.tree_util import Partial
 from equinox import tree_at
 
 
-from linesearch import do_linesearch, adaptive_scaling_of_step
+from stepsize import do_linesearch, adaptive_scaling_of_step
 from nonlinear_cg import get_nonlinear_CG_direction
 from lbfgs import get_pseudo_newton_direction
 
@@ -48,6 +48,7 @@ def get_init_state_pseudo_newton(shape, measurement_info):
         hessian_gate = None
     hessian=MyNamespace(pulse=hessian_pulse, gate=hessian_gate)
     return hessian
+
 
 def initialize_pseudo_newton(descent_state, measurement_info):
     shape = jnp.shape(descent_state.population.pulse)
@@ -334,15 +335,6 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
 
-
-
-
-
-
-
-
-
-
 class TimeDomainPtychographyBASE(AlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -470,7 +462,7 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
 
-        individual = self.update_individual_global(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         error_new = self.calculate_PIE_error(do_fft(signal_t.signal_t, sk, rn), measured_trace)
         return error_new
@@ -480,11 +472,11 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
         individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
         
-        individual = self.update_individual_global(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         signal_t_new = calculate_S_prime(signal_t.signal_t, measured_trace, 1, measurement_info, descent_info, method=descent_info.s_prime_params.global_method)
-        grad_all_m, U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, descent_info.pie_method.global_pie, 
-                                                             measurement_info, descent_info, pulse_or_gate)
+        grad_all_m, U = self.calculate_PIE_descent_direction_global(individual, signal_t, signal_t_new, descent_info.pie_method.global_pie, 
+                                                                    measurement_info, descent_info, pulse_or_gate)
         return jnp.sum(grad_all_m, axis=1)
     
 
@@ -741,7 +733,7 @@ class COPRABASE(AlgorithmsBASE):
 
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
         get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.local_method)
-        signal_t_new=jax.vmap(get_S_prime, in_axes=(0,0,0,None,None))(signal_t.signal_t, trace_line, descent_state.local.mu, measurement_info, descent_info)
+        signal_t_new=jax.vmap(get_S_prime, in_axes=(0,0,0,None,None))(signal_t.signal_t, trace_line, descent_state.local_state.mu, measurement_info, descent_info)
 
         descent_state, Z_error = self.one_local_iteration(signal_t, signal_t_new, transform_arr_m, 
                                                           descent_state, measurement_info, descent_info, "pulse")
