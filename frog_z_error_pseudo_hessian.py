@@ -327,14 +327,14 @@ def calc_Z_error_pseudo_hessian_all_m(pulse_t, pulse_t_shifted, gate_shifted, si
 
 
 def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, tau_arr, measurement_info, 
-                                        hessian_state, hessian_info, full_or_diagonal, pulse_or_gate, in_axes=None):
+                                        hessian_state, hessian_info, full_or_diagonal, pulse_or_gate):
     lambda_lm = hessian_info.lambda_lm
     solver = hessian_info.linalg_solver
     newton_direction_prev = getattr(hessian_state, pulse_or_gate).newton_direction_prev  
 
     # vmap over population here -> only for small populations since memory will explode. 
-    hessian_m=jax.vmap(calc_Z_error_pseudo_hessian_all_m, in_axes=in_axes)(pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, 
-                                                                           tau_arr, measurement_info, full_or_diagonal, pulse_or_gate)
+    hessian_m=jax.vmap(calc_Z_error_pseudo_hessian_all_m, in_axes=(0,0,0,0,0,0,None,None,None))(pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, 
+                                                                                                tau_arr, measurement_info, full_or_diagonal, pulse_or_gate)
     
     hessian=jnp.sum(hessian_m, axis=1)
     grad=jnp.sum(grad_m, axis=1)

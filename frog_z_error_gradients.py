@@ -2,6 +2,7 @@ import jax.numpy as jnp
 from utilities import do_fft
 
 
+
 def Z_gradient_shg(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     term1=do_fft(deltaS*jnp.conjugate(pulse_t_shifted), sk, rn)
     term2=do_fft(deltaS*jnp.conjugate(pulse_t), sk, rn)

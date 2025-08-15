@@ -31,14 +31,10 @@ class AlgorithmsBASE:
 
         transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
         
-        transform_arr = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0))(transform_arr, idx_arr)
-        measured_trace = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0))(measured_trace, idx_arr)
+        transform_arr = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(transform_arr, idx_arr)
+        measured_trace = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(measured_trace, idx_arr)
 
-        transform_arr=jnp.swapaxes(transform_arr, 0, 1)
-        if len(jnp.shape(transform_arr))==2:
-            transform_arr=jnp.expand_dims(transform_arr, axis=2)
-
-        measured_trace=jnp.transpose(measured_trace, axes=(1,0,2))
+        transform_arr=jnp.expand_dims(transform_arr, axis=2)
         return transform_arr, measured_trace, descent_state
 
 
@@ -789,7 +785,6 @@ class RetrievePulsesDSCAN(RetrievePulses):
         pulse = individual.pulse
 
         pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info)
-        #pulse_t_disp = jax.vmap(center_signal)(pulse_t_disp)
         gate_disp = calculate_gate(pulse_t_disp, measurement_info.nonlinear_method)
         signal_t = pulse_t_disp*gate_disp
 

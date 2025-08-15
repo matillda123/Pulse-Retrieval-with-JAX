@@ -40,10 +40,10 @@ def PIE_get_pseudo_hessian_one_m(probe, signal_f, measured_trace, measurement_in
 
 
 
-def PIE_get_pseudo_hessian_all_m(probe_all_m, signal_f, measurement_info, use_hessian):
+def PIE_get_pseudo_hessian_all_m(probe_all_m, signal_f, measured_trace, measurement_info, use_hessian):
 
     get_hessian=Partial(PIE_get_pseudo_hessian_one_m, measurement_info=measurement_info, use_hessian=use_hessian)
-    hessian_all_m=jax.vmap(get_hessian, in_axes=(0,0,0))(probe_all_m, signal_f, measurement_info.measured_trace)
+    hessian_all_m=jax.vmap(get_hessian, in_axes=(0,0,0))(probe_all_m, signal_f, measured_trace)
 
     return hessian_all_m
     
@@ -52,14 +52,18 @@ def PIE_get_pseudo_hessian_all_m(probe_all_m, signal_f, measurement_info, use_he
 
 
 
-def PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev, measurement_info, descent_info, pulse_or_gate, reverse_transform):
+def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measured_trace, reverse_transform, local_or_global_state, 
+                                    measurement_info, descent_info, pulse_or_gate, local_or_global):
     hessian = descent_info.hessian
-    full_or_diagonal, lambda_lm, solver = hessian.global_hessian, hessian.lambda_lm, hessian.linalg_solver
+    lambda_lm, solver = hessian.lambda_lm, hessian.linalg_solver
+    full_or_diagonal = getattr(hessian, local_or_global)
+    newton_direction_prev = getattr(local_or_global_state.hessian, pulse_or_gate).newton_direction_prev
 
-    hessian_all_m=jax.vmap(PIE_get_pseudo_hessian_all_m, in_axes=(0,0,None,None))(probe, signal_f, measurement_info, full_or_diagonal)
+
+    hessian_all_m=jax.vmap(PIE_get_pseudo_hessian_all_m, in_axes=(0,0,0,None,None))(probe, signal_f, measured_trace, measurement_info, full_or_diagonal)
 
     if pulse_or_gate=="gate":
-        hessian_all_m = reverse_transform(hessian_all_m)
+        hessian_all_m = jax.vmap(reverse_transform, in_axes=(0,0))(hessian_all_m, transform_arr)
 
 
     grad = jnp.sum(grad, axis=1)
@@ -73,7 +77,7 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, newton_direction_prev
 
     elif full_or_diagonal=="diagonal":
         hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis]
-        newton_direction=grad/hessian
+        newton_direction = grad/hessian
         hessian = jax.vmap(jnp.diag)(hessian)
 
     else:

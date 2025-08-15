@@ -135,8 +135,9 @@ def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent
 
 
 
-def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_info, descent_info):
+def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global):
     sk, rn = measurement_info.sk, measurement_info.rn
+    gamma = getattr(descent_info.gamma, local_or_global)
 
     signal_f=do_fft(signal_t, sk, rn)
     trace=calculate_trace(signal_f)
@@ -144,28 +145,28 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_i
     descent_direction, gradient, hessian = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
 
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
-    descent_direction = adaptive_scaling_of_step(descent_direction, r_error, gradient, hessian, descent_info)
 
-    if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
+    descent_direction = adaptive_scaling_of_step(descent_direction, r_error, gradient, hessian, descent_info, "_global")
+
+    if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
         pk_dot_gradient = jnp.sum(jnp.real(jnp.vecdot(descent_direction, gradient)))
         linesearch_info = MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
                                     pk_dot_gradient=pk_dot_gradient, pk=descent_direction, mu=mu)
         
         gamma = do_linesearch(linesearch_info, measurement_info, descent_info, 
                               Partial(calc_r_error_for_linesearch, descent_info=descent_info), 
-                              Partial(calc_r_grad_for_linesearch, descent_info=descent_info))
-    else:
-        gamma = descent_info.gamma
+                              Partial(calc_r_grad_for_linesearch, descent_info=descent_info), local_or_global)
         
     signal_t_new = signal_t + gamma*descent_direction
     return signal_t_new, None
 
 
-def calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, descent_info, number_of_iterations):
+def calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, descent_info, number_of_iterations, local_or_global):
     if number_of_iterations==1:
-        signal_t_new, _ = calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_info, descent_info)
+        signal_t_new, _ = calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global)
     else:
-        step = Partial(calculate_S_prime_iterative_step, measured_trace=measured_trace, mu=mu, measurement_info=measurement_info, descent_info=descent_info)
+        step = Partial(calculate_S_prime_iterative_step, measured_trace=measured_trace, mu=mu, measurement_info=measurement_info, descent_info=descent_info, 
+                       local_or_global=local_or_global)
         do_step = Partial(scan_helper, actual_function=step, number_of_args=1, number_of_xs=0)
         signal_t_new, _ = jax.lax.scan(do_step, signal_t, length=number_of_iterations)
     return signal_t_new
@@ -175,14 +176,15 @@ def calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, 
 
 
 
-def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_info, method="projection"):
+def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global):
+    method = getattr(descent_info.s_prime_params, local_or_global)
 
     if method=="projection":
         signal_t_new = calculate_S_prime_projection(signal_t, measured_trace, mu, measurement_info)
 
     elif method=="iteration":
         number_of_iterations = descent_info.s_prime_params.number_of_iterations
-        signal_t_new = calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, descent_info, number_of_iterations)
+        signal_t_new = calculate_S_prime_iterative(signal_t, measured_trace, mu, measurement_info, descent_info, number_of_iterations, local_or_global)
 
     else:
         print("something is wrong")

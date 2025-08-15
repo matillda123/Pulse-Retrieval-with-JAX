@@ -19,37 +19,40 @@ def forward_loop(r, i, alpha, rho, s, y):
     return r, None
 
 
-def do_lbfgs(grad_current, lbfgs_state, hessian):
-    grad_prev, newton_direction_prev, step_size_prev = lbfgs_state.grad_prev, lbfgs_state.newton_direction_prev, lbfgs_state.step_size_prev
-
+def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, hessian):
     m = hessian.lbfgs_memory
+
     m_backward = jnp.arange(0,m,1)
     m_forward = jnp.arange(m,0,-1)
-
-    s = -1*step_size_prev*newton_direction_prev
-    y = grad_current - grad_prev
-
-
-    rho = 1/jnp.real(jnp.vecdot(y,s) + 1e-14)
-    rho = jnp.maximum(rho, 0) # ignore iterations with negative curvature
     alpha = jnp.zeros(m, dtype=jnp.complex64)
-    
     do_backward = Partial(backward_loop, rho=rho, s=s, y=y)
     q, alpha = jax.lax.scan(do_backward, grad_current, m_backward)
 
     n = jnp.shape(grad_prev)[-1]
-    gamma = 1 
-    r = gamma*jnp.eye(n) @ q
+    r = jnp.eye(n) @ q
     do_forward = Partial(forward_loop, alpha=alpha, rho=rho, s=s, y=y)
-    r, _ = jax.lax.scan(do_forward, r, m_forward)
+    newton_direction, _ = jax.lax.scan(do_forward, r, m_forward)
+    return newton_direction
 
-    newton_direction = r
+
+
+def do_lbfgs(grad_current, lbfgs_state, hessian):
+    grad_prev, newton_direction_prev, step_size_prev = lbfgs_state.grad_prev, lbfgs_state.newton_direction_prev, lbfgs_state.step_size_prev
+
+    s = -1*step_size_prev*newton_direction_prev
+    y = grad_current - grad_prev
+
+    rho = 1/jnp.real(jnp.vecdot(y,s) + 1e-14)
+    rho = jnp.maximum(rho, 0) # ignore iterations with negative curvature
+
+    newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, hessian)
+
     return newton_direction
 
 
 
 # lbfgs isnt sensible when doing alternating optimization 
-def get_pseudo_newton_direction(grad, lbfgs_state, descent_info):
+def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
     newton_direction = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info.hessian)
 
     grad_arr = lbfgs_state.grad_prev
