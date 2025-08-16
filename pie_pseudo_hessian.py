@@ -83,5 +83,6 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
     else:
         print(f"{full_or_diagonal} not available. needs to be diagonal or full")
 
-    hessian = MyNamespace(newton_direction_prev=newton_direction, hessian=hessian)
-    return -1*newton_direction, hessian
+    gHg = jax.vmap(lambda g,H: jnp.conjugate(g) @ H @ g)(grad, hessian)
+    hessian_state = MyNamespace(gHg=jnp.real(gHg), newton_direction_prev = newton_direction)
+    return -1*newton_direction, hessian_state

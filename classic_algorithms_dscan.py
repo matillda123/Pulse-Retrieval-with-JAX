@@ -92,34 +92,18 @@ class GeneralizedProjection(RetrievePulsesDSCAN, GeneralizedProjectionBASE):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
-    
 
-    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        descent_direction, signal_t_new = linesearch_info.descent_direction, linesearch_info.signal_t_new
-        phase_matrix = measurement_info.phase_matrix
 
-        individual = linesearch_info.population
-
-        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
-        signal_t = self.calculate_signal_t(individual, phase_matrix, measurement_info)
+    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
-        return jnp.sum(grad, axis=0)
+        return grad 
 
 
-
-    def calculate_Z_error_gradient(self, signal_t_new, signal_t, population, phase_matrix, measurement_info, pulse_or_gate):
-        grad = jax.vmap(calculate_Z_gradient, in_axes=(0,0,0,None,None))(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, 
-                                                                                   phase_matrix, measurement_info)
-        return grad
-
-
-    def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, phase_matrix, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
+    def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, phase_matrix, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, 
-                                                                        measurement_info, descent_state.hessian, descent_info.hessian, use_hessian, 
-                                                                        in_axes=(0,0,0,None,None,None))
+                                                                        measurement_info, descent_state.hessian, descent_info.hessian, use_hessian)
         return descent_direction, hessian
-
-
+    
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         pulse = individual.pulse + gamma*descent_direction
@@ -183,7 +167,7 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
 
 
 
-    def get_PIE_descent_direction(self, signal_t, signal_t_new, phase_matrix_m, population, pie_method, measurement_info, descent_info):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, population, pie_method, measurement_info, descent_info):
         alpha = descent_info.alpha
 
         probe = signal_t.gate_disp
@@ -195,14 +179,6 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
         U = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(U, phase_matrix_m, measurement_info)
         grad = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(grad, phase_matrix_m, measurement_info)
         return grad, U
-
-
-
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, phase_matrix, pie_method, measurement_info, descent_info, pulse_or_gate):
-        get_descent_direction = Partial(self.get_PIE_descent_direction, population=population, pie_method=pie_method, measurement_info=measurement_info, 
-                                        descent_info=descent_info)
-        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(1,1,1), out_axes=(1,1))(signal_t, signal_t_new, phase_matrix)
-        return grad_all_m, U
 
 
 
@@ -262,9 +238,6 @@ class COPRA(RetrievePulsesDSCAN, COPRABASE):
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return grad
 
-    def get_Z_gradient(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
-        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None))(signal_t, signal_t_new, population, phase_matrix, measurement_info)
-        return grad
 
 
     def calculate_Z_error_newton_direction(self, grad, signal_t, signal_t_new, phase_matrix, population, local_or_global_state, measurement_info, descent_info, 

@@ -12,7 +12,7 @@ from utilities import while_loop_helper
 
 def do_linesearch_step(condition, gamma, iteration, linesearch_info, measurement_info, linesearch_params, error_func, grad_func):
     c1, c2, delta_gamma = linesearch_params.c1, linesearch_params.c2, linesearch_params.delta_gamma
-    pk_dot_gradient, pk, error = linesearch_info.pk_dot_gradient, linesearch_info.pk, linesearch_info.error
+    pk_dot_gradient, pk, error = linesearch_info.pk_dot_gradient, linesearch_info.descent_direction, linesearch_info.error
 
     delta_gamma_1, delta_gamma_2 = delta_gamma
 
@@ -81,53 +81,59 @@ def do_linesearch(linesearch_info, measurement_info, descent_info, error_func, g
 
 
 
-def calc_adaptive_step_size_global(error, gradient, hessian, xi, order):
+def calc_adaptive_step_size_global(error, gradient, gHg, xi, order, local_or_global_state, pulse_or_gate):
     if order=="linear":
-        curv = 1
         grad_norm2 = jnp.sum(jnp.abs(gradient)**2) + xi
         eta = error/grad_norm2
 
     elif order=="nonlinear":
-        curv = jnp.conjugate(gradient) @ hessian @ gradient + xi
+        gHg = gHg + xi
         grad_norm2 = jnp.sum(jnp.abs(gradient)**2)
-        diskriminante = (grad_norm2/curv)**2 - error/curv
+        diskriminante = (grad_norm2/gHg)**2 - error/gHg
+        jax.debug.print("{error}", error=(error, diskriminante))
         diskriminante = jnp.maximum(diskriminante, 1e-12) # avoid sqrt of negative values
-        eta = grad_norm2/curv - jnp.sqrt(diskriminante)
+        eta = grad_norm2/gHg - jnp.sqrt(diskriminante)
         
     else:
         print("not available")
 
-    return eta#, grad_norm2, curv
+    return eta, local_or_global_state
 
 
 
 
-def calc_adaptive_step_size_local(error, gradient, hessian, xi, order, local_state, pulse_or_gate):
-    eta, grad_norm2, curv = calc_adaptive_step_size_global(error, gradient, hessian, xi, order)
+def calc_adaptive_step_size_local(error, gradient, gHg, xi, order, local_or_global_state, pulse_or_gate):
+    grad_norm2 = jnp.sum(jnp.abs(gradient)**2)
+
     if order=="linear":
-        max_grad_norm2 = getattr(local_state.max_grad_norm2, pulse_or_gate)
+        max_grad_norm2 = getattr(local_or_global_state.max_grad_norm2, pulse_or_gate)
         max_grad_norm2 = jnp.greater(grad_norm2, max_grad_norm2)*grad_norm2 + jnp.greater(max_grad_norm2, grad_norm2)*max_grad_norm2
         eta = error/max_grad_norm2
+
     elif order=="nonlinear":
-        max_curv = getattr(local_state.max_curv, pulse_or_gate)
-        max_curv = jnp.greater(curv, max_curv)*curv + jnp.greater(max_curv, curv)*max_curv
-        diskriminante = (grad_norm2/max_curv)**2 - error/max_curv
-        diskriminante = jnp.maximum(diskriminante, 1e-12)
-        eta = grad_norm2/max_curv - jnp.sqrt(diskriminante)
+        max_gHg = getattr(local_or_global_state.max_gHg, pulse_or_gate)
+        max_gHg = jnp.greater(gHg, max_gHg)*gHg + jnp.greater(max_gHg, gHg)*max_gHg
+        diskriminante = (grad_norm2/max_gHg)**2 - error/max_gHg
+        diskriminante = jnp.maximum(diskriminante, 1e-12) # avoid sqrt(negative)
+        eta = grad_norm2/max_gHg - jnp.sqrt(diskriminante)
+
     else:
         print("notavailable")
 
-    return eta
+    return eta, local_or_global_state
 
 
 
-def adaptive_scaling_of_step(descent_direction, error, gradient, hessian, descent_info, local_or_global):
-    if descent_info.adaptive_scaling!=False:
-        get_step_size={"_local": None,
+
+def adaptive_scaling_of_step(descent_direction, error, gradient, gHg, local_or_global_state, descent_info, local_or_global, pulse_or_gate):
+    order = getattr(descent_info.adaptive_scaling, local_or_global)
+    if order!=False:
+        get_step_size={"_local": calc_adaptive_step_size_local,
                        "_global": calc_adaptive_step_size_global}
         
-        eta = get_step_size[local_or_global](error, gradient, hessian, descent_info.xi, descent_info.adaptive_scaling)
+        eta, local_or_global_state = get_step_size[local_or_global](error, gradient, gHg, descent_info.xi, order, 
+                                                                    local_or_global_state, pulse_or_gate)
     else:
         eta = 1
 
-    return eta*descent_direction
+    return eta*descent_direction, local_or_global_state

@@ -72,6 +72,7 @@ class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
         population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population_pulse)
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
+
         if measurement_info.doubleblind==True:
             signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
             trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
@@ -169,34 +170,18 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
 
 
-    
 
-    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
-        individual, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
-
-        tau_arr = measurement_info.tau_arr
-
-        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
-        signal_t = self.calculate_signal_t(individual, tau_arr, measurement_info)
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, individual.pulse, signal_t.pulse_t_shifted, 
-                                    signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
-        return jnp.sum(grad, axis=0) 
-
-
-
-    def calculate_Z_error_gradient(self, signal_t_new, signal_t, population, tau_arr, measurement_info, pulse_or_gate):
-        grad = jax.vmap(calculate_Z_gradient, in_axes=(0, 0, 0, 0, 0, None, None, None))(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, 
-                                                                                         signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
+    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, tau_arr, 
+                                    measurement_info, pulse_or_gate)
         return grad
 
 
-    def calculate_Z_error_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
+    def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
-                                                                         descent_state.hessian, descent_info.hessian, use_hessian, pulse_or_gate,
-                                                                         in_axes=(0,0,0,0,0,None,None,None,None))
+                                                                         descent_state.hessian, descent_info.hessian, use_hessian, pulse_or_gate)
         return descent_direction, hessian
-
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
@@ -307,16 +292,6 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
 
         return grad, U
     
-    
-
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, tau_arr, pie_method, measurement_info, descent_info, pulse_or_gate):
-        
-        get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, population=population, pie_method=pie_method, 
-                                        measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate=pulse_or_gate)
-
-        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(1,1,1), out_axes=(1,1))(signal_t, signal_t_new, tau_arr)
-        return grad_all_m, U
-    
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
@@ -390,12 +365,6 @@ class COPRA(RetrievePulsesFROG, COPRABASE):
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, 
                                     signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
-        return grad
-
-
-    def get_Z_gradient(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
-        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, tau_arr, 
-                                                                                           measurement_info, pulse_or_gate)
         return grad
 
 

@@ -39,15 +39,16 @@ def initialize_CG_state(shape, measurement_info):
 
 def initialize_pseudo_newton_state(shape, measurement_info):
     init_arr1 = jnp.zeros(shape, dtype=jnp.complex64)
-    init_arr2 = jnp.broadcast_to(jnp.eye(shape[1], dtype=jnp.complex64), (shape[0], shape[1], shape[1]))
+    init_arr2 = jnp.zeros(shape[0])
 
-    hessian_pulse = MyNamespace(newton_direction_prev=init_arr1, hessian=init_arr2)
+    hessian_pulse = MyNamespace(gHg=init_arr2, newton_direction_prev=init_arr1)
     if measurement_info.doubleblind==True:
-        hessian_gate = MyNamespace(newton_direction_prev=init_arr1, hessian=init_arr2)
+        hessian_gate = MyNamespace(gHg=init_arr2, newton_direction_prev=init_arr1)
     else:
         hessian_gate = None
 
     return MyNamespace(pulse=hessian_pulse, gate=hessian_gate)
+
 
 
 
@@ -135,7 +136,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         self.lbfgs_memory = 10
         self.linalg_solver="lineax"
 
-        self.use_conjugate_gradients = False
+        self.conjugate_gradients = False
 
 
         self.xi = 1e-9
@@ -147,12 +148,23 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         self.r_weights = 1
         self.r_no_iterations = 1
 
+        self.local_adaptive_scaling = None
+        self.global_adaptive_scaling = False
+
 
 
     
     def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
         population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return population
+    
+
+    
+    def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate):
+        grad = jax.vmap(self.calculate_Z_gradient_individual, in_axes=(0, 0, 0, None, None, None))(signal_t, signal_t_new, population, transform_arr, 
+                                                                                                   measurement_info, pulse_or_gate)
+        return grad
+
     
 
     def calc_Z_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
@@ -164,6 +176,17 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         Z_error_new = calculate_Z_error(signal_t.signal_t, signal_t_new)
         return Z_error_new
+    
+
+    def calc_Z_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
+        individual, descent_direction, signal_t_new = linesearch_info.population, linesearch_info.descent_direction, linesearch_info.signal_t_new
+
+        transform_arr = measurement_info.transform_arr
+
+        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
+        grad = self.calculate_Z_gradient_individual(signal_t, signal_t_new, individual, transform_arr, measurement_info, pulse_or_gate)
+        return jnp.sum(grad, axis=0)
 
 
     def gradient_descent_Z_error_step(self, signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, pulse_or_gate):        
@@ -173,20 +196,22 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         transform_arr = measurement_info.transform_arr
 
 
-        grad = self.calculate_Z_error_gradient(signal_t_new, signal_t, population, transform_arr, measurement_info, pulse_or_gate)
-        gradient_sum = jnp.sum(grad, axis=1)
+        grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate)
+        grad_sum = jnp.sum(grad, axis=1)
 
 
-        if hessian.global_hessian=="diagonal" or hessian.global_hessian=="full":
-            descent_direction, hessian_state = self.calculate_Z_error_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, 
-                                                                                       measurement_info, descent_info, hessian.global_hessian, pulse_or_gate)
+        hessian_state = getattr(descent_state.hessian, pulse_or_gate)
+        if hessian._global=="diagonal" or hessian._global=="full":
+            descent_direction, hessian_state = self.calculate_Z_newton_direction(grad, signal_t_new, signal_t, transform_arr, descent_state, 
+                                                                                       measurement_info, descent_info, hessian._global, pulse_or_gate)
             descent_state = tree_at(lambda x: getattr(x.hessian, pulse_or_gate), descent_state, hessian_state)
 
-        elif hessian.global_hessian=="lbfgs":
-            descent_direction, lbfgs_state = get_quasi_newton_direction(gradient_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
+        elif hessian._global=="lbfgs":
+            descent_direction, lbfgs_state, gHg = get_quasi_newton_direction(grad_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
+            hessian_state = tree_at(lambda x: x.gHg, hessian_state, gHg)
 
         else:
-            descent_direction = -1*gradient_sum
+            descent_direction = -1*grad_sum
 
 
 
@@ -196,30 +221,30 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
             descent_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), descent_state, cg)
 
 
-        descent_direction, _ = adaptive_scaling_of_step(descent_direction, Z_error, gradient_sum, getattr(descent_state.hessian, pulse_or_gate), 
-                                                        descent_info, False, None, pulse_or_gate)
+        descent_direction, _ = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,0,None,None,None,None))(descent_direction, Z_error, grad_sum, hessian_state.gHg,
+                                                                                                         None, descent_info, "_global", pulse_or_gate)
 
 
         if descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe":
-            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, gradient_sum)
+            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
             
             linesearch_info=MyNamespace(population=population, descent_direction=descent_direction, signal_t_new=signal_t_new, 
-                                        error=Z_error, pk_dot_gradient=pk_dot_gradient, pk=descent_direction)
+                                        error=Z_error, pk_dot_gradient=pk_dot_gradient)
             
-            gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
+            gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None,None))(linesearch_info, measurement_info, descent_info, 
                                                                              Partial(self.calc_Z_error_for_linesearch, pulse_or_gate=pulse_or_gate),
-                                                                             Partial(self.calc_Z_grad_for_linesearch, pulse_or_gate=pulse_or_gate))
+                                                                             Partial(self.calc_Z_grad_for_linesearch, pulse_or_gate=pulse_or_gate), "_global")
         else:
-            gamma = jnp.ones(descent_info.population_size)*descent_info.gamma
+            gamma = jnp.broadcast_to(descent_info.gamma._global, (descent_info.population_size, ))
 
 
 
-        if hessian.global_hessian=="lbfgs":
+        if hessian._global=="lbfgs":
            step_size_arr = lbfgs_state.step_size_prev
            step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
            step_size_arr = step_size_arr.at[:,0].set(gamma[:, jnp.newaxis])
 
-           descent_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate).step_sizeprev, descent_state, step_size_arr)
+           descent_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate).step_size_prev, descent_state, step_size_arr)
 
         population = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate) 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
@@ -246,9 +271,13 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
     def do_gradient_descent_Z_error(self, descent_state, signal_t_new, measurement_info, descent_info):
 
-        descent_state = initialize_CG_state(descent_state, measurement_info)
-        descent_state = initialize_pseudo_newton_state(descent_state, measurement_info)
-        descent_state = initialize_lbfgs_state(descent_state, measurement_info, descent_info)
+        shape_pulse = jnp.shape(descent_state.population.pulse)
+        cg_state = initialize_CG_state(shape_pulse, measurement_info)
+        hessian_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
+        lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
+        descent_state = tree_at(lambda x: x.cg, descent_state, cg_state)
+        descent_state = tree_at(lambda x: x.hessian, descent_state, hessian_state)
+        descent_state = tree_at(lambda x: x.lbfgs, descent_state, lbfgs_state)
         
         do_gradient_descent_step=Partial(self.do_gradient_descent_Z_error_step, signal_t_new=signal_t_new, measurement_info=measurement_info, descent_info=descent_info)
         
@@ -268,8 +297,8 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         trace = calculate_trace(signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        get_S_prime = Partial(calculate_S_prime, method=descent_info.s_prime_params.global_method)
-        signal_t_new = jax.vmap(get_S_prime, in_axes=(0,None,0,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info)
+        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info, "_global")
+
         descent_state = self.do_gradient_descent_Z_error(descent_state, signal_t_new, measurement_info, descent_info)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
@@ -294,7 +323,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
         hessian = initialize_hessian_info(self)
         s_prime_params = initialize_S_prime_params(self)
 
-        self.descent_info = self.descent_info.expand(gamma = self.gamma, 
+        self.descent_info = self.descent_info.expand(gamma = MyNamespace(_local=None, _global=self.gamma), 
                                                      no_steps_descent = self.no_steps_descent, 
                                                      
                                                      conjugate_gradients = self.use_conjugate_gradients,
@@ -303,16 +332,18 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
                                                      hessian = hessian, 
 
                                                      xi = self.xi, 
-                                                     adaptive_scaling = self.adaptive_scaling)
+                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling))
     
         descent_info=self.descent_info
 
 
         self.descent_state = self.descent_state.expand(population = population)
 
-        self.descent_state = initialize_CG_state(self.descent_state, measurement_info)
-        self.descent_state = initialize_pseudo_newton_state(self.descent_state, measurement_info)
-        self.descent_state = initialize_lbfgs_state(self.descent_state, measurement_info, descent_info)
+        shape_pulse = jnp.shape(self.descent_state.population.pulse)
+        cg_state = initialize_CG_state(shape_pulse, measurement_info)
+        hessian_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
+        lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
+        self.descent_state = self.descent_state.expand(cg = cg_state, hessian=hessian_state, lbfgs=lbfgs_state)
 
         descent_state = self.descent_state
 
@@ -361,7 +392,9 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         self.r_weights = 1
         self.r_no_iterations = 1
 
-
+        
+        self.local_adaptive_scaling = False
+        self.global_adaptive_scaling = False
 
 
 
@@ -399,6 +432,16 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
     def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
         population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return population
+    
+
+
+    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate):
+        get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, population=population, pie_method=pie_method, 
+                                        measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate=pulse_or_gate)
+
+        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(1,1,1), out_axes=(1,1))(signal_t, signal_t_new, transform_arr)
+        return grad_all_m, U
+
 
 
 
@@ -451,10 +494,10 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
         hessian_info = getattr(descent_info.hessian, local_or_global)
 
         grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
-        gradient_sum = jnp.sum(grad, axis=1)
+        grad_sum = jnp.sum(grad, axis=1)
 
 
-
+        hessian_state = getattr(local_or_global_state.hessian, pulse_or_gate)
         if hessian_info=="diagonal" or hessian_info=="full":
             descent_direction, hessian_state = self.calculate_PIE_newton_direction(U*grad, signal_t, transform_arr, measured_trace, population, local_or_global_state, 
                                                                                    measurement_info, descent_info, pulse_or_gate, local_or_global)
@@ -463,7 +506,8 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         elif hessian_info=="lbfgs":
             lbfgs_state = getattr(local_or_global_state.lbfgs, pulse_or_gate)
-            descent_direction, lbfgs_state = get_quasi_newton_direction(gradient_sum, lbfgs_state, descent_info)
+            descent_direction, lbfgs_state, gHg = get_quasi_newton_direction(grad_sum, lbfgs_state, descent_info)
+            hessian_state = tree_at(lambda x: x.gHg, hessian_state, gHg)
 
         else:
             descent_direction = -1*jnp.sum(grad*U, axis=1)
@@ -477,15 +521,17 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
 
-        descent_direction = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,None,None,None))(descent_direction, pie_error, gradient_sum, 
-                                                     getattr(local_or_global_state.hessian, pulse_or_gate), descent_info, local_or_global)
+        descent_direction, local_or_global_state = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,0,0,None,None,None))(descent_direction, pie_error, grad_sum, 
+                                                                                                                          hessian_state.gHg, local_or_global_state, 
+                                                                                                                          descent_info, local_or_global, 
+                                                                                                                          pulse_or_gate)
 
 
         if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
-            pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, gradient_sum)
+            pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
 
             linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
-                                        pk_dot_gradient=pk_dot_gradient, pk=gradient_sum, error=pie_error, 
+                                        pk_dot_gradient=pk_dot_gradient, error=pie_error,
                                         transform_arr=transform_arr, measured_trace=measured_trace)     
 
             gamma = jax.vmap(do_linesearch, in_axes=(0, None, None, None, None, None))(linesearch_info, measurement_info, descent_info, 
@@ -604,25 +650,27 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
                                                      s_prime_params = s_prime_params,
 
                                                      xi = self.xi,
-                                                     adaptive_scaling = self.adaptive_scaling,
+                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling),
                                                      
                                                      idx_arr = self.idx_arr)
         
         descent_info = self.descent_info
 
+        shape = jnp.shape(population.pulse)
+        cg_state_local = initialize_CG_state(shape, measurement_info)
+        hessian_state_local = initialize_pseudo_newton_state(shape, measurement_info)
+        lbfgs_state_local = initialize_lbfgs_state(shape, measurement_info, descent_info)
 
+        cg_state_global = initialize_CG_state(shape, measurement_info)
+        hessian_state_global = initialize_pseudo_newton_state(shape, measurement_info)
+        lbfgs_state_global = initialize_lbfgs_state(shape, measurement_info, descent_info)
+
+        init_arr = jnp.zeros(shape[0])
         self.descent_state = self.descent_state.expand(key = self.key, 
-                                                       population = population)
-        shape_pulse = jnp.shape(self.descent_state.population.pulse)
-        cg_state_local = initialize_CG_state(shape_pulse, measurement_info)
-        hessian_state_local = initialize_pseudo_newton_state(shape_pulse, measurement_info)
-        lbfgs_state_local = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
-
-        cg_state_global = initialize_CG_state(shape_pulse, measurement_info)
-        hessian_state_global = initialize_pseudo_newton_state(shape_pulse, measurement_info)
-        lbfgs_state_global = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
-
-        self.descent_state = self.descent_state.expand(_local=MyNamespace(cg=cg_state_local, hessian=hessian_state_local, lbfgs=lbfgs_state_local),
+                                                       population = population, 
+                                                       _local=MyNamespace(cg=cg_state_local, hessian=hessian_state_local, lbfgs=lbfgs_state_local, 
+                                                                          max_grad_norm2 = MyNamespace(pulse=init_arr, gate=init_arr),
+                                                                          max_gHg = MyNamespace(pulse=init_arr, gate=init_arr)),
                                                        _global=MyNamespace(cg=cg_state_global, hessian=hessian_state_global, lbfgs=lbfgs_state_global))
     
         descent_state=self.descent_state
@@ -637,7 +685,6 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
         return descent_state, do_local, do_global
     
-
 
 
 
@@ -699,6 +746,10 @@ class COPRABASE(AlgorithmsBASE):
         self.r_weights = 1.0
         self.r_no_iterations = 1
 
+        self.conjugate_gradients = False
+
+        self.local_adaptive_scaling = False
+        self.global_adaptive_scaling = False
 
 
 
@@ -706,6 +757,14 @@ class COPRABASE(AlgorithmsBASE):
         population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None,None))(population, gamma, descent_direction, 
                                                                                       measurement_info, descent_info, pulse_or_gate)
         return population
+    
+
+    
+
+    def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate):
+        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, transform_arr, 
+                                                                                     measurement_info, pulse_or_gate)
+        return grad
 
 
 
@@ -751,6 +810,7 @@ class COPRABASE(AlgorithmsBASE):
         grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
 
+        hessian_state = getattr(local_or_global_state.hessian, pulse_or_gate)
         if hessian_info=="diagonal" or hessian_info=="full":
             descent_direction, hessian_state = self.get_Z_newton_direction(grad, signal_t, signal_t_new, transform_arr, population, local_or_global_state, 
                                                                                        measurement_info, descent_info, hessian_info, pulse_or_gate)
@@ -758,33 +818,33 @@ class COPRABASE(AlgorithmsBASE):
             local_or_global_state = tree_at(lambda x: getattr(x.hessian, pulse_or_gate), local_or_global_state, hessian_state)
 
         elif hessian_info=="lbfgs":
-                lbfgs_state = getattr(local_or_global_state.lbfgs, pulse_or_gate)
-                descent_direction, lbfgs_state = get_quasi_newton_direction(grad_sum, lbfgs_state, descent_info)
+            lbfgs_state = getattr(local_or_global_state.lbfgs, pulse_or_gate)
+            descent_direction, lbfgs_state, gHg = get_quasi_newton_direction(grad_sum, lbfgs_state, descent_info)
+            hessian_state = tree_at(lambda x: x.gHg, hessian_state, gHg)
 
         else: 
             descent_direction = -1*grad_sum
 
 
 
+        if descent_info.conjugate_gradients!=False:
+            cg = getattr(local_or_global_state.cg, pulse_or_gate)
+            descent_direction, cg = jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, descent_info.conjugate_gradients)
+            local_or_global_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), local_or_global_state, cg)
+
+
+
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
-
-        if local_or_global=="_local":
-            grad_norm2 = jnp.sum(jnp.abs(grad)**2)
-            max_grad_norm2 = getattr(local_or_global_state.max_grad_norm2, pulse_or_gate)
-            max_grad_norm2 = jnp.greater(grad_norm2, max_grad_norm2)*grad_norm2 + jnp.greater(max_grad_norm2, grad_norm2)*max_grad_norm2
-
-            local_or_global_state = tree_at(lambda x: getattr(x.max_grad_norm2, pulse_or_gate), local_or_global_state, max_grad_norm2)
-            gamma = Z_error/max_grad_norm2*gamma
-
-        else:
-            descent_direction = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,0,None,None))(descent_direction, Z_error, grad_sum, 
-                                                                        getattr(local_or_global_state.hessian, pulse_or_gate).hessian, descent_info, local_or_global)
+        descent_direction, local_or_global_state = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,0,0,None,None,None))(descent_direction, Z_error, grad_sum, 
+                                                                                                                          hessian_state.gHg, local_or_global_state, 
+                                                                                                                          descent_info, local_or_global, 
+                                                                                                                          pulse_or_gate)
         
 
         if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
             pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)        
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 
-                                        pk_dot_gradient=pk_dot_gradient, pk=descent_direction, transform_arr=transform_arr)
+                                        pk_dot_gradient=pk_dot_gradient, transform_arr=transform_arr)
             
             gamma = jax.vmap(do_linesearch, in_axes=(0,None,None,None,None, None))(linesearch_info, measurement_info, descent_info, 
                                                                             Partial(self.calc_Z_error_for_linesearch, descent_info=descent_info, 
@@ -888,44 +948,7 @@ class COPRABASE(AlgorithmsBASE):
 
         return descent_state, trace_error.reshape(-1,1)
     
-
-
-
-
-
-    def initialize_local_stage(self, descent_state, measurement_info, descent_info):
-        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
-        sk, rn = measurement_info.sk, measurement_info.rn
-        population = descent_state.population
-
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(do_fft(signal_t.signal_t, sk, rn))
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None,None,None))(signal_t.signal_t, measured_trace, mu, measurement_info, descent_info, "_local")
-
-
-        transform_arr = jnp.broadcast_to(transform_arr, (descent_info.population_size, ) + jnp.shape(transform_arr))
-        
-        grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, "pulse")
-        max_grad_norm2_pulse=jnp.max(jnp.sum(jnp.abs(grad)**2, axis=1))
-        descent_state = tree_at(lambda x: x._local.max_grad_norm2.pulse, descent_state, max_grad_norm2_pulse)
-
-        if measurement_info.doubleblind==True:
-            grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, "gate")
-            max_grad_norm2_gate=jnp.max(jnp.sum(jnp.abs(grad)**2, axis=1))
-            descent_state = tree_at(lambda x: x._local.max_grad_norm2.gate, descent_state, max_grad_norm2_gate)
-
-
-        do_local = Partial(self.step_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
-        do_local = Partial(scan_helper, actual_function=do_local, number_of_args=1, number_of_xs=0)
-        return descent_state, do_local
     
-
-
-    def initialize_global_stage(self, descent_state, measurement_info, descent_info):
-        do_global = Partial(self.step_global_iteration, measurement_info=measurement_info, descent_info=descent_info)
-        do_global = Partial(scan_helper, actual_function=do_global, number_of_args=1, number_of_xs=0)
-        return descent_state, do_global
     
 
 
@@ -942,24 +965,38 @@ class COPRABASE(AlgorithmsBASE):
                                                      linesearch_params = linesearch_params,
                                                      hessian = hessian,
                                                      s_prime_params = s_prime_params,
-                                                     adaptive_scaling = self.adaptive_scaling,
-                                                     idx_arr = self.idx_arr)
+                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling),
+                                                     idx_arr = self.idx_arr,
+                                                     conjugate_gradients = self.conjugate_gradients)
         descent_info=self.descent_info
 
 
-        hessian_state_local = initialize_pseudo_newton_state(jnp.shape(population.pulse), measurement_info)
-        hessian_state_global = initialize_pseudo_newton_state(jnp.shape(population.pulse), measurement_info)
+        shape = jnp.shape(population.pulse)
+        cg_state_local = initialize_CG_state(shape, measurement_info)
+        hessian_state_local = initialize_pseudo_newton_state(shape, measurement_info)
+        lbfgs_state_local = initialize_lbfgs_state(shape, measurement_info, descent_info)
+
+        cg_state_global = initialize_CG_state(shape, measurement_info)
+        hessian_state_global = initialize_pseudo_newton_state(shape, measurement_info)
+        lbfgs_state_global = initialize_lbfgs_state(shape, measurement_info, descent_info)
+
+        init_arr = jnp.zeros(shape[0])
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
-                                                       _global = MyNamespace(hessian = hessian_state_global),
-                                                       _local = MyNamespace(hessian = hessian_state_local,
-                                                                           max_grad_norm2 = MyNamespace(pulse=0.0, gate=0.0), 
-                                                                           mu = jnp.ones(self.descent_info.population_size)))
+                                                       _local=MyNamespace(cg=cg_state_local, hessian=hessian_state_local, lbfgs=lbfgs_state_local, 
+                                                                          max_grad_norm2 = MyNamespace(pulse=init_arr, gate=init_arr),
+                                                                          max_gHg = MyNamespace(pulse=init_arr, gate=init_arr), 
+                                                                          mu = jnp.ones(shape[0])),
+                                                       _global=MyNamespace(cg=cg_state_global, hessian=hessian_state_global, lbfgs=lbfgs_state_global))
+        
         descent_state=self.descent_state
 
 
-        descent_state, do_local = self.initialize_local_stage(descent_state, measurement_info, descent_info)
-        descent_state, do_global = self.initialize_global_stage(descent_state, measurement_info, descent_info)
+        do_local = Partial(self.step_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        do_local = Partial(scan_helper, actual_function=do_local, number_of_args=1, number_of_xs=0)
+
+        do_global = Partial(self.step_global_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        do_global = Partial(scan_helper, actual_function=do_global, number_of_args=1, number_of_xs=0)
 
         return descent_state, do_local, do_global
     

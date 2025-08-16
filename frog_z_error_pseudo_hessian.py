@@ -354,8 +354,9 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_s
     else:
         print("something is wrong")
 
-    hessian = MyNamespace(newton_direction_prev = newton_direction, hessian = hessian)
-    return -1*newton_direction, hessian
+    gHg = jax.vmap(lambda g,H: jnp.conjugate(g) @ H @ g)(grad, hessian)
+    hessian_state = MyNamespace(gHg=jnp.real(gHg), newton_direction_prev = newton_direction)
+    return -1*newton_direction, hessian_state
         
 
 
