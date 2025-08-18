@@ -139,10 +139,10 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
     
         frequency = frequency - (frequency[-1] + frequency[0])/2
         N = jnp.size(frequency)
-        hessian_all_m = jnp.pad(hessian_all_m, ((0,0), (0,0), (N,N), (N,N))) 
+        hessian_all_m = jnp.pad(hessian_all_m, ((0,0), (0,0), (0,N), (0,N))) 
 
-        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
-        time = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
+        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
+        time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
         sk, rn = get_sk_rn(time, frequency)
 
         # convert hessian to (N, m, n, n) -> frequency domain 
@@ -157,7 +157,7 @@ class TimeDomainPtychography(RetrievePulsesDSCAN, TimeDomainPtychographyBASE):
         # convert hessian to (N, m, k, k) -> time domain 
         hessian_all_m = do_ifft(hessian_all_m, sk, rn, axis=-1)
         hessian_all_m = do_ifft(hessian_all_m, sk, rn, axis=-2) 
-        return hessian_all_m[:, :, N:2*N, N:2*N]
+        return hessian_all_m[:, :, :N, :N]
     
 
 

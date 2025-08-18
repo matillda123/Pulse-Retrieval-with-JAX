@@ -60,20 +60,20 @@ def do_lbfgs(grad_current, lbfgs_state, descent_info):
 
     newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, descent_info.hessian)
 
-    if descent_info.adaptive_scaling=="nonlinear":
-        B = get_hessian_approximate_explicitly(rho, s, y)
-        gHg = jnp.conjugate(grad_current) @ B @ grad_current
-    else:
-        gHg = 1
+    # if descent_info.adaptive_scaling=="nonlinear":
+    #     B = get_hessian_approximate_explicitly(rho, s, y)
+    #     gHg = jnp.conjugate(grad_current) @ B @ grad_current
+    # else:
+    #     gHg = 1
 
 
-    return newton_direction, gHg
+    return newton_direction
 
 
 
 # lbfgs isnt sensible when doing alternating optimization 
 def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
-    newton_direction, gHg = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info)
+    newton_direction = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info)
 
     grad_arr = lbfgs_state.grad_prev
     grad_arr = grad_arr.at[:,1:].set(grad_arr[:,:-1])
@@ -86,4 +86,4 @@ def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
     lbfgs_state = MyNamespace(grad_prev = grad_arr, 
                               newton_direction_prev=newton_arr,
                               step_size_prev = lbfgs_state.step_size_prev)
-    return -1*newton_direction, lbfgs_state, jnp.real(gHg)
+    return -1*newton_direction, lbfgs_state

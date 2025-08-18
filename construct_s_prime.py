@@ -80,14 +80,11 @@ def calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info):
 
     if descent_info.s_prime_params.r_hessian!=False:
         hessian = calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info)
-        descent_direction = gradient/(hessian[:,jnp.newaxis] + 1e-12)
-        gHg = jnp.sum(jax.vmap(lambda g,H: jnp.conjugate(g)*H*g)(gradient, hessian))
+        descent_direction = -1*gradient/(hessian[:,jnp.newaxis] + 1e-12)
     else:
-        hessian = jnp.ones(jnp.shape(gradient))
-        descent_direction = gradient
-        gHg=1
+        descent_direction = -1*gradient
         
-    return -1*descent_direction, gradient, gHg
+    return descent_direction, gradient
 
 
 
@@ -144,10 +141,10 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_i
     signal_f=do_fft(signal_t, sk, rn)
     trace=calculate_trace(signal_f)
 
-    descent_direction, gradient, gHg = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
+    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
 
-    descent_direction, _ = adaptive_scaling_of_step(descent_direction, r_error, gradient, gHg, None, descent_info, "_global", None)
+    descent_direction, _ = adaptive_scaling_of_step(r_error, gradient, descent_direction, MyNamespace(), descent_info.xi, "linear", None, "_global")
 
     # if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
     #     pk_dot_gradient = jnp.sum(jnp.real(jnp.vecdot(descent_direction, gradient)))

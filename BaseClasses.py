@@ -37,6 +37,7 @@ class AlgorithmsBASE:
         return transform_arr, measured_trace, descent_state
 
 
+
     def run(self, init_vals, no_iterations=100):
         if self.spectrum_is_being_used==True:
             assert self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
@@ -51,7 +52,7 @@ class AlgorithmsBASE:
 
 
 
-    def do_step_and_apply_spectrum(self, descent_state, measurement_info, descent_info):
+    def do_step_and_apply_spectrum(self, descent_state, measurement_info, descent_info, do_step):
         population = descent_state.population
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
@@ -65,27 +66,7 @@ class AlgorithmsBASE:
             population = tree_at(lambda x: x.gate, population, gate)
             
         descent_state = tree_at(lambda x: x.population, descent_state, population)
-        descent_state, trace_error = self.step_pre_chaining__apply_spectrum(descent_state, measurement_info, descent_info)
-        return descent_state, trace_error
-    
-
-
-
-    def do_global_iteration_and_apply_spectrum_COPRA(self, descent_state, measurement_info, descent_info):
-        population = descent_state.population
-
-        if descent_info.measured_spectrum_is_provided.pulse==True:
-            pulse=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
-                                                                                       measurement_info.sk, measurement_info.rn)
-            population = tree_at(lambda x: x.pulse, population, pulse)
-
-        if descent_info.measured_spectrum_is_provided.gate==True:
-            gate=jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
-                                                                                      measurement_info.sk, measurement_info.rn)
-            population = tree_at(lambda x: x.gate, population, gate)
-
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
-        descent_state, trace_error=self.global_iteration_pre_chaining__apply_spectrum(descent_state, measurement_info, descent_info)
+        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
 
 
@@ -103,16 +84,15 @@ class AlgorithmsBASE:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff"]
-            if self.name=="COPRA":
-                # applying_spectrum on local stage in COPRA doesnt seem to work nicely -> maybe this conclusion is wrong, maybe test again some time
-                self.global_iteration_pre_chaining__apply_spectrum = self.global_iteration
-                self.global_iteration = self.do_global_iteration_and_apply_spectrum_COPRA
+            if self.name=="COPRA" or self.name=="TimeDomainPtychography":
+                self.step_local_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self.step_local_iteration)
+                self.step_global_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self.step_global_iteration)
+
             elif any([self.name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
             else:
-                self.step_pre_chaining__apply_spectrum = self.step
-                self.step = self.do_step_and_apply_spectrum
+                self.step = Partial(self.do_step_and_apply_spectrum, do_step=self.step)
 
             self.spectrum_is_being_used = True
             return self
@@ -120,7 +100,7 @@ class AlgorithmsBASE:
 
 
 
-    def do_step_and_apply_momentum(self, descent_state, measurement_info, descent_info):
+    def do_step_and_apply_momentum(self, descent_state, measurement_info, descent_info, do_step):
         population = descent_state.population
         momentum = descent_state.momentum
 
@@ -136,51 +116,10 @@ class AlgorithmsBASE:
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
 
-        descent_state, trace_error = self.step_pre_chaining__momentum(descent_state, measurement_info, descent_info)
+        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
     
 
-    
-    def do_local_iteration_and_apply_momentum_COPRA(self, descent_state, measurement_info, descent_info):
-        population = descent_state.population
-        momentum = descent_state.momentum
-        
-        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
-        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
-
-        if measurement_info.doubleblind==True:
-            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
-            population = tree_at(lambda x: x.gate, population, population_gate)
-            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
-
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
-        descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
-
-        descent_state = self.local_iteration_pre_chaining__apply_momentum(descent_state, measurement_info, descent_info)
-        return descent_state
-    
-
-    
-    def do_global_iteration_and_apply_momentum_COPRA(self, descent_state, measurement_info, descent_info):
-        population = descent_state.population
-        momentum = descent_state.momentum
-        
-        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
-        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
-
-        if measurement_info.doubleblind==True:
-            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
-            population = tree_at(lambda x: x.gate, population, population_gate)
-            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
-
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
-        descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
-
-        descent_state = self.global_iteration_pre_chaining__apply_momentum(descent_state, measurement_info, descent_info)
-        return descent_state
-    
 
 
     def momentum_acceleration(self, population_size, eta):
@@ -195,16 +134,15 @@ class AlgorithmsBASE:
                                                                                   gate = MyNamespace(update_for_velocity_map=init_arr, velocity_map=init_arr)))
             
             names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
-            if self.name=="COPRA":
-                self.local_iteration_pre_chaining__apply_momentum = self.local_iteration
-                self.global_iteration_pre_chaining__apply_momentum = self.global_iteration
-                self.local_iteration = self.do_local_iteration_and_apply_momentum_COPRA
-                self.global_iteration = self.do_global_iteration_and_apply_momentum_COPRA
+            if self.name=="COPRA" or self.name=="TimeDomainPtychography":
+                self.step_local_iteration = Partial(self.do_step_and_apply_momentum, do_step = self.step_local_iteration)
+                self.step_global_iteration = Partial(self.do_step_and_apply_momentum, do_step = self.step_global_iteration)
+                
             elif any([self.name==name for name in names_list])==True:
                 pass
+
             else:
-                self.step_pre_chaining__momentum = self.step
-                self.step = self.do_step_and_apply_momentum
+                self.step = Partial(self.do_step_and_apply_momentum, do_step=self.step)
             
             self.momentum_is_being_used = True
             return self
@@ -576,20 +514,19 @@ class RetrievePulsesFROG(RetrievePulses):
 
         # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary
         # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
-        # the reason for this issue could be the padding pattern? Im padding before and afterwards, maybe one should only pad afterwards ?
         frequency = frequency - (frequency[-1] + frequency[0])/2
 
         N = jnp.size(frequency)
-        pad_arr = [(0,0)]*(signal.ndim-1) + [(N,N)]
-        signal = jnp.pad(signal, pad_arr) # this is annoying, id like to only pad axis=-1 but thats only availble througnt he shape of the padwidth, but that can be different for different cases
-
-        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
-        time = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
+        pad_arr = [(0,0)]*(signal.ndim-1) + [(0,N)]
+        signal = jnp.pad(signal, pad_arr)
+        
+        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
+        time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
 
         sk, rn = get_sk_rn(time, frequency)
 
         signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
-        return signal_shifted[ ... , N:2*N]
+        return signal_shifted[ ... , :N]
 
 
 
