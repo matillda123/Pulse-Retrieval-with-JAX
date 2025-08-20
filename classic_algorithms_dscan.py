@@ -49,7 +49,7 @@ class Basic(RetrievePulsesDSCAN, AlgorithmsBASE):
     def step(self, descent_state, measurement_info, descent_info):
         nonlinear_method, sk, rn = measurement_info.nonlinear_method, measurement_info.sk, measurement_info.rn
         phase_matrix = measurement_info.phase_matrix
-        measured_trace=measurement_info.measured_trace
+        measured_trace = measurement_info.measured_trace
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         signal_f = do_fft(signal_t.signal_t, sk, rn)

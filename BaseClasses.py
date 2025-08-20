@@ -22,22 +22,6 @@ class AlgorithmsBASE:
 
 
 
-    def shuffle_data_along_m(self, descent_state, measurement_info, descent_info):
-        descent_state.key, subkey=jax.random.split(descent_state.key, 2)
-        keys = jax.random.split(subkey, descent_info.population_size)
-
-        idx_arr=jax.vmap(jax.random.permutation, in_axes=(0,None))(keys, descent_info.idx_arr)
-
-        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
-        
-        transform_arr = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(transform_arr, idx_arr)
-        measured_trace = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(measured_trace, idx_arr)
-
-        transform_arr=jnp.expand_dims(transform_arr, axis=2)
-        return transform_arr, measured_trace, descent_state
-
-
-
     def run(self, init_vals, no_iterations=100):
         if self.spectrum_is_being_used==True:
             assert self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
@@ -73,30 +57,98 @@ class AlgorithmsBASE:
 
 
     def use_measured_spectrum(self, frequency, spectrum, pulse_or_gate="pulse"):
-        if (type(pulse_or_gate)==tuple or type(pulse_or_gate)==list) and len(pulse_or_gate)==2:
-            spectral_amplitude = self.get_spectral_amplitude(frequency[0], spectrum[0], pulse_or_gate[0])
-            spectral_amplitude = self.get_spectral_amplitude(frequency[1], spectrum[1], pulse_or_gate[1])
-        else:
-            spectral_amplitude = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
+        spectral_amplitude = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
 
-        # if-else is needed to avoid recursion
         if self.spectrum_is_being_used==True:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff"]
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
-                self.step_local_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self.step_local_iteration)
-                self.step_global_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self.step_global_iteration)
+                self._step_local_iteration = self.step_local_iteration
+                self._step_global_iteration = self.step_global_iteration
+                self.step_local_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self._step_local_iteration)
+                self.step_global_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self._step_global_iteration)
 
             elif any([self.name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
             else:
-                self.step = Partial(self.do_step_and_apply_spectrum, do_step=self.step)
+                self._step = self.step
+                self.step = Partial(self.do_step_and_apply_spectrum, do_step=self._step)
 
             self.spectrum_is_being_used = True
             return self
         
+
+
+
+
+
+
+
+
+
+
+
+
+class ClassicAlgorithmsBASE(AlgorithmsBASE):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+        self.xi = 1e-12
+
+        self.local_gamma = 1
+        self.global_gamma = 1
+
+        self.use_linesearch = False
+        self.max_steps_linesearch = 15
+        self.c1 = 1e-4
+        self.c2 = 0.9
+        self.delta_gamma = (0.5, 1.5)
+
+
+        self.local_hessian = False
+        self.global_hessian = False
+        self.lambda_lm = 1e-3
+        self.lbfgs_memory = 10
+        self.linalg_solver="lineax"
+
+
+        self.r_local_method = "projection"
+        self.r_global_method = "projection"
+        self.r_gradient = "intensity"
+        self.r_hessian = False
+        self.r_weights = 1.0
+        self.r_no_iterations = 1
+        self.r_step_scaling = "original"
+
+
+        self.conjugate_gradients = False
+
+        self.local_adaptive_scaling = False
+        self.global_adaptive_scaling = False
+
+
+
+
+
+    
+    def shuffle_data_along_m(self, descent_state, measurement_info, descent_info):
+        descent_state.key, subkey=jax.random.split(descent_state.key, 2)
+        keys = jax.random.split(subkey, descent_info.population_size)
+
+        idx_arr=jax.vmap(jax.random.permutation, in_axes=(0,None))(keys, descent_info.idx_arr)
+
+        transform_arr, measured_trace = measurement_info.transform_arr, measurement_info.measured_trace
+        
+        transform_arr = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(transform_arr, idx_arr)
+        measured_trace = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(measured_trace, idx_arr)
+
+        transform_arr=jnp.expand_dims(transform_arr, axis=2)
+        return transform_arr, measured_trace, descent_state
+
+
 
 
 
@@ -135,14 +187,17 @@ class AlgorithmsBASE:
             
             names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
-                self.step_local_iteration = Partial(self.do_step_and_apply_momentum, do_step = self.step_local_iteration)
-                self.step_global_iteration = Partial(self.do_step_and_apply_momentum, do_step = self.step_global_iteration)
+                self._step_local_iteration = self.step_local_iteration
+                self._step_global_iteration = self.step_global_iteration
+                self.step_local_iteration = Partial(self.do_step_and_apply_momentum, do_step = self._step_local_iteration)
+                self.step_global_iteration = Partial(self.do_step_and_apply_momentum, do_step = self._step_global_iteration)
                 
             elif any([self.name==name for name in names_list])==True:
                 pass
 
             else:
-                self.step = Partial(self.do_step_and_apply_momentum, do_step=self.step)
+                self._step = self.step
+                self.step = Partial(self.do_step_and_apply_momentum, do_step=self._step)
             
             self.momentum_is_being_used = True
             return self
@@ -157,6 +212,7 @@ class AlgorithmsBASE:
 
         momentum = MyNamespace(update_for_velocity_map=signal, velocity_map=velocity_map)
         return signal, momentum
+
 
     
 

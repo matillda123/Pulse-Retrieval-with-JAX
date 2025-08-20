@@ -10,7 +10,7 @@ from nonlinear_cg import get_nonlinear_CG_direction
 from lbfgs import get_quasi_newton_direction
 
 from utilities import scan_helper, MyNamespace, do_fft, do_ifft, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan
-from BaseClasses import AlgorithmsBASE
+from BaseClasses import ClassicAlgorithmsBASE
 
 from construct_s_prime import calculate_S_prime
 
@@ -113,7 +113,7 @@ def initialize_hessian_info(optimizer):
 
 
 
-class GeneralizedProjectionBASE(AlgorithmsBASE):
+class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -121,36 +121,10 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
         self.local_gamma = None
         self.global_gamma = 1e3
+
         self.no_steps_descent = 15
 
-        self.use_linesearch = False
-        self.max_steps_linesearch = 25
-        self.c1 = 1e-4
-        self.c2 = 0.9
-        self.delta_gamma = (0.5, 1.5)
-    
-
-        self.local_hessian = None
-        self.global_hessian = False
-        self.lambda_lm = 1e-3
-        self.lbfgs_memory = 10
-        self.linalg_solver="lineax"
-
-        self.conjugate_gradients = False
-
-
-        self.xi = 1e-9
-
         self.r_local_method = None
-        self.r_global_method = "projection"
-        self.r_gradient = "intensity"
-        self.r_hessian = False
-        self.r_weights = 1
-        self.r_no_iterations = 1
-
-        self.local_adaptive_scaling = None
-        self.global_adaptive_scaling = False
-
 
 
     
@@ -220,7 +194,7 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
 
-        descent_direction, descent_state = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,None,None,None,None,None))(Z_error, grad_sum, descent_direction, 
+        descent_direction, descent_state = jax.vmap(adaptive_scaling_of_step, in_axes=(0,0,0,None,None,None,None,None), out_axes=(0,None))(Z_error, grad_sum, descent_direction, 
                                                                                                                    descent_state, descent_info.xi, 
                                                                                                                    getattr(descent_info.adaptive_scaling, "_global"), 
                                                                                                                    pulse_or_gate, "_global")
@@ -357,44 +331,13 @@ class GeneralizedProjectionBASE(AlgorithmsBASE):
 
 
 
-class TimeDomainPtychographyBASE(AlgorithmsBASE):
+class TimeDomainPtychographyBASE(ClassicAlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.name = "TimeDomainPtychography"
 
-        self.local_hessian = None
-        self.global_hessian = False
-        self.lambda_lm = 1e-2
-        self.lbfgs_memory = 10
-        self.linalg_solver = "lineax"
-
-        self.conjugate_gradients = False
-
         self.alpha = 1
-        self.local_gamma = 1
-        self.global_gamma = 1
-
-
-        self.use_linesearch = False
-        self.max_steps_linesearch = 25
-        self.c1 = 1e-3
-        self.c2 = 0.9
-        self.delta_gamma = (0.5, 1.5)
-    
-
-        self.xi=1e-9
-
-        self.r_local_method = "projection"
-        self.r_global_method = "projection"
-        self.r_gradient = "intensity"
-        self.r_hessian = False
-        self.r_weights = 1
-        self.r_no_iterations = 1
-
-        
-        self.local_adaptive_scaling = False
-        self.global_adaptive_scaling = False
 
 
 
@@ -711,42 +654,17 @@ class TimeDomainPtychographyBASE(AlgorithmsBASE):
 
 
 
-class COPRABASE(AlgorithmsBASE):
+class COPRABASE(ClassicAlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.name = "COPRA"
 
-        self.xi = 1e-9
-
-        self.local_gamma=1
         self.global_gamma=0.25
-
-        self.use_linesearch = False
-        self.max_steps_linesearch = 25
-        self.c1 = 1e-4
-        self.c2 = 0.9
-        self.delta_gamma = (0.5, 1.5)
-
-
-        self.local_hessian = False
-        self.global_hessian = "diagonal"
-        self.lambda_lm = 1e-3
-        self.lbfgs_memory = 10
-        self.linalg_solver="lineax"
-
-
-        self.r_local_method = "projection"
         self.r_global_method = "iteration"
-        self.r_gradient = "intensity"
-        self.r_hessian = False
-        self.r_weights = 1.0
-        self.r_no_iterations = 1
 
-        self.conjugate_gradients = False
-
-        self.local_adaptive_scaling = False
-        self.global_adaptive_scaling = False
+        self.local_adaptive_scaling = "original"
+        self.global_adaptive_scaling = "original"
 
 
 

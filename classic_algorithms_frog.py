@@ -23,7 +23,7 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 
-class Vanilla(RetrievePulsesFROG, AlgorithmsBASE):
+class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs)
         self.name = "Vanilla"
@@ -165,7 +165,7 @@ class LSGPA(Vanilla):
 
 
 
-class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
+class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
 
@@ -206,7 +206,7 @@ class GeneralizedProjection(RetrievePulsesFROG, GeneralizedProjectionBASE):
 
 
 
-class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
+class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
         assert self.ifrog==False, "Dont use ifrog with PIE. its not meant or made for that"
@@ -344,7 +344,7 @@ class TimeDomainPtychography(RetrievePulsesFROG, TimeDomainPtychographyBASE):
 
 
 
-class COPRA(RetrievePulsesFROG, COPRABASE):
+class COPRA(COPRABASE, RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
 
