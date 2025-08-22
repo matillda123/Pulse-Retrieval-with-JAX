@@ -223,29 +223,30 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
     def reverse_transform_full_hessian(self, hessian_all_m, tau_arr, measurement_info):
+        print("this is not working")
         time, frequency = measurement_info.time, measurement_info.frequency
     
         frequency = frequency - (frequency[-1] + frequency[0])/2
         N = jnp.size(frequency)
-        hessian_all_m = jnp.pad(hessian_all_m, ((0,0), (0,0), (0,N), (0,N))) 
+        hessian_all_m = jnp.pad(hessian_all_m, ((0,0), (0,N), (0,N))) 
 
         frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
         time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
         sk, rn = get_sk_rn(time, frequency)
 
-        # convert hessian to (N, m, n, n) -> frequency domain 
+        # convert hessian to (m, n, n) -> frequency domain 
         hessian_all_m = do_fft(hessian_all_m, sk, rn, axis=-1)
         hessian_all_m = do_fft(hessian_all_m, sk, rn, axis=-2) 
 
         phi_mn = -1*2*jnp.pi*jnp.outer(tau_arr, frequency)
         phi = phi_mn[:,:,jnp.newaxis] - phi_mn[:,jnp.newaxis,:]
         exp_arr = jnp.exp(-1j*phi)
-        hessian_all_m = hessian_all_m * exp_arr[jnp.newaxis,:,:,:]
+        hessian_all_m = hessian_all_m * exp_arr
 
-        # convert hessian to (N, m, k, k) -> time domain 
+        # convert hessian to (m, k, k) -> time domain 
         hessian_all_m = do_ifft(hessian_all_m, sk, rn, axis=-1)
         hessian_all_m = do_ifft(hessian_all_m, sk, rn, axis=-2) 
-        return hessian_all_m[:, :, :N, :N]
+        return hessian_all_m[:, :N, :N]
     
 
     def reverse_transform_diagonal_hessian(self, hessian_all_m, tau_arr, measurement_info):
@@ -255,18 +256,16 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
     def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):
         if nonlinear_method=="shg":
-            grad = 1
+            pass
         elif nonlinear_method=="thg":
-            grad = 2*gate_pulse_shifted
+            grad_all_m = grad_all_m*jnp.conjugate(2*gate_pulse_shifted)
         elif nonlinear_method=="pg":
-            grad = jnp.conjugate(gate_pulse_shifted)
+            grad_all_m = grad_all_m*gate_pulse_shifted
         elif nonlinear_method=="sd":
-            print("check again if this is really correct, its not")
-            grad = 2*jnp.conjugate(gate_pulse_shifted)
+            grad_all_m = jnp.conjugate(grad_all_m*2*gate_pulse_shifted)
         else:
             print("somethong is wrong")
 
-        grad_all_m = grad_all_m*jnp.conjugate(grad)
         return grad_all_m
 
 
@@ -305,6 +304,21 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
 
+    def get_gate_probe_for_hessian(self, pulse_t, gate_pulse_shifted, nonlinear_method):
+        if nonlinear_method=="shg":
+            probe = pulse_t
+        elif nonlinear_method=="thg":
+            probe = pulse_t*2*gate_pulse_shifted
+        elif nonlinear_method=="pg":
+            probe = pulse_t*jnp.conjugate(gate_pulse_shifted)
+        elif nonlinear_method=="sd":
+            probe = jnp.conjugate(pulse_t)*2*gate_pulse_shifted
+        else:
+            print("somethong is wrong")
+
+        return probe
+
+
 
     def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
                                        pulse_or_gate, local_or_global):
@@ -313,10 +327,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
             probe = signal_t.gate_shifted
 
         elif pulse_or_gate=="gate":
-            print("not sure what is going on here, has somethong to do with gate-pulse awareness")
-            probe = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
-            probe = self.modify_grad_for_gate_pulse(jnp.conjugate(probe), signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
-            probe = jnp.conjugate(probe)
+            pulse_t = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
+            probe = self.get_gate_probe_for_hessian(pulse_t, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
         
         reverse_transform_hessian = {"diagonal": self.reverse_transform_diagonal_hessian,
