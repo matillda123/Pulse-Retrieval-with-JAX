@@ -22,14 +22,12 @@ def do_linesearch_step(condition, gamma, iteration, linesearch_info, measurement
 
     # Armijio Condition
     if linesearch_params.use_linesearch=="backtracking" or linesearch_params.use_linesearch=="wolfe":
-        x = jnp.sign((error_new-error) - gamma*c1*pk_dot_gradient)
-        condition_one = jnp.real(1-(x+1)/2).astype(jnp.int16)
+        condition_one = ((error_new-error) < gamma*c1*pk_dot_gradient).astype(jnp.int16)
 
     # Strong Wolfe Condition
     if linesearch_params.use_linesearch=="wolfe":
         grad = grad_func(gamma, linesearch_info, measurement_info)
-        x = jnp.sign(jnp.abs(jnp.real(jnp.vdot(pk, grad))) - c2*jnp.abs(pk_dot_gradient)) # negative -> True
-        condition_two = jnp.real(1-(x+1)/2).astype(jnp.int16)
+        condition_two = (jnp.abs(jnp.real(jnp.vdot(pk, grad))) - c2*jnp.abs(pk_dot_gradient)).astype(jnp.int16)
     else:
         condition_two = 1
 
@@ -39,9 +37,10 @@ def do_linesearch_step(condition, gamma, iteration, linesearch_info, measurement
 
 
 def end_linesearch(condition, gamma, iteration_no, max_steps_linesearch): 
-    run_out_of_steps = 1 - jnp.sign(max_steps_linesearch - iteration_no)
-    is_linesearch_done = condition + run_out_of_steps
-    is_linesearch_done = -0.5*(is_linesearch_done - 1.5)**2 + 1.125
+    print("check these logic operations needs to return false when its supposed to exit")
+    run_out_of_steps = (max_steps_linesearch < iteration_no)
+    is_linesearch_done = (condition | run_out_of_steps)
+    #is_linesearch_done = -0.5*(is_linesearch_done - 1.5)**2 + 1.125
     return (1 - is_linesearch_done).astype(jnp.bool)
 
 
@@ -107,28 +106,25 @@ def get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or
 def get_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global):
     scaling, local_or_global_state = get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or_gate, local_or_global)
 
-    s=1e-9
-    print("rederive this and double check the factor 2 with scaling")
 
-    if order=="original": # as defined in COPRA paper
-        eta = -1*error/scaling
+    L_prime = -1*error # this is the definition in copra paper
 
-    elif order=="linear" or order=="pade_10":
-        eta = error*(s-1)/(2*scaling)
+    if order=="linear" or order=="pade_10":
+        eta = (L_prime-error)/(2*scaling)
 
     elif order=="nonlinear" or order=="pade_20":
-        diskriminante = 1 - error*(s-1)/scaling
-        eta = 1 - jnp.sign(diskriminante)*jnp.sqrt(jnp.abs(diskriminante))
+        diskriminante = 1 - (L_prime-error)/(2*scaling)
+        eta = 2*(1 - jnp.sign(diskriminante)*jnp.sqrt(jnp.abs(diskriminante)))
 
     elif order=="pade_01":
-        eta = error*(s-1/s)/(2*scaling)
+        eta = error/L_prime*(L_prime-error)/(2*scaling)
 
     elif order=="pade_11":
-        eta =  2*error*(1-s)/(error*(s-1) - 4*scaling)
+        eta =  2*(L_prime-error)/(4*scaling - (L_prime-error))
 
     elif order=="pade_02":
-        diskriminante = 1 - 4*(1 - 1/s)*(1 + error/(4*scaling))
-        eta = 2*error/(8*scaling+2*error)*(1-jnp.sign(diskriminante)*jnp.sqrt(jnp.abs(diskriminante)))
+        diskriminante = 1 - 4*(1+error/(4*scaling))*(L_prime-error)/L_prime
+        eta = error/(4*scaling+error)*(1+jnp.sign(diskriminante)*jnp.sqrt(jnp.abs(diskriminante)))
         
     else:
         print("not available")
@@ -138,7 +134,7 @@ def get_step_size(error, gradient, descent_direction, local_or_global_state, xi,
     # which means that descent_direction is parallel to gradient -> although this logic is only trivially true for order=linear, idk about other cases
     
     # # if eta is negative then it is not used -> (e.g. if newton direction points opposite to gradient -> scaling is positive -> eta likely negative)
-    # is_negative = (1-(1+jnp.sign(eta))/2).astype(jnp.bool) # -1 -> true
+    # is_negative = (eta < 0)
     # eta = 1*is_negative + eta*(1-is_negative)
 
     return eta, local_or_global_state
