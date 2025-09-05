@@ -78,8 +78,7 @@ def initialize_linesearch_info(optimizer):
                                     c1=optimizer.c1, 
                                     c2=optimizer.c2, 
                                     max_steps=optimizer.max_steps_linesearch, 
-                                    delta_gamma=optimizer.delta_gamma,
-                                    gamma_max=optimizer.gamma_max)
+                                    delta_gamma=optimizer.delta_gamma)
     return linesearch_params
 
 

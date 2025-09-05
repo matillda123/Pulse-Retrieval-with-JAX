@@ -106,7 +106,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.c1 = 1e-4
         self.c2 = 0.9
         self.delta_gamma = 0.5
-        self.gamma_max = 1e2
 
 
         self.local_hessian = False
@@ -300,9 +299,9 @@ class RetrievePulses:
     
 
     def get_gate_pulse(self, frequency, gate_f):
-        gate_f=do_interpolation_1d(self.frequency, frequency, gate_f)
-        self.gate=do_ifft(gate_f, self.sk, self.rn)
-        self.measurement_info.gate=self.gate
+        gate_f = do_interpolation_1d(self.frequency, frequency, gate_f)
+        self.gate = do_ifft(gate_f, self.sk, self.rn)
+        self.measurement_info = self.measurement_info.expand(gate = self.gate)
         return self.gate
     
 
@@ -916,13 +915,53 @@ class RetrievePulsesDSCANwithRealFields(RetrievePulsesDSCAN):
 
 
 
+class RetrievePulses2DSI(RetrievePulsesFROG):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, ifrog=False, **kwargs)
+
+
+    def get_gate_pulse(self, frequency, gate_f, anc_no=1):
+        gate_f = do_interpolation_1d(self.frequency, frequency, gate_f)
+        gate = do_ifft(gate_f, self.sk, self.rn)
+
+        anc = {1: "anc_1", 
+               2: "anc_2"}
+        setattr(self.measurement_info, anc[anc_no], gate)
+        return gate
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        time, frequency, nonlinear_method = measurement_info.time, measurement_info.frequency, measurement_info.nonlinear_method
+        pulse_t = individual.pulse
+
+
+        # somewhere here one should consider the influence of the interferometer type on the phases of gate1/2
+        if measurement_info.doubleblind==True:
+            gate1 = gate2 = individual.gate
+
+        elif measurement_info.xfrog==True:
+            gate1, gate2 = measurement_info.anc_1, measurement_info.anc_2
+
+        else:
+            # here one could apply a spectral phase to mimic material dispersion in the interferometer -> would allow to do self referencing
+            print("2DSI is not implemented as a AC method (yet?). xfrog needs to be true or doubleblind")
+
+            
+        gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
+        gate = calculate_gate(gate1 + gate2_shifted, nonlinear_method)
+        signal_t = pulse_t*gate
+
+        signal_t = MyNamespace(signal_t=signal_t, gate2_shifted=gate2_shifted, gate=gate)
+        return signal_t
+    
+
+
+
+
+
+
+
 class RetrievePulsesMIIPS(RetrievePulses):
     # this method is essentially a generalized version of dscan -> make dscan inherit from this -> classical algorithms dscan should work 
     # only difference is generation of phase matrix -> at least i think so
-    pass
-
-
-
-
-class RetrievePulses2DSI(RetrievePulses):
     pass
