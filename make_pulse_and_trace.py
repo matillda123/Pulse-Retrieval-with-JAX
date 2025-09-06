@@ -291,7 +291,7 @@ def interpolate_spectrum(frequency, pulse_f, N):
 
 class MakeTrace:
     def __init__(self, *args, **kwargs):
-        pass
+        self.xfrog=False
 
 
     def generate_trace(self):
@@ -343,6 +343,14 @@ class MakeTrace:
 
         plt.subplot(2,2,3)
         plt.plot(spectra.pulse[0], spectra.pulse[1], label="Pulse Spectrum")
+
+        if self.xfrog==True and not isinstance(self, MakeTrace2DSI):
+            plt.plot(spectra.gate[0], spectra.gate[1], label="Gate Spectrum")
+
+        elif self.xfrog==True and isinstance(self, MakeTrace2DSI):
+            plt.plot(spectra.anc_1[0], spectra.anc_1[1], label="Anc 1 Spectrum")
+            plt.plot(spectra.anc_2[0], spectra.anc_2[1], label="Anc 2 Spectrum")
+
         plt.xlabel("Frequency [PHz]")
         plt.ylabel("Amplitude [arb. u.]")
         plt.legend()
@@ -361,6 +369,7 @@ class MakeTrace:
 class MakeTraceFROG(MakeTrace, RetrievePulsesFROG):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N, scale_time_range, xfrog, ifrog, 
                                              interpolate_fft_conform, cut_off_val, frequency_range):
+        super().__init__()
         
         self.time=time
         self.frequency=frequency
@@ -465,6 +474,8 @@ class MakeTraceFROG(MakeTrace, RetrievePulsesFROG):
 class MakeTraceDScan(MakeTrace, RetrievePulsesDSCAN):
     def __init__(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N, cut_off_val, frequency_range, 
                  refractive_index = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson")):
+        super().__init__()
+
         self.refractive_index=refractive_index
 
         from scipy.constants import c as c0
@@ -529,6 +540,7 @@ class MakeTraceDScan(MakeTrace, RetrievePulsesDSCAN):
 
 
 
+
 class MakeTraceFROGReal(RetrievePulsesFROGwithRealFields, MakeTraceFROG):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -550,6 +562,7 @@ class MakeTraceDScanReal(RetrievePulsesDSCANwithRealFields, MakeTraceDScan):
 
 class MakeTrace2DSI(MakeTrace, RetrievePulses2DSI):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N, scale_time_range, cut_off_val, frequency_range):
+        super().__init__()
         
         self.time=time
         self.frequency=frequency
@@ -628,12 +641,12 @@ class MakeTrace2DSI(MakeTrace, RetrievePulses2DSI):
 
         anc1_f=do_fft(self.anc_1, self.sk, self.rn)
         anc2_f=do_fft(self.anc_2, self.sk, self.rn)
-        frequency_gate_spectrum, spectrum_anc_1 = interpolate_spectrum(self.frequency, anc1_f, self.N)
-        frequency_gate_spectrum, spectrum_anc_2 = interpolate_spectrum(self.frequency, anc2_f, self.N)
+        frequency_gate_spectrum_1, spectrum_anc_1 = interpolate_spectrum(self.frequency, anc1_f, self.N)
+        frequency_gate_spectrum_2, spectrum_anc_2 = interpolate_spectrum(self.frequency, anc2_f, self.N)
 
         spectra = MyNamespace(pulse=(frequency_pulse_spectrum, spectrum_pulse), 
-                              anc_1=(frequency_gate_spectrum, spectrum_anc_1),
-                              anc_2=(frequency_gate_spectrum, spectrum_anc_2))
+                              anc_1=(frequency_gate_spectrum_1, spectrum_anc_1),
+                              anc_2=(frequency_gate_spectrum_2, spectrum_anc_2))
 
         return time_interpolate, frequency_interpolate, np.abs(trace_interpolate).T, spectra
     

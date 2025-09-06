@@ -916,8 +916,10 @@ class RetrievePulsesDSCANwithRealFields(RetrievePulsesDSCAN):
 
 
 class RetrievePulses2DSI(RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, shear_frequency, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, ifrog=False, **kwargs)
+
+        self.shear_frequency = shear_frequency
 
 
     def get_gate_pulse(self, frequency, gate_f, anc_no=1):
