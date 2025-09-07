@@ -9,7 +9,7 @@ import jax.numpy as jnp
 from jax.tree_util import Partial
 from equinox import tree_at
 
-from utilities import MyNamespace, get_com, center_signal, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_gate_with_Real_Fields, calculate_trace, calculate_trace_error, project_onto_amplitude, run_scan
+from utilities import MyNamespace, get_com, center_signal, center_signal_to_max, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_gate_with_Real_Fields, calculate_trace, calculate_trace_error, project_onto_amplitude, run_scan
 from create_population import create_population_classic
 
 
@@ -62,7 +62,7 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff"]
+            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
                 self._step_local_iteration = self.step_local_iteration
                 self._step_global_iteration = self.step_global_iteration
@@ -442,7 +442,7 @@ class RetrievePulses:
         measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
         
         trace = self.post_process_create_trace(pulse_t, gate_t)
-        trace=trace/jnp.linalg.norm(trace)
+        trace = trace/jnp.linalg.norm(trace)
 
         x_arr = self.get_x_arr()
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
@@ -916,20 +916,21 @@ class RetrievePulsesDSCANwithRealFields(RetrievePulsesDSCAN):
 
 
 class RetrievePulses2DSI(RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, shear_frequency, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, ifrog=False, **kwargs)
 
-        self.shear_frequency = shear_frequency
+        self.anc1_frequency = anc1_frequency
+        self.anc2_frequency = anc2_frequency
+        self.measurement_info = self.measurement_info.expand(anc1_frequency = self.anc1_frequency, anc2_frequency = self.anc2_frequency)
 
 
-    def get_gate_pulse(self, frequency, gate_f, anc_no=1):
-        gate_f = do_interpolation_1d(self.frequency, frequency, gate_f)
-        gate = do_ifft(gate_f, self.sk, self.rn)
+    def get_anc_pulse(self, frequency, anc_f, anc_no=1):
+        anc_f = do_interpolation_1d(self.frequency, frequency, anc_f)
+        anc = do_ifft(anc_f, self.sk, self.rn)
 
-        anc = {1: "anc_1", 
-               2: "anc_2"}
-        setattr(self.measurement_info, anc[anc_no], gate)
-        return gate
+        anc_dict = {1: "anc_1", 2: "anc_2"}
+        setattr(self.measurement_info, anc_dict[anc_no], anc)
+        return anc
 
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
@@ -937,7 +938,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         pulse_t = individual.pulse
 
 
-        # somewhere here one should consider the influence of the interferometer type on the phases of gate1/2
+        # somewhere here one should consider the influence of the interferometer type on the phases of gate1/2, but that only shifts everything along tau. I think
         if measurement_info.doubleblind==True:
             gate1 = gate2 = individual.gate
 
@@ -956,6 +957,26 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         signal_t = MyNamespace(signal_t=signal_t, gate2_shifted=gate2_shifted, gate=gate)
         return signal_t
     
+
+
+
+    def post_process_create_trace(self, pulse_t, gate_t):
+        sk, rn = self.measurement_info.sk, self.measurement_info.rn
+        tau_arr = self.measurement_info.tau_arr
+        
+        pulse_t = center_signal_to_max(pulse_t)
+    
+        signal_t = self.calculate_signal_t(MyNamespace(pulse=pulse_t, gate=gate_t), tau_arr, self.measurement_info)
+        signal_f = do_fft(signal_t.signal_t, sk, rn)
+        trace = calculate_trace(signal_f)
+        return trace
+
+
+
+
+
+
+
 
 
 

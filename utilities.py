@@ -384,7 +384,14 @@ def center_signal(signal):
 
     com=get_com(jnp.abs(signal), idx_arr)
     signal=jnp.roll(signal, -(com-N//2))
-    return signal    
+    return signal
+
+
+def center_signal_to_max(signal):
+    N=jnp.shape(signal)[0]
+    max_idx=jnp.argmax(jnp.abs(signal))
+    signal=jnp.roll(signal, -(max_idx-N//2))
+    return signal
 
 
 
