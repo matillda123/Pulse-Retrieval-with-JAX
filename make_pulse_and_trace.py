@@ -7,10 +7,10 @@ import refractiveindex
 
 import jax.numpy as jnp
 import jax
+from jax.tree_util import Partial
 
 from utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, generate_random_continuous_function, do_interpolation_1d
 from BaseClasses import RetrievePulsesFROG, RetrievePulsesDSCAN, RetrievePulsesFROGwithRealFields, RetrievePulsesDSCANwithRealFields, RetrievePulses2DSI
-
 
 
 
@@ -42,6 +42,11 @@ def apply_noise(trace, scale_val=0.01, additive_noise=False, multiplicative_nois
 
 
 
+
+
+
+
+
 class MakePulse:
     def __init__(self, N=256, Deltaf=1):
         self.N=N
@@ -59,7 +64,9 @@ class MakePulse:
 
     def gaussian(self, x, amp, fwhm, shift):
         b=fwhm/2.355 # fwhm to sigma
-        return amp*np.exp(-(x-shift)**2/(2*b**2))
+        idx = np.argmin(np.abs(x-shift))
+        shift_new = x[idx] # makes sure that shift lies on top of grid point, prevents issues when fwhm is too small
+        return amp*np.exp(-(x-shift_new)**2/(2*b**2))
     
 
     def generate_polynomial_phase(self, frequency, central_frequency, parameters):
@@ -180,6 +187,7 @@ class MakePulse:
 
 
 
+
     def generate_frog_trace_and_spectrum(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, scale_time_range=1, plot_stuff=True, 
                                     xfrog=False, gate=(None, None), ifrog=False, interpolate_fft_conform=True, cut_off_val=0.001, frequency_range=None, 
                                     real_fields=False):
@@ -283,7 +291,7 @@ def interpolate_spectrum(frequency, pulse_f, N):
     frequency_zoom = frequency[idx_1_min:idx_1_max]
     frequency_interpolate_spectrum = np.linspace(frequency_zoom[0], frequency_zoom[-1], N)
     
-    spectrum = do_interpolation_1d(frequency_interpolate_spectrum, frequency, spectrum)
+    spectrum = do_interpolation_1d(frequency_interpolate_spectrum, frequency, spectrum, method="linear")
     spectrum = spectrum/np.max(spectrum)
     return frequency_interpolate_spectrum, spectrum
 

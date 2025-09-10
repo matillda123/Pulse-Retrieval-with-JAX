@@ -10,6 +10,10 @@ from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychog
 from utilities import scan_helper, do_fft, do_ifft, MyNamespace, center_signal_to_max, do_interpolation_1d, calculate_trace, calculate_trace_error
 
 
+from TwoDSI_z_error_gradients import calculate_Z_gradient
+from TwoDSI_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
+
+
 
 class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
@@ -21,14 +25,14 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         self.integration_method = "euler_maclaurin_3"
         self.integration_order = None
 
-        self.use_hann_window = True
+        self.use_windowing = "hamming"
 
 
-    def apply_hann_window(self, signal, axis=-1):
+    def apply_windowing(self, a0, signal, axis=-1):
         N=jnp.shape(signal)[axis]
         n=jnp.arange(N)
-        hann = jnp.sin(jnp.pi*n/N)**2
-        return jnp.swapaxes(jnp.swapaxes(signal, -1, axis)*hann, axis, -1)
+        window = a0 - (1-a0)*jnp.cos(2*jnp.pi*n/N)
+        return jnp.swapaxes(jnp.swapaxes(signal, -1, axis)*window, axis, -1)
 
 
     def integrate_signal_1D(self, signal, x, descent_info):
@@ -82,12 +86,12 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         tau_arr, frequency, trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
         pulse_spectral_amplitude, anc1_frequency, anc2_frequency = measurement_info.spectral_amplitude.pulse, measurement_info.anc1_frequency, measurement_info.anc2_frequency
 
-        use_hann = descent_info.use_hann_window
-        if use_hann==True:
-            trace_hann = self.apply_hann_window(trace, axis=0)
+        use_windowing = descent_info.use_windowing
+        if use_windowing!=False:
+            trace_wind = self.apply_windowing(use_windowing, trace, axis=0)
         else:
-            trace_hann = trace
-        trace_f = jnp.fft.fftshift(jnp.fft.fft(trace_hann, axis=0), axes=0)
+            trace_wind = trace
+        trace_f = jnp.fft.fftshift(jnp.fft.fft(trace_wind, axis=0), axes=0)
 
         frequency_tau = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(tau_arr), jnp.mean(jnp.diff(tau_arr))))
         shear_frequency_mean = (anc1_frequency + anc2_frequency)/2
@@ -138,10 +142,15 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         if self.integration_method[:-2]=="euler_maclaurin":
             self.integration_order = int(self.integration_method[-1])
             self.integration_method = "euler_maclaurin"
+
+        a0_dict = {"hamming": 0.54, 
+                   "hann": 0.5,
+                   False: False}
             
         self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
                                                      integration_order = self.integration_order,
-                                                     use_hann_window = self.use_hann_window)
+                                                     use_windowing = a0_dict[self.use_windowing])
+        
         init_arr = jnp.zeros(jnp.size(self.measurement_info.frequency))
         self.descent_state = self.descent_state.expand(population = population, 
                                                        group_delay = init_arr, 
@@ -170,11 +179,15 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
-        pass
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        return grad
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
-        pass
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.gate_pulses, signal_t.gate, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         descent_state.hessian, descent_info.hessian, use_hessian, pulse_or_gate)
+        return descent_direction, hessian
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
@@ -196,9 +209,47 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 
 class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, pie_method="rPIE", **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
-        assert self.doubleblind==False
+
+        self.pie_method=pie_method
+
+
+    def reverse_transform_grad(self, signal, tau_arr, measurement_info):
+        frequency, time = measurement_info.frequency, measurement_info.time
+
+        signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
+        return signal
+    
+    
+
+    def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):
+        pass
+
+
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+        pass
+        #return grad, U
+    
+
+
+    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        signal = getattr(individual, pulse_or_gate)
+        signal = signal + gamma*descent_direction
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        return individual
+
+
+    def get_gate_probe_for_hessian(self, pulse_t, gate_pulse_shifted, nonlinear_method):
+        pass
+
+
+    def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
+                                       pulse_or_gate, local_or_global):
+        
+        pass
+    
 
 
 
@@ -212,3 +263,32 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
 class COPRA(COPRABASE, RetrievePulses2DSI):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
+
+    
+
+    def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        sk, rn = measurement_info.sk, measurement_info.rn
+
+        signal = getattr(individual, pulse_or_gate)
+        signal_f = do_fft(signal, sk, rn)
+        signal_f = signal_f + gamma*descent_direction
+        signal = do_ifft(signal_f, sk, rn)
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        return individual
+
+
+    def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        return grad
+
+
+
+    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
+                                           use_hessian, pulse_or_gate):
+        
+        hessian_state = local_or_global_state.hessian
+        descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.gate_pulses, signal_t.gate, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         hessian_state, descent_info.hessian, use_hessian, pulse_or_gate)
+        return descent_direction, hessian

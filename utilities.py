@@ -108,7 +108,6 @@ jax.tree_util.register_pytree_node(MyNamespace, flatten_MyNamespace, unflatten_M
 
 
 
-# helper to effectively use jax.jit(jax.lax.scan)
 def run_scan_helper(do_scan, carry, no_iterations):
     return jax.lax.scan(do_scan, carry, length=no_iterations)
 
@@ -211,9 +210,9 @@ def get_sk_rn(time, frequency):
 
 
 
-def do_interpolation_1d(x_new, x, y):
+def do_interpolation_1d(x_new, x, y, method="cubic"):
     # this exists to possibly switch to a jax.scipy based interpolation
-    y_new = interp1d(x_new, x, y, method="cubic", extrap=1e-12)
+    y_new = interp1d(x_new, x, y, method=method, extrap=1e-12)
     return y_new
 
 

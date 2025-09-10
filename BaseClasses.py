@@ -950,10 +950,11 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
             
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
-        gate = calculate_gate(gate1 + gate2_shifted, nonlinear_method)
+        gate_pulses = gate1 + gate2_shifted
+        gate = calculate_gate(gate_pulses, nonlinear_method)
         signal_t = pulse_t*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate2_shifted=gate2_shifted, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate)
         return signal_t
     
 
