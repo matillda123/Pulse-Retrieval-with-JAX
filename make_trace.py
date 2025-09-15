@@ -1,17 +1,14 @@
 import numpy as np
-from scipy.ndimage import gaussian_filter1d
 import matplotlib.pyplot as plt
 
 import refractiveindex
 
-
 import jax.numpy as jnp
 import jax
-from jax.tree_util import Partial
 
-from utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, generate_random_continuous_function, do_interpolation_1d
+from utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d
 from BaseClasses import RetrievePulsesFROG, RetrievePulsesDSCAN, RetrievePulsesFROGwithRealFields, RetrievePulsesDSCANwithRealFields, RetrievePulses2DSI
-
+from make_pulse import MakePulse as MakePulseBase
 
 
 
@@ -46,149 +43,12 @@ def apply_noise(trace, scale_val=0.01, additive_noise=False, multiplicative_nois
 
 
 
+class MakePulse(MakePulseBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-class MakePulse:
-    def __init__(self, N=256, Deltaf=1):
-        self.N=N
-        self.Deltaf=Deltaf
-
-        self.df=self.Deltaf/self.N
-
-        self.no_points_random_phase=10
-        self.multi_pulse_time_domain_length_multiplier=8
-
-
-        self.minval_rand_phase, self.maxval_rand_phase = -4*np.pi, 4*np.pi
-
-
-
-    def gaussian(self, x, amp, fwhm, shift):
-        b=fwhm/2.355 # fwhm to sigma
-        idx = np.argmin(np.abs(x-shift))
-        shift_new = x[idx] # makes sure that shift lies on top of grid point, prevents issues when fwhm is too small
-        return amp*np.exp(-(x-shift_new)**2/(2*b**2))
     
-
-    def generate_polynomial_phase(self, frequency, central_frequency, parameters):
-        n=len(parameters)
-        phase=0
-        for i in range(n):
-            phase=phase+parameters[i]*(frequency-central_frequency)**i
-    
-        return 2*np.pi*phase
-    
-    def generate_sinusoidal_phase(self, frequency, parameters):
-        n=len(parameters)
-        phase=0
-        for i in range(n):
-            a,b,c=parameters[i]
-            phase=phase+a*np.sin(2*np.pi*b*(frequency-c))
-        
-        return 2*np.pi*phase
-    
-    def interpolate_custom_phase(self, frequency, custom_frequency, custom_phase):
-        return do_interpolation_1d(frequency, custom_frequency, custom_phase)
-
-
-    def get_spectral_phase(self, frequency, central_frequency, phase_type="flat", parameters_phase=None, amp_f=None):
-        if phase_type=="flat":
-            phase=np.zeros(self.N)
-        elif phase_type=="polynomial":
-            assert parameters_phase!=None, "You need to provide parameters for the polynomial phase."
-            phase=self.generate_polynomial_phase(frequency, central_frequency, parameters_phase)
-        elif phase_type=="sinusoidal":
-            assert parameters_phase!=None, "You need to provide parameters for the polynomial phase."
-            phase=self.generate_sinusoidal_phase(frequency, parameters_phase)
-        elif phase_type=="random":
-            phase=generate_random_continuous_function(jax.random.PRNGKey(np.random.randint(0,1e9)), self.no_points_random_phase, frequency, 
-                                                      self.minval_rand_phase, self.maxval_rand_phase, gaussian_filter1d(amp_f, sigma=10))
-        elif phase_type=="custom":
-            phase=self.interpolate_custom_phase(frequency, parameters_phase[0], parameters_phase[1])
-        else:
-            print("something went wrong?")
-
-        return phase
-    
-
-    def get_multi_pulse(self, shift_arr, duration_arr, central_frequency_arr, amplitude_arr, phase_type_arr, parameters_phase_arr):
-        DeltaT=(np.max(shift_arr)-np.min(shift_arr))*self.multi_pulse_time_domain_length_multiplier
-        time=np.linspace(-DeltaT/2, DeltaT/2, self.N)
-        cf=np.mean(central_frequency_arr)
-        frequency=np.fft.fftshift(np.fft.fftfreq(self.N, np.mean(np.diff(time))))+cf
-
-        sk, rn = get_sk_rn(time, frequency)
-
-        pulse_total=0
-        for i in range(len(shift_arr)):
-            pulse_t=self.gaussian(time, amplitude_arr[i], duration_arr[i], shift_arr[i])*np.exp(1j*2*np.pi*central_frequency_arr[i]*time)
-            pulse_f=do_fft(pulse_t, sk, rn)
-            phase_f=self.get_spectral_phase(frequency, central_frequency_arr[i], phase_type=phase_type_arr[i], 
-                                            parameters_phase=parameters_phase_arr[i], amp_f=np.abs(pulse_f))
-
-            pulse_total=pulse_total+pulse_f*np.exp(1j*phase_f)
-            
-        pulse_f=pulse_total
-
-        return time, do_ifft(pulse_f, sk, rn), frequency, pulse_f
-        
-
-    def generate_pulse_t(self, spectral_amp_parameters=[0.5, 0.1], type="flat", parameters_phase=None, multi_pulse_parameters=None):
-        if np.size(spectral_amp_parameters)==2:
-            self.central_f=spectral_amp_parameters[0]
-            fwhm_f=spectral_amp_parameters[1]
-            broadband_pulse=False
-        else:
-            self.central_f=np.mean(spectral_amp_parameters,axis=0)[0]
-            broadband_pulse=True
-
-
-        frequency=np.linspace(self.central_f-self.df*self.N/2, self.central_f+self.df*self.N/2, self.N)
-        time=np.fft.fftshift(np.fft.fftfreq(self.N, self.df))
-        sk, rn = get_sk_rn(time, frequency)
-
-        if multi_pulse_parameters==None:
-            if broadband_pulse==True:
-                shape=np.shape(spectral_amp_parameters)
-                amp=0
-                for i in range(shape[0]):
-                    central_f=spectral_amp_parameters[i][0]
-                    fwhm_f=spectral_amp_parameters[i][1]
-                    a=spectral_amp_parameters[i][2]
-                    amp=amp+self.gaussian(frequency, a, fwhm_f, central_f)
-            else:
-                amp=self.gaussian(frequency, 1, fwhm_f, self.central_f)
-            phase=self.get_spectral_phase(frequency, self.central_f, phase_type=type, parameters_phase=parameters_phase, amp_f=amp)
-            pulse_f=amp*np.exp(1j*phase)
-            pulse_t=do_ifft(pulse_f, sk, rn)
-
-        else:
-            delay_arr=multi_pulse_parameters[0]
-            duration_arr=multi_pulse_parameters[1]
-            central_frequency_arr=multi_pulse_parameters[2]
-            amplitude_arr=multi_pulse_parameters[3]
-            phase_type_arr=multi_pulse_parameters[4]
-            parameters_phase_arr=multi_pulse_parameters[5]
-
-            delay_arr=list(delay_arr)
-            delay_arr.insert(0,0)
-            shift_arr=np.cumsum(delay_arr)-np.mean(np.cumsum(delay_arr))
-
-            time, pulse_t, frequency, pulse_f = self.get_multi_pulse(shift_arr, duration_arr, central_frequency_arr, amplitude_arr, phase_type_arr, parameters_phase_arr)
-
-
-        self.input_pulses=MyNamespace(time=time, frequency=frequency, pulse_t=pulse_t, pulse_f=pulse_f)
-        return time, pulse_t, frequency, pulse_f
-    
-
-
-
-
-
-
-
-
-
-    def generate_frog_trace_and_spectrum(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, scale_time_range=1, plot_stuff=True, 
+    def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, scale_time_range=1, plot_stuff=True, 
                                     xfrog=False, gate=(None, None), ifrog=False, interpolate_fft_conform=True, cut_off_val=0.001, frequency_range=None, 
                                     real_fields=False):
         
@@ -215,7 +75,7 @@ class MakePulse:
 
 
 
-    def generate_dscan_trace_and_spectrum(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, plot_stuff=True, 
+    def generate_dscan(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, plot_stuff=True, 
                                           cut_off_val=0.001, frequency_range=None, real_fields=False):
 
         if real_fields==True:
@@ -234,7 +94,7 @@ class MakePulse:
 
 
 
-    def generate_2dsi_trace_and_spectrum(self, time, frequency, pulse_t, pulse_f, nonlinear_method, xfrog=True, anc=((None,None),(None,None)), N=256, scale_time_range=1, 
+    def generate_2dsi(self, time, frequency, pulse_t, pulse_f, nonlinear_method, xfrog=True, anc=((None,None),(None,None)), N=256, scale_time_range=1, 
                                          plot_stuff=True, 
                                          cut_off_val=0.001, frequency_range=None):
 
@@ -255,13 +115,6 @@ class MakePulse:
 
         return time_trace, frequency_trace, trace, spectra
     
-
-
-
-
-
-
-
 
 
 
