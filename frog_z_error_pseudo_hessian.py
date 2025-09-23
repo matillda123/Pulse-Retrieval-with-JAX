@@ -58,7 +58,7 @@ def calc_Z_error_pseudo_hessian_subelement_sd(dummy_element, pulse_t, pulse_t_sh
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_xfrog_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=0.5*jnp.abs(gate_shifted_m)**2
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -70,7 +70,7 @@ def calc_Z_error_pseudo_hessian_subelement_xfrog_pulse(dummy_element, pulse_t, p
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=0.5*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -79,7 +79,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg_xfrog_gate(dummy_element, pulse_t
     return dummy_element + res, None
 
 
-def calc_Z_error_pseudo_hessian_subelement_thg_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2*jnp.abs(pulse_t_shifted_m)**2
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -88,7 +88,7 @@ def calc_Z_error_pseudo_hessian_subelement_thg_xfrog_gate(dummy_element, pulse_t
     return dummy_element + res, None
 
 
-def calc_Z_error_pseudo_hessian_subelement_pg_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=0.5*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2*jnp.abs(pulse_t_shifted_m)**2
     Vzz_k=jnp.real((signal_t_new_m-signal_t_m)*jnp.conjugate(pulse_t))*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Hzz_k=Uzz_k-Vzz_k
@@ -97,7 +97,7 @@ def calc_Z_error_pseudo_hessian_subelement_pg_xfrog_gate(dummy_element, pulse_t,
     return dummy_element + res, None
 
 
-def calc_Z_error_pseudo_hessian_subelement_sd_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2*jnp.abs(pulse_t_shifted_m)**2
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -142,7 +142,7 @@ def calc_Z_error_pseudo_hessian_subelement_pg_ifrog(dummy_element, pulse_t, puls
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_cross_correlation_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2*jnp.abs(pulse_t+pulse_t_shifted_m)**2
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -150,7 +150,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_pulse(dummy_element, 
     res=D_arr_pn*Hzz_k
     return dummy_element + res, None
 
-def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_cross_correlation_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=4.5*jnp.abs(pulse_t+pulse_t_shifted_m)**4
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -158,7 +158,7 @@ def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_pulse(dummy_element, 
     res=D_arr_pn*Hzz_k
     return dummy_element + res, None
 
-def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_cross_correlation_pulse(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2.5*jnp.abs(pulse_t+pulse_t_shifted_m)**4
     Vzz_k=2*jnp.real(jnp.conjugate(pulse_t+pulse_t_shifted_m)*(signal_t_new_m-signal_t_m))
     Hzz_k=Uzz_k-Vzz_k
@@ -168,7 +168,7 @@ def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_pulse(dummy_element, p
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2*jnp.abs(pulse_t+pulse_t_shifted_m)**2*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -176,7 +176,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_gate(dummy_element, p
     res=D_arr_pn*Hzz_k
     return dummy_element + res, None
 
-def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=4.5*jnp.abs(pulse_t+pulse_t_shifted_m)**4*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -184,7 +184,7 @@ def calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_gate(dummy_element, p
     res=D_arr_pn*Hzz_k
     return dummy_element + res, None
 
-def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_cross_correlation_gate(dummy_element, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
     Uzz_k=2.5*jnp.abs(pulse_t+pulse_t_shifted_m)**4*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Vzz_k=2*jnp.real(jnp.conjugate(pulse_t+pulse_t_shifted_m)*(signal_t_new_m-signal_t_m))*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Hzz_k=Uzz_k-Vzz_k
@@ -198,50 +198,50 @@ def calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_gate(dummy_element, pu
 
 
 def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, omega_n, time_k, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, 
-                                              frogmethod, xfrog, ifrog):
+                                              frogmethod, cross_correlation, ifrog):
     
     D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
 
 
-    if xfrog==True or xfrog=="doubleblind":
-        xfrog=True
+    if cross_correlation==True or cross_correlation=="doubleblind":
+        cross_correlation=True
     else:
-        xfrog=False
+        cross_correlation=False
 
 
 
-    hess_func_ifrog_False_xfrog_False={"shg": calc_Z_error_pseudo_hessian_subelement_shg, 
+    hess_func_ifrog_False_cross_correlation_False={"shg": calc_Z_error_pseudo_hessian_subelement_shg, 
                                        "thg": calc_Z_error_pseudo_hessian_subelement_thg, 
                                        "pg": calc_Z_error_pseudo_hessian_subelement_pg, 
                                        "sd": calc_Z_error_pseudo_hessian_subelement_sd}
     
-    hess_func_ifrog_False_xfrog_True={"shg": calc_Z_error_pseudo_hessian_subelement_xfrog_pulse, 
-                                       "thg": calc_Z_error_pseudo_hessian_subelement_xfrog_pulse, 
-                                       "pg": calc_Z_error_pseudo_hessian_subelement_xfrog_pulse, 
-                                       "sd": calc_Z_error_pseudo_hessian_subelement_xfrog_pulse}
+    hess_func_ifrog_False_cross_correlation_True={"shg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, 
+                                       "thg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, 
+                                       "pg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, 
+                                       "sd": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse}
 
-    hess_func_ifrog_True_xfrog_False={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog,
+    hess_func_ifrog_True_cross_correlation_False={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog,
                                      "thg": calc_Z_error_pseudo_hessian_subelement_thg_ifrog,
                                      "pg": calc_Z_error_pseudo_hessian_subelement_pg_ifrog}
     
-    hess_func_ifrog_True_xfrog_True={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_pulse,
-                                     "thg": calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_pulse,
-                                     "pg": calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_pulse}
+    hess_func_ifrog_True_cross_correlation_True={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog_cross_correlation_pulse,
+                                     "thg": calc_Z_error_pseudo_hessian_subelement_thg_ifrog_cross_correlation_pulse,
+                                     "pg": calc_Z_error_pseudo_hessian_subelement_pg_ifrog_cross_correlation_pulse}
 
 
-    hess_func_ifrog_False={False: hess_func_ifrog_False_xfrog_False,
-                           True: hess_func_ifrog_False_xfrog_True}
+    hess_func_ifrog_False={False: hess_func_ifrog_False_cross_correlation_False,
+                           True: hess_func_ifrog_False_cross_correlation_True}
     
 
-    hess_func_ifrog_True={False: hess_func_ifrog_True_xfrog_False,
-                          True: hess_func_ifrog_True_xfrog_True}
+    hess_func_ifrog_True={False: hess_func_ifrog_True_cross_correlation_False,
+                          True: hess_func_ifrog_True_cross_correlation_True}
     
     
     calc_hessian_subelement={False: hess_func_ifrog_False,
                              True: hess_func_ifrog_True}
 
     
-    calc_subelement=Partial(calc_hessian_subelement[ifrog][xfrog][frogmethod], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
+    calc_subelement=Partial(calc_hessian_subelement[ifrog][cross_correlation][frogmethod], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
     element_scan=Partial(scan_helper, actual_function=calc_subelement, number_of_args=1, number_of_xs=6)
 
     carry=0+0j
@@ -257,24 +257,24 @@ def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, o
 
 
 def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, omega_n, time_k, pulse_t, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, 
-                                              frogmethod, xfrog, ifrog):
+                                              frogmethod, cross_correlation, ifrog):
     
     D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
 
     
-    hess_func_ifrog_False_xfrog_gate={"shg": calc_Z_error_pseudo_hessian_subelement_shg_xfrog_gate, 
-                                       "thg": calc_Z_error_pseudo_hessian_subelement_thg_xfrog_gate, 
-                                       "pg": calc_Z_error_pseudo_hessian_subelement_pg_xfrog_gate, 
-                                       "sd": calc_Z_error_pseudo_hessian_subelement_sd_xfrog_gate}
+    hess_func_ifrog_False_cross_correlation_gate={"shg": calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate, 
+                                       "thg": calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate, 
+                                       "pg": calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate, 
+                                       "sd": calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate}
     
     
-    hess_func_ifrog_True_xfrog_gate={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog_xfrog_gate,
-                                     "thg": calc_Z_error_pseudo_hessian_subelement_thg_ifrog_xfrog_gate,
-                                     "pg": calc_Z_error_pseudo_hessian_subelement_pg_ifrog_xfrog_gate}
+    hess_func_ifrog_True_cross_correlation_gate={"shg": calc_Z_error_pseudo_hessian_subelement_shg_ifrog_cross_correlation_gate,
+                                     "thg": calc_Z_error_pseudo_hessian_subelement_thg_ifrog_cross_correlation_gate,
+                                     "pg": calc_Z_error_pseudo_hessian_subelement_pg_ifrog_cross_correlation_gate}
     
     
-    calc_hessian_subelement={False: hess_func_ifrog_False_xfrog_gate,
-                             True: hess_func_ifrog_True_xfrog_gate}
+    calc_hessian_subelement={False: hess_func_ifrog_False_cross_correlation_gate,
+                             True: hess_func_ifrog_True_cross_correlation_gate}
 
     
     calc_subelement=Partial(calc_hessian_subelement[ifrog][frogmethod], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
@@ -292,12 +292,12 @@ def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, om
 
 
 def calc_Z_error_pseudo_hessian_one_m(exp_arr_m, pulse_t_shifted_m, gate_shifted_m, signal_t_m, signal_t_new_m, 
-                                      pulse_t, time, omega, frogmethod, xfrog, ifrog, full_or_diagonal, pulse_or_gate):
+                                      pulse_t, time, omega, frogmethod, cross_correlation, ifrog, full_or_diagonal, pulse_or_gate):
 
     calc_Z_error_pseudo_hessian_element = {"pulse": calc_Z_error_pseudo_hessian_element_pulse,
                                            "gate": calc_Z_error_pseudo_hessian_element_gate}
     calc_hessian_partial=Partial(calc_Z_error_pseudo_hessian_element[pulse_or_gate], time_k=time, pulse_t=pulse_t, pulse_t_shifted_m=pulse_t_shifted_m, 
-                                 gate_shifted_m=gate_shifted_m, signal_t_m=signal_t_m, signal_t_new_m=signal_t_new_m, frogmethod=frogmethod, xfrog=xfrog, ifrog=ifrog)
+                                 gate_shifted_m=gate_shifted_m, signal_t_m=signal_t_m, signal_t_new_m=signal_t_new_m, frogmethod=frogmethod, cross_correlation=cross_correlation, ifrog=ifrog)
 
     if full_or_diagonal=="full":
         calc_hessian=jax.vmap(jax.vmap(calc_hessian_partial, in_axes=(0, None, 0, None)), in_axes=(None, 0, None, 0))
@@ -312,12 +312,12 @@ def calc_Z_error_pseudo_hessian_one_m(exp_arr_m, pulse_t_shifted_m, gate_shifted
 
 def calc_Z_error_pseudo_hessian_all_m(pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, tau_arr, measurement_info, full_or_diagonal, pulse_or_gate):
     time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
-    xfrog, ifrog, frogmethod = measurement_info.xfrog, measurement_info.ifrog, measurement_info.nonlinear_method
+    cross_correlation, ifrog, frogmethod = measurement_info.cross_correlation, measurement_info.ifrog, measurement_info.nonlinear_method
 
     exp_arr = jnp.exp(-1j*jnp.outer(tau_arr, omega))
 
 
-    hessian_all_m=Partial(calc_Z_error_pseudo_hessian_one_m, pulse_t=pulse_t, time=time, omega=omega, frogmethod=frogmethod, xfrog=xfrog, ifrog=ifrog, 
+    hessian_all_m=Partial(calc_Z_error_pseudo_hessian_one_m, pulse_t=pulse_t, time=time, omega=omega, frogmethod=frogmethod, cross_correlation=cross_correlation, ifrog=ifrog, 
                           full_or_diagonal=full_or_diagonal, pulse_or_gate=pulse_or_gate)
     h_all_m=jax.vmap(hessian_all_m, in_axes=(0,0,0,0,0))(exp_arr, pulse_t_shifted, gate_shifted, signal_t, signal_t_new)
 

@@ -17,9 +17,9 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
-        assert xfrog==True, "DirectReconstruction cannot work for Doubleblind or Autocorrelation-like methods"
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
+        assert cross_correlation==True, "DirectReconstruction cannot work for Doubleblind or Autocorrelation-like methods"
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
 
         self.name = "DirectReconstruction"
 
@@ -168,8 +168,8 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
 
 
 
@@ -206,9 +206,9 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 
 class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, pie_method="rPIE", **kwargs):
-        assert xfrog!="doubleblind", "Doubleblind is not implemented for 2DSI-TimeDomainPtychography."
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, pie_method="rPIE", **kwargs):
+        assert cross_correlation!="doubleblind", "Doubleblind is not implemented for 2DSI-TimeDomainPtychography."
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
 
         self.pie_method=pie_method
 
@@ -274,8 +274,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
 
 
 class COPRA(COPRABASE, RetrievePulses2DSI):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency, anc2_frequency, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
 
     
 

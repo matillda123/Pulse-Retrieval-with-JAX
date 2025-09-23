@@ -492,7 +492,7 @@ class RetrievePulses:
 
 
 class RetrievePulsesFROG(RetrievePulses):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, ifrog=False, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, ifrog=False, **kwargs):
         
         super().__init__(nonlinear_method, **kwargs)
 
@@ -507,18 +507,18 @@ class RetrievePulsesFROG(RetrievePulses):
         self.df = jnp.mean(jnp.diff(self.frequency))
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        self.xfrog = xfrog
+        self.cross_correlation = cross_correlation
         self.ifrog = ifrog
 
-        if self.xfrog=="doubleblind":
+        if self.cross_correlation=="doubleblind":
             self.doubleblind = True
-            self.xfrog = False
+            self.cross_correlation = False
 
         self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
                                                              frequency = self.frequency,
                                                              time = self.time,
                                                              measured_trace = self.measured_trace,
-                                                             xfrog = self.xfrog,
+                                                             cross_correlation = self.cross_correlation,
                                                              doubleblind = self.doubleblind,
                                                              ifrog = self.ifrog,
                                                              dt = self.dt,
@@ -595,7 +595,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         time, frequency = measurement_info.time, measurement_info.frequency
-        xfrog, doubleblind, ifrog = measurement_info.xfrog, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
@@ -603,8 +603,8 @@ class RetrievePulsesFROG(RetrievePulses):
 
         pulse_t_shifted=self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
-        if xfrog==True:
-            gate_pulse_shifted =self.calculate_shifted_signal(measurement_info.xfrog_gate, frequency, tau_arr, time)
+        if cross_correlation==True:
+            gate_pulse_shifted =self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
@@ -616,7 +616,7 @@ class RetrievePulsesFROG(RetrievePulses):
             gate_shifted=calculate_gate(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and xfrog==False and doubleblind==False:
+        if ifrog==True and cross_correlation==False and doubleblind==False:
             signal_t=(pulse + pulse_t_shifted)*calculate_gate(pulse + pulse_t_shifted, frogmethod)
         elif ifrog==True:
             signal_t=(pulse + gate_pulse_shifted)*calculate_gate(pulse + gate_pulse_shifted, frogmethod)
@@ -875,7 +875,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         time, frequency = measurement_info.time, measurement_info.frequency
-        xfrog, doubleblind, ifrog = measurement_info.xfrog, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
@@ -883,8 +883,8 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
-        if xfrog==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.xfrog_gate, frequency, tau_arr, time)
+        if cross_correlation==True:
+            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
@@ -896,7 +896,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
             gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and xfrog==False and doubleblind==False:
+        if ifrog==True and cross_correlation==False and doubleblind==False:
             signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
         elif ifrog==True:
             signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
@@ -938,9 +938,9 @@ class RetrievePulsesChirpScanwithRealFields(RetrievePulsesChirpScan):
 
 
 class RetrievePulses2DSI(RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog, anc1_frequency=None, anc2_frequency=None, 
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency=None, anc2_frequency=None, 
                  material_thickness=0, refractive_index = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, ifrog=False, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
 
         self.anc1_frequency = anc1_frequency
         self.anc2_frequency = anc2_frequency
@@ -998,7 +998,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
         pulse_t = individual.pulse
 
-        if measurement_info.xfrog==True:
+        if measurement_info.cross_correlation==True:
             gate1, gate2 = measurement_info.anc_1, measurement_info.anc_2
 
         elif measurement_info.doubleblind==True:

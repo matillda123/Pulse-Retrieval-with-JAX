@@ -24,8 +24,8 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
         self.name = "Vanilla"
         
 
@@ -106,8 +106,8 @@ class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
 
 
 class LSGPA(Vanilla):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
         self.name="LSGPA"
 
 
@@ -166,8 +166,8 @@ class LSGPA(Vanilla):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
 
@@ -207,8 +207,8 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 
 class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", xfrog=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.ifrog==False, "Dont use ifrog with PIE. its not meant or made for that"
 
         self.pie_method=pie_method
@@ -328,8 +328,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
 class COPRA(COPRABASE, RetrievePulsesFROG):
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, xfrog=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, xfrog=xfrog, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
 
