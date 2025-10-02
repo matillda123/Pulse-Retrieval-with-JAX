@@ -231,7 +231,7 @@ class RetrievePulses:
     def __init__(self, nonlinear_method, *args, seed=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.child_class=None
+        #self.child_class=None
         self.nonlinear_method=nonlinear_method
         self.f0=0
         self.doubleblind=False
@@ -326,7 +326,7 @@ class RetrievePulses:
 
 
     def get_individual_from_idx(self, idx, population):
-        # idx can also be an array (i think, didnt test yet)
+        # idx can also be an array (i think, didnt test)
         leaves, treedef = jax.tree.flatten(population)
         leaves_individual = [leaves[i][idx] for i in range(len(leaves))]
         individual = jax.tree.unflatten(treedef, leaves_individual)
@@ -822,6 +822,42 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
 
+
+
+
+
+# this is meant to be a parent to the general_algorithms for real fields
+# needs to come in first position in order for construct trace to override original one.
+class RetrievePulsesRealFields:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.measurement_info = self.measurement_info.expand(frequency_exp = self.frequency_exp)
+
+
+    def get_data(self, x_arr, frequency, measured_trace):
+        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
+
+        self.x_arr=jnp.array(x_arr)
+
+        self.frequency_exp = jnp.array(frequency)
+        f = jnp.abs(jnp.array(frequency))
+        df = jnp.mean(jnp.diff(jnp.array(frequency)))
+        self.frequency = jnp.arange(-1*jnp.max(f), jnp.max(f), df)
+
+        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(frequency), jnp.mean(jnp.diff(self.frequency))))
+        self.measured_trace=jnp.array(measured_trace)
+
+        return self.x_arr, self.time, self.frequency, self.measured_trace
+
+
+    def construct_trace(self, individual, measurement_info, descent_info):
+        x_arr, frequency, trace = super().construct_trace(individual, measurement_info, descent_info)
+
+        frequency_exp = measurement_info.frequency_exp
+        trace = do_interpolation_1d(frequency_exp, frequency, trace.T, method="linear").T
+        return x_arr, frequency_exp, trace
+    
 
 
 

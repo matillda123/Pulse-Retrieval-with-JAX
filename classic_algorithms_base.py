@@ -662,8 +662,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
         self.global_gamma=0.25
         self.r_global_method = "iteration"
 
-        self.local_adaptive_scaling = "original"
-        self.global_adaptive_scaling = "original"
+        self.local_adaptive_scaling = "linear"
+        self.global_adaptive_scaling = "linear"
 
 
 
@@ -676,8 +676,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
     
 
     def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate):
-        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, transform_arr, 
-                                                                                     measurement_info, pulse_or_gate)
+        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None))(signal_t, signal_t_new, population, transform_arr, measurement_info)
         return grad
 
 

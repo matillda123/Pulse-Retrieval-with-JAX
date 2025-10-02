@@ -1,10 +1,10 @@
-from BaseClasses import RetrievePulsesCHIRPSCANwithRealFields
+from BaseClasses import RetrievePulsesCHIRPSCANwithRealFields, RetrievePulsesRealFields
 from general_algorithms_chirpscan import DifferentialEvolution as DifferentialEvolutionDSCAN, Evosax as EvosaxDSCAN, LSF as LSFDSCAN, AutoDiff as AutoDiffDSCAN
 
 
 
 
-class DifferentialEvolution(DifferentialEvolutionDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
+class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -14,7 +14,7 @@ class DifferentialEvolution(DifferentialEvolutionDSCAN, RetrievePulsesCHIRPSCANw
 
 
 
-class Evosax(EvosaxDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
+class Evosax(RetrievePulsesRealFields, EvosaxDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -22,13 +22,13 @@ class Evosax(EvosaxDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
 
 
 
-class LSF(LSFDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
+class LSF(RetrievePulsesRealFields, LSFDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
 
 
-class AutoDiff(AutoDiffDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
+class AutoDiff(RetrievePulsesRealFields, AutoDiffDSCAN, RetrievePulsesCHIRPSCANwithRealFields):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)

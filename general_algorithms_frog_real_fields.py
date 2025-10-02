@@ -1,10 +1,10 @@
-from BaseClasses import RetrievePulsesFROGwithRealFields
+from BaseClasses import RetrievePulsesFROGwithRealFields, RetrievePulsesRealFields
 from general_algorithms_frog import DifferentialEvolution as DifferentialEvolutionFROG, Evosax as EvosaxFROG, LSF as LSFFROG, AutoDiff as AutoDiffFROG
 
 
 
 
-class DifferentialEvolution(DifferentialEvolutionFROG, RetrievePulsesFROGwithRealFields):
+class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -12,9 +12,7 @@ class DifferentialEvolution(DifferentialEvolutionFROG, RetrievePulsesFROGwithRea
 
 
 
-
-
-class Evosax(EvosaxFROG, RetrievePulsesFROGwithRealFields):
+class Evosax(RetrievePulsesRealFields, EvosaxFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -22,13 +20,14 @@ class Evosax(EvosaxFROG, RetrievePulsesFROGwithRealFields):
 
 
 
-class LSF(LSFFROG, RetrievePulsesFROGwithRealFields):
+class LSF(RetrievePulsesRealFields, LSFFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
 
 
-class AutoDiff(AutoDiffFROG, RetrievePulsesFROGwithRealFields):
+
+class AutoDiff(RetrievePulsesRealFields, AutoDiffFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)

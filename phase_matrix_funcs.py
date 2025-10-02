@@ -4,8 +4,9 @@ import refractiveindex
 from scipy.constants import c as c0
 
 
+
 parameters_material_scan = (refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), c0)
-def calulcate_phase_matrix_material(measurement_info, parameters):
+def calculate_phase_matrix_material(measurement_info, parameters):
     # z_arr needs to be in mm, is material thickness not translation
     refractive_index, c0 = parameters
     z_arr, frequency = measurement_info.z_arr, measurement_info.frequency
@@ -20,12 +21,23 @@ def calulcate_phase_matrix_material(measurement_info, parameters):
 
 
 
-
+#parameters=(0.75, 5, central_f.item())
 def calculate_phase_matrix_miips(measurement_info, parameters):
     alpha, gamma, central_frequency = parameters
     z_arr, frequency = measurement_info.z_arr, measurement_info.frequency
     
     omega = 2*jnp.pi * (frequency - central_frequency)
     phase_matrix = alpha*jnp.sin(gamma*omega[jnp.newaxis, :] - z_arr[:, jnp.newaxis])
+    return phase_matrix
+
+
+
+
+#parameters = (10, 0, central_f.item())
+def calculate_phase_matrix_tanh(measurement_info, parameters):
+    a, b, central_f = parameters
+    z_arr, frequency = measurement_info.z_arr, measurement_info.frequency
+    
+    phase_matrix = z_arr[:,jnp.newaxis]*jnp.tanh(a*(frequency[jnp.newaxis, :] - central_f)) + b
     return phase_matrix
 
