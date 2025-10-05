@@ -134,15 +134,10 @@ def sigmoidal_guess(key, population, shape, measurement_info):
     return key, population
 
 
-def spline_guess(key, population, shape, measurement_info):
+def bspline_guess_phase(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
 
-    N=jnp.size(measurement_info.frequency)
-    n=shape[1]
-    nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
-    n = int(nn[jnp.round(nn%1, 5)==0][-1])
-
-    c = jax.random.uniform(subkey, (shape[0], n), minval=-2*jnp.pi, maxval=2*jnp.pi)
+    c = jax.random.uniform(subkey, shape, minval=-2*jnp.pi, maxval=2*jnp.pi)
     population = tree_at(lambda x: x.phase, population, MyNamespace(c=c), is_leaf=lambda x: x is None)
     return key, population
     
@@ -190,6 +185,15 @@ def discrete_guess_amp(key, population, shape, measurement_info):
 
 
 
+def bspline_guess_amp(key, population, shape, measurement_info):
+    key, subkey = jax.random.split(key, 2)
+
+    c = jax.random.uniform(subkey, shape, minval=0.0, maxval=2.0)
+    population = tree_at(lambda x: x.amp, population, MyNamespace(c=c), is_leaf=lambda x: x is None)
+    return key, population
+
+
+
 
 
 def general_phase(key, population, shape, measurement_info, phase_type):
@@ -212,7 +216,7 @@ def create_phase(key, phase_type, population, shape, measurement_info):
     phase_guess_func_dict = {"polynomial": polynomial_guess,
                                 "sinusoidal": sinusoidal_guess,
                                 "sigmoidal": sigmoidal_guess,
-                                "splines": spline_guess,
+                                "bsplines": bspline_guess_phase,
                                 "discrete": discrete_guess_phase,
                                 "random": Partial(general_phase, phase_type="random"),
                                 "random_phase": Partial(general_phase, phase_type="random_phase"),
@@ -226,7 +230,7 @@ def create_phase(key, phase_type, population, shape, measurement_info):
 def create_amp(key, amp_type, population, shape, measurement_info):
     amp_guess_func_dict = {"gaussian": gaussian_or_lorentzian_guess,
                             "lorentzian": gaussian_or_lorentzian_guess,
-                            "splines": spline_guess,
+                            "bsplines": bspline_guess_amp,
                             "discrete": discrete_guess_amp,
                             "random": Partial(general_amp, amp_type="random"),
                             "random_phase": Partial(general_amp, amp_type="random_phase"),

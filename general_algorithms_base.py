@@ -8,77 +8,10 @@ from equinox import tree_at
 import equinox
 import optimistix
 
-from utilities import scan_helper, get_com, optimistix_helper_loss_function, scan_helper_equinox, MyNamespace, do_fft, do_ifft, calculate_trace, calculate_trace_error, loss_function_modifications, generate_random_continuous_function, do_interpolation_1d
+from utilities import scan_helper, get_com, optimistix_helper_loss_function, scan_helper_equinox, MyNamespace, do_fft, do_ifft, calculate_trace, loss_function_modifications, do_interpolation_1d
 from BaseClasses import AlgorithmsBASE
 from create_population import create_population_general
-
-
-
-
-# def eval_bspline_segment(x, M, control_points):
-#         return control_points @ M.T @ x
-
-
-# def add_control_points_out_of_domain(control_points, degree, n):
-#     temp=jnp.zeros(n + degree)
-#     temp=temp.at[degree//2:n+degree//2].set(control_points)
-#     temp=temp.at[:degree//2].set(control_points[0])
-#     temp=temp.at[-degree//2:].set(control_points[-1])
-#     return temp
-
-
-# def b_spline(control_points, x):
-#     # M_1=jnp.array([[1, 0], [-1, 1]])
-#     # M_2=1/2*jnp.array([[1, 1, 0], [-2, 2, 0], [1, -2, 1]])
-#     # M_3=1/6*jnp.array([[1, 4, 1, 0], [-3, 0, 3, 0], [3, -6, 3, 0], [-1, 3, -3, 1]])
-    
-#     M=1/24*jnp.array([[1, 11, 11, 1, 0], [-4, -12, 12, 4, 0], [6, -6, -6, 6, 0], [-4, 12, -12, 4, 0], [1, -4, 6, -4, 1]])
-#     k=5
-#     degree=4
-#     n=jnp.size(control_points)
-#     control_points = add_control_points_out_of_domain(control_points, degree, n)
-
-#     N=jnp.size(x)
-#     splines_per_point=n/N
-#     x=jnp.arange(0, 1, splines_per_point)
-#     x = x**jnp.reshape(jnp.arange(k), (-1,1))
-
-#     control_points=jax.vmap(jnp.roll, in_axes=(None, 0))(control_points, -1*jnp.arange(k))
-#     control_points=jnp.transpose(control_points)[:-1*degree]
-
-#     spline_curve = jax.vmap(eval_bspline_segment, in_axes=(None, None, 0))(x, M, control_points)
-#     spline_curve = jnp.ravel(spline_curve)
-
-#     return spline_curve
-
-
-def b_spline(control_points, x):
-    # M_1=jnp.array([[1, 0], [-1, 1]])
-    # M_2=1/2*jnp.array([[1, 1, 0], [-2, 2, 0], [1, -2, 1]])
-    # M_3=1/6*jnp.array([[1, 4, 1, 0], [-3, 0, 3, 0], [3, -6, 3, 0], [-1, 3, -3, 1]])
-    
-    M=1/24*jnp.array([[1, 11, 11, 1, 0], 
-                      [-4, -12, 12, 4, 0], 
-                      [6, -6, -6, 6, 0], 
-                      [-4, 12, -12, 4, 0], 
-                      [1, -4, 6, -4, 1]])
-    k=5
-    degree=k-1
-    n=jnp.size(control_points)
-    control_points = jnp.pad(control_points, (degree//2, degree//2), mode="edge")
-
-    N=jnp.size(x)
-    splines_per_point=n/N
-    x = jnp.arange(0, 1, splines_per_point)
-    x = x**jnp.reshape(jnp.arange(k), (-1,1))
-
-    control_points = jax.vmap(jnp.roll, in_axes=(None, 0))(control_points, -1*jnp.arange(k))
-    control_points = jnp.transpose(control_points)[:-1*degree] # get rid of shared points ? 
-
-    w = jnp.dot(M.T, x)
-    spline_curve = jax.vmap(jnp.dot, in_axes=(0, None))(control_points, w)
-    s = jnp.ravel(spline_curve)
-    return s
+from bsplines_1d import make_bsplines, get_prefactor, get_M
 
 
 
@@ -96,13 +29,43 @@ class GeneralOptimization(AlgorithmsBASE):
         self.amplitude_or_intensity = "intensity"
         self.error_metric = self.trace_error
 
-        
+        self.bspline_info = MyNamespace(amp = None, phase = None)
 
-    def create_initial_population(self, population_size, phase_type="polynomial", amp_type="gaussian", no_funcs_amp=5, no_funcs_phase=6):
+
+    def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         self.key, subkey = jax.random.split(self.key, 2)
 
         population=MyNamespace(pulse=MyNamespace(amp=None, phase=None), 
                                gate=MyNamespace(amp=None, phase=None))
+        
+
+        if phase_type[:-2]=="bsplines":
+            k, phase_type = int(phase_type[-1]), phase_type[:-2]
+            f, M = get_prefactor(k), get_M(k)
+
+            # spline order and number of f-points restrict valid number of control-points
+            N = jnp.size(self.measurement_info.frequency)
+            n = no_funcs_phase
+            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
+            no_funcs_phase = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
+
+            Nx = N/(no_funcs_phase-k+1) + 1 # how many points per spline?
+            bspline_info_phase = MyNamespace(k=k, M=M, f=f, Nx=int(Nx))
+            self.bspline_info = self.bspline_info.expand(phase = bspline_info_phase)
+
+        if amp_type[:-2]=="bsplines":
+            k, amp_type = int(amp_type[-1]), amp_type[:-2]
+            f, M = get_prefactor(k), get_M(k)
+            
+            N = jnp.size(self.measurement_info.frequency)
+            n = no_funcs_amp
+            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
+            no_funcs_amp = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
+
+            Nx = N/(no_funcs_amp-k+1) + 1
+            bspline_info_amp = MyNamespace(k=k, M=M, f=f, Nx=int(Nx))
+            self.bspline_info = self.bspline_info.expand(amp = bspline_info_amp)
+
         
         subkey, population_pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
                                                              self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info)
@@ -148,7 +111,7 @@ class GeneralOptimization(AlgorithmsBASE):
         return coefficient*(x-x0)**order
     
 
-    def polynomial_phase(self, coefficients, central_f, measurement_info):
+    def polynomial_phase(self, coefficients, central_f, measurement_info, descent_info):
         phase = jax.vmap(self.polynomial_term, in_axes=(0, 0, None, None))(coefficients, jnp.arange(jnp.size(coefficients))+1, central_f, measurement_info.frequency)
         phase = jnp.sum(phase, axis=0)
         return phase
@@ -159,14 +122,14 @@ class GeneralOptimization(AlgorithmsBASE):
         phase = a*jnp.sin(2*jnp.pi*b*x+c)
         return phase
     
-    def sinusoidal_phase(self, coefficients, central_f, measurement_info):
+    def sinusoidal_phase(self, coefficients, central_f, measurement_info, descent_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
         phase_arr = jax.vmap(self.sinusoidal_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
         phase = jnp.sum(phase_arr, axis=0)
         return phase
     
 
-    def discrete_phase(self, coefficients, central_f, measurement_info):
+    def discrete_phase(self, coefficients, central_f, measurement_info, descent_info):
         return coefficients
     
 
@@ -175,15 +138,17 @@ class GeneralOptimization(AlgorithmsBASE):
         return 0.5*(1+jnp.tanh((x-c)/k))
     
 
-    def tanh_phase(self, coefficients, central_f, measurement_info):
+    def tanh_phase(self, coefficients, central_f, measurement_info, descent_info):
         a, c, k = coefficients.a, coefficients.c, coefficients.k
         phase_arr=jax.vmap(self.tanh_term, in_axes=(0, 0, None))(c, k, measurement_info.frequency)
         phase = jnp.sum(a[:, jnp.newaxis]*phase_arr, axis=0)
         return phase
     
 
-    def bspline_phase(self, coefficients, central_f, measurement_info):
-        phase = b_spline(coefficients.c, measurement_info.frequency)
+    def bspline_phase(self, coefficients, central_f, measurement_info, descent_info):
+        bspline_info = descent_info.bsplines.phase
+        k, M, f, Nx = bspline_info.k, bspline_info.M, bspline_info.f, bspline_info.Nx
+        phase = make_bsplines(coefficients.c, k, M, f, Nx)
         return phase
 
 
@@ -193,7 +158,7 @@ class GeneralOptimization(AlgorithmsBASE):
         return a*jnp.exp(-(frequency-c)**2/(2*b**2+1e-9))
     
 
-    def gaussian_amplitude(self, coefficients, measurement_info):
+    def gaussian_amplitude(self, coefficients, measurement_info, descent_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
         amp_f = jax.vmap(self.gaussian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
         amp_f = jnp.sum(amp_f, axis=0)
@@ -207,7 +172,7 @@ class GeneralOptimization(AlgorithmsBASE):
         return a/((frequency-c)**2+b**2)
     
 
-    def lorentzian_amplitude(self, coefficients, measurement_info):
+    def lorentzian_amplitude(self, coefficients, measurement_info, descent_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
         amp_f = jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
         amp_f = jnp.sum(amp_f, axis=0)
@@ -216,13 +181,15 @@ class GeneralOptimization(AlgorithmsBASE):
 
     
 
-    def discrete_amplitude(self, coefficients, measurement_info):
+    def discrete_amplitude(self, coefficients, measurement_info, descent_info):
         amp_f = coefficients
         return amp_f
     
 
-    def bspline_amplitude(self, coefficients, measurement_info):
-        amp_f = b_spline(coefficients.c, measurement_info.frequency)
+    def bspline_amplitude(self, coefficients, measurement_info, descent_info):
+        bspline_info = descent_info.bsplines.amp
+        k, M, f, Nx = bspline_info.k, bspline_info.M, bspline_info.f, bspline_info.Nx
+        amp_f = make_bsplines(coefficients.c, k, M, f, Nx)
         return amp_f
     
 
@@ -232,22 +199,22 @@ class GeneralOptimization(AlgorithmsBASE):
         spectral_phase_func_dict={"polynomial": self.polynomial_phase,
                                   "sinusoidal": self.sinusoidal_phase,
                                   "sigmoidal": self.tanh_phase,
-                                  "splines": self.bspline_phase,
+                                  "bsplines": self.bspline_phase,
                                   "discrete": self.discrete_phase}
         
         spectral_phase_func = spectral_phase_func_dict[descent_info.phase_type]
-        return spectral_phase_func(coefficients, central_f, measurement_info)
+        return spectral_phase_func(coefficients, central_f, measurement_info, descent_info)
     
 
 
     def get_amplitude(self, coefficients, measurement_info, descent_info):
         amp_func_dict={"gaussian": self.gaussian_amplitude,
                        "lorentzian": self.lorentzian_amplitude,
-                       "splines": self.bspline_amplitude,
+                       "bsplines": self.bspline_amplitude,
                        "discrete": self.discrete_amplitude}
             
         amp_func = amp_func_dict[descent_info.amp_type]
-        amp_f = amp_func(coefficients, measurement_info)
+        amp_f = amp_func(coefficients, measurement_info, descent_info)
 
         frequency = measurement_info.frequency
         idx_arr = jnp.arange(jnp.size(frequency))
@@ -363,7 +330,8 @@ class GeneralOptimization(AlgorithmsBASE):
 
         self.descent_info = self.descent_info.expand(use_fd_grad = self.use_fd_grad,
                                                      amplitude_or_intensity = self.amplitude_or_intensity,
-                                                     error_metric = self.error_metric)
+                                                     error_metric = self.error_metric,
+                                                     bsplines = self.bspline_info)
 
         self.descent_state = self.descent_state.expand(population = population)
 
@@ -437,7 +405,11 @@ class DifferentialEvolutionBASE(GeneralOptimization):
         leaves, treedef = jax.tree.flatten(pytree)
         N=len(leaves)
         keys = jax.random.split(key, N)
-        masks = [jax.random.choice(keys[i], jnp.tri(jnp.shape(leaves[i])[1]) , (jnp.shape(leaves[i])[0],), p=p**jnp.arange(jnp.shape(leaves[i])[1])*(1-p)) for i in range(N)]
+        masks = [jax.random.choice(keys[i], 
+                                   jnp.tri(jnp.shape(leaves[i])[1]) , 
+                                   (jnp.shape(leaves[i])[0],), 
+                                   p=p**jnp.arange(jnp.shape(leaves[i])[1])*(1-p)
+                                   ) for i in range(N)]
         masks_tree = jax.tree.unflatten(treedef, masks)
         return masks_tree
 
@@ -464,7 +436,11 @@ class DifferentialEvolutionBASE(GeneralOptimization):
         keys2 = jax.random.split(key2, N)
         
         k_vals = [jax.random.uniform(keys1[i], (jnp.shape(leaves[i])[0], 1), minval=-2, maxval=0) for i in range(N)]
-        c_vals = [jax.random.choice(keys2[i], jnp.arange(jnp.shape(leaves[i])[1]), (jnp.shape(leaves[i])[0], 1), p=1/(jnp.sqrt(2*jnp.pi*CR**2))*jnp.exp(-1/(2*CR**2)*(jnp.arange(jnp.shape(leaves[i])[1])-jnp.shape(leaves[i])[1]//2)**2)) for i in range(N)]
+        c_vals = [jax.random.choice(keys2[i], 
+                                    jnp.arange(jnp.shape(leaves[i])[1]), 
+                                    (jnp.shape(leaves[i])[0], 1), 
+                                    p = 1/(jnp.sqrt(2*jnp.pi*CR**2))*jnp.exp(-1/(2*CR**2)*(jnp.arange(jnp.shape(leaves[i])[1])-jnp.shape(leaves[i])[1]//2)**2)
+                                    ) for i in range(N)]
         
         S_vals = [self.tanh_term(c_vals[i], k_vals[i], jnp.arange(jnp.shape(leaves[i])[1])) for i in range(N)]
 
@@ -528,9 +504,9 @@ class DifferentialEvolutionBASE(GeneralOptimization):
             leaves_merged = [jnp.vstack((leaves_parent[i], leaves_trial[i])) for i in range(len(leaves_parent))]  # this can maybe be done with tree.map?
 
             error_merged = jnp.hstack((error_parent, error_trial))
-            idx=jnp.argsort(error_merged)
+            idx = jnp.argsort(error_merged)
             p_arr = 1/(jnp.exp((jnp.arange(jnp.size(idx))-N)/(temperature+1e-12))+1)
-            p_arr=p_arr/jnp.sum(p_arr)
+            p_arr = p_arr/jnp.sum(p_arr)
             idx_selected = jax.random.choice(key, idx, (N, ), replace=False, p=p_arr)
             error = error_merged[idx_selected]
 

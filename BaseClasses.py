@@ -272,7 +272,7 @@ class RetrievePulses:
 
         self.x_arr=jnp.array(x_arr)
         self.frequency=jnp.array(frequency)
-        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(frequency), jnp.mean(jnp.diff(self.frequency))))
+        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
         self.measured_trace=jnp.array(measured_trace)
 
         return self.x_arr, self.time, self.frequency, self.measured_trace
@@ -338,9 +338,10 @@ class RetrievePulses:
 
     def plot_results(self, final_result, exact_pulse=None):
         pulse_t, pulse_f, trace = final_result.pulse_t, final_result.pulse_f, final_result.trace
-        error_arr=final_result.error_arr
+        error_arr = final_result.error_arr
 
         x_arr, time, frequency, measured_trace = final_result.x_arr, final_result.time, final_result.frequency, final_result.measured_trace
+        frequency_exp = final_result.frequency_exp
         
         trace=trace/jnp.max(trace)
         measured_trace=measured_trace/jnp.max(measured_trace)
@@ -384,17 +385,17 @@ class RetrievePulses:
         plt.xlabel("Iteration No.")
 
         plt.subplot(2,3,4)
-        plt.pcolormesh(x_arr, frequency, measured_trace.T)
+        plt.pcolormesh(x_arr, frequency_exp, measured_trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
 
         plt.subplot(2,3,5)
-        plt.pcolormesh(x_arr, frequency, trace.T)
+        plt.pcolormesh(x_arr, frequency_exp, trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
 
         plt.subplot(2,3,6)
-        plt.pcolormesh(x_arr, frequency, trace_difference.T)
+        plt.pcolormesh(x_arr, frequency_exp, trace_difference.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.colorbar()
@@ -448,7 +449,7 @@ class RetrievePulses:
         x_arr = self.get_x_arr()
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
-        final_result=MyNamespace(x_arr=x_arr, time=time, frequency=frequency, 
+        final_result=MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
                                  error_arr=error_arr)
@@ -825,115 +826,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
 
-
-# this is meant to be a parent to the general_algorithms for real fields
-# needs to come in first position in order for construct trace to override original one.
-class RetrievePulsesRealFields:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.measurement_info = self.measurement_info.expand(frequency_exp = self.frequency_exp)
-
-
-    def get_data(self, x_arr, frequency, measured_trace):
-        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
-
-        self.x_arr=jnp.array(x_arr)
-
-        self.frequency_exp = jnp.array(frequency)
-        f = jnp.abs(jnp.array(frequency))
-        df = jnp.mean(jnp.diff(jnp.array(frequency)))
-        self.frequency = jnp.arange(-1*jnp.max(f), jnp.max(f), df)
-
-        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(frequency), jnp.mean(jnp.diff(self.frequency))))
-        self.measured_trace=jnp.array(measured_trace)
-
-        return self.x_arr, self.time, self.frequency, self.measured_trace
-
-
-    def construct_trace(self, individual, measurement_info, descent_info):
-        x_arr, frequency, trace = super().construct_trace(individual, measurement_info, descent_info)
-
-        frequency_exp = measurement_info.frequency_exp
-        trace = do_interpolation_1d(frequency_exp, frequency, trace.T, method="linear").T
-        return x_arr, frequency_exp, trace
-    
-
-
-
-
-
-
-
-class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-    def calculate_signal_t(self, individual, tau_arr, measurement_info):
-        time, frequency = measurement_info.time, measurement_info.frequency
-        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
-        frogmethod = measurement_info.nonlinear_method
-
-        pulse, gate = individual.pulse, individual.gate
-
-
-        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
-
-        if cross_correlation==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
-            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
-
-        elif doubleblind==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency, tau_arr, time)
-            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
-
-        else:
-            gate_pulse_shifted = None
-            gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
-
-
-        if ifrog==True and cross_correlation==False and doubleblind==False:
-            signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
-        elif ifrog==True:
-            signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
-        else:
-            signal_t = jnp.real(pulse)*gate_shifted
-            
-
-        signal_t = MyNamespace(signal_t = signal_t, 
-                               pulse_t_shifted = pulse_t_shifted, 
-                               gate_shifted = gate_shifted, 
-                               gate_pulse_shifted = gate_pulse_shifted)
-        return signal_t
-
-
-
-
-
-class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-    
-
-    def calculate_signal_t(self, individual, phase_matrix, measurement_info):
-        pulse = individual.pulse
-
-        pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info)
-        gate_disp = calculate_gate_with_Real_Fields(pulse_t_disp, measurement_info.nonlinear_method)
-        signal_t = jnp.real(pulse_t_disp)*gate_disp
-
-        signal_t = MyNamespace(signal_t = signal_t, 
-                               pulse_t_disp = pulse_t_disp, 
-                               gate_disp = gate_disp)
-        return signal_t
-
-
-
-
-
-
-
 class RetrievePulses2DSI(RetrievePulsesFROG):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency=None, anc2_frequency=None, 
                  material_thickness=0, refractive_index = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
@@ -1011,4 +903,146 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate)
+        return signal_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# this is meant to be a parent to the general_algorithms for real fields
+# needs to come in first position in order for construct trace to override original one.
+class RetrievePulsesRealFields:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print("Using real fields for retrieval should only be done if the trace includes multiple nonlinear signals at once.")
+
+        self.measurement_info = self.measurement_info.expand(frequency_exp = self.frequency_exp, 
+                                                             fcut = jnp.argmin(jnp.abs(self.frequency)))
+
+
+    def get_data(self, x_arr, frequency, measured_trace):
+        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
+
+        self.x_arr=jnp.array(x_arr)
+
+        self.frequency_exp = jnp.array(frequency)
+        f = jnp.abs(jnp.array(frequency))
+        df = jnp.mean(jnp.diff(jnp.array(frequency)))
+        self.frequency = jnp.arange(-1*jnp.max(f), jnp.max(f)+df, df)
+
+        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
+        self.measured_trace=jnp.array(measured_trace)
+
+        return self.x_arr, self.time, self.frequency, self.measured_trace
+
+
+
+    def construct_trace(self, individual, measurement_info, descent_info):
+        x_arr, frequency, trace = super().construct_trace(individual, measurement_info, descent_info)
+
+        frequency_exp = measurement_info.frequency_exp
+        trace = do_interpolation_1d(frequency_exp, frequency, trace.T, method="linear").T
+        return x_arr, frequency_exp, trace
+    
+
+
+
+    def post_process(self, descent_state, error_arr):
+        final_result = super().post_process(descent_state, error_arr)
+
+        frequency_exp, frequency = self.measurement_info.frequency_exp, self.measurement_info.frequency
+        trace = final_result.trace
+        trace = do_interpolation_1d(frequency_exp, frequency, trace.T, method="linear").T
+        trace = trace/jnp.linalg.norm(trace)
+
+        final_result = final_result.expand(frequency_exp = self.measurement_info.frequency_exp, 
+                                           trace = trace)
+        return final_result
+    
+
+
+
+
+
+
+
+class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        time, frequency = measurement_info.time, measurement_info.frequency
+        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        frogmethod = measurement_info.nonlinear_method
+
+        pulse, gate = individual.pulse, individual.gate
+
+
+        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
+
+        if cross_correlation==True:
+            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
+            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
+
+        elif doubleblind==True:
+            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency, tau_arr, time)
+            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
+
+        else:
+            gate_pulse_shifted = None
+            gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
+
+
+        if ifrog==True and cross_correlation==False and doubleblind==False:
+            signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
+        elif ifrog==True:
+            signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
+        else:
+            signal_t = jnp.real(pulse)*gate_shifted
+            
+
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted)
+        return signal_t
+
+
+
+
+
+class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+
+    def calculate_signal_t(self, individual, phase_matrix, measurement_info):
+        pulse = individual.pulse
+
+        pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info)
+        gate_disp = calculate_gate_with_Real_Fields(pulse_t_disp, measurement_info.nonlinear_method)
+        signal_t = jnp.real(pulse_t_disp)*gate_disp
+
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               pulse_t_disp = pulse_t_disp, 
+                               gate_disp = gate_disp)
         return signal_t
