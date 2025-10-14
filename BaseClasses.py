@@ -16,14 +16,24 @@ from initial_guess_doublepulse import make_population_doublepulse
 
 
 class AlgorithmsBASE:
+    """
+    The Base-Class for all solvers.
+
+    Attributes:
+        use_jit: bool, enables/disables jax.jit
+        spectrum_is_being_used: bool,
+
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.use_jit = False
+        self.spectrum_is_being_used = False
 
 
 
     def run(self, init_vals, no_iterations=100):
+        """ This function is invoked by most solvers to perform the iterative reconstruction. """
         if self.spectrum_is_being_used==True:
             assert self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
 
@@ -38,6 +48,7 @@ class AlgorithmsBASE:
 
 
     def do_step_and_apply_spectrum(self, descent_state, measurement_info, descent_info, do_step):
+        """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
         population = descent_state.population
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
@@ -58,12 +69,25 @@ class AlgorithmsBASE:
 
 
     def use_measured_spectrum(self, frequency, spectrum, pulse_or_gate="pulse"):
+        """ 
+        Needs to be called if a pulse spectrum is meant to be used in the reconstruction. 
+        Can be used via method-chaining. 
+
+        Args:
+            frequency: jnp.array, the frequency axis of spectrum
+            spectrum: jnp.array, the spectrum
+            pulse_or_gate: str, whether the spectrum is from the pulse or the gate-pulse.
+        
+        Returns:
+            the class instance
+        """
         spectral_amplitude = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
 
         if self.spectrum_is_being_used==True:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
+
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
                 self._step_local_iteration = self.step_local_iteration
                 self._step_global_iteration = self.step_global_iteration
@@ -93,28 +117,65 @@ class AlgorithmsBASE:
 
 
 class ClassicAlgorithmsBASE(AlgorithmsBASE):
+    """
+    The Base-Class for all classical solvers (e.g. Generalized Projection, ...). Inherits from AlgorithmsBASE.
+    
+    Attributes:
+        local_gamma: float, step size for local iterations
+        global_gamma: float, step size for global iterations
+
+        linesearch: bool or str, enables/disables a linesearch. Can be False, backtracking or zoom.
+        max_steps_linesearch: int, maximum number of linesearch steos
+        c1: float, constant for the Armijo-condition
+        c2: float, constant for the strong Wolfe-condition
+        delta_gamma: float, a factor which by which gamma is increased each iteration
+
+        local_hessian: bool or str, enables/disables the use of a hessian in local iterations. Can be False, lbfgs or diagonal.
+        global_hessian: bool or str, enables/disables the use of a hessian in global iterations. Can be False, lbfgs, diagonal or full.
+        lambda_lm: float, a Levenberg-Marquardt style damping coefficient.
+        lbfgs_memory: int, the number of past iterations to use in LBFGS
+        linalg_solver: str or lineax-solver, chooses a library/method for inverting the hessian. Can be scipy, lineax or a specific lineax solver.
+
+        conjugate_gradients: bool or str, enables/diables the use of the Nonlinear Conjugate Gradients method. Can be False, Fletcher-Reeves, 
+                                            Hestenes-Stiefel, Dai-Yuan, Polak-Ribiere or average.
+
+        r_local_method: str, chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.
+        r_global_method: str, chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.
+        r_gradient: str, if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.
+        r_hessian: bool, enables/diables the use of the diagonal hessian if r_method=iteration
+        r_weights: float or jnp.array, allows the weigthing of residuals
+        r_no_iterations: int, the number of iterations if r_method=iteration
+        r_step_scaling: str, the type of adpative step-size scaling to use if r_method=iteration
+
+        xi: float, a damping coefficient for adaptive step-sizes, avoids division by zero
+        local_adaptive_scaling: bool or str, enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+                                            pade_11, pade_01 or pade_02
+        global_adaptive_scaling: bool or str, enables/disables adaptive step sized in global iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+                                            pade_11, pade_01 or pade_02
+
+        momentum_is_being_used: bool,
+
+
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-
-        self.xi = 1e-12
-
         self.local_gamma = 1
         self.global_gamma = 1
 
-        self.use_linesearch = False
+        self.linesearch = False
         self.max_steps_linesearch = 15
         self.c1 = 1e-4
         self.c2 = 0.9
         self.delta_gamma = 0.5
 
-
         self.local_hessian = False
         self.global_hessian = False
         self.lambda_lm = 1e-3
         self.lbfgs_memory = 10
-        self.linalg_solver="lineax"
+        self.linalg_solver = "lineax"
 
+        self.conjugate_gradients = False
 
         self.r_local_method = "projection"
         self.r_global_method = "projection"
@@ -122,20 +183,49 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_hessian = False
         self.r_weights = 1.0
         self.r_no_iterations = 1
-        self.r_step_scaling = "original"
-
-
-        self.conjugate_gradients = False
+        self.r_step_scaling = "linear"
 
         self.local_adaptive_scaling = False
         self.global_adaptive_scaling = False
+        self.xi = 1e-12
 
+        self.momentum_is_being_used = False
 
 
 
 
     
+    def create_initial_population(self, population_size=1, guess_type="random"):
+        """ 
+        Creates an initial population.
+
+        Args:
+            population_size: int,
+            guess_type: str, can be one of random, random_phase, constant or constant_phase
+
+        Returns:
+            tuple[jnp.array, jnp.array or None], initial populations for the pulse and possibly the gate-pulse
+
+        """
+        self.key, subkey = jax.random.split(self.key, 2)
+        pulse_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
+
+        if self.doubleblind==True:
+            self.key, subkey = jax.random.split(self.key, 2)
+            gate_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
+        else:
+            gate_f_arr=None
+
+        self.descent_info = self.descent_info.expand(population_size=population_size)
+        return pulse_f_arr, gate_f_arr
+
+
+
     def shuffle_data_along_m(self, descent_state, measurement_info, descent_info):
+        """ 
+        Some solvers randomize local iterations. This is done by through this method. 
+        It returns shuffled but consistent measurement data.
+        """
         descent_state.key, subkey=jax.random.split(descent_state.key, 2)
         keys = jax.random.split(subkey, descent_info.population_size)
 
@@ -154,6 +244,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
     def do_step_and_apply_momentum(self, descent_state, measurement_info, descent_info, do_step):
+        """ If momentum is being used this wraps around the step-method of all solvers and updates the current guess accordingly. """
         population = descent_state.population
         momentum = descent_state.momentum
 
@@ -175,7 +266,18 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
 
-    def momentum_acceleration(self, population_size, eta):
+    def momentum(self, population_size, eta):
+        """ 
+        Needs to be called if momentum is meant to be used in the reconstruction. 
+        Can be used via method-chaining. 
+
+        Args:
+            population_size: int, is needed for some initialization 
+            eta: float, parameter that controls the momentum strength
+
+        Returns:
+            the class instance
+        """
         if self.momentum_is_being_used==True:
             return self
         else:
@@ -206,6 +308,17 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
     def apply_momentum(self, signal, momentum, eta):
+        """ 
+        Applies momentum to a signal. 
+
+        Args:
+            signal: jnp.array,
+            momentum: Pytree, contains the velocity map and its update
+            eta: float, the strength of the momentum
+
+        Returns:
+            tuple[jnp.array, Pytree], the updated signal and momentum state
+        """
         update_for_velocity_map, velocity_map = momentum.update_for_velocity_map, momentum.velocity_map
 
         velocity_map = eta*velocity_map + (signal - update_for_velocity_map)
@@ -228,22 +341,41 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
 class RetrievePulses:
+    """
+    The Base-Class for all reconstruction methods. Defines general initialization, preprocessing and postprocessing.
+
+    Attributes:
+        nonlinear_method: str, SHG, THG, PG or SD
+        f0: float, rarely some solvers need the central frequency to be zero. This saves the original central frequency.
+        doubleblind: bool, whether the reconstruction is supposed to yield the gate in addition to the pulse.
+        spectrum_is_being_used: bool,
+        momentum_is_being_used: bool,
+        measurement_info: Pytree, a container of variable (but static) structure. Holds measurement data and parameters.
+        descent_info: Pytree, a container of variable (but static) structure. Holds parameters of the reconstruction algorithm.
+        descent_state: Pytree, a container of variable (but static) structure. Contains the current state of the solver.
+        prng_seed: int, seed for the key
+        key: jnp.array, a jax.random.PRNGKey
+        factor: int, for SHG/THG the a correction factor of 2/3 needs to applied occasionally.
+
+        x_arr: jnp.array, an alias for the shifts/delays, internally indexed via m
+        time: jnp.array, the time axis, internally indexed via k
+        frequency: jnp.array, the frequency axis, internally indexed via n
+        measured_trace: jnp.array, 2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)
+
+    """
+
     def __init__(self, nonlinear_method, *args, seed=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        #self.child_class=None
-        self.nonlinear_method=nonlinear_method
-        self.f0=0
-        self.doubleblind=False
+        self.nonlinear_method = nonlinear_method
+        self.f0 = 0
+        self.doubleblind = False 
 
-        self.spectrum_is_being_used=False
-        self.momentum_is_being_used=False
-
-        self.measurement_info=MyNamespace(nonlinear_method = self.nonlinear_method,
-                                          spectral_amplitude = MyNamespace(pulse=None, gate=None),
-                                          central_f = MyNamespace(pulse=None, gate=None))
-        self.descent_info=MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
-        self.descent_state=MyNamespace()
+        self.measurement_info = MyNamespace(nonlinear_method = self.nonlinear_method, 
+                                            spectral_amplitude = MyNamespace(pulse=None, gate=None), 
+                                            central_f = MyNamespace(pulse=None, gate=None))
+        self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
+        self.descent_state = MyNamespace()
 
 
         if seed==None:
@@ -254,44 +386,45 @@ class RetrievePulses:
         self.update_PRNG_key(self.prng_seed)
 
         if nonlinear_method=="shg":
-            self.factor=2
+            self.factor = 2
         elif nonlinear_method=="thg":
-            self.factor=3
+            self.factor = 3
         else:
-            self.factor=1
+            self.factor = 1
 
 
     def update_PRNG_key(self, seed):
-        self.prng_seed=seed
-        self.key=jax.random.PRNGKey(seed)
-
+        self.prng_seed = seed
+        self.key = jax.random.PRNGKey(seed)
 
 
     def get_data(self, x_arr, frequency, measured_trace):
-        measured_trace=measured_trace/jnp.linalg.norm(measured_trace)
+        """ Prepare/Convert data. """
+        measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
 
-        self.x_arr=jnp.array(x_arr)
-        self.frequency=jnp.array(frequency)
-        self.time=jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
-        self.measured_trace=jnp.array(measured_trace)
-
+        self.x_arr = jnp.asarray(x_arr)
+        self.frequency = jnp.asarray(frequency)
+        self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
+        self.measured_trace = jnp.asarray(measured_trace)
         return self.x_arr, self.time, self.frequency, self.measured_trace
 
 
 
+
     def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
+        """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
         frequency = self.frequency
 
-        spectral_intensity=do_interpolation_1d(frequency, measured_frequency-self.f0/self.factor, measured_spectrum)
+        spectral_intensity = do_interpolation_1d(frequency, measured_frequency-self.f0/self.factor, measured_spectrum)
         spectral_amplitude = jnp.sqrt(jnp.abs(spectral_intensity))*jnp.sign(spectral_intensity)
         
         if pulse_or_gate=="pulse":
             self.measurement_info.spectral_amplitude.pulse = spectral_amplitude
-            self.descent_info.measured_spectrum_is_provided.pulse=True
+            self.descent_info.measured_spectrum_is_provided.pulse = True
 
         elif pulse_or_gate=="gate":
-            self.measurement_info.spectral_amplitude.gate=spectral_amplitude
-            self.descent_info.measured_spectrum_is_provided.gate=True
+            self.measurement_info.spectral_amplitude.gate = spectral_amplitude
+            self.descent_info.measured_spectrum_is_provided.gate = True
 
         else:
             raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
@@ -300,27 +433,13 @@ class RetrievePulses:
     
 
     def get_gate_pulse(self, frequency, gate_f):
+        """ For crosscorrelation=True the actual gate pulse has to be provided. """
         gate_f = do_interpolation_1d(self.frequency, frequency, gate_f)
         self.gate = do_ifft(gate_f, self.sk, self.rn)
         self.measurement_info = self.measurement_info.expand(gate = self.gate)
         return self.gate
     
 
-    
-
-
-    def create_initial_population(self, population_size=1, guess_type="random"):
-        self.key, subkey = jax.random.split(self.key, 2)
-        pulse_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
-
-        if self.doubleblind==True:
-            self.key, subkey = jax.random.split(self.key, 2)
-            gate_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
-        else:
-            gate_f_arr=None
-
-        self.descent_info = self.descent_info.expand(population_size=population_size)
-        return pulse_f_arr, gate_f_arr
 
 
 
@@ -407,12 +526,13 @@ class RetrievePulses:
 
 
     def get_idx_best_individual(self, descent_state):
+        """ Calculates trace error for whole population. Returns the idx of the individual with the smallest error."""
         measurement_info, descent_info = self.measurement_info, self.descent_info 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
-        trace=calculate_trace(do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
-        trace_error=jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
-        idx=jnp.argmin(trace_error)
+        trace = calculate_trace(do_fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        idx = jnp.argmin(trace_error)
         return idx
     
 
@@ -420,13 +540,14 @@ class RetrievePulses:
 
 
     def post_process_center_pulse_and_gate(self, pulse_t, gate_t):
+        """ This essentially removes the linear phase. But only approximately since no fits are done. """
         sk, rn = self.measurement_info.sk, self.measurement_info.rn
 
         pulse_t = center_signal(pulse_t)
         gate_t = center_signal(gate_t)
 
-        pulse_f=do_fft(pulse_t, sk, rn)
-        gate_f=do_fft(gate_t, sk, rn)
+        pulse_f = do_fft(pulse_t, sk, rn)
+        gate_f = do_fft(gate_t, sk, rn)
 
         return pulse_t, gate_t, pulse_f, gate_f
 
@@ -434,7 +555,8 @@ class RetrievePulses:
 
 
     def post_process(self, descent_state, error_arr):
-        self.descent_state=descent_state
+        """ Creates the final_result object from the final descent_state. """
+        self.descent_state = descent_state
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
@@ -446,10 +568,10 @@ class RetrievePulses:
         trace = self.post_process_create_trace(pulse_t, gate_t)
         trace = trace/jnp.linalg.norm(trace)
 
-        x_arr = self.get_x_arr()
+        x_arr = self.get_x_arr() # this can be just x_arr, there is no need to call it through an extra function.
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
-        final_result=MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency,
+        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
                                  error_arr=error_arr)
@@ -493,6 +615,22 @@ class RetrievePulses:
 
 
 class RetrievePulsesFROG(RetrievePulses):
+    """
+    The reconstruction class for FROG. Inherits from RetrievePulses.
+
+    Attributes:
+        tau_arr: jnp.array, the delays
+        gate: jnp.array, the gate-pulse (if its known).
+        transform_arr: jnp.array, an alias for tau_arr
+        idx_arr: jnp.array, an array with indices for tau_arr
+        dt: float,
+        df: float,
+        sk: jnp.array, correction values for FFT->DFT
+        rn: jnp.array, correction values for FFT->DFT
+        cross_correlation: bool,
+        ifrog: bool, 
+
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, ifrog=False, **kwargs):
         
         super().__init__(nonlinear_method, **kwargs)
@@ -514,6 +652,10 @@ class RetrievePulsesFROG(RetrievePulses):
         if self.cross_correlation=="doubleblind":
             self.doubleblind = True
             self.cross_correlation = False
+        elif self.cross_correlation==True or self.cross_correlation==False:
+            pass
+        else: 
+            raise ValueError(f"cross_correlation can only take one of doubleblind, True or False. Got {self.cross_correlation}") 
 
         self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
                                                              frequency = self.frequency,
@@ -533,6 +675,18 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def create_initial_population(self, population_size=1, guess_type="random"):
+        """ 
+        Creates an initial guess. The guess is in the time domain.
+
+        Args:
+            population_size: int, the number of guesses
+            guess_type: str, the guess type. Can be one of random, random_phase, constant or constant_phase.
+
+        Returns:
+            Pytree
+        
+        """
+
         pulse_f_arr, gate_f_arr = super().create_initial_population(population_size, guess_type)
 
         sk, rn = self.sk, self.rn
@@ -548,7 +702,19 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
 
-    def create_initial_population_doublepulse(self, population_size, monochromatic_double_pulse=False, sigma=3, init_std=0.001, i_want_control=False):
+    def create_initial_population_doublepulse(self, population_size, **kwargs):
+        """ 
+        Calls initial_guess_doublepulse.make_population_doublepulse to create an initial guess.
+        The guess is in the time domain. Assumes an autocorrelation FROG.
+        
+        Args:
+            population_size: int,
+            **kwargs: passed to make_population_doublepulse()
+
+        Returns:
+            Pytree
+
+        """
         measurement_info = self.measurement_info
         assert measurement_info.doubleblind==False, "Only implemented for doubleblind=False"
         
@@ -556,10 +722,10 @@ class RetrievePulsesFROG(RetrievePulses):
 
         tau_arr, frequency, measured_trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
         nonlinear_method = measurement_info.nonlinear_method
-        pulse_t_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, 
-                                                  monochromatic_double_pulse=monochromatic_double_pulse, sigma=sigma, init_std=init_std, 
-                                                  i_want_control=i_want_control)
-        return pulse_t_arr
+        pulse_t_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+
+        population = MyNamespace(pulse=pulse_t_arr, gate=None)
+        return population
     
 
 
@@ -567,13 +733,15 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
-        signal_f=do_fft(signal, sk, rn)
-        signal_f=signal_f*jnp.exp(-1j*2*jnp.pi*frequency*tau)
-        signal=do_ifft(signal_f, sk, rn)
+        """ The Fourier-Shift theorem. """
+        signal_f = do_fft(signal, sk, rn)
+        signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*frequency*tau)
+        signal = do_ifft(signal_f, sk, rn)
         return signal
 
 
     def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
+        """ The Fourier-Shift theorem applied to a list of signals. """
 
         # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary
         # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
@@ -595,6 +763,18 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field of a FROG in the time domain. 
+
+        Args:
+            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            tau_arr: jnp.array, the delays
+            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
         time, frequency = measurement_info.time, measurement_info.frequency
         cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
         frogmethod = measurement_info.nonlinear_method
@@ -632,6 +812,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def generate_signal_t(self, descent_state, measurement_info, descent_info):
+        """ Applies calculate_signal_t to a whole population via jax.vmap """
         tau_arr = measurement_info.tau_arr
         population = descent_state.population
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, tau_arr, measurement_info)
@@ -642,6 +823,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info):
+        """ FROG specific post processing to get the final pulse/gate """
         sk, rn = measurement_info.sk, measurement_info.rn
         idx = self.get_idx_best_individual(descent_state)
 
@@ -660,6 +842,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
     def post_process_create_trace(self, pulse_t, gate_t):
+        """ FROG specific post processing to get the final trace """
         sk, rn = self.measurement_info.sk, self.measurement_info.rn
         tau_arr = self.measurement_info.tau_arr
     
@@ -671,14 +854,12 @@ class RetrievePulsesFROG(RetrievePulses):
 
     
     def get_x_arr(self):
+        """ this should be removed """
         return self.tau_arr
 
     
-        
-
-
-
     def apply_spectrum(self, pulse_t, spectrum, sk, rn):
+        """ FROG specific method to project the pulse guess onto a measured spectrum. """
         pulse_f = do_fft(pulse_t, sk, rn)
         pulse_f_new = project_onto_amplitude(pulse_f, spectrum)
         pulse_t = do_ifft(pulse_f_new, sk, rn)
@@ -688,7 +869,27 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
 
+
+
+
+
+
 class RetrievePulsesCHIRPSCAN(RetrievePulses):
+    """
+    The reconstruction class for Chirp-Scan methods. Inherits from RetrievePulses.
+
+    Attributes:
+        z_arr: jnp.array, the shifts
+        dt: float,
+        df: float,
+        sk: jnp.array, correction values for FFT->DFT
+        rn: jnp.array, correction values for FFT->DFT
+        phase_matrix: jnp.array, a 2D-array with the phase values applied to pulse
+        parameters: tuple, parameters for the chirp function
+        transform_arr: jnp.array, an alias for phase_matrix
+        idx_arr: jnp.array, indices for z_arr
+
+    """
     
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
         super().__init__(nonlinear_method, **kwargs)
@@ -718,6 +919,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def get_phase_matrix(self, parameters):
+        """ Calls phase_matrix_func in order to calculate the phase matrix. """
         self.parameters = parameters
         self.phase_matrix = self.calculate_phase_matrix(self.measurement_info, parameters)
 
@@ -735,6 +937,18 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def create_initial_population(self, population_size=1, guess_type="random"):
+        """ 
+        Creates an initial guess. The guess is in the frequency domain.
+
+        Args:
+            population_size: int, the number of guesses
+            guess_type: str, the guess type. Can be one of random, random_phase, constant or constant_phase.
+
+        Returns:
+            Pytree
+        
+        """
+
         pulse_f_arr, gate_f_arr = super().create_initial_population(population_size, guess_type)
 
         if self.doubleblind==True:
@@ -749,6 +963,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def get_dispersed_pulse_t(self, pulse_f, phase_matrix, measurement_info):
+        """ Applies phase-matrix to a signal. """
         sk, rn = measurement_info.sk, measurement_info.rn
         
         pulse_f = pulse_f*jnp.exp(1j*phase_matrix)
@@ -760,6 +975,18 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def calculate_signal_t(self, individual, phase_matrix, measurement_info):
+        """
+        Calculates the signal field of a Chirp-Scan in the time domain. 
+
+        Args:
+            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            phase_matrix: jnp.array, the applied phases
+            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
         pulse = individual.pulse
 
         pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info)
@@ -771,6 +998,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
     
 
     def generate_signal_t(self, descent_state, measurement_info, descent_info):
+        """ Applies calculate_signal_t to a whole population via jax.vmap """
         phase_matrix = measurement_info.phase_matrix
         population = descent_state.population
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, phase_matrix, measurement_info)
@@ -784,6 +1012,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info):
+        """ Chirp-Scan specific post processing to get the final pulse/gate """
         sk, rn =  measurement_info.sk, measurement_info.rn
         idx = self.get_idx_best_individual(descent_state)
 
@@ -803,6 +1032,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
     def post_process_create_trace(self, pulse_t, gate_t):
+        """ Chirp-Scan specific post processing to get the final trace """
         sk, rn = self.measurement_info.sk, self.measurement_info.rn
         pulse_f = do_fft(pulse_t, sk, rn)
         signal_t = self.calculate_signal_t(MyNamespace(pulse=pulse_f, gate=None), self.measurement_info.phase_matrix, self.measurement_info)
@@ -810,10 +1040,12 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         return trace
 
     def get_x_arr(self):
+        """ this should be removed """
         return self.z_arr
 
 
     def apply_spectrum(self, pulse, spectrum, sk, rn):
+        """ Chirp-Scan specific method to project the pulse guess onto a measured spectrum. """
         pulse = project_onto_amplitude(pulse, spectrum)
         return pulse
 
@@ -827,6 +1059,18 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
 class RetrievePulses2DSI(RetrievePulsesFROG):
+    """
+    The reconstruction class for 2DSI. Inherits from RetrievePulsesFROG.
+
+    Attributes:
+        anc1_frequency: float, the first ancillary frequency
+        anc2_frequency: float, the second ancillary frequency
+        c0: float, the speed of light
+        refractive_index: refractiveindex.RefractiveIndexMaterial, returns the refractive index for a material given a wavelength in um
+        phase_matrix: jnp.array, a 2D-array with phase values that could potentially have been applied to a pulse
+
+    """
+
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency=None, anc2_frequency=None, 
                  material_thickness=0, refractive_index = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
@@ -845,6 +1089,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
 
     def get_anc_pulse(self, frequency, anc_f, anc_no=1):
+        """ For cross_correlation instead of the gate pulse the two-acillae pulses need to be provided. """
         anc_f = do_interpolation_1d(self.frequency, frequency, anc_f)
         anc = do_ifft(anc_f, self.sk, self.rn)
 
@@ -856,6 +1101,9 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
 
     def get_phase_matrix(self, refractive_index, material_thickness, measurement_info):
+        """ 
+        Calculates the phase matrix that is applied of a pulse passes through a material.
+        """
         frequency, c0 = measurement_info.frequency, measurement_info.c0
         c0 = c0*1e-12 # speed of light in mm/fs
         wavelength = c0/(frequency+1e-15)
@@ -868,7 +1116,10 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
 
     def apply_phase(self, pulse_t, measurement_info):
-        # apply material dispersion to mimic material in interferometer
+        """
+        For an auto-correlation 2DSI reconstruction one may need to consider effects of a beam splitter in the interferometer.
+        This applies a dispersion based on phase_matrix in order to achieve this.
+        """
 
         sk, rn = measurement_info.sk, measurement_info.rn
         
@@ -879,10 +1130,19 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
     
 
 
-
-
-
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field of 2DSI in the time domain. 
+
+        Args:
+            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            tau_arr: jnp.array, the delays
+            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
         time, frequency, nonlinear_method = measurement_info.time, measurement_info.frequency, measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
@@ -930,9 +1190,21 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 # this is meant to be a parent to the general_algorithms for real fields
 # needs to come in first position in order for construct trace to override original one.
 class RetrievePulsesRealFields:
+    """  
+    A Base-Class for reconstruction via real fields. This is needed if multiple nonlinear signals are present in the same trace.
+    The complex FFT does not inherently express difference frequency generation, because complex signals do not possess negative frequencies.
+    This attempt doesnt really work because it doesnt replace the complex FFT with a real one. In addition it can only be used with general solvers, 
+    because for classical solvers analytic gradients/hessians are required. 
+    Does not inherit from any class. But is supposed to be used via composition of its child classes with solver classes.
+
+    Attributes:
+        frequency_exp: jnp.array, the frequencies corresponding to the measured trace
+        frequency: jnp.array, the frequencies which are used in the reconstruction
+
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        print("Using real fields for retrieval should only be done if the trace includes multiple nonlinear signals at once.")
 
         self.measurement_info = self.measurement_info.expand(frequency_exp = self.frequency_exp, 
                                                              fcut = jnp.argmin(jnp.abs(self.frequency)))
@@ -985,6 +1257,10 @@ class RetrievePulsesRealFields:
 
 
 class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
+    """ 
+    Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the 
+    signal field in order to use real fields instead of complex ones.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -1031,6 +1307,10 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
 
 class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
+    """ 
+    Inherits from RetrievePulsesCHIRPSCAN. Has the same purpose. It overwrites the generation of the 
+    signal field in order to use real fields instead of complex ones.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     

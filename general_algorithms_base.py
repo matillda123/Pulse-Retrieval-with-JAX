@@ -21,7 +21,18 @@ from bsplines_1d import make_bsplines, get_prefactor, get_M
 
 
 
-class GeneralOptimization(AlgorithmsBASE):
+class GeneralOptimizationBASE(AlgorithmsBASE):
+    """
+    The Base-Class for all general solvers. Inherits from AlgorithmsBASE.
+
+    Attributes:
+        use_fd_grad: bool or int,
+        amplitude_or_intensity: str,
+        error_metric: Callable,
+        bspline_info: Pytree,
+    
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -377,7 +388,19 @@ class GeneralOptimization(AlgorithmsBASE):
 
 
 
-class DifferentialEvolutionBASE(GeneralOptimization):
+class DifferentialEvolutionBASE(GeneralOptimizationBASE):
+    """
+    Implements a Differential-Evolution Algorithm based on scipy.optimize.differential_evolution. Inherits from GeneralOptimizationBASE.
+
+    Attributes:
+        strategy: str,
+        mutation_rate: float,
+        crossover_rate: float,
+        selection_mechanism: str,
+        temperature: float,
+
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -717,7 +740,14 @@ def currenttobest2(F, best_individual, population, key):
 
 
 
-class EvosaxBASE(GeneralOptimization):
+class EvosaxBASE(GeneralOptimizationBASE):
+    """
+    Employs the evosax package to perform the optimization. Inherits from GeneralOptimizationBASE.
+
+    Attributes:
+        solver: evosax-solver,
+
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -849,17 +879,29 @@ class EvosaxBASE(GeneralOptimization):
 
 
 
-class LSFBASE(GeneralOptimization):
+class LSFBASE(GeneralOptimizationBASE):
+    """
+    Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name it is NOT restricted to FROG. 
+    Inherits from GeneralOptimizationBASE.
+
+    Attributes:
+        number_of_bisection_iterations: int,
+        random_direction_mode: str,
+        no_points_for_continuous: int,
+        boundary: int,
+
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.name = "LSF"
 
 
-        self.number_of_bisection_iterations=12
+        self.number_of_bisection_iterations = 12
 
-        self.random_direction_mode="random"
-        self.no_points_for_continuous=5
+        self.random_direction_mode = "random"
+        self.no_points_for_continuous = 5
 
         self.boundary = 1 
 
@@ -1103,7 +1145,18 @@ class LSFBASE(GeneralOptimization):
 
 
 
-class AutoDiffBASE(GeneralOptimization):
+class AutoDiffBASE(GeneralOptimizationBASE):
+    """
+    Employs the optimistix package to perform the optimization via Automatic-Differentiation. Inherits from GeneralOptimizationBASE.
+    Is not implemented to optimize over a population. Instead only one individual is optimized.
+
+    Attributes:
+        solver: optimistix-solver,
+        alternating_optimization: bool,
+        optimize_individual_idx: int,
+    
+    """
+
     # Making this work for a population: (?) 
     #    vmap over solver.init and over solver.step 
     #          -> currently only equinox.filter_vmap for solver.init 
@@ -1112,7 +1165,7 @@ class AutoDiffBASE(GeneralOptimization):
     #   
     #    repeatedly calling optimistix.minimise does not work because of limited recursion depth for jax. 
 
-    #        print("using jax.scipy minimize might work with vmap") -> jay.scipy is not really developed. only a prelimiary version of lbfgs
+    #        print("using jax.scipy minimize might work with vmap") -> jax.scipy is not really developed. only a prelimiary version of lbfgs
 
     
     def __init__(self, *args, **kwargs):
@@ -1120,8 +1173,8 @@ class AutoDiffBASE(GeneralOptimization):
 
         self.name = "AutoDiff"
 
-        self.solver=optimistix.BFGS
-        self.alternating_optimization=False
+        self.solver = optimistix.BFGS
+        self.alternating_optimization = False
 
         self.optimize_individual_idx = 0
 

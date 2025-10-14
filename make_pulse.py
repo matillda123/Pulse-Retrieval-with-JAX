@@ -55,6 +55,15 @@ class MultiPulse:
 
 
 class MakePulse:
+    """ 
+    Is supposed to generate pulses based on input parameters from GaussianAmplitude, PolynomialPhase, SinusoidalPhase, RandomPhase, CustomPulse or MultiPulse.
+    Does not work with Jax.
+
+    Attributes:
+        N: int,
+        Delta_f: float,
+
+    """
     def __init__(self, N=256, Delta_f=None):
         self.N = N
         self.Delta_f = Delta_f

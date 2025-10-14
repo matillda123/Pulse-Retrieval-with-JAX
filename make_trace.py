@@ -13,24 +13,23 @@ from make_pulse import MakePulse as MakePulseBase
 
 
 def apply_noise(trace, scale_val=0.01, additive_noise=False, multiplicative_noise=False):
-    trace=trace/np.max(trace)
-    shape=np.shape(trace)
-
+    trace = trace/np.max(trace)
+    shape = np.shape(trace)
 
     if additive_noise==True and multiplicative_noise==True:
         assert len(scale_val)==2, "scale_val needs to have len=2 when using both additive and multiplicative"
 
-        noise_additive=np.random.normal(0, scale_val[0], size=shape)
-        noise_multiplicative=np.random.normal(1, scale_val[1], size=shape)
+        noise_additive = np.random.normal(0, scale_val[0], size=shape)
+        noise_multiplicative = np.random.normal(1, scale_val[1], size=shape)
         trace = trace*np.abs(noise_multiplicative) + noise_additive
 
     elif multiplicative_noise==True:
-        noise=np.random.normal(1, scale_val, size=shape)
-        trace=trace*np.abs(noise)
+        noise = np.random.normal(1, scale_val, size=shape)
+        trace = trace*np.abs(noise)
 
     elif additive_noise==True:
-        noise=np.random.normal(0, scale_val, size=shape)
-        trace=trace+noise
+        noise = np.random.normal(0, scale_val, size=shape)
+        trace = trace + noise
 
     else:
         raise ValueError("One of additive_noise or multiplicative_noise must be True.")
@@ -44,8 +43,17 @@ def apply_noise(trace, scale_val=0.01, additive_noise=False, multiplicative_nois
 
 
 class MakePulse(MakePulseBase):
+    """ 
+    Simulates measurement traces based in input pulses.
+    Inherits from make_pulse.MakePulse.
+
+    Attributes:
+        maketrace: None, MakeTraceFROG, MakeTraceCHIRPSCAN or MakeTrace2DSI,
+
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.maketrace = None
 
     
     def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N=256, scale_time_range=1, plot_stuff=True, 
@@ -152,9 +160,9 @@ def interpolate_spectrum(frequency, pulse_f, N):
 
 
 
-class MakeTrace:
+class MakeTraceBASE:
     def __init__(self, *args, **kwargs):
-        self.cross_correlation=False
+        self.cross_correlation = False
 
 
     def generate_trace(self):
@@ -229,7 +237,7 @@ class MakeTrace:
 
 
 
-class MakeTraceFROG(MakeTrace, RetrievePulsesFROG):
+class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, N, scale_time_range, cross_correlation, ifrog, 
                                              interpolate_fft_conform, cut_off_val, frequency_range):
         super().__init__()
@@ -336,7 +344,7 @@ class MakeTraceFROG(MakeTrace, RetrievePulsesFROG):
 
 
 
-class MakeTraceCHIRPSCAN(MakeTrace, RetrievePulsesCHIRPSCAN):
+class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
     def __init__(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N, cut_off_val, frequency_range, phase_matrix_func, parameters):
         super().__init__()
 
@@ -430,8 +438,7 @@ class MakeTraceCHIRPSCANReal(RetrievePulsesCHIRPSCANwithRealFields, MakeTraceCHI
 
 
 
-
-class MakeTrace2DSI(MakeTrace, RetrievePulses2DSI):
+class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, N, scale_time_range, cut_off_val, frequency_range,
                  material_thickness = 0,
                  refractive_index = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson")):

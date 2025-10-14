@@ -524,6 +524,58 @@ def solve_linear_system(A, b, x_prev, solver):
 
 
 
+def calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal):
+    """
+    Calculates the newton-direction give a gradient and a hessian. 
+
+    Args:
+        grad_m: jnp.array,
+        hessian_m: jnp.array,
+        lambda_lm: float,
+        newton_direction_prev: jnp.array,
+        solver: str or lineax-solver,
+        full_or_diagonal: str.
+
+    Returns:
+        tuple[jnp.array, Pytree]
+        
+    """
+    hessian = jnp.sum(hessian_m, axis=1)
+    grad = jnp.sum(grad_m, axis=1)
+
+    if full_or_diagonal=="full":
+        idx = jax.vmap(jnp.diag_indices_from)(hessian)
+        hessian = jax.vmap(lambda x,y: x.at[y].add(lambda_lm*jnp.abs(x[y])))(hessian, idx)
+
+        newton_direction = solve_linear_system(hessian, grad, newton_direction_prev, solver)
+
+    elif full_or_diagonal=="diagonal":
+        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis]
+        newton_direction = grad/hessian
+
+    else:
+        raise ValueError(f"full_or_diagonal needs to be full or diagonal. Not {full_or_diagonal}")
+
+    hessian_state = MyNamespace(newton_direction_prev = newton_direction)
+    return -1*newton_direction, hessian_state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
 

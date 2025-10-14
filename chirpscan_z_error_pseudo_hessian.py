@@ -2,7 +2,7 @@ import jax.numpy as jnp
 import jax
 from jax.tree_util import Partial
 
-from utilities import scan_helper, solve_linear_system, MyNamespace
+from utilities import scan_helper, calculate_newton_direction, MyNamespace
 
 
 
@@ -125,21 +125,22 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t_dispersed, signal_t, sig
     hessian_m=jax.vmap(calc_Z_error_pseudo_hessian_all_m, in_axes=(0,0,0,0,None,None))(pulse_t_dispersed, signal_t, signal_t_new, phase_matrix, measurement_info, 
                                                                                        full_or_diagonal)
 
-    hessian=jnp.sum(hessian_m, axis=1)
-    grad=jnp.sum(grad_m, axis=1)
+    # hessian=jnp.sum(hessian_m, axis=1)
+    # grad=jnp.sum(grad_m, axis=1)
 
-    if full_or_diagonal=="full":
-        idx=jax.vmap(jnp.diag_indices_from)(hessian)
-        hessian=jax.vmap(lambda x,y: x.at[y].add(lambda_lm*jnp.abs(x[y])))(hessian, idx)
+    # if full_or_diagonal=="full":
+    #     idx=jax.vmap(jnp.diag_indices_from)(hessian)
+    #     hessian=jax.vmap(lambda x,y: x.at[y].add(lambda_lm*jnp.abs(x[y])))(hessian, idx)
 
-        newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
+    #     newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
 
-    elif full_or_diagonal=="diagonal":
-        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis]
-        newton_direction = grad/hessian
+    # elif full_or_diagonal=="diagonal":
+    #     hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis]
+    #     newton_direction = grad/hessian
 
-    else:
-        raise ValueError(f"full_or_diagonal needs to be full or diagonal. Not {full_or_diagonal}")
+    # else:
+    #     raise ValueError(f"full_or_diagonal needs to be full or diagonal. Not {full_or_diagonal}")
 
-    hessian_state = MyNamespace(newton_direction_prev = newton_direction)
-    return -1*newton_direction, hessian_state
+    # hessian_state = MyNamespace(newton_direction_prev = newton_direction)
+    # return -1*newton_direction, hessian_state
+    return calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)

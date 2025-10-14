@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 import jax
 from jax.tree_util import Partial
-from utilities import scan_helper, solve_linear_system, MyNamespace
+from utilities import scan_helper, calculate_newton_direction, MyNamespace
 
 
 
@@ -91,21 +91,22 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
     # if pulse_or_gate=="gate":
     #     hessian_all_m = jax.vmap(reverse_transform, in_axes=(0,0))(hessian_all_m, transform_arr)
 
-    grad = jnp.sum(grad, axis=1)
-    hessian = jnp.sum(hessian_all_m, axis=1)
+    # grad = jnp.sum(grad, axis=1)
+    # hessian = jnp.sum(hessian_all_m, axis=1)
 
-    if full_or_diagonal=="full":
-        idx=jax.vmap(jnp.diag_indices_from)(hessian)
-        hessian=jax.vmap(lambda x,y: x.at[y].add(lambda_lm*jnp.abs(x[y])))(hessian, idx)
+    # if full_or_diagonal=="full":
+    #     idx=jax.vmap(jnp.diag_indices_from)(hessian)
+    #     hessian=jax.vmap(lambda x,y: x.at[y].add(lambda_lm*jnp.abs(x[y])))(hessian, idx)
 
-        newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
+    #     newton_direction=solve_linear_system(hessian, grad, newton_direction_prev, solver)
 
-    elif full_or_diagonal=="diagonal":
-        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis]
-        newton_direction = grad/hessian
+    # elif full_or_diagonal=="diagonal":
+    #     hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:,jnp.newaxis]
+    #     newton_direction = grad/hessian
 
-    else:
-        raise ValueError(f"full_or_diagonal needs to be full or diagonal. Not {full_or_diagonal}")
+    # else:
+    #     raise ValueError(f"full_or_diagonal needs to be full or diagonal. Not {full_or_diagonal}")
 
-    hessian_state = MyNamespace(newton_direction_prev = newton_direction)
-    return -1*newton_direction, hessian_state
+    # hessian_state = MyNamespace(newton_direction_prev = newton_direction)
+    # return -1*newton_direction, hessian_state
+    return calculate_newton_direction(grad, hessian_all_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)
