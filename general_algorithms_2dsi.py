@@ -1,19 +1,21 @@
-import jax.numpy as jnp
-
 from BaseClasses import RetrievePulses2DSI
 from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
-from utilities import MyNamespace, do_fft
+from utilities import MyNamespace
 
 
 
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulses2DSI):
+    """ 
+    The Differential Evolution Algorithm applied to 2DSI. Inherits from DifferentialEvolutionBASE and RetrievePulses2DSI.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Calls get_pulses_t_from_population() """
         return self.get_pulses_t_from_population(population, measurement_info, descent_info)
     
 
@@ -22,11 +24,15 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulses2DSI):
 
 
 class Evosax(EvosaxBASE, RetrievePulses2DSI):
+    """
+    The Evosax package utilized for pulse reconstruction from 2DSI. Inherits from EvosaxBASE and RetrievePulses2DSI.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Calls get_pulses_t_from_population() """
         return self.get_pulses_t_from_population(population, measurement_info, descent_info)
     
 
@@ -35,16 +41,21 @@ class Evosax(EvosaxBASE, RetrievePulses2DSI):
 
 
 class LSF(LSFBASE, RetrievePulses2DSI):
+    """
+    The LSF Algorithm applied to 2DSI. Inherits from LSFBASE and RetrievePulses2DSI.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Returns the pulse and gate population. Does not need to call get_pulses_t_from_population() since LSF works with discetized fields only. """
         return population.pulse, population.gate
     
 
     def convert_population(self, population, measurement_info, descent_info):
+        """ Converts any population into a discretized one. """
         pulse_arr, gate_arr = self.get_pulses_t_from_population(population, measurement_info, descent_info)
         return MyNamespace(pulse=pulse_arr, gate=gate_arr)
     
@@ -79,6 +90,9 @@ class LSF(LSFBASE, RetrievePulses2DSI):
 
 
 class AutoDiff(AutoDiffBASE, RetrievePulses2DSI):
+    """
+    The Optimistix package utilized for pulse reconstruction from 2DSI. Inherits from AutoDiffBASE and RetrievePulses2DSI.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -90,13 +104,14 @@ class AutoDiff(AutoDiffBASE, RetrievePulses2DSI):
 
 
     def make_pulse_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate):
+        """ Evaluates a pulse/gate for an individual. """
         signal = self.make_pulse_t_from_individual(individual, measurement_info, descent_info, pulse_or_gate)
         return signal
     
 
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info):
-        # needs to be overwritten because the original function works on a population
+        """ AD specific post processing because AD only works with an individual while the original post processing works on a population. """
 
         pulse_t = self.make_pulse_from_individual(descent_state.individual, measurement_info, descent_info, "pulse")
         pulse_f = self.fft(pulse_t, measurement_info.sk, measurement_info.rn)

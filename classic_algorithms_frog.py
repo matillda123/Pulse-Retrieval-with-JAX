@@ -4,8 +4,6 @@ from jax.tree_util import Partial
 
 from equinox import tree_at
 
-
-
 from BaseClasses import RetrievePulsesFROG, ClassicAlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
@@ -45,10 +43,12 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
 
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
-        pulse_t=jnp.sum(signal_t_new, axis=1)
+        """ Generates an new (maybe improoved) guess for the pulse. """
+        pulse_t = jnp.sum(signal_t_new, axis=1)
         return pulse_t
     
     def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
+        """ Generates an new (maybe improoved) guess for the gate. """
         gate = jnp.sum(signal_t_new, axis=2)
         gate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(measurement_info.time, measurement_info.tau_arr, gate)
         return gate
@@ -56,6 +56,18 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     
         
     def step(self, descent_state, measurement_info, descent_info):
+        """ 
+        Performs one iteration of the Vanilla Algorithm. 
+
+        Args:
+            descent_state: Pytree,
+            measurement_info: Pytree,
+            descent_info: Pytree,
+        
+        Returns:
+            tuple[Pytree, jnp.array], the updated descent state and the current errors
+
+        """
         measured_trace = measurement_info.measured_trace
         sk, rn = measurement_info.sk, measurement_info.rn
 
@@ -87,14 +99,25 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
 
     def initialize_run(self, population):
+        """
+        Prepares all provided data and parameters for the reconstruction. 
+        Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
+
+        Args:
+            population: Pytree, the initial guess as created by self.create_initial_population()
+        
+        Returns:
+            tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
+
+        """
         measurement_info = self.measurement_info
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population=population)
-        descent_state=self.descent_state
+        descent_state = self.descent_state
 
-        do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
-        do_step=Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
+        do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
+        do_step = Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
         return descent_state, do_step
 
 
@@ -129,11 +152,13 @@ class LSGPA(Vanilla):
 
 
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
+        """ Generates an new (maybe improoved) guess for the pulse. """
         pulse=jnp.sum(signal_t_new*jnp.conjugate(gate_shifted), axis=1)/(jnp.sum(jnp.abs(gate_shifted)**2, axis=1) + 1e-12)
         return pulse
     
     
     def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
+        """ Generates an new (maybe improoved) guess for the gate. """
         gate=jnp.sum(signal_t_new*jnp.conjugate(pulse_t_shifted), axis=1)/(jnp.sum(jnp.abs(pulse_t_shifted)**2, axis=1) + 1e-12)
         return gate
         
@@ -176,12 +201,14 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+        """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, tau_arr, 
                                     measurement_info, pulse_or_gate)
         return grad
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
+        """ Calculates the Z-error newton direction for a population. """
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          descent_state.hessian, descent_info.hessian, use_hessian, pulse_or_gate)
@@ -189,6 +216,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        """ Updates an individual based on a descent_direction and step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
 
         pulse_f = self.fft(getattr(individual, pulse_or_gate), sk, rn)
@@ -225,6 +253,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
     def reverse_transform_grad(self, signal, tau_arr, measurement_info):
+        """ For reconstruction of the gate-pulse the shift has to be undone. """
         frequency, time = measurement_info.frequency, measurement_info.time
 
         signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
@@ -233,6 +262,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
     
 
     def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):
+        """ For reconstruction of the gate-pulse the gradient depends on the nonlinear method. """
         if nonlinear_method=="shg":
             pass
         elif nonlinear_method=="thg":
@@ -248,6 +278,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+        """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
         alpha = descent_info.alpha
 
         difference_signal_t = signal_t_new - signal_t.signal_t
@@ -272,6 +303,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        """ Updates an individual based on a descent direction and step size. """
         signal = getattr(individual, pulse_or_gate)
         signal = signal + gamma*descent_direction
 
@@ -279,10 +311,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
         return individual
 
 
-
-
-
     def get_gate_probe_for_hessian(self, pulse_t, gate_pulse_shifted, nonlinear_method):
+        """ For the reconstruction of the gate pulse, the probe depends on the nonlinear method for the hessian calculation. """
         if nonlinear_method=="shg":
             probe = pulse_t
         elif nonlinear_method=="thg":
@@ -300,6 +330,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
     def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
                                        pulse_or_gate, local_or_global):
+        """ Calculates the newton direction for a population. """
         
         newton_direction_prev = getattr(local_or_global_state.hessian, pulse_or_gate).newton_direction_prev
         
@@ -347,6 +378,7 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        """ Updates an individual based on a descent direction and a step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
 
         signal = getattr(individual, pulse_or_gate)
@@ -359,6 +391,7 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
 
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+        """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, 
                                     signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
@@ -367,6 +400,7 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
 
     def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
                                            use_hessian, pulse_or_gate):
+        """ Calculates the Z-error newton direction for a population. """
         
         hessian_state = local_or_global_state.hessian
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 

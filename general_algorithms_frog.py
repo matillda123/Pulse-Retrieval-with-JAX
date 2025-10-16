@@ -1,25 +1,21 @@
-import jax.numpy as jnp
-
-from BaseClasses import RetrievePulsesFROG, RetrievePulsesFROGwithRealFields
+from BaseClasses import RetrievePulsesFROG
 from general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
-from utilities import MyNamespace, do_fft, do_ifft, project_onto_amplitude
-
-
-
-
-# RetrievePulsesFROG = RetrievePulsesFROGwithRealFields
-
+from utilities import MyNamespace
 
 
 
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesFROG):
+    """ 
+    The Differential Evolution Algorithm applied to FROG. Inherits from DifferentialEvolutionBASE and RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Calls get_pulses_t_from_population() """
         return self.get_pulses_t_from_population(population, measurement_info, descent_info)
     
 
@@ -28,11 +24,15 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesFROG):
 
 
 class Evosax(EvosaxBASE, RetrievePulsesFROG):
+    """
+    The Evosax package utilized for pulse reconstruction from FROG. Inherits from EvosaxBASE and RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Calls get_pulses_t_from_population() """
         return self.get_pulses_t_from_population(population, measurement_info, descent_info)
     
 
@@ -41,16 +41,21 @@ class Evosax(EvosaxBASE, RetrievePulsesFROG):
 
 
 class LSF(LSFBASE, RetrievePulsesFROG):
+    """
+    The LSF Algorithm applied to FROG. Inherits from LSFBASE and RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """ Returns the pulse and gate population. Does not need to call get_pulses_t_from_population() since LSF works with discetized fields only. """
         return population.pulse, population.gate
     
 
     def convert_population(self, population, measurement_info, descent_info):
+        """ Converts any population into a discretized one. """
         pulse_arr, gate_arr = self.get_pulses_t_from_population(population, measurement_info, descent_info)
         return MyNamespace(pulse=pulse_arr, gate=gate_arr)
     
@@ -85,6 +90,9 @@ class LSF(LSFBASE, RetrievePulsesFROG):
 
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesFROG):
+    """
+    The Optimistix package utilized for pulse reconstruction from FROG. Inherits from AutoDiffBASE and RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -96,13 +104,14 @@ class AutoDiff(AutoDiffBASE, RetrievePulsesFROG):
 
 
     def make_pulse_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate):
+        """ Evaluates a pulse/gate for an individual. """
         signal = self.make_pulse_t_from_individual(individual, measurement_info, descent_info, pulse_or_gate)
         return signal
     
 
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info):
-        # needs to be overwritten because the original function works on a population
+        """ AD specific post processing because AD only works with an individual while the original post processing works on a population. """
 
         pulse_t = self.make_pulse_from_individual(descent_state.individual, measurement_info, descent_info, "pulse")
         pulse_f = self.fft(pulse_t, measurement_info.sk, measurement_info.rn)

@@ -38,6 +38,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
 
     def update_pulse(self, signal_t_new, gate, phase_matrix, nonlinear_method, sk, rn):
+        """ Creates an updated (hopefully improoved) guess for the pulse. """
         signal_t_new = signal_t_new*jnp.conjugate(gate)
 
         if nonlinear_method=="shg":
@@ -55,6 +56,18 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     
 
     def step(self, descent_state, measurement_info, descent_info):
+        """ 
+        Performs one iteration of the Basic Algorithm. 
+
+        Args:
+            descent_state: Pytree,
+            measurement_info: Pytree,
+            descent_info: Pytree,
+        
+        Returns:
+            tuple[Pytree, jnp.array], the updated descent state and the current errors
+
+        """
         nonlinear_method, sk, rn = measurement_info.nonlinear_method, measurement_info.sk, measurement_info.rn
         phase_matrix = measurement_info.phase_matrix
         measured_trace = measurement_info.measured_trace
@@ -62,7 +75,6 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         signal_f = self.fft(signal_t.signal_t, sk, rn)
         trace = calculate_trace(signal_f)
-
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
         signal_t_new = jax.vmap(calculate_S_prime_projection, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
@@ -76,16 +88,26 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
 
     def initialize_run(self, population):
+        """
+        Prepares all provided data and parameters for the reconstruction. 
+        Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
+
+        Args:
+            population: Pytree, the initial guess as created by self.create_initial_population()
+        
+        Returns:
+            tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
+
+        """
 
         self.descent_state = self.descent_state.expand(population = population)
        
-        measurement_info=self.measurement_info
-        descent_info=self.descent_info
-        descent_state=self.descent_state
+        measurement_info = self.measurement_info
+        descent_info = self.descent_info
+        descent_state = self.descent_state
 
-        do_step=Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
-        do_step=Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
-
+        do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
+        do_step = Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
         return descent_state, do_step
     
 
@@ -105,19 +127,21 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
-
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
+        """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return grad 
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, phase_matrix, descent_state, measurement_info, descent_info, use_hessian, pulse_or_gate):
+        """ Calculates the Z-error newton direction for a population. """
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, 
                                                                         measurement_info, descent_state.hessian, descent_info.hessian, use_hessian)
         return descent_direction, hessian
     
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        """ Updates an individual based on a descent direction and a step size. """
         pulse = individual.pulse + gamma*descent_direction
         individual = tree_at(lambda x: x.pulse, individual, pulse)
         return individual
@@ -143,6 +167,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
 
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
+        """ For Chirp-Scan the effects of the phase matrix have to be undone to obtain the actual PIE-direction. """
         sk, rn = measurement_info.sk, measurement_info.rn
         signal_f = self.fft(signal, sk, rn)
         signal_f = signal_f*jnp.exp(-1j*phase_matrix)
@@ -183,6 +208,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
 
 
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+        """ Calculates the PIE direction for a given shift. """
         alpha = descent_info.alpha
 
         probe = signal_t.gate_disp
@@ -197,6 +223,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        """ Updates an individual based on a descent direction and a step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
         
         pulse_t=self.ifft(individual.pulse, sk, rn)
@@ -209,8 +236,10 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
 
     def calculate_PIE_newton_direction(self, grad, signal_t, phase_matrix, measured_trace, population, local_or_global_state, measurement_info, 
                                                 descent_info, pulse_or_gate, local_or_global):
+        """ Calculates the PIE newton direction for a population. """
+        
         assert getattr(descent_info.hessian, local_or_global)!="full", "Dont use full hessian. Its not implemented. "
-        "It requires the derivative with respect to the unmodified pulse. Which I couldnt figure out for the hessian."
+        "It requires the derivative with respect to the unmodified pulse. Which seems hard for the hessian."
         
         newton_direction_prev = local_or_global_state.hessian.pulse.newton_direction_prev
 
@@ -246,22 +275,22 @@ class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
 
-
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        """ Updates an individual based on a desent direction and a step size. """
         pulse = individual.pulse + gamma*descent_direction
         individual = tree_at(lambda x: x.pulse, individual, pulse)
         return individual
 
 
-
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info):
+        """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return grad
 
 
-
     def calculate_Z_error_newton_direction(self, grad, signal_t, signal_t_new, phase_matrix, population, local_or_global_state, measurement_info, descent_info, 
                                            use_hessian, pulse_or_gate):
+        """ Calculates the Z-error newton direction for a population. """
 
         hessian_state = local_or_global_state.hessian
         descent_direction, hessian = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info, 

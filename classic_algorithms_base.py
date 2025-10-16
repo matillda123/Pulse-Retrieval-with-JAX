@@ -112,7 +112,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     Implements the Generalized Projection Algorithm. Inherits from ClassicalAlgorithmsBASE.
 
     Attributes:
-        no_steps_descent: int,
+        no_steps_descent: int, the numer of descent steps per iteration
 
     """
     def __init__(self, *args, **kwargs):
