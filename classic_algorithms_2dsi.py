@@ -7,8 +7,7 @@ from equinox import tree_at
 
 from BaseClasses import RetrievePulses2DSI, AlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
-from utilities import scan_helper, do_fft, do_ifft, MyNamespace, center_signal, do_interpolation_1d, calculate_trace, calculate_trace_error
-
+from utilities import scan_helper, center_signal, do_interpolation_1d, calculate_trace, calculate_trace_error
 
 from TwoDSI_z_error_gradients import calculate_Z_gradient
 from TwoDSI_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -17,6 +16,19 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
+    """ 
+    Reconstructs a 2DSI trace non-iteratively by extracting the relative phase of the fringes for each frequency.
+    As described in Jonathan R. Birge, Richard Ell, and Franz X. Kärtner, Opt. Lett. 31, 2063-2065 (2006)
+    Inherits from AlgorithmsBASE and RetrievePulses2DSI.
+
+    Attributes:
+        integration_method: str, the integration method for the group delay. Has to be one of cumsum or euler_maclaurin_n
+        integration_order: None or int, the euler_maclaurin order
+        windowing: bool or str, windowing type for the FFT. Can be one of False, hamming or hann.
+        cut_off_intensity_for_GD: float, a cut-off which sets the GD to zero for smaller intensities. (Needed for stable numerics)
+        
+    """
+
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
         assert cross_correlation==True, "DirectReconstruction cannot work for Doubleblind or Autocorrelation-like methods"
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
@@ -26,7 +38,7 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         self.integration_method = "euler_maclaurin_3"
         self.integration_order = None
 
-        self.use_windowing = "hamming"
+        self.windowing = "hamming"
         self.cut_off_intensity_for_GD = 0.0001
 
 
@@ -46,15 +58,22 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
             signal = jnp.cumsum(signal, axis=-1)*dx
             
         elif method=="euler_maclaurin":
+            # def calc_terms():
+            #     f = bn[i+1]/factorial(i+1)
+            #     y_prime = jnp.gradient(jnp.gradient(y_prime, x, axis=-1), x, axis=-1)
+            #     t = t + dx**(i+1)*f*(y_prime[:-1] - y_prime[1:])
+            # maybe use vmap?
+
             n = order
             bn = bernoulli(2*n)
 
             y_prime = jnp.gradient(signal, x, axis=-1)
             t = dx**2/12*(y_prime[:-1] - y_prime[1:])
-            for i in jnp.arange(3, 2*n+1, 2):
+            for i in jnp.arange(3, 2*n+1, 2): 
                 f = bn[i+1]/factorial(i+1)
                 y_prime = jnp.gradient(jnp.gradient(y_prime, x, axis=-1), x, axis=-1)
                 t = t + dx**(i+1)*f*(y_prime[:-1] - y_prime[1:])
+                
 
             # the addition of t is correct because the gradients are subtracted in reverse
             yint = dx/2*(signal[:-1] + signal[1:]) + t
@@ -82,7 +101,7 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         tau_arr, frequency, trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
         pulse_spectral_amplitude, anc1_frequency, anc2_frequency = measurement_info.spectral_amplitude.pulse, measurement_info.anc1_frequency, measurement_info.anc2_frequency
 
-        use_windowing = descent_info.use_windowing
+        use_windowing = descent_info.windowing
         if use_windowing!=False:
             trace_wind = self.apply_windowing(use_windowing, trace, axis=0)
         else:
@@ -147,7 +166,7 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
             
         self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
                                                      integration_order = self.integration_order,
-                                                     use_windowing = a0_dict[self.use_windowing])
+                                                     windowing = a0_dict[self.windowing])
         
         init_arr = jnp.zeros(jnp.size(self.measurement_info.frequency))
         self.descent_state = self.descent_state.expand(population = population, 
@@ -168,11 +187,13 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
+    """
+    The Generalized Projection Algorithm for 2DSI. Inherits from GeneralizedProjectionBASE and RetrievePulses2DSI.
+
+    """
+
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
-
-
-
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -206,6 +227,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 
 class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
+    """
+    The Ptychographic Iterative Engine (PIE) for 2DSI. Inherits from TimeDomainPtychographyBASE and RetrievePulses2DSI.
+
+    Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, pie_method="rPIE", **kwargs):
         assert cross_correlation!="doubleblind", "Doubleblind is not implemented for 2DSI-TimeDomainPtychography."
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
@@ -215,11 +241,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
 
     # def reverse_transform_grad(self, signal, tau_arr, measurement_info):
     #     frequency, time = measurement_info.frequency, measurement_info.time
-
     #     signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
     #     return signal
-    
-    
 
     # def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):
     #     pass
@@ -235,7 +258,6 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
         
         return grad, U
     
-
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         signal = getattr(individual, pulse_or_gate)
@@ -274,10 +296,12 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulses2DSI):
 
 
 class COPRA(COPRABASE, RetrievePulses2DSI):
+    """
+    The Common Pulse Retrieval Algorithm (COPRA) for 2DSI. Inherits from COPRABASE and RetrievePulses2DSI.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, anc1_frequency, anc2_frequency, **kwargs)
 
-    
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
         sk, rn = measurement_info.sk, measurement_info.rn

@@ -6,10 +6,11 @@ from equinox import tree_at
 
 
 
-from BaseClasses import RetrievePulsesFROG, AlgorithmsBASE
+from BaseClasses import RetrievePulsesFROG, ClassicAlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
-from utilities import scan_helper, get_com, MyNamespace, get_sk_rn, do_fft, do_ifft, calculate_trace, calculate_mu, calculate_S_prime, calculate_trace_error, calculate_Z_error, do_interpolation_1d
+from utilities import scan_helper, get_com, get_sk_rn, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
+from construct_s_prime import calculate_S_prime_projection
 
 from frog_z_error_gradients import calculate_Z_gradient
 from frog_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -21,20 +22,17 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 
-
-
-class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
+class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
+    """
+    The Vanilla-FROG Algorithm as described by R. Trebino. Inherits from ClassicAlgorithmsBASE and RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
-        self.name = "Vanilla"
-        
-        print("maybe this should inherit from ClassicAlgorithmsBase?")
-        
+        self.name = "Vanilla"        
 
-        # for some reason vanilla only works when the trace is centered around f=0. No idea why. Is undone when using LSGPA.
+        # for some reason vanilla only works with central_f=0. No idea why. Is undone when using LSGPA.
         idx = get_com(jnp.mean(self.measured_trace, axis=0), jnp.arange(jnp.size(self.frequency)))
-        idx=int(idx)
-        self.f0=frequency[idx]
+        self.f0 = frequency[int(idx)]
         self.frequency = self.frequency - self.f0
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
@@ -67,7 +65,7 @@ class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
         trace = calculate_trace(self.fft(signal_t.signal_t, sk, rn))
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+        signal_t_new = jax.vmap(calculate_S_prime_projection, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
 
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
@@ -80,7 +78,7 @@ class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
             trace = calculate_trace(self.fft(signal_t.signal_t, sk, rn))
 
             mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-            signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+            signal_t_new = jax.vmap(calculate_S_prime_projection, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
@@ -108,10 +106,14 @@ class Vanilla(AlgorithmsBASE, RetrievePulsesFROG):
 
 
 class LSGPA(Vanilla):
+    # this could actually be a standalone classic algorithm. But its probably not worth it.
+    """
+    The Least-Squares Generalized Projection Algorithm as described by J. Gagnon et al., Appl. Phys. B 92, 25-32 (2008). https://doi.org/10.1007/s00340-008-3063-x
+    Inherits from Vanilla.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
-        self.name="LSGPA"
-
+        self.name = "LSGPA"
 
         self.frequency = self.frequency + self.f0
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
@@ -120,12 +122,10 @@ class LSGPA(Vanilla):
         self.measurement_info = tree_at(lambda x: x.rn, self.measurement_info, self.rn)
         self.measurement_info = tree_at(lambda x: x.frequency, self.measurement_info, self.frequency)
 
-        self.f0=0
+        self.f0 = 0
 
         # self.lambda_lm = 1e-3
         # self.beta = 0.1
-
-        
 
 
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
@@ -138,7 +138,6 @@ class LSGPA(Vanilla):
         return gate
         
 
-    
     # nonlinear least squares -> maybe this performs better on doubleblind
     #   - use only gate of this -> treats gate and pulse update unequally
     #
@@ -168,9 +167,12 @@ class LSGPA(Vanilla):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
+    """
+    The Generalized Projection Algorithm for FROG. Inherits from GeneralizedProjectionBASE and RetrievePulsesFROG.
+    
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -209,6 +211,12 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 
 class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
+    """
+    The Ptychographic Iterative Engine (PIE) for FROG. Inherits from TimeDomainPtychographyBASE and RetrievePulsesFROG.
+
+    Attributes:
+        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.ifrog==False, "Dont use ifrog with PIE. its not meant or made for that"
@@ -330,6 +338,9 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
 
 
 class COPRA(COPRABASE, RetrievePulsesFROG):
+    """
+    The Common Pulse Retrieval Algorithm (COPRA) for FROG. Inherits from COPRABASE and  RetrievePulsesFROG.
+    """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 

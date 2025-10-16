@@ -3,12 +3,12 @@ import jax.numpy as jnp
 from jax.tree_util import Partial
 from equinox import tree_at
 
-from BaseClasses import RetrievePulsesCHIRPSCAN, AlgorithmsBASE
+from BaseClasses import RetrievePulsesCHIRPSCAN, ClassicAlgorithmsBASE
 from classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
 
-from utilities import scan_helper, MyNamespace, get_sk_rn, do_fft, do_ifft, calculate_mu, calculate_S_prime, calculate_trace, calculate_trace_error, calculate_Z_error
-
+from utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error
+from construct_s_prime import calculate_S_prime_projection
 
 from chirpscan_z_error_gradients import calculate_Z_gradient
 from chirpscan_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -22,7 +22,15 @@ from pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 
-class Basic(RetrievePulsesCHIRPSCAN, AlgorithmsBASE):
+class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
+    """
+    The Basic Reconstruction Algorithm. Inherits from ClassicAlgorithmsBASE and RetrievePulsesCHIRPSCAN.
+    As described in Miguel Miranda et al., J. Opt. Soc. Am. B 34, 190-197 (2017) 
+
+    Attributes:
+        None
+
+    """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -57,7 +65,7 @@ class Basic(RetrievePulsesCHIRPSCAN, AlgorithmsBASE):
 
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
+        signal_t_new = jax.vmap(calculate_S_prime_projection, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)
@@ -88,7 +96,11 @@ class Basic(RetrievePulsesCHIRPSCAN, AlgorithmsBASE):
 
 
 
-class GeneralizedProjection(RetrievePulsesCHIRPSCAN, GeneralizedProjectionBASE):
+class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
+    """
+    The Generalized Projection Algorithm for Chirp-Scans. Inherits from GeneralizedProjectionBASE and RetrievePulsesCHIRPSCAN.
+    
+    """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
@@ -117,13 +129,17 @@ class GeneralizedProjection(RetrievePulsesCHIRPSCAN, GeneralizedProjectionBASE):
 
 
 
-class TimeDomainPtychography(RetrievePulsesCHIRPSCAN, TimeDomainPtychographyBASE):
+class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN):
+    """
+    The Ptychographic Iterative Engine (PIE) for Chirp-Scans. Inherits from TimeDomainPtychographyBASE and RetrievePulsesCHIRPSCAN.
+
+    Attributes:
+        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+    """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, pie_method="rPIE", **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
         self.pie_method = pie_method
-
-
 
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
@@ -166,7 +182,6 @@ class TimeDomainPtychography(RetrievePulsesCHIRPSCAN, TimeDomainPtychographyBASE
     #     return hessian_all_m
 
 
-
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, population, pie_method, measurement_info, descent_info, pulse_or_gate):
         alpha = descent_info.alpha
 
@@ -179,8 +194,6 @@ class TimeDomainPtychography(RetrievePulsesCHIRPSCAN, TimeDomainPtychographyBASE
         U = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(U, phase_matrix_m, measurement_info)
         grad = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(grad, phase_matrix_m, measurement_info)
         return grad, U
-
-
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
@@ -225,10 +238,12 @@ class TimeDomainPtychography(RetrievePulsesCHIRPSCAN, TimeDomainPtychographyBASE
 
 
 
-class COPRA(RetrievePulsesCHIRPSCAN, COPRABASE):
+class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
+    """
+    The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans. Inherits from COPRABASE and  RetrievePulsesCHIRPSCAN.
+    """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
-
 
 
 
