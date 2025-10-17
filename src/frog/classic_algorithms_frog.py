@@ -4,8 +4,9 @@ from jax.tree_util import Partial
 
 from equinox import tree_at
 
-from src.core.BaseClasses import RetrievePulsesFROG, ClassicAlgorithmsBASE
-from src.core.classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
+from src.core.base_classes_methods import RetrievePulsesFROG 
+from src.core.base_classes_algorithms import ClassicAlgorithmsBASE
+from src.core.base_classic_algorithms import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
 from src.utilities import scan_helper, get_com, get_sk_rn, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
 from src.core.construct_s_prime import calculate_S_prime_projection

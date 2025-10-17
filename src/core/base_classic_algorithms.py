@@ -9,8 +9,8 @@ from .stepsize import do_linesearch, adaptive_step_size
 from .nonlinear_cg import get_nonlinear_CG_direction
 from .lbfgs import get_quasi_newton_direction
 
-from src.utilities import scan_helper, MyNamespace, do_fft, do_ifft, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan
-from .BaseClasses import ClassicAlgorithmsBASE
+from src.utilities import scan_helper, MyNamespace, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan
+from .base_classes_algorithms import ClassicAlgorithmsBASE
 
 from .construct_s_prime import calculate_S_prime
 

@@ -1,4 +1,4 @@
-from src.core.BaseClasses import RetrievePulsesCHIRPSCANwithRealFields, RetrievePulsesRealFields
+from src.core.base_classes_methods import RetrievePulsesCHIRPSCANwithRealFields, RetrievePulsesRealFields
 from .general_algorithms_chirpscan import (DifferentialEvolution as DifferentialEvolutionCHIRPSCAN, Evosax as EvosaxCHIRPSCAN, 
                                           LSF as LSFCHIRPSCAN, AutoDiff as AutoDiffCHIRPSCAN)
 

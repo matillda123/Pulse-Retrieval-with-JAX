@@ -3,8 +3,9 @@ import jax.numpy as jnp
 from jax.tree_util import Partial
 from equinox import tree_at
 
-from src.core.BaseClasses import RetrievePulsesCHIRPSCAN, ClassicAlgorithmsBASE
-from src.core.classic_algorithms_base import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
+from src.core.base_classes_methods import RetrievePulsesCHIRPSCAN
+from src.core.base_classes_algorithms import ClassicAlgorithmsBASE
+from src.core.base_classic_algorithms import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
 
 from src.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error

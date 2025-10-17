@@ -1,5 +1,5 @@
-from src.core.BaseClasses import RetrievePulses2DSI
-from src.core.general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
+from src.core.base_classes_methods import RetrievePulses2DSI
+from src.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
 from src.utilities import MyNamespace
 

@@ -7,7 +7,7 @@ import jax.numpy as jnp
 import jax
 
 from src.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max
-from src.core.BaseClasses import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSI
+from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSI
 from .make_pulse import MakePulse as MakePulseBase
 
 

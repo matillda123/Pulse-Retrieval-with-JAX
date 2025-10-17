@@ -1,5 +1,5 @@
-from src.core.BaseClasses import RetrievePulsesCHIRPSCAN
-from src.core.general_algorithms_base import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
+from src.core.base_classes_methods import RetrievePulsesCHIRPSCAN
+from src.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
 from src.utilities import MyNamespace
 
