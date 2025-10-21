@@ -44,18 +44,18 @@ selection_mechanism = ("greedy", "global", "greedy", "global", "greedy")
 
 parameters = []
 for i in range(5):
-    strategy = mutations[np.random.randint(0,11)] + "_" + crossover[i]
+    strategy = mutations[np.random.randint(0,10)] + "_" + crossover[i]
     parameters_algorithm = (nonlinear_method[i], cross_correlation[i], strategy, selection_mechanism[i], amp_type[i], phase_type[i])
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
-@pytest.mark.parametrize("values", parameters)
+@pytest.mark.parametrize("parameters", parameters)
 def test_DifferentialEvolution(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
     nonlinear_method, cross_correlation, strategy, selection_mechanism, amp_type, phase_type = parameters_algorithm
 
-    de = DifferentialEvolution(delay, frequency, trace, nonlinear_method, cross_correlation)
+    de = DifferentialEvolution(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         de.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -91,13 +91,13 @@ for i in range(5):
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
-@pytest.mark.parametrize("values", parameters)
+@pytest.mark.parametrize("parameters", parameters)
 def test_Evosax(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
     nonlinear_method, cross_correlation, solver, amp_type, phase_type = parameters_algorithm
     
-    evo = Evosax(delay, frequency, trace, nonlinear_method, cross_correlation)
+    evo = Evosax(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         evo.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -129,13 +129,13 @@ for i in range(5):
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
-@pytest.mark.parametrize("values", parameters)
+@pytest.mark.parametrize("parameters", parameters)
 def test_LSF(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
     nonlinear_method, cross_correlation, random_direction_mode, amp_type, phase_type = parameters_algorithm
 
-    lsf = LSF(delay, frequency, trace, nonlinear_method, cross_correlation)
+    lsf = LSF(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         lsf.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -172,13 +172,13 @@ for i in range(5):
 
 
 
-@pytest.mark.parametrize("values", parameters)
+@pytest.mark.parametrize("parameters", parameters)
 def test_AutoDiff(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
     nonlinear_method, cross_correlation, solver, alternating_optimization, amp_type, phase_type = parameters_algorithm
 
-    ad = AutoDiff(delay, frequency, trace, nonlinear_method, cross_correlation)
+    ad = AutoDiff(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         ad.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")

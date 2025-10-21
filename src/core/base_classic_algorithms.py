@@ -180,7 +180,6 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         population = descent_state.population
         transform_arr = measurement_info.transform_arr
 
-
         grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
 
@@ -493,7 +492,6 @@ class TimeDomainPtychographyBASE(ClassicAlgorithmsBASE):
 
         grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
-
 
         if newton_info=="diagonal" or (newton_info=="full" and pulse_or_gate=="pulse"):
             # one could use U*grad instead of grad here
@@ -893,7 +891,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
 
-    def do_one_local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
+    def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
         """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
         signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,None,None,None))(signal_t.signal_t, trace_line, descent_state._local.mu, measurement_info, 
@@ -914,7 +912,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
     
 
-    def step_local_iteration(self, descent_state, measurement_info, descent_info):
+    def local_step(self, descent_state, measurement_info, descent_info):
         """
         Performs one local iteration of the Common Pulse Retrieval Algorithm. 
         This means the method loops over the randomized measurement data once and updates the population using each data point individually.
@@ -935,7 +933,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         local_mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measurement_info.measured_trace)
         descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
 
-        one_local_iteration=Partial(self.do_one_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        one_local_iteration=Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
         one_local_iteration=Partial(scan_helper, actual_function=one_local_iteration, number_of_args=1, number_of_xs=2)
 
         transform_arr, measured_trace, descent_state = self.shuffle_data_along_m(descent_state, measurement_info, descent_info)
@@ -952,7 +950,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
 
-    def step_global_iteration(self, descent_state, measurement_info, descent_info):
+    def global_step(self, descent_state, measurement_info, descent_info):
         """
         Performs one global iteration of the Common Pulse Retrieval Algorithm. 
         This means the method updates the population once using all measured data at once.
@@ -1048,9 +1046,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         
         descent_state = self.descent_state
 
-        do_local = Partial(self.step_local_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        do_local = Partial(self.local_step, measurement_info=measurement_info, descent_info=descent_info)
         do_local = Partial(scan_helper, actual_function=do_local, number_of_args=1, number_of_xs=0)
-        do_global = Partial(self.step_global_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        do_global = Partial(self.global_step, measurement_info=measurement_info, descent_info=descent_info)
         do_global = Partial(scan_helper, actual_function=do_global, number_of_args=1, number_of_xs=0)
         return descent_state, do_local, do_global
     

@@ -94,10 +94,10 @@ class AlgorithmsBASE:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
 
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
-                self._step_local_iteration = self.step_local_iteration
-                self._step_global_iteration = self.step_global_iteration
-                self.step_local_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self._step_local_iteration)
-                self.step_global_iteration = Partial(self.do_step_and_apply_spectrum, do_step=self._step_global_iteration)
+                self._local_step = self.local_step
+                self._global_step = self.global_step
+                self.local_step = Partial(self.do_step_and_apply_spectrum, do_step=self._local_step)
+                self.global_step = Partial(self.do_step_and_apply_spectrum, do_step=self._global_step)
 
             elif any([self.name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
@@ -147,7 +147,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         r_local_method: str, chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.
         r_global_method: str, chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.
         r_gradient: str, if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.
-        r_hessian: bool, enables/diables the use of the diagonal hessian if r_method=iteration
+        r_newton: bool, enables/diables the use of the diagonal hessian if r_method=iteration
         r_weights: float or jnp.array, allows the weigthing of residuals
         r_no_iterations: int, the number of iterations if r_method=iteration
         r_step_scaling: str, the type of adpative step-size scaling to use if r_method=iteration
@@ -185,7 +185,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_local_method = "projection"
         self.r_global_method = "projection"
         self.r_gradient = "intensity"
-        self.r_hessian = False
+        self.r_newton = False
         self.r_weights = 1.0
         self.r_no_iterations = 1
         self.r_step_scaling = "linear"
@@ -215,6 +215,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         measured_trace = jax.vmap(Partial(jnp.take, axis=0), in_axes=(None, 0), out_axes=1)(measured_trace, idx_arr)
 
         transform_arr=jnp.expand_dims(transform_arr, axis=2)
+        measured_trace=jnp.expand_dims(measured_trace, axis=2)
         return transform_arr, measured_trace, descent_state
 
 
@@ -268,10 +269,10 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
             
             names_list = ["DifferentialEvolution", "Evosax", "LSF", "AutoDiff"]
             if self.name=="COPRA" or self.name=="TimeDomainPtychography":
-                self._step_local_iteration = self.step_local_iteration
-                self._step_global_iteration = self.step_global_iteration
-                self.step_local_iteration = Partial(self.do_step_and_apply_momentum, do_step = self._step_local_iteration)
-                self.step_global_iteration = Partial(self.do_step_and_apply_momentum, do_step = self._step_global_iteration)
+                self._local_step = self.local_step
+                self._global_step = self.global_step
+                self.local_step = Partial(self.do_step_and_apply_momentum, do_step = self._local_step)
+                self.global_step = Partial(self.do_step_and_apply_momentum, do_step = self._global_step)
                 
             elif any([self.name==name for name in names_list])==True:
                 pass

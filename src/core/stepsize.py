@@ -158,7 +158,7 @@ def do_linesearch_step(linesearch_state, linesearch_info, measurement_info, line
                      "zoom": zoom_linesearch}
                      #"more-thuente": more_thuente_linesearch}
 
-    linesearch_state = linesearch_dict[linesearch_params.use_linesearch](linesearch_state, error_func, grad_func, linesearch_params, 
+    linesearch_state = linesearch_dict[linesearch_params.linesearch](linesearch_state, error_func, grad_func, linesearch_params, 
                                                                          linesearch_info, measurement_info)
     return linesearch_state
     
@@ -202,7 +202,7 @@ def do_linesearch(linesearch_info, measurement_info, descent_info, error_func, g
     linesearch_end = Partial(end_linesearch, max_steps_linesearch=max_steps_linesearch)
     linesearch_end = Partial(while_loop_helper, actual_function=linesearch_end, number_of_args=1)
 
-    if descent_info.linesearch_params.use_linesearch=="zoom":
+    if descent_info.linesearch_params.linesearch=="zoom":
         gamma_low, phi_low, phi_prime_low = 0.0, linesearch_info.error, linesearch_info.pk_dot_gradient
         bracket = MyNamespace(low = MyNamespace(gamma=gamma_low, phi=phi_low, phi_prime=phi_prime_low), 
                               high = MyNamespace(gamma=gamma_low, phi=phi_low, phi_prime=phi_prime_low))

@@ -43,25 +43,24 @@ def calculate_S_prime_projection(signal_t, measured_trace, mu, measurement_info)
 
 
 
-def calculate_r_hessian_diagonal_intensity(trace, measured_trace):
-    H_zz_diag = jnp.sum(2*trace - measured_trace, axis=-1)
+def calculate_r_newton_diagonal_intensity(trace, measured_trace):
+    H_zz_diag = jnp.sum(2*trace - measured_trace, axis=-1) # in local stages this becomes a scalar, which is correct
     return H_zz_diag
 
 
-def calculate_r_hessian_diagonal_amplitude(trace, measured_trace):
-    H_zz_diag = 1
+def calculate_r_newton_diagonal_amplitude(trace, measured_trace):
+    H_zz_diag = jnp.ones(jnp.shape(trace)[0])
     return H_zz_diag
 
 
-def calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info):
+def calculate_r_newton_diagonal(signal_f, measured_trace, measurement_info, descent_info):
     trace = calculate_trace(signal_f)
-    measured_trace = measurement_info.measured_trace
 
-    calc_r_hessian_diag_dict={"amplitude": calculate_r_hessian_diagonal_amplitude,
-                              "intensity": calculate_r_hessian_diagonal_intensity}
+    calc_r_newton_diag_dict={"amplitude": calculate_r_newton_diagonal_amplitude,
+                              "intensity": calculate_r_newton_diagonal_intensity}
     
-    # r_gradient is correct here, no need for extra r_hessian with amp/int
-    hessian = calc_r_hessian_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace)
+    # r_gradient is correct here, no need for extra r_newton with amp/int
+    hessian = calc_r_newton_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace)
     return hessian
 
 
@@ -78,8 +77,8 @@ def calculate_r_gradient_amplitude(signal_f, mu, measured_trace, weights, sk, rn
 
 
 
-def calculate_r_gradient(signal_f, mu, measurement_info, descent_info):
-    measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn
+def calculate_r_gradient(signal_f, mu, measured_trace, measurement_info, descent_info):
+    sk, rn = measurement_info.sk, measurement_info.rn
     weights = descent_info.s_prime_params.weights
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
@@ -89,16 +88,16 @@ def calculate_r_gradient(signal_f, mu, measurement_info, descent_info):
     return gradient
 
 
-def calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info):
+def calculate_r_descent_direction(signal_f, mu, measured_trace, measurement_info, descent_info):
     """
     Calculates descent direction of the iterative calculation of signal_t_new/S_prime. 
     Uses either gradient descent or newtons method with the diagonal approximation. 
     The error-functions can be based on intensity or amplitude based residuals. 
     """
-    gradient = calculate_r_gradient(signal_f, mu, measurement_info, descent_info)
+    gradient = calculate_r_gradient(signal_f, mu, measured_trace, measurement_info, descent_info)
 
-    if descent_info.s_prime_params.r_hessian!=False:
-        hessian = calculate_r_hessian_diagonal(signal_f, measurement_info, descent_info)
+    if descent_info.s_prime_params.r_newton!=False:
+        hessian = calculate_r_newton_diagonal(signal_f, measured_trace, measurement_info, descent_info)
         descent_direction = -1*gradient/(hessian[:,jnp.newaxis] + 1e-12)
     else:
         descent_direction = -1*gradient
@@ -164,10 +163,10 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_i
     signal_f = do_fft(signal_t, sk, rn)
     trace = calculate_trace(signal_f)
 
-    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measurement_info, descent_info)
+    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measured_trace, measurement_info, descent_info)
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
 
-    descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, MyNamespace(), descent_info.xi, "linear", None, "_global")
+    descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, MyNamespace(), descent_info.xi, "pade_10", None, "_global")
 
     # Is removed because it makes usage more complicated. 
     # if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
@@ -178,7 +177,7 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, measurement_i
     #     gamma = do_linesearch(linesearch_info, measurement_info, descent_info, 
     #                           Partial(calc_r_error_for_linesearch, descent_info=descent_info), 
     #                           Partial(calc_r_grad_for_linesearch, descent_info=descent_info), local_or_global)
-        
+    
     signal_t_new = signal_t + gamma*descent_direction
     return signal_t_new, None
 

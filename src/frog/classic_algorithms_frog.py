@@ -210,6 +210,10 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
+
+        tau_arr = jnp.broadcast_to(tau_arr, (descent_info.population_size, ) + jnp.shape(tau_arr))
+        # this fixes a vmap issue could maybe be handled nicer/more generally
+
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
@@ -342,11 +346,11 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesFROG):
             pulse_t = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
             probe = self.get_gate_probe_for_hessian(pulse_t, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
-        
-        # reverse_transform_hessian = {"diagonal": self.reverse_transform_diagonal_hessian,
-        #                              "full": self.reverse_transform_full_hessian}
-        # reverse_transform = Partial(reverse_transform_hessian[getattr(descent_info.newton, local_or_global)], measurement_info=measurement_info)
-        reverse_transform=None
+        # if local_or_global=="_local": # it would be nicer to fix this generally. 
+        #     measured_trace = measured_trace[jnp.newaxis, :]
+
+
+        reverse_transform = None
 
         signal_f = self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
         descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_f, tau_arr, measured_trace, reverse_transform, newton_direction_prev, 
@@ -402,7 +406,8 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
     def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
                                            full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-        
+
+
         newton_state = local_or_global_state.newton
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 

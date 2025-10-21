@@ -49,7 +49,7 @@ class MyNamespace:
             value = mydict[key]
 
             if type(value)==MyNamespace:
-                myoutput.append([key, "\n" + value.__repr__() + "\n"])
+                myoutput.append([key, "\n\t" + value.__repr__() + "\n"])
             else:
                 try:
                     myoutput.append([key, jnp.shape(value), value.dtype])
@@ -483,9 +483,16 @@ def generate_random_continuous_function(key, no_points, x, minval, maxval, distr
 
 
 
+import lineax
+
 def _solve_system_using_lineax_iteratively(A, b, x_prev, solver):
     """ Wraps around lineax.linear_solve. Supplies lineax with a preconditioner and an approximate solution in case the solver may use those. """
-    operator = lx.MatrixLinearOperator(A)
+    
+    if isinstance(solver, lineax.CG):
+        operator = lx.MatrixLinearOperator(A, lineax.positive_semidefinite_tag)
+    else:
+        operator = lx.MatrixLinearOperator(A)
+
     A_precond = jnp.diag(jnp.diag(A)).astype(jnp.complex64)
     preconditioner = lx.MatrixLinearOperator(A_precond, lx.positive_semidefinite_tag)
     solution = lx.linear_solve(operator, b, 
@@ -512,16 +519,14 @@ def solve_linear_system(A, b, x_prev, solver):
     """
 
     if solver=="scipy":
-        print("unclear if this is still correct, maybe jax now does batching this by default?")
         newton_direction = jax.scipy.linalg.solve(A, b[..., None], assume_a="her").squeeze(-1)
         return newton_direction
     
     elif solver=="lineax":
-        solution = jax.vmap(lambda A,b: lx.linear_solve(lx.MatrixLinearOperator(A), b, throw=False))(A, b)
+        solution = jax.vmap(lambda M,x: lx.linear_solve(lx.MatrixLinearOperator(M), x, throw=False))(A, b)
 
     else:
         solution = jax.vmap(_solve_system_using_lineax_iteratively, in_axes=(0,0,0,None))(A, b, x_prev, solver)
-        
         
     return solution.value
 

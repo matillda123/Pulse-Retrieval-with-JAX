@@ -9,21 +9,21 @@ from src.utilities import MyNamespace
 # the two loops need to have differing counting directions
 # because of this its easier to scan over index and not over element
 def backward_loop(q, i, rho, s, y):
-    """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-operations. """
+    """ Constructing the LBFGS direction without materializing the inverse newton is done through nested vector-operations. """
     alpha = rho[i]*jnp.vdot(s[i], q)
     q = q - alpha*y[i]
     return q, alpha
 
 def forward_loop(r, i, alpha, rho, s, y):
-    """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-operations. """
+    """ Constructing the LBFGS direction without materializing the inverse newton is done through nested vector-operations. """
     beta = rho[i]*jnp.vdot(y[i], r)
     r = r + s[i] * (alpha[i] - beta)
     return r, None
 
 
-def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, hessian_info):
+def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, newton_info):
     """ Does the actual LBFGS calculation. """
-    m = hessian_info.lbfgs_memory
+    m = newton_info.lbfgs_memory
 
     m_backward = jnp.arange(0,m,1)
     m_forward = jnp.arange(m,0,-1)
@@ -40,14 +40,14 @@ def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, hessian
 
 
 
-# def calculate_hessian_approximate(B, rho, s, y):
+# def calculate_newton_approximate(B, rho, s, y):
 #     t1 = B @ s
 #     return B + jnp.outer(y, jnp.conjugate(y))*rho - jnp.outer(t1, jnp.conjugate(t1))/(jnp.conjugate(s) @ B @ s), None
 
 
-# def get_hessian_approximate_explicitly(rho, s, y):
+# def get_newton_approximate_explicitly(rho, s, y):
 #     B_init = jnp.eye(jnp.shape(y)[-1])
-#     B, _ = jax.lax.scan(calculate_hessian_approximate, B_init, (rho, s, y))
+#     B, _ = jax.lax.scan(calculate_newton_approximate, B_init, (rho, s, y))
 #     return B
 
 
@@ -62,7 +62,7 @@ def do_lbfgs(grad_current, lbfgs_state, descent_info):
     rho = 1/jnp.real(jnp.vecdot(y,s) + 1e-14)
     rho = jnp.maximum(rho, 0) # ignore iterations with negative curvature
 
-    newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, descent_info.hessian)
+    newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, descent_info.newton)
     return newton_direction
 
 

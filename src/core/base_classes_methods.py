@@ -480,7 +480,7 @@ class RetrievePulsesFROG(RetrievePulses):
         pulse_t_shifted=self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
         if cross_correlation==True:
-            gate_pulse_shifted =self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
+            gate_pulse_shifted =self.calculate_shifted_signal(measurement_info.gate, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
@@ -974,7 +974,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
         if cross_correlation==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.cross_correlation_gate, frequency, tau_arr, time)
+            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.gate, frequency, tau_arr, time)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
