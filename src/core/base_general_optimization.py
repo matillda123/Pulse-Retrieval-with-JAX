@@ -671,7 +671,6 @@ class LSFBASE(GeneralOptimizationBASE):
 
     def bisection_step(self, El, Er, population, measurement_info, descent_info, pulse_or_gate):
         """ Does one bisection step of the LSF algorithm. """
-        print("here one could project onto spectrum?")
 
         Em = (El + Er)/2
         E_arr=jnp.array([El, Em, Er])
@@ -835,10 +834,6 @@ class LSFBASE(GeneralOptimizationBASE):
         gate_f = self.fft(gate_t, sk, rn) 
         return pulse_t, gate_t, pulse_f, gate_f
     
-
-
-
-
 
 
 

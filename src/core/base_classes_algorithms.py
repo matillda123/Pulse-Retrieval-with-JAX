@@ -1,8 +1,3 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.constants import c as c0
-import refractiveindex
-
 import jax
 import jax.numpy as jnp
 
