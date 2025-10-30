@@ -191,31 +191,31 @@ def while_loop_helper(carry, actual_function, number_of_args):
 
 
 
-# def optimistix_helper_loss_function(input, args, function, no_of_args):
-#     """
-#     Optimistix's interactive solver API expects loss-functions which take two variables and returns a tuple with the error 
-#     and auxilary information. This wraps around function to adhere to this. 
-#     function and no_of_args have to be fixed via partial.
+def optimistix_helper_loss_function(input, args, function, no_of_args):
+    """
+    Optimistix's interactive solver API expects loss-functions which take two variables and returns a tuple with the error 
+    and auxilary information. This wraps around function to adhere to this. 
+    function and no_of_args have to be fixed via partial.
 
-#     Args:
-#         input: any, the input the function
-#         args: any, the args of function
-#         function: Callable, the actual loss function 
-#         no_of_args: int, the number of extra arguments
+    Args:
+        input: any, the input the function
+        args: any, the args of function
+        function: Callable, the actual loss function 
+        no_of_args: int, the number of extra arguments
 
-#     Returns:
-#         tuple, a tuple which contains the calculated error twice, since there is no auxilary information
+    Returns:
+        tuple, a tuple which contains the calculated error twice, since there is no auxilary information
 
-#     """
+    """
 
-#     if no_of_args==0:
-#         error = function(input)
-#     elif no_of_args==1:
-#         error = function(input, args)
-#     else:
-#         raise NotImplementedError(f"didnt take care of this case, no_of_args={no_of_args}")
+    if no_of_args==0:
+        error = function(input)
+    elif no_of_args==1:
+        error = function(input, args)
+    else:
+        raise NotImplementedError(f"didnt take care of this case, no_of_args={no_of_args}")
 
-#     return error, error
+    return error, error
 
 
 

@@ -8,7 +8,7 @@ from equinox import tree_at
 import equinox
 import optimistix
 
-from src.utilities import scan_helper, scan_helper_equinox, MyNamespace, do_interpolation_1d
+from src.utilities import scan_helper, scan_helper_equinox, optimistix_helper_loss_function, MyNamespace, do_interpolation_1d
 from .base_classes_algorithms import GeneralOptimizationBASE
 
 
@@ -968,44 +968,37 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         options, f_struct, aux_struct, tags = optimistix_args
 
         population_amp, population_phase = self.split_population_in_amp_and_phase(population)
-
-        loss_amp = self.loss_function_amp
-        loss_phase = self.loss_function_phase
-
-        init_amp = solver.init
-        init_phase = solver.init
-
-        step_amp = solver.step
-        step_phase = solver.step
-
-        def loss_function_amp(individual_amp, individual_phase):
-            loss = loss_amp(individual_amp, individual_phase, measurement_info, descent_info)
-            return loss, loss
         
-        def loss_function_phase(individual_phase, individual_amp):
-            loss = loss_phase(individual_phase, individual_amp, measurement_info, descent_info)
-            return loss, loss
+        loss_function_amp = Partial(self.loss_function_amp, measurement_info=measurement_info, descent_info=descent_info)
+        loss_function_amp = Partial(optimistix_helper_loss_function, function=loss_function_amp, no_of_args=1)
+
+        loss_function_phase = Partial(self.loss_function_phase, measurement_info=measurement_info, descent_info=descent_info)
+        loss_function_phase = Partial(optimistix_helper_loss_function, function=loss_function_phase, no_of_args=1)
         
 
-        def vmap_init_amp(individual_amp, individual_phase):
-            return init_amp(loss_function_amp, individual_amp, individual_phase, options, f_struct, aux_struct, tags)
+        @equinox.filter_vmap
+        def solver_init_amp(individual_amp, individual_phase):
+            return solver.init(loss_function_amp, individual_amp, individual_phase, options, f_struct, aux_struct, tags)
         
-        def vmap_init_phase(individual_phase, individual_amp):
-            return init_phase(loss_function_phase, individual_phase, individual_amp, options, f_struct, aux_struct, tags)
+        @equinox.filter_vmap
+        def solver_init_phase(individual_phase, individual_amp):
+            return solver.init(loss_function_phase, individual_phase, individual_amp, options, f_struct, aux_struct, tags)
         
 
-        def vmap_step_amp(individual_amp, individual_phase, state_amp):
-            return step_amp(loss_function_amp, individual_amp, individual_phase, options, state_amp, tags)
+        @equinox.filter_vmap
+        def solver_step_amp(individual_amp, individual_phase, state_amp):
+            return solver.step(loss_function_amp, individual_amp, individual_phase, options, state_amp, tags)
         
-        def vmap_step_phase(individual_phase, individual_amp, state_phase):
-            return step_phase(loss_function_phase, individual_phase, individual_amp, options, state_phase, tags)
+        @equinox.filter_vmap
+        def solver_step_phase(individual_phase, individual_amp, state_phase):
+            return solver.step(loss_function_phase, individual_phase, individual_amp, options, state_phase, tags)
             
 
-        state_amp = jax.vmap(vmap_init_amp)(population_amp, population_phase)
-        state_phase = jax.vmap(vmap_init_phase)(population_phase, population_amp)
+        state_amp = solver_init_amp(population_amp, population_phase)
+        state_phase = solver_init_phase(population_phase, population_amp)
         
-        self.optimistix_step_amp = jax.vmap(vmap_step_amp)
-        self.optimistix_step_phase = jax.vmap(vmap_step_phase)
+        self.optimistix_step_amp = solver_step_amp
+        self.optimistix_step_phase = solver_step_phase
 
         descent_state = descent_state.expand(optimistix_state_amp = state_amp,
                                              optimistix_state_phase = state_phase)
@@ -1025,7 +1018,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
 
         args = None
-        options = dict()
+        options = dict(jac="bwd")
         f_struct = jax.ShapeDtypeStruct((), jnp.float32)
         aux_struct = jax.ShapeDtypeStruct((), jnp.float32)
         tags = frozenset()
@@ -1033,24 +1026,20 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         population = descent_state.population
         if descent_info.alternating_optimization==False:
 
-            _loss_function = self.loss_function
-            solver_init = solver.init
-            solver_step = solver.step
+            loss_function = Partial(self.loss_function, measurement_info=measurement_info, descent_info=descent_info)
+            loss_function = Partial(optimistix_helper_loss_function, function=loss_function, no_of_args=0)
 
-            def loss_function(individual, args):
-                loss = _loss_function(individual, measurement_info, descent_info)
-                return loss, loss
-
-            def vmap_init(individual):
-                return solver_init(loss_function, individual, args, options, f_struct, aux_struct, tags)
-
-            def vmap_solver_step(individual, state):
-                return solver_step(loss_function, individual, args, options, state, tags)
+            @equinox.filter_vmap
+            def solver_init(individual):
+                return solver.init(loss_function, individual, args, options, f_struct, aux_struct, tags)
             
-            self.optimistix_step = jax.vmap(vmap_solver_step)
+            @equinox.filter_vmap
+            def solver_step(individual, state):
+                return solver.step(loss_function, individual, args, options, state, tags)
 
-            state = jax.vmap(vmap_init)(population)
+            state = solver_init(population)
             descent_state = descent_state.expand(optimistix_state = state)
+            self.optimistix_step = solver_step
 
         elif descent_info.alternating_optimization==True:
             optimistix_args = (options, f_struct, aux_struct, tags)
@@ -1062,10 +1051,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         descent_state, static = equinox.partition(descent_state, equinox.is_array)
 
-        #do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
-        step = self.step
-        def do_step(descent_state):
-            return step(descent_state, measurement_info, descent_info)
+        do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)        
         do_step = Partial(scan_helper_equinox, step=do_step, static=static)
         return descent_state, do_step
 
@@ -1084,6 +1070,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
             tuple[Pytree, Callable], the initial descent state, the step-function of the algorithm.
 
         """
+
+        assert self.solver!=optimistix.IndirectLevenbergMarquardt, f"{self.solver} cannot be used here, because of a jax/xla bug involving memory layout for FFTs."
 
 
         self.initialize_general_optimizer(population)
