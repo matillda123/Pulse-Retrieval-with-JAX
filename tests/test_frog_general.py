@@ -1,53 +1,38 @@
+from src.frog import DifferentialEvolution, Evosax, LSF, AutoDiff
 from src.simulate_trace import MakePulse, GaussianAmplitude, PolynomialPhase
-from src.real_fields import twodsi #DifferentialEvolution, Evosax, LSF, AutoDiff
+
+import optax
+import optimistix
 
 import numpy as np
-import optimistix
-import optax
 import pytest
 
-pulse_maker = MakePulse(N=128*10, Delta_f=1)
-
-central_f = np.array([0.3])
-phase = PolynomialPhase(central_frequency = central_f, coefficients = np.array([0.5, 0, 000]))
-amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.1]))
-time_inp, pulse_t_inp, frequency_inp, pulse_f_inp = pulse_maker.generate_pulse((amp, phase))
-
-input_pulses = pulse_maker.pulses
 
 
+amp_g = GaussianAmplitude(amplitude=np.asarray([1]), central_frequency=np.asarray([0.3]), fwhm=np.asarray([0.1]))
+phase_p = PolynomialPhase(central_frequency=np.asarray([0.3]), coefficients=np.asarray([0,0,250,-2500]))
 
-central_f = np.array([0.4])
-phase = PolynomialPhase(central_frequency=central_f, coefficients = np.zeros(3))
-amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_1, pulse_f_gate_1 = pulse_maker.generate_pulse((amp, phase))
+pulse_maker = MakePulse(N=128*10, Delta_f=2)
+time, pulse_t, frequency, pulse_f = pulse_maker.generate_pulse((amp_g, phase_p))
+gate = (frequency, pulse_f)
 
-
-central_f = np.array([0.41])
-phase = PolynomialPhase(central_frequency = central_f, coefficients = np.zeros(3))
-amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_2, pulse_f_gate_2 = pulse_maker.generate_pulse((amp, phase))
-
-
-delay, frequency, trace, spectra=pulse_maker.generate_2dsi(time_inp, frequency_inp, pulse_t_inp, pulse_f_inp, "pg", cross_correlation=True,
-                                                          anc=((frequency_gate_1, pulse_f_gate_1),
-                                                               (frequency_gate_2, pulse_f_gate_2)), 
-                                                          N=64, scale_time_range=0.25, plot_stuff=True, cut_off_val=0.001, frequency_range=(0, 0.5),
-                                                          real_fields=True)
+delay, frequency, trace, spectra = pulse_maker.generate_frog(time, frequency, pulse_t, pulse_f, nonlinear_method="pg", N=46, 
+                                                             scale_time_range=1, plot_stuff=False, cross_correlation=False, 
+                                                             gate=gate, ifrog=False, interpolate_fft_conform=True, 
+                                                             cut_off_val=1e-1, frequency_range=(0,1), real_fields=False)
 
 
 
-
-nonlinear_method = ("shg", "thg", "pg", "pg", "shg")
+nonlinear_method = ("shg", "thg", "pg", "sd", "shg")
 cross_correlation = (False, True, "doubleblind", False, True)
 use_measured_spectrum = (False, True, True, False, False)
+fd_grad = (False, 0, 1, False, False)
+amplitude_or_intensity = ("intensity", "amplitude", 3, 0.25, 1.5)
 
 amp_type = ("gaussian", "lorentzian", "bsplines_5", "discrete", "gaussian")
 phase_type = ("polynomial", "sinusoidal", "sigmoidal", "bsplines_5", "discrete")
 
-gate = ((frequency_gate_1, pulse_f_gate_1),(frequency_gate_2, pulse_f_gate_2))
 parameters_measurement = (delay, frequency, trace, spectra, gate)
-
 
 
 
@@ -62,7 +47,7 @@ selection_mechanism = ("greedy", "global", "greedy", "global", "greedy")
 parameters = []
 for i in range(5):
     strategy = mutations[np.random.randint(0,10)] + "_" + crossover[i]
-    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], strategy, selection_mechanism[i], amp_type[i], phase_type[i])
+    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], strategy, selection_mechanism[i], amp_type[i], phase_type[i], fd_grad[i], amplitude_or_intensity[i])
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
@@ -70,9 +55,9 @@ for i in range(5):
 def test_DifferentialEvolution(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
-    nonlinear_method, cross_correlation, strategy, selection_mechanism, amp_type, phase_type = parameters_algorithm
+    nonlinear_method, cross_correlation, strategy, selection_mechanism, amp_type, phase_type, fd_grad, amplitude_or_intensity = parameters_algorithm
 
-    de = twodsi.DifferentialEvolution(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=(0,0.5))
+    de = DifferentialEvolution(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         de.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -80,11 +65,11 @@ def test_DifferentialEvolution(parameters):
             de.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = de.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = de.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_gate = gate
+        gate = de.get_gate_pulse(frequency_gate, pulse_gate)
+
+    de.fd_grad = fd_grad
+    de.amplitude_or_intensity = amplitude_or_intensity
 
     de.strategy = strategy
     de.mutation_rate = 0.5
@@ -107,7 +92,7 @@ solver = (evo_de, DiffusionEvolution, DiffusionEvolution, evo_de, evo_de)
 
 parameters = []
 for i in range(5):
-    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], solver[i], amp_type[i], phase_type[i])
+    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], solver[i], amp_type[i], phase_type[i], fd_grad[i], amplitude_or_intensity[i])
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
@@ -115,9 +100,9 @@ for i in range(5):
 def test_Evosax(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
-    nonlinear_method, cross_correlation, solver, amp_type, phase_type = parameters_algorithm
+    nonlinear_method, cross_correlation, solver, amp_type, phase_type, fd_grad, amplitude_or_intensity = parameters_algorithm
     
-    evo = twodsi.Evosax(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=(0,0.5))
+    evo = Evosax(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         evo.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -125,12 +110,11 @@ def test_Evosax(parameters):
             evo.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = evo.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = evo.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_gate = gate
+        gate = evo.get_gate_pulse(frequency_gate, pulse_gate)
 
+    evo.fd_grad = fd_grad
+    evo.amplitude_or_intensity = amplitude_or_intensity
     evo.solver = solver
 
     population = evo.create_initial_population(population_size=5, amp_type=amp_type, phase_type=phase_type, no_funcs_amp=5, no_funcs_phase=5)
@@ -148,7 +132,7 @@ random_direction_mode = ("random", "continuous", "random", "continuous", "random
 
 parameters = []
 for i in range(5):
-    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], random_direction_mode[i], amp_type[i], phase_type[i])
+    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], random_direction_mode[i], amp_type[i], phase_type[i], fd_grad[i], amplitude_or_intensity[i])
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
@@ -156,9 +140,9 @@ for i in range(5):
 def test_LSF(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
-    nonlinear_method, cross_correlation, random_direction_mode, amp_type, phase_type = parameters_algorithm
+    nonlinear_method, cross_correlation, random_direction_mode, amp_type, phase_type, fd_grad, amplitude_or_intensity = parameters_algorithm
 
-    lsf = twodsi.LSF(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=(0,0.5))
+    lsf = LSF(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         lsf.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -166,12 +150,11 @@ def test_LSF(parameters):
             lsf.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = lsf.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = lsf.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_gate = gate
+        gate = lsf.get_gate_pulse(frequency_gate, pulse_gate)
 
+    lsf.fd_grad = fd_grad
+    lsf.amplitude_or_intensity = amplitude_or_intensity
     lsf.number_of_bisection_iterations = 8
     lsf.random_direction_mode = random_direction_mode
     lsf.no_points_for_continuous = 10
@@ -193,7 +176,7 @@ alternating_optimization = (True, False, True, False, False)
 
 parameters = []
 for i in range(5):
-    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], solvers[i], alternating_optimization[i], amp_type[i], phase_type[i])
+    parameters_algorithm = (nonlinear_method[i], cross_correlation[i], solvers[i], alternating_optimization[i], amp_type[i], phase_type[i], fd_grad[i], amplitude_or_intensity[i])
     parameters.append((parameters_measurement, parameters_algorithm))
 
 
@@ -202,9 +185,9 @@ for i in range(5):
 def test_AutoDiff(parameters):
     parameters_measurement, parameters_algorithm = parameters
     delay, frequency, trace, spectra, gate = parameters_measurement
-    nonlinear_method, cross_correlation, solver, alternating_optimization, amp_type, phase_type = parameters_algorithm
+    nonlinear_method, cross_correlation, solver, alternating_optimization, amp_type, phase_type, fd_grad, amplitude_or_intensity = parameters_algorithm
 
-    ad = twodsi.AutoDiff(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=(0,0.5))
+    ad = AutoDiff(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation)
 
     if use_measured_spectrum==True:
         ad.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
@@ -212,12 +195,11 @@ def test_AutoDiff(parameters):
             ad.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = ad.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = ad.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
-
+        frequency_gate, pulse_gate = gate
+        gate = ad.get_gate_pulse(frequency_gate, pulse_gate)
+    
+    ad.fd_grad = fd_grad
+    ad.amplitude_or_intensity = amplitude_or_intensity
     ad.solver = solver
     ad.alternating_optimization = alternating_optimization
 

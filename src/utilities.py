@@ -390,18 +390,6 @@ def project_onto_amplitude(signal_f, measured_amplitude):
 
 
 
-# def calculate_S_prime(signal_t, measured_trace, mu, measurement_info):
-#     sk, rn = measurement_info.sk, measurement_info.rn
-#     signal_f=do_fft(signal_t, sk, rn)
-
-#     signal_f_new=project_onto_intensity(signal_f, measured_trace)
-
-#     signal_t_new=do_ifft(signal_f_new, sk, rn)*1/(jnp.sqrt(mu)+1e-12)
-#     return signal_t_new
-
-
-
-
 
 
 
@@ -468,14 +456,12 @@ def generate_random_continuous_function(key, no_points, x, minval, maxval, distr
 
 
 
-import lineax
-
 def _solve_system_using_lineax_iteratively(A, b, x_prev, solver):
     """ Wraps around lineax.linear_solve. Supplies lineax with a preconditioner and an approximate solution in case the solver may use those. """
     
-    if isinstance(solver, lineax.CG): 
+    if isinstance(solver, lx.CG): 
         # appyling this tag might be a lie. But lineax will throw an error otherwise
-        operator = lx.MatrixLinearOperator(A, lineax.positive_semidefinite_tag)
+        operator = lx.MatrixLinearOperator(A, lx.positive_semidefinite_tag)
     else:
         operator = lx.MatrixLinearOperator(A)
 
@@ -664,7 +650,7 @@ def center_signal_to_max(signal):
 
 
 
-def loss_function_modifications(trace, measured_trace, tau_or_zarr, frequency, amplitude_or_intensity, use_fd_grad):
+def loss_function_modifications(trace, measured_trace, tau_or_zarr, frequency, amplitude_or_intensity, fd_grad):
     """
     General optimization algorithms are not limited to a specific loss function. This function modifies the given trace and measured_trace
     such that residuals based on the amplitude instead of the intensity are optimized. Alternatively finite difference derivatives of the trace 
@@ -688,18 +674,25 @@ def loss_function_modifications(trace, measured_trace, tau_or_zarr, frequency, a
         raise ValueError(f"amplitude_or_intensity needs to be amplitude, intensity or an int/float. Not {amplitude_or_intensity}")
 
 
-    if use_fd_grad!=False:
-        raise ValueError("gradient id missing dx, dy")
-        measured_trace_0, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=0)(x), None), measured_trace, length=use_fd_grad)
-        measured_trace_1, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=1)(x), None), measured_trace, length=use_fd_grad)
+    if fd_grad!=False:
+        def scan_fd_gradient(y, x, axis):
+            return jnp.gradient(y, x, axis=axis), None
+        
+        fd_x = Partial(scan_fd_gradient, axis=0)
+        fd_y = Partial(scan_fd_gradient, axis=1)
+        x = jnp.broadcast_to(tau_or_zarr, (fd_grad, ) + jnp.shape(tau_or_zarr))
+        y = jnp.broadcast_to(frequency, (fd_grad, ) + jnp.shape(frequency))
+        
+        measured_trace_0, _ = jax.lax.scan(fd_x, measured_trace, xs=x)
+        measured_trace_1, _ = jax.lax.scan(fd_y, measured_trace, xs=y)
 
-        trace_0, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=0)(x), None), trace, length=use_fd_grad)
-        trace_1, _ = jax.lax.scan(lambda x,y: (Partial(jnp.gradient, axis=1)(x), None), trace, length=use_fd_grad)
+        trace_0, _ = jax.lax.scan(fd_x, trace, xs=x)
+        trace_1, _ = jax.lax.scan(fd_y, trace, xs=y)
 
-        measured_trace = measured_trace_0 + measured_trace_1
-        trace = trace_0 + trace_1
+        measured_trace = jnp.abs(measured_trace_0) + jnp.abs(measured_trace_1)
+        trace = jnp.abs(trace_0) + jnp.abs(trace_1)
 
-    return trace, measured_trace
+    return trace/jnp.max(jnp.abs(trace)), measured_trace/jnp.max(jnp.abs(measured_trace))
 
 
 

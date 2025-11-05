@@ -319,7 +319,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     The Base-Class for all general solvers. Inherits from AlgorithmsBASE.
 
     Attributes:
-        use_fd_grad: bool or int,
+        fd_grad: bool or int,
         amplitude_or_intensity: str,
         error_metric: Callable,
         bspline_info: Pytree,
@@ -329,7 +329,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.use_fd_grad = False
+        self.fd_grad = False
         self.amplitude_or_intensity = "intensity"
         self.error_metric = self.trace_error
 
@@ -614,11 +614,11 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         """ Calculates the error of an individual based on its trace. 
         Allows modification of the error-function via error_metric() and loss_function_modification(). """
         measured_trace = measurement_info.measured_trace
-        amplitude_or_intensity, use_fd_grad = descent_info.amplitude_or_intensity, descent_info.use_fd_grad
+        amplitude_or_intensity, fd_grad = descent_info.amplitude_or_intensity, descent_info.fd_grad
         error_metric = descent_info.error_metric
 
         x_arr, y_arr, trace = self.construct_trace(individual, measurement_info, descent_info)
-        trace, measured_trace = loss_function_modifications(trace, measured_trace, x_arr, y_arr, amplitude_or_intensity, use_fd_grad)
+        trace, measured_trace = loss_function_modifications(trace, measured_trace, x_arr, y_arr, amplitude_or_intensity, fd_grad)
         trace_error = error_metric(trace, measured_trace)
         return trace_error
     
@@ -647,7 +647,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             self.measurement_info = tree_at(lambda x: x.central_f.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
 
-        self.descent_info = self.descent_info.expand(use_fd_grad = self.use_fd_grad,
+        self.descent_info = self.descent_info.expand(fd_grad = self.fd_grad,
                                                      amplitude_or_intensity = self.amplitude_or_intensity,
                                                      error_metric = self.error_metric)
 
