@@ -65,6 +65,25 @@ def initialize_lbfgs_state(shape, measurement_info, descent_info):
     return MyNamespace(pulse=lbfgs_init_pulse, gate=lbfgs_init_gate)
 
 
+def update_lbfgs_state(lbfgs_state, gamma, grad, descent_direction):
+    step_size_arr = lbfgs_state.step_size_prev
+    step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
+    step_size_arr = step_size_arr.at[:,0].set(gamma[:, jnp.newaxis])
+
+    grad_arr = lbfgs_state.grad_prev
+    grad_arr = grad_arr.at[:,1:].set(grad_arr[:,:-1])
+    grad_arr = grad_arr.at[:,0].set(grad)
+
+    newton_arr = lbfgs_state.newton_direction_prev
+    newton_arr = newton_arr.at[:,1:].set(newton_arr[:,:-1])
+    newton_arr = newton_arr.at[:,0].set(descent_direction)
+
+    lbfgs_state = MyNamespace(grad_prev = grad_arr, 
+                            newton_direction_prev = newton_arr,
+                            step_size_prev = step_size_arr)
+    return lbfgs_state
+
+
 
 def initialize_linesearch_info(optimizer):
     linesearch_params = MyNamespace(linesearch=optimizer.linesearch, 
@@ -121,7 +140,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         self.name = "GeneralizedProjection"
 
         self.local_gamma = None
-        self.global_gamma = 1e3
+        self.global_gamma = 1
 
         self.no_steps_descent = 15
 
@@ -191,11 +210,11 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
             descent_state = tree_at(lambda x: getattr(x.newton, pulse_or_gate), descent_state, newton_state)
 
         elif newton_info=="lbfgs":
-            descent_direction, lbfgs_state = get_quasi_newton_direction(grad_sum, getattr(descent_state.lbfgs, pulse_or_gate), descent_info)
+            lbfgs_state = getattr(descent_state.lbfgs, pulse_or_gate)
+            descent_direction, lbfgs_state = get_quasi_newton_direction(grad_sum, lbfgs_state, descent_info)
 
         else:
             descent_direction = -1*grad_sum
-
 
 
         if conjugate_gradients!=False:
@@ -223,11 +242,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
 
         if newton_info=="lbfgs":
-           step_size_arr = lbfgs_state.step_size_prev
-           step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
-           step_size_arr = step_size_arr.at[:,0].set(gamma[:, jnp.newaxis])
-
-           descent_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate).step_size_prev, descent_state, step_size_arr)
+            lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
+            descent_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), descent_state, lbfgs_state)
 
         population = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate) 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
@@ -540,11 +556,8 @@ class TimeDomainPtychographyBASE(ClassicAlgorithmsBASE):
 
 
         if newton_info=="lbfgs":
-            step_size_arr = lbfgs_state.step_size_prev
-            step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
-            step_size_arr = step_size_arr.at[:,0].set(gamma[:, jnp.newaxis])
-
-            local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate).step_size_prev, local_or_global_state, step_size_arr)
+            lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
+            local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), local_or_global_state, lbfgs_state)
 
         population = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return local_or_global_state, population
@@ -879,11 +892,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
             gamma = jnp.broadcast_to(gamma, (descent_info.population_size, ))
 
         if newton_info=="lbfgs":
-            step_size_arr = lbfgs_state.step_size_prev
-            step_size_arr = step_size_arr.at[:,1:].set(step_size_arr[:,:-1])
-            step_size_arr = step_size_arr.at[:,0].set(gamma[:, jnp.newaxis])
-
-            local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate).step_size_prev, local_or_global_state, step_size_arr)
+            lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
+            local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), local_or_global_state, lbfgs_state)
 
         population = self.update_population(population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate)
         return local_or_global_state, population

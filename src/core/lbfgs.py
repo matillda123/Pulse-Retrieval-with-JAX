@@ -67,7 +67,7 @@ def do_lbfgs(grad_current, lbfgs_state, descent_info):
 
 
 
-# lbfgs isnt sensible when doing alternating optimization 
+
 def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
     """
     Calculate the quasi-newton direciton using LBFGS.
@@ -78,19 +78,9 @@ def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
         descent_info: Pytree, holds information on the solver (e.g. memory size for LBFGS)
 
     Returns:
-        tuple[jnp.array, Pytree], the quasi-newton direction and the updated lbfgs_state excluding the step size which is updated explicitely after a linesearch
+        tuple[jnp.array, Pytree], the quasi-newton direction and the unchanged lbfgs_state 
     """
+
     newton_direction = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info)
 
-    grad_arr = lbfgs_state.grad_prev
-    grad_arr = grad_arr.at[:,1:].set(grad_arr[:,:-1])
-    grad_arr = grad_arr.at[:,0].set(grad)
-
-    newton_arr = lbfgs_state.newton_direction_prev
-    newton_arr = newton_arr.at[:,1:].set(newton_arr[:,:-1])
-    newton_arr = newton_arr.at[:,0].set(newton_direction)
-
-    lbfgs_state = MyNamespace(grad_prev = grad_arr, 
-                              newton_direction_prev = newton_arr,
-                              step_size_prev = lbfgs_state.step_size_prev)
     return -1*newton_direction, lbfgs_state

@@ -25,10 +25,11 @@ def unflatten_MyNamespace(aux_data, leaves):
 class MyNamespace:
     """
     The central Pytree.
-    Does not have a fixed shaped/structure at initialization. Because it would be tedious and cumbersome to keep track of this for all different pytree types used.
-    However this is dangerous with jax. 
-    To solver this MyNamespace.expand() can be used to add attributes by returning a new MyNamespace object. On top inside jax-transformations one should make sure
-    to keep the structure static. (If not jax may hopefully catch it.)
+    Does not have a fixed shaped/structure at initialization. Because it would be tedious and cumbersome to keep 
+    track of this for all different pytree types/version used.
+    To solve the issues arising from this MyNamespace.expand() can be used to add attributes by returning a 
+    new MyNamespace object. 
+    On top inside jax-transformations one needs to make sure to keep the structure static. (If not jax may hopefully catch it.)
     """
 
     def __init__(self, **kwargs):
@@ -349,7 +350,8 @@ def calculate_gate(pulse_t, method):
         gate = jnp.conjugate(pulse_t)**2
 
     else:
-        print("not_implemented")
+        raise NotImplementedError(f"method={method} is not implemented")
+    
     return gate
 
 
@@ -371,9 +373,11 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
         gate=jnp.abs(pulse_t)**2
 
     elif method=="sd":
-        print("not sure if this can work")
+        raise ValueError(f"idk if/how one can implement method=sd here.")
+    
     else:
-        print("not_implemented")
+        raise NotImplementedError(f"method={method} is not implemented")
+    
     return gate
 
 
@@ -757,8 +761,8 @@ def get_score_values(final_result, input_pulses):
     spectrum_norm = (jnp.abs(pulse_f)/jnp.max(jnp.abs(pulse_f)))**2
     mask = jnp.zeros(jnp.size(spectrum_norm))
     mask = jnp.where(spectrum_norm<0.1, mask, 1)
-    residual = phase_f_grad_grad-phase_f_inp_interp_grad_grad
-    residual = residual/jnp.std(residual) # -> a "normalization" to treat different chirps the same? Should maybe be done after mask is applied?
-    error_phase_f = jnp.mean(mask*jnp.abs(residual)**2)
+    residual = (phase_f_grad_grad-phase_f_inp_interp_grad_grad)*mask
+    residual = residual/jnp.std(residual) # -> a "normalization" to treat different chirps the same
+    error_phase_f = jnp.mean(jnp.abs(residual)**2)
     
     return 1-amp_t_score, 1-amp_f_score_1, 1-amp_f_score_2, error_phase_f

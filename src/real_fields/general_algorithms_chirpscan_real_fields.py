@@ -33,6 +33,11 @@ class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRea
 
     
     def get_pulses_from_population(self, population, measurement_info, descent_info):
+        """
+        Real fields LSF does not use make_pulse_f_from_individual()/make_pulse_t_from_individual().
+        It stores the fields as complex values instead of amp/phase.
+        This function interpolates the individuals onto frequency_big.
+        """
         pulse_f_arr, gate_f_arr = super().get_pulses_from_population(population, measurement_info, descent_info)
 
         pulse_f_arr = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(measurement_info.frequency_big, measurement_info.frequency, pulse_f_arr)
@@ -46,6 +51,11 @@ class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRea
 
 
     def convert_population(self, population, measurement_info, descent_info):
+        """
+        convert_population() does use make_pulse_f_from_individual()/make_pulse_t_from_individual().
+        Thus the pulses are converted onto frequency_big. 
+        The optimization is likely more efficient when the pulses are defined on frequency. Thus the interpolation.
+        """
         population = super().convert_population(population, measurement_info, descent_info)
         pulse_f_arr = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(measurement_info.frequency, measurement_info.frequency_big, population.pulse)
 
@@ -59,6 +69,9 @@ class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRea
 
 
     def make_population_bisection_search(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
+        """
+        For the generation of the signal field the pulses need to be interpolated onto frequency_big.
+        """
         population = super().make_population_bisection_search(E_arr, population, measurement_info, descent_info, pulse_or_gate)
 
         pulse_f_arr = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(measurement_info.frequency_big, measurement_info.frequency, population.pulse)
@@ -71,6 +84,7 @@ class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRea
     
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info):
+        """ Another interpolation onto time_big/frequency_big to calculate the signal field for the final trace. """
         pulse_t, gate_t, pulse_f, gate_f = super().post_process_get_pulse_and_gate(descent_state, measurement_info, descent_info)
         
         pulse_f = self.fft(pulse_t, measurement_info.sk, measurement_info.rn)
