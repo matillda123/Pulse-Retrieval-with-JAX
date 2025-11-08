@@ -9,8 +9,8 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesCHIRPSCAN):
     """ 
     The Differential Evolution Algorithm applied to Chirp-Scans. Inherits from DifferentialEvolutionBASE and RetrievePulsesCHIRPSCAN.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -26,8 +26,8 @@ class Evosax(EvosaxBASE, RetrievePulsesCHIRPSCAN):
     """
     The Evosax package utilized for pulse reconstruction from Chirp-Scans. Inherits from EvosaxBASE and RetrievePulsesCHIRPSCAN.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -43,8 +43,8 @@ class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
     """
     The LSF Algorithm applied to Chrip-Scans. Inherits from LSFBASE and RetrievePulsesCHIRPSCAN.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -90,8 +90,8 @@ class AutoDiff(AutoDiffBASE, RetrievePulsesCHIRPSCAN):
     """
     The Optimistix package utilized for pulse reconstruction from Chirp-Scans. Inherits from AutoDiffBASE and RetrievePulsesCHIRPSCAN.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):

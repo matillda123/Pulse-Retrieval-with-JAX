@@ -19,6 +19,7 @@ from src.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
 
+
 class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     """
     The Basic Reconstruction Algorithm. Inherits from ClassicAlgorithmsBASE and RetrievePulsesCHIRPSCAN.
@@ -28,14 +29,14 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         None
 
     """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
         self.name = "Basic"
 
 
     def update_pulse(self, signal_t_new, gate, phase_matrix, nonlinear_method, sk, rn):
-        """ Creates an updated (hopefully improoved) guess for the pulse. """
+        """ Creates an updated guess for the pulse. """
         signal_t_new = signal_t_new*jnp.conjugate(gate)
 
         if nonlinear_method=="shg":
@@ -120,8 +121,8 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
     The Generalized Projection Algorithm for Chirp-Scans. Inherits from GeneralizedProjectionBASE and RetrievePulsesCHIRPSCAN.
     
     """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
@@ -158,8 +159,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
     Attributes:
         pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
     """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, pie_method="rPIE", **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, pie_method="rPIE", phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
         self.pie_method = pie_method
 
@@ -269,8 +270,8 @@ class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
     """
     The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans. Inherits from COPRABASE and  RetrievePulsesCHIRPSCAN.
     """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=None, chirp_parameters=None, **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_matrix_func=phase_matrix_func, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

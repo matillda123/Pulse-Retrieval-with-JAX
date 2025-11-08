@@ -26,7 +26,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     The Vanilla-FROG Algorithm as described by R. Trebino. Inherits from ClassicAlgorithmsBASE and RetrievePulsesFROG.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         self.name = "Vanilla"        
 
         # for some reason vanilla only works with central_f=0. No idea why. Is undone when using LSGPA.
@@ -136,7 +136,7 @@ class LSGPA(Vanilla):
     Inherits from Vanilla.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         self.name = "LSGPA"
 
         self.frequency = self.frequency + self.f0

@@ -10,8 +10,8 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulses2DSI):
     """ 
     The Differential Evolution Algorithm applied to 2DSI. Inherits from DifferentialEvolutionBASE and RetrievePulses2DSI.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -27,8 +27,8 @@ class Evosax(EvosaxBASE, RetrievePulses2DSI):
     """
     The Evosax package utilized for pulse reconstruction from 2DSI. Inherits from EvosaxBASE and RetrievePulses2DSI.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -44,8 +44,8 @@ class LSF(LSFBASE, RetrievePulses2DSI):
     """
     The LSF Algorithm applied to 2DSI. Inherits from LSFBASE and RetrievePulses2DSI.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
 
@@ -93,8 +93,8 @@ class AutoDiff(AutoDiffBASE, RetrievePulses2DSI):
     """
     The Optimistix package utilized for pulse reconstruction from 2DSI. Inherits from AutoDiffBASE and RetrievePulses2DSI.
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
 

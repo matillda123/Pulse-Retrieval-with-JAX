@@ -8,24 +8,24 @@ import jax
 class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionFROG, RetrievePulsesFROGwithRealFields):
     """ The Differential Evolution Algorithm applied to FROG with real fields. 
     Inherits from  RetrievePulsesRealFields, DifferentialEvolutionFROG and RetrievePulsesFROGwithRealFields"""
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
 
 
 class Evosax(RetrievePulsesRealFields, EvosaxFROG, RetrievePulsesFROGwithRealFields):
     """ The Evosax package applied to FROG with real fields. 
     Inherits from  RetrievePulsesRealFields, EvosaxFROG and RetrievePulsesFROGwithRealFields"""
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
 
 
 class LSF(RetrievePulsesRealFields, LSFFROG, RetrievePulsesFROGwithRealFields):
     """ The LSF Algorithm applied to FROG with real fields. 
     Inherits from  RetrievePulsesRealFields, LSFFROG and RetrievePulsesFROGwithRealFields"""
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
     
     
@@ -117,5 +117,5 @@ class LSF(RetrievePulsesRealFields, LSFFROG, RetrievePulsesFROGwithRealFields):
 class AutoDiff(RetrievePulsesRealFields, AutoDiffFROG, RetrievePulsesFROGwithRealFields):
     """ The Optimistix package applied to FROG with real fields. 
     Inherits from  RetrievePulsesRealFields, AutoDiffFROG and RetrievePulsesFROGwithRealFields"""
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)

@@ -230,8 +230,8 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
