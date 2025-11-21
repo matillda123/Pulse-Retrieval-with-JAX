@@ -11,7 +11,7 @@ from equinox import tree_at
 from src.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, project_onto_amplitude
 from .create_population import create_population_classic
 from src.core.initial_guess_doublepulse import make_population_doublepulse
-from src.chirp_scan.phase_matrix_funcs import calc_sine_phase, calc_gaussian_phase, calc_tanh_phase, calc_MIIPS_phase, calc_G_MIIPS_phase, calculate_phase_matrix, calculate_phase_matrix_material
+from src.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material
 
 
 
@@ -647,12 +647,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
             self.phase_matrix = calculate_phase_matrix_material(self.measurement_info, parameters)
 
         elif type(self.phase_type)==str:
-            phase_matrix_dict = {"sine": calc_sine_phase,
-                                 "tanh": calc_tanh_phase,
-                                 "gaussian": calc_gaussian_phase,
-                                 "MIIPS": calc_MIIPS_phase,
-                                 "GMIIPS": calc_G_MIIPS_phase}
-            self.phase_matrix = calculate_phase_matrix(self.measurement_info, parameters, phase_func=phase_matrix_dict[self.phase_type])
+            self.phase_matrix = calculate_phase_matrix(self.measurement_info, parameters, phase_func=phase_func_dict[self.phase_type])
 
         elif callable(self.phase_type)==True:
             self.phase_matrix = self.phase_type(self.measurement_info, parameters)

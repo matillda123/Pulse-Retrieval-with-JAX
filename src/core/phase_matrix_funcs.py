@@ -64,6 +64,17 @@ def calc_G_MIIPS_phase(omega, phase_shift, parameters):
     return calc_gaussian_phase(omega, phase_shift, (gamma, sigma, central_frequency)) + calc_sine_phase(omega, phase_shift, (alpha, gamma, central_frequency))
 
 
+phase_func_dict = {"sine": calc_sine_phase,
+                     "tanh": calc_tanh_phase,
+                     "gaussian": calc_gaussian_phase,
+                     "MIIPS": calc_MIIPS_phase,
+                     "GMIIPS": calc_G_MIIPS_phase}
+
+
+
+
+
+
 
 
 def calculate_phase_matrix(measurement_info, parameters, phase_func=calc_MIIPS_phase):
@@ -93,4 +104,3 @@ def calc_GDD(omega, phase_shift, parameters, phase_func=calc_sine_phase):
     omega = jnp.asarray(omega, dtype=jnp.complex64)
     calc_2nd_grad = jax.grad(jax.grad(phase_func, argnums=0, holomorphic=True), argnums=0, holomorphic=True)
     return jax.vmap(calc_2nd_grad, in_axes=(0,0,None))(omega, phase_shift, parameters)
-

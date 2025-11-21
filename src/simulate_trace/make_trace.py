@@ -357,7 +357,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
 
 
 class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
-    def __init__(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N, cut_off_val, frequency_range, phase_matrix_func, parameters):
+    def __init__(self, z_arr, time, frequency, pulse_t, pulse_f, nonlinear_method, N, cut_off_val, frequency_range, phase_type, parameters):
         super().__init__()
 
         self.z_arr = z_arr
@@ -374,7 +374,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        self.calculate_phase_matrix = phase_matrix_func
+        self.phase_type = phase_type
         self.parameters = parameters
 
 

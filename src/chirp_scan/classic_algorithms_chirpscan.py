@@ -8,7 +8,7 @@ from src.core.base_classes_algorithms import ClassicAlgorithmsBASE
 from src.core.base_classic_algorithms import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
 
 
-from src.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error
+from src.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d
 from src.core.construct_s_prime import calculate_S_prime_projection
 
 from src.gradients.chirpscan_z_error_gradients import calculate_Z_gradient
@@ -16,26 +16,101 @@ from src.hessians.chirpscan_z_error_pseudo_hessian import get_pseudo_newton_dire
 from src.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 
+from src.core.phase_matrix_funcs import phase_func_dict, calc_GDD
 
 
 
+
+# this implementation should be correct, but the algorithm doesnt seem to work.
 class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
         self.name = "MIIPS"
 
-    # could be done with population -> needs smooth initial guesses though 
-    # -> one could rework entire population creation, extra discrete stuff in general is redundant
+        self.integration_method = "euler_maclaurin_3"
+        self.integration_order = None
+
+        self.global_gamma = 0.5
 
 
-    def step():
-        # find phase_shifts that maximize signal
-        # obtain approximate GDD
-        # integrate to get spectral phase 
-        # update pulse_t/pulse_f
-        # generate trace using update -> needs to be done anyway for error calc 
-        pass
+    def calc_approximate_phase_individual(self, trace, measurement_info, descent_info):
+        z_arr, omega, parameters, phase_type = measurement_info.z_arr, measurement_info.omega, measurement_info.chirp_paramaters, measurement_info.phase_type
+        factor = measurement_info.factor
+        integration_method, integration_order = descent_info.integration_method, descent_info.integration_order
+
+        idx = jnp.argmax(trace, axis=0)
+        delta_m = jnp.take(z_arr, idx)
+        gdd = calc_GDD(omega, delta_m, parameters, phase_func_dict[phase_type])
+        gd = integrate_signal_1D(gdd, omega, integration_method, integration_order)
+        phase = integrate_signal_1D(gd, omega, integration_method, integration_order)
+        phase = do_interpolation_1d(omega, omega/factor, phase)
+        return phase
+    
+
+    def update_individual(self, individual, phase_prime, measurement_info, descent_info):
+        pulse = individual.population.pulse
+        phase = individual.phases
+        phase = phase + descent_info.gamma*(phase_prime - phase)
+        pulse = jnp.abs(pulse)*jnp.exp(1j*phase)
+        return tree_at(lambda x: x.pulse, individual.population, pulse)
+
+
+
+    def step(self, descent_state, measurement_info, descent_info):
+        phase_prime = jax.vmap(self.calc_approximate_phase_individual, in_axes=(0,None,None))(descent_state.traces, measurement_info, descent_info)
+        population = jax.vmap(self.update_individual, in_axes=(0,0,None,None))(descent_state, phase_prime, measurement_info, descent_info)
+
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        signal_f = self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
+        trace = calculate_trace(signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+
+        descent_state = tree_at(lambda x: x.phases, descent_state, phase_prime)
+        descent_state = tree_at(lambda x: x.traces, descent_state, trace)
+        return descent_state, trace_error.reshape(-1,1)
+    
+    
+
+    def initialize_run(self, population):
+        assert self.descent_info.measured_spectrum_is_provided.pulse==True, "A spectrum is needed."
+
+
+        if self.measurement_info.nonlinear_method=="shg":
+            factor=2
+        elif self.measurement_info.nonlinear_method=="thg":
+            factor=3
+        else:
+            factor=1
+
+        omega = 2*jnp.pi*self.measurement_info.frequency
+        self.measurement_info = self.measurement_info.expand(phase_type = self.phase_type,
+                                                             chirp_paramaters = self.parameters,
+                                                             omega = omega,
+                                                             factor = factor)
+        measurement_info = self.measurement_info
+
+
+        if self.integration_method[:-2]=="euler_maclaurin":
+            self.integration_order = int(self.integration_method[-1])
+            self.integration_method = "euler_maclaurin"
+        self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
+                                                     integration_order = self.integration_order,
+                                                     gamma = self.global_gamma)
+        descent_info = self.descent_info
+
+
+        self.descent_state = self.descent_state.expand(population = population,
+                                                       phases = jnp.zeros(jnp.shape(population.pulse), dtype=jnp.complex64),
+                                                       traces = jnp.broadcast_to(measurement_info.measured_trace, 
+                                                                                 (jnp.shape(population.pulse)[0],) + jnp.shape(measurement_info.measured_trace)))
+        descent_state = self.descent_state
+
+        do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
+        do_step = Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
+        return descent_state, do_step
+    
 
 
 
@@ -53,6 +128,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         None
 
     """
+
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
@@ -261,8 +337,8 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
                                                 descent_info, pulse_or_gate, local_or_global):
         """ Calculates the PIE newton direction for a population. """
         
-        assert getattr(descent_info.newton, local_or_global)!="full", "Dont use full hessian. Its not implemented. "
-        "It requires the derivative with respect to the unmodified pulse. Which seems hard for the hessian."
+        assert getattr(descent_info.newton, local_or_global)!="full", """Dont use full hessian. Its not implemented. 
+        It requires the derivative with respect to the unmodified pulse. Which seems hard for the hessian."""
         
         newton_direction_prev = local_or_global_state.newton.pulse.newton_direction_prev
 
@@ -293,6 +369,7 @@ class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN
 class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
     """
     The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans. Inherits from COPRABASE and  RetrievePulsesCHIRPSCAN.
+
     """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
