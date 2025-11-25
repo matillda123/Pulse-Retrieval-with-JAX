@@ -6,7 +6,7 @@ import refractiveindex
 import jax.numpy as jnp
 import jax
 
-from src.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max
+from src.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max, center_signal
 from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI
 from src.real_fields.base_classes_methods import RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSIwithRealFields
 from .make_pulse import MakePulse as MakePulseBase
@@ -382,6 +382,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
     def get_dispersed_pulse_t(self, pulse_f, phase_matrix, sk, rn):
         pulse_t_disp, phase_matrix = super().get_dispersed_pulse_t(pulse_f, phase_matrix, sk, rn)
         pulse_t_disp = jax.vmap(center_signal_to_max)(pulse_t_disp)   # This FUCKS the retrieval. Only use in generation of traces
+        #pulse_t_disp = jax.vmap(center_signal)(pulse_t_disp)
         return pulse_t_disp, phase_matrix
 
 
@@ -402,7 +403,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
         max_val=np.max(self.trace)
         idx=np.where(self.trace>max_val*self.cut_off_val)
         idx_0, idx_1 = np.sort(idx)
-
+        
         idx_0_min, idx_0_max = idx_0[0], idx_0[-1]+1
         idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
 

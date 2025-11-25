@@ -271,7 +271,11 @@ class RetrievePulses:
         self.descent_state = descent_state
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
-        pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
+        
+        if self.measurement_info.cross_correlation==True:
+            pass
+        else:
+            pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
 
         measured_trace = self.measurement_info.measured_trace
         measured_trace = measured_trace/jnp.linalg.norm(measured_trace)

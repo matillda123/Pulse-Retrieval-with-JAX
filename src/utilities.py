@@ -428,30 +428,6 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
     return gate
 
 
-def calculate_gate_inverse(gate, method):
-    """
-    Invert the gate for the nonlinear process. Uses a pseudo-inverse for PG.
-    """
-    assert method!="tg", "For TG, depending on the definition either pg or sd needs to be used."
-
-    if method == "shg":
-        pulse_t = gate
-
-    elif method == "thg":
-        pulse_t = jnp.sqrt(gate)
-
-    elif method =="pg":
-        pulse_t = jnp.sqrt(jnp.abs(gate))*jnp.exp(1j*jnp.angle(gate))
-        
-    elif method == "sd":
-        pulse_t = jnp.conjugate(jnp.sqrt(gate))
-
-    else:
-        raise NotImplementedError(f"method={method} is not implemented")
-    
-    return pulse_t
-
-
 
 
 
@@ -478,7 +454,10 @@ def calculate_trace(signal_f):
 
 def calculate_mu(trace, measured_trace):
     """ Calculates scaling factor between measured intensity and intensity of current guess. """
-    return jnp.sum(trace*measured_trace)/(jnp.sum(trace**2) + 1e-12)
+    N = jnp.max(trace) # needed in cases where norm is very small
+    trace = trace/N
+    measured_trace = measured_trace/N
+    return jnp.sum(trace*measured_trace)/(jnp.sum(trace**2) + 1e-15)
 
 
 def calculate_trace_error(trace, measured_trace):
