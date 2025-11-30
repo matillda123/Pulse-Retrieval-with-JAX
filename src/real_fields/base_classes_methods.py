@@ -4,7 +4,7 @@ import jax
 from equinox import tree_at
 
 from src.utilities import MyNamespace, get_sk_rn, do_interpolation_1d, calculate_gate_with_Real_Fields, calculate_trace, center_signal
-from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI
+from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI
 
 
 
@@ -230,6 +230,92 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
 
     
+
+
+
+class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
+    """ 
+    Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the 
+    signal field in order to use real fields instead of complex ones.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def _post_init(self):
+        """ 
+        The phase-matrix needs to be interpolated onto frequency_big. 
+        Overwriting its creation would be possible but a bit cumbersome. 
+        """
+        frequency_exp, frequency_big = self.measurement_info.frequency_exp, self.measurement_info.frequency_big
+        self.spectral_filter = do_interpolation_1d(frequency_big, frequency_exp, self.spectral_filter)
+        self.measurement_info = tree_at(lambda x: x.spectral_filter, self.measurement_info, self.spectral_filter)
+
+
+
+    def get_gate_pulse(self, frequency, gate_f):
+        """ For crosscorrelation=True the actual gate pulse has to be provided. """
+        gate_f = do_interpolation_1d(self.measurement_info.frequency_big, frequency, gate_f)
+        self.gate = self.ifft(gate_f, self.measurement_info.sk_big, self.measurement_info.rn_big)
+        self.measurement_info = self.measurement_info.expand(gate = self.gate)
+        return self.gate
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field of a FROG in the time domain. Does so by using real fields instead of complex ones.
+
+        Args:
+            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            tau_arr: jnp.array, the delays
+            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
+        time_big, frequency_big = measurement_info.time_big, measurement_info.frequency_big
+        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        frogmethod = measurement_info.nonlinear_method
+        sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
+
+        pulse, gate = individual.pulse, individual.gate
+
+
+        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
+
+        if cross_correlation==True:
+            gate = self.apply_spectral_filter(measurement_info.gate, measurement_info.spectral_filter, sk_big, rn_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency_big, tau_arr, time_big)
+            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
+
+        elif doubleblind==True:
+            gate = self.apply_spectral_filter(gate, measurement_info.spectral_filter, sk_big, rn_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency_big, tau_arr, time_big)
+            gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
+
+        else:
+            gate_pulse_shifted = None
+            pulse_t_shifted = self.apply_spectral_filter(pulse_t_shifted, measurement_info.spectral_filter, sk_big, rn_big)
+            gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
+
+
+        if ifrog==True and cross_correlation==False and doubleblind==False:
+            signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
+        elif ifrog==True:
+            signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
+        else:
+            signal_t = jnp.real(pulse)*gate_shifted
+            
+
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted)
+        return signal_t
+    
+
+
 
 
 

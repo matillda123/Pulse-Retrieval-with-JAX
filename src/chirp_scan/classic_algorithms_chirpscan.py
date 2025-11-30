@@ -5,7 +5,7 @@ from equinox import tree_at
 
 from src.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from src.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from src.core.base_classic_algorithms import GeneralizedProjectionBASE, TimeDomainPtychographyBASE, COPRABASE
+from src.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 
 
 from src.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d
@@ -252,9 +252,9 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
 
 
 
-class TimeDomainPtychography(TimeDomainPtychographyBASE, RetrievePulsesCHIRPSCAN):
+class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Ptychographic Iterative Engine (PIE) for Chirp-Scans. Inherits from TimeDomainPtychographyBASE and RetrievePulsesCHIRPSCAN.
+    The Ptychographic Iterative Engine (PIE) for Chirp-Scans. Inherits from PtychographicIterativeEngineBASE and RetrievePulsesCHIRPSCAN.
 
     Attributes:
         pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
