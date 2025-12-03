@@ -36,6 +36,10 @@ class AlgorithmsBASE:
         """ This function is invoked by most solvers to perform the iterative reconstruction. """
         if self.spectrum_is_being_used==True:
             assert self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
+        
+        if self.measurement_info.doubleblind==True:
+            if self.descent_info.measured_spectrum_is_provided.pulse==False or self.descent_info.measured_spectrum_is_provided.gate==False:
+                print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
 
         carry, do_scan = self.initialize_run(init_vals)
         carry, error_arr = run_scan(do_scan, carry, no_iterations, self.jit)

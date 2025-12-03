@@ -775,7 +775,7 @@ def remove_phase_jumps(phase):
 
 
 
-def get_score_values(final_result, input_pulses, doubleblind=False):
+def get_score_values(final_result, input_pulses, doubleblind=False, factor=-1):
     """
     Computes different error-metrics for a reconstructed pulse given the exact pulse is known and provided. 
     The error metrics are the maximum cross-correlation between reconstructed and exact pulse in the time and frequency domain. 
@@ -825,6 +825,11 @@ def get_score_values(final_result, input_pulses, doubleblind=False):
 
     phase_f_grad_grad = jnp.gradient(phase_f_grad, frequency)
     phase_f_inp_interp_grad_grad = jnp.gradient(phase_f_inp_interp_grad, frequency)
+
+    # shift inp or retrieved by difference of maxima 
+    idx_f_inp = jnp.argmax(jnp.abs(pulse_f_inp_interp))
+    idx_f = jnp.argmax(jnp.abs(pulse_f))
+    phase_f_inp_interp_grad_grad = jnp.roll(phase_f_inp_interp_grad_grad, factor*(idx_f_inp-idx_f))
 
 
     spectrum_norm = (jnp.abs(pulse_f)/jnp.max(jnp.abs(pulse_f)))**2

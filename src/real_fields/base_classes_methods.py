@@ -4,7 +4,7 @@ import jax
 from equinox import tree_at
 
 from src.utilities import MyNamespace, get_sk_rn, do_interpolation_1d, calculate_gate_with_Real_Fields, calculate_trace, center_signal
-from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI
+from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE
 
 
 
@@ -396,17 +396,13 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
 
 
 
-    def get_anc_pulse(self, frequency, anc_f, anc_no=1):
-        """ For cross_correlation instead of the gate pulse the two-acillae pulses need to be provided. """
-        anc_f = do_interpolation_1d(self.measurement_info.frequency_big, frequency, anc_f)
-        anc = self.ifft(anc_f, self.measurement_info.sk_big, self.measurement_info.rn_big)
 
-        anc_dict = {1: self.measurement_info.expand(anc_1=anc), 
-                    2: self.measurement_info.expand(anc_2=anc)}
-        self.measurement_info = anc_dict[anc_no]
-        return anc
-
-
+    def get_gate_pulse(self, frequency, gate_f):
+        """ For crosscorrelation=True the actual gate pulse has to be provided. """
+        gate_f = do_interpolation_1d(self.measurement_info.frequency_big, frequency, gate_f)
+        self.gate = self.ifft(gate_f, self.measurement_info.sk_big, self.measurement_info.rn_big)
+        self.measurement_info = self.measurement_info.expand(gate = self.gate)
+        return self.gate
 
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
@@ -423,28 +419,126 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
         """
 
         time_big, frequency_big = measurement_info.time_big, measurement_info.frequency_big
+        sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
         nonlinear_method = measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
 
         if measurement_info.cross_correlation==True:
-            gate1, gate2 = measurement_info.anc_1, measurement_info.anc_2
+            gate = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
-            gate1 = gate2 = individual.gate
+            gate = individual.gate
 
         else:
-            sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
-            # shift in time is solved, by jnp.roll -> isnt exact
-            gate1 = gate2 = self.apply_phase(pulse_t, measurement_info, sk_big, rn_big) 
+            gate = pulse_t
+        
+        # shift in time is solved, by jnp.roll -> isnt exact
+        gate, delay = self.apply_phase(gate, measurement_info, sk_big, rn_big) 
 
-        gate1 = self.apply_spectral_filter(gate1, measurement_info.spectral_filter1, sk_big, rn_big)
-        gate2 = self.apply_spectral_filter(gate2, measurement_info.spectral_filter2, sk_big, rn_big)
+        gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk_big, rn_big)
+        gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk_big, rn_big)
             
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency_big, tau_arr, time_big)
-        gate_pulses = gate1 + gate2_shifted
+        tau = measurement_info.tau_pulse_anc1
+        gate1 = self.calculate_shifted_signal(gate1, frequency_big, jnp.asarray([tau]), time_big)
+        gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
+
         signal_t = jnp.real(pulse_t)*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
+        return signal_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesVAMPIRE):
+    """ 
+    Inherits from RetrievePulses2DSI. Has the same purpose. It overwrites the generation of the 
+    signal field in order to use real fields instead of complex ones.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def _post_init(self):
+        """ 
+        The phase-matrix needs to be interpolated onto frequency_big. 
+        Overwriting its creation would be possible but a bit cumbersome. 
+        """
+        frequency_exp, frequency_big = self.measurement_info.frequency_exp, self.measurement_info.frequency_big
+        self.phase_matrix = do_interpolation_1d(frequency_big, frequency_exp, self.phase_matrix)
+        self.measurement_info = tree_at(lambda x: x.phase_matrix, self.measurement_info, self.phase_matrix)
+
+
+
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field in the time domain. 
+
+        Args:
+            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            tau_arr: jnp.array, the delays
+            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
+        time_big, frequency_big = measurement_info.time_big, measurement_info.frequency_big
+        sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
+        nonlinear_method = measurement_info.nonlinear_method
+
+        pulse_t = individual.pulse
+
+        if measurement_info.cross_correlation==True:
+            gate_pulse = measurement_info.gate
+
+        elif measurement_info.doubleblind==True:
+            gate_pulse = individual.gate
+
+        else:
+            gate_pulse = pulse_t
+
+        gate_disp, delay = self.apply_phase(gate_pulse, measurement_info, sk_big, rn_big) 
+
+        tau = measurement_info.tau_interferometer
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency_big, jnp.asarray([tau]), time_big)
+
+        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency_big, tau_arr, time_big)
+        gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
+
+        signal_t = jnp.real(pulse_t)*gate
+
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
         return signal_t

@@ -58,7 +58,7 @@ def Z_gradient_pg_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_
 
 
 def Z_gradient_sd_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
-    grad=exp_arr*do_fft(deltaS*pulse_t*jnp.conjugate(pulse_t_shifted), sk, rn)
+    grad=exp_arr*do_fft(pulse_t*jnp.conjugate(deltaS*pulse_t_shifted), sk, rn)
     return -4*grad
 
 

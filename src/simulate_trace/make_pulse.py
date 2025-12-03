@@ -71,9 +71,9 @@ class MakePulse:
 
     def gaussian(self, x, amp, fwhm, shift):
         b=fwhm/2.355 # fwhm to sigma
-        idx = np.argmin(np.abs(x-shift))
-        shift_new = x[idx] # makes sure that shift lies on top of grid point, prevents issues when fwhm is to small
-        return amp*np.exp(-(x-shift_new)**2/(2*b**2))
+        #idx = np.argmin(np.abs(x-shift))
+        #shift = x[idx] # makes sure that shift lies on top of grid point, prevents issues when fwhm is to small
+        return amp*np.exp(-(x-shift)**2/(2*b**2))
     
 
     def generate_gaussian_amplitude(self, x, amp, fwhm, shift):

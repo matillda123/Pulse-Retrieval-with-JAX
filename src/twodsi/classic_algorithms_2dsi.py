@@ -29,14 +29,15 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
         
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, anc1_frequency=None, anc2_frequency=None, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1=None, spectral_filter2=None, **kwargs):
 
         if "cross_correlation" in kwargs:
-            if kwargs["cross_correlation"]!=True:
-                raise KeyError("DirectReconstruction cannot work for Doubleblind or Autocorrelation-like methods. Only cross_correlation=True does.")
+            if kwargs["cross_correlation"]=="doubleblind":
+                raise KeyError("DirectReconstruction cannot work for Doubleblind-like methods")
+            
+        assert spectral_filter1!=None and spectral_filter2!=None, "For DirectReconstruction you need to provide spectral_filters, to get a ancillae-frequency."
 
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=True, 
-                         anc1_frequency=anc1_frequency, anc2_frequency=anc2_frequency, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, **kwargs)
 
         self.name = "DirectReconstruction"
 
@@ -199,14 +200,14 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, signal_t.delay, measurement_info, pulse_or_gate)
         return grad
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.gate_pulses, signal_t.gate, 
-                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, signal_t.delay, measurement_info, 
                                                                          descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
 
@@ -330,7 +331,7 @@ class COPRA(COPRABASE, RetrievePulses2DSI):
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, signal_t.delay, measurement_info, pulse_or_gate)
         return grad
 
 
@@ -341,6 +342,6 @@ class COPRA(COPRABASE, RetrievePulses2DSI):
         
         newton_state = local_or_global_state.newton
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.gate_pulses, signal_t.gate, 
-                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, signal_t.delay, measurement_info, 
                                                                          newton_state, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state

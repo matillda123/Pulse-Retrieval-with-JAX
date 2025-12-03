@@ -8,7 +8,7 @@ def gaussian_filter(frequency, parameters, filter_dict):
     return y
 
 
-def lorentzian_filter(frequency, parameters, fitler_dict):
+def lorentzian_filter(frequency, parameters, filter_dict):
     a, f0, fwhm = parameters
     gamma = fwhm/2
     y = a*gamma/((frequency-f0)**2 + gamma**2)
@@ -31,8 +31,8 @@ def multi_filter(frequency, parameters, filter_dict):
     N = len(parameters)
     y = jnp.zeros(jnp.size(frequency))
     for i in range(N):
-        filter_func = parameters[0]
-        y = y + filter_dict[filter_func](frequency, parameters[i][1:])
+        filter_func = parameters[i][0]
+        y = y + filter_dict[filter_func](frequency, parameters[i][1:], filter_dict)
     return y
 
 
@@ -42,4 +42,5 @@ def get_filter(filter_func, frequency, parameters, custom_func=None):
                        rectangular=rectangular_filter,
                        multi=multi_filter,
                        custom=custom_func)
-    return filter_dict[filter_func](frequency, parameters, filter_dict)
+    y = filter_dict[filter_func](frequency, parameters, filter_dict)
+    return y/jnp.abs(jnp.max(y))

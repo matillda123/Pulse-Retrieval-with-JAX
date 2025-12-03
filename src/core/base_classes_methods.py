@@ -50,7 +50,8 @@ class RetrievePulses:
         self.measurement_info = MyNamespace(nonlinear_method = self.nonlinear_method, 
                                             spectral_amplitude = MyNamespace(pulse=None, gate=None), 
                                             central_f = MyNamespace(pulse=None, gate=None),
-                                            real_fields = False)
+                                            real_fields = False,
+                                            ifrog = False)
         self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
         self.descent_state = MyNamespace()
 
@@ -804,13 +805,11 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=True, anc1_frequency=None, anc2_frequency=None, 
-                 spectral_filter1=None, spectral_filter2=None,
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
 
-        self.anc1_frequency = anc1_frequency
-        self.anc2_frequency = anc2_frequency
+        self.tau_pulse_anc1 = tau_pulse_anc1
         self.c0 = c0
         self.refractive_index = refractive_index
 
@@ -823,25 +822,16 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         else:
             self.spectral_filter2 = spectral_filter2
 
+        self.anc1_frequency = self.frequency[jnp.argmax(self.spectral_filter1)]
+        self.anc2_frequency = self.frequency[jnp.argmax(self.spectral_filter2)]
+
         self.measurement_info = self.measurement_info.expand(c0=self.c0)
         self.phase_matrix = self.get_phase_matrix(self.refractive_index, material_thickness, self.measurement_info)
         self.measurement_info = self.measurement_info.expand(anc1_frequency=self.anc1_frequency, anc2_frequency=self.anc2_frequency, 
                                                              phase_matrix=self.phase_matrix,
                                                              spectral_filter1=self.spectral_filter1,
-                                                             spectral_filter2=self.spectral_filter2)
-        
-
-
-
-    def get_anc_pulse(self, frequency, anc_f, anc_no=1):
-        """ For cross_correlation instead of the gate-pulse the two-acillae pulses need to be provided. """
-        anc_f = do_interpolation_1d(self.frequency, frequency, anc_f)
-        anc = self.ifft(anc_f, self.sk, self.rn)
-
-        anc_dict = {1: self.measurement_info.expand(anc_1=anc), 
-                    2: self.measurement_info.expand(anc_2=anc)}
-        self.measurement_info = anc_dict[anc_no]
-        return anc
+                                                             spectral_filter2=self.spectral_filter2,
+                                                             tau_pulse_anc1 = self.tau_pulse_anc1)
     
 
 
@@ -872,7 +862,10 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
         idx1 = jnp.argmax(jnp.abs(pulse_t_disp))
         pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
-        return pulse_t_disp
+
+        # return recovered delay -> put that in signal_t -> can be used in grad/hessian?
+        delay = measurement_info.time[idx0]-measurement_info.time[idx1]
+        return pulse_t_disp, delay
     
 
     def apply_spectral_filter(self, signal, spectral_filter, sk, rn):
@@ -901,24 +894,27 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         pulse_t = individual.pulse
 
         if measurement_info.cross_correlation==True:
-            gate1, gate2 = measurement_info.anc_1, measurement_info.anc_2
-
+            gate = measurement_info.gate
         elif measurement_info.doubleblind==True:
-            gate1 = gate2 = individual.gate
-
+            gate = individual.gate
         else:
-            # shift in time is solved, by jnp.roll -> isnt exact
-            gate1 = gate2 = self.apply_phase(pulse_t, measurement_info, sk, rn) 
+            gate = pulse_t
+        
+        # shift in time is solved, by jnp.roll -> isnt exact
+        gate, delay = self.apply_phase(gate, measurement_info, sk, rn) 
 
-        gate1 = self.apply_spectral_filter(gate1, measurement_info.spectral_filter1, sk, rn)
-        gate2 = self.apply_spectral_filter(gate2, measurement_info.spectral_filter2, sk, rn)
+        gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk, rn)
+        gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk, rn)
 
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
-        gate_pulses = gate1 + gate2_shifted
+        tau = measurement_info.tau_pulse_anc1
+        gate1 = self.calculate_shifted_signal(gate1, frequency, jnp.asarray([tau]), time)
+        gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate(gate_pulses, nonlinear_method)
+
         signal_t = pulse_t*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
         return signal_t
 
 
@@ -1053,16 +1049,18 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, 
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, tau_interferometer=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
 
+        self.tau_interferometer = tau_interferometer
         self.c0 = c0
         self.refractive_index = refractive_index
 
         self.measurement_info = self.measurement_info.expand(c0=self.c0)
         self.phase_matrix = self.get_phase_matrix(self.refractive_index, material_thickness, self.measurement_info)
-        self.measurement_info = self.measurement_info.expand(phase_matrix=self.phase_matrix)
+        self.measurement_info = self.measurement_info.expand(phase_matrix=self.phase_matrix,
+                                                             tau_interferometer=self.tau_interferometer)
         
 
 
@@ -1095,7 +1093,8 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
         idx1 = jnp.argmax(jnp.abs(pulse_t_disp))
         pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
-        return pulse_t_disp
+        delay = measurement_info.time[idx0] - measurement_info.time[idx1]
+        return pulse_t_disp, delay
     
 
 
@@ -1126,12 +1125,16 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         else:
             gate_pulse = pulse_t
 
-        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
-        gate_pulses = gate_pulse + gate_disp # unknown delay between these -> Z-grad with respect to group delay of gate_disp?
+        gate_disp, delay = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+
+        tau = measurement_info.tau_interferometer
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+
+        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency, tau_arr, time)
         gate = calculate_gate(gate_pulses, nonlinear_method)
 
-        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr, time)
-        signal_t = gate*pulse_t_shifted
+        signal_t = pulse_t*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
         return signal_t
