@@ -7,7 +7,7 @@ from .twodsi_z_error_pseudo_hessian import calc_Z_error_pseudo_hessian_all_m
 
 
 
-def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, signal_t, signal_t_new, tau_arr, measurement_info, 
+def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, signal_t, signal_t_new, tau_arr, gd_correction, measurement_info, 
                                         newton_state, newton_info, full_or_diagonal, pulse_or_gate):
     
     """
@@ -41,8 +41,8 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, sign
 
     # vmap over population here -> only for small populations since memory will explode. 
     calc_hessian = Partial(calc_Z_error_pseudo_hessian_all_m, is_vampire=True)
-    hessian_m=jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,None,None,None))(pulse_t, gate_pulses, gate, deltaS, 
-                                                                                                tau_arr, measurement_info, full_or_diagonal, pulse_or_gate)
+    hessian_m=jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,0,None,None,None))(pulse_t, gate_pulses, gate, deltaS, 
+                                                                                                tau_arr, gd_correction, measurement_info, full_or_diagonal, pulse_or_gate)
 
     return calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)
         

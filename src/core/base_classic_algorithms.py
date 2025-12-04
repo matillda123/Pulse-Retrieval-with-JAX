@@ -445,7 +445,17 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, population=population, pie_method=pie_method, 
                                         measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate=pulse_or_gate)
 
-        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(1,1,1), out_axes=(1,1))(signal_t, signal_t_new, transform_arr)
+        leafs, treedef = jax.tree.flatten(signal_t)
+        map_list = []
+        for leaf in leafs:
+            if leaf.ndim==3:
+                map_list.append(1)
+            else:
+                map_list.append(None)
+        signal_t_map = jax.tree.unflatten(treedef, map_list)
+
+
+        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(signal_t_map,1,1), out_axes=(1,1))(signal_t, signal_t_new, transform_arr)
         return grad_all_m, U
 
 

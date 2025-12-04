@@ -247,7 +247,7 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
         The phase-matrix needs to be interpolated onto frequency_big. 
         Overwriting its creation would be possible but a bit cumbersome. 
         """
-        frequency, frequency_big = self.frequency, self.measurement_info.frequency_big
+        frequency, frequency_big = self.measurement_info.frequency, self.measurement_info.frequency_big
         self.spectral_filter = do_interpolation_1d(frequency_big, frequency, self.spectral_filter)
         self.measurement_info = tree_at(lambda x: x.spectral_filter, self.measurement_info, self.spectral_filter)
 
@@ -385,12 +385,12 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
         The phase-matrix needs to be interpolated onto frequency_big. 
         Overwriting its creation would be possible but a bit cumbersome. 
         """
-        frequency_exp, frequency_big = self.measurement_info.frequency_exp, self.measurement_info.frequency_big
-        self.phase_matrix = do_interpolation_1d(frequency_big, frequency_exp, self.phase_matrix)
+        frequency, frequency_big = self.measurement_info.frequency, self.measurement_info.frequency_big
+        self.phase_matrix = do_interpolation_1d(frequency_big, frequency, self.phase_matrix)
         self.measurement_info = tree_at(lambda x: x.phase_matrix, self.measurement_info, self.phase_matrix)
 
-        self.spectral_filter1 = do_interpolation_1d(frequency_big, frequency_exp, self.spectral_filter1)
-        self.spectral_filter2 = do_interpolation_1d(frequency_big, frequency_exp, self.spectral_filter2)
+        self.spectral_filter1 = do_interpolation_1d(frequency_big, frequency, self.spectral_filter1)
+        self.spectral_filter2 = do_interpolation_1d(frequency_big, frequency, self.spectral_filter2)
         self.measurement_info = tree_at(lambda x: x.spectral_filter1, self.measurement_info, self.spectral_filter1)
         self.measurement_info = tree_at(lambda x: x.spectral_filter2, self.measurement_info, self.spectral_filter2)
 
@@ -493,11 +493,18 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesVAMPIRE):
         The phase-matrix needs to be interpolated onto frequency_big. 
         Overwriting its creation would be possible but a bit cumbersome. 
         """
-        frequency_exp, frequency_big = self.measurement_info.frequency_exp, self.measurement_info.frequency_big
-        self.phase_matrix = do_interpolation_1d(frequency_big, frequency_exp, self.phase_matrix)
+        frequency, frequency_big = self.measurement_info.frequency, self.measurement_info.frequency_big
+        self.phase_matrix = do_interpolation_1d(frequency_big, frequency, self.phase_matrix)
         self.measurement_info = tree_at(lambda x: x.phase_matrix, self.measurement_info, self.phase_matrix)
 
 
+    
+    def get_gate_pulse(self, frequency, gate_f):
+        """ For crosscorrelation=True the actual gate pulse has to be provided. """
+        gate_f = do_interpolation_1d(self.measurement_info.frequency_big, frequency, gate_f)
+        self.gate = self.ifft(gate_f, self.measurement_info.sk_big, self.measurement_info.rn_big)
+        self.measurement_info = self.measurement_info.expand(gate = self.gate)
+        return self.gate
 
 
 

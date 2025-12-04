@@ -2,7 +2,7 @@ from .twodsi_z_error_gradients import calculate_Z_gradient as calculate_Z_gradie
 
 
 
-def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, measurement_info, pulse_or_gate, is_vampire=True):
+def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, pulse_or_gate, is_vampire=True):
     """
     Calculates the Z-error gradient with respect to the pulse or the gate-pulse for a given 2DSI measurement. 
     The gradient is calculated in the frequency domain.
@@ -21,4 +21,4 @@ def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau
         jnp.array, the Z-error gradient
     """
 
-    return calculate_Z_gradient_2DSI(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, measurement_info, pulse_or_gate, is_vampire)
+    return calculate_Z_gradient_2DSI(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, pulse_or_gate, is_vampire=is_vampire)

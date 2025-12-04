@@ -1,5 +1,7 @@
 from src.simulate_trace import MakePulse, GaussianAmplitude, PolynomialPhase
 from src.twodsi import DifferentialEvolution, Evosax, LSF, AutoDiff
+from src import spectral_filter_funcs
+from src.utilities import do_interpolation_1d
 
 import numpy as np
 import optimistix
@@ -20,19 +22,19 @@ input_pulses = pulse_maker.pulses
 central_f = np.array([0.4])
 phase = PolynomialPhase(central_frequency=central_f, coefficients = np.zeros(3))
 amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_1, pulse_f_gate_1 = pulse_maker.generate_pulse((amp, phase))
+_, _, frequency_gate, pulse_f_gate = pulse_maker.generate_pulse((amp, phase))
 
 
-central_f = np.array([0.41])
-phase = PolynomialPhase(central_frequency = central_f, coefficients = np.zeros(3))
-amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_2, pulse_f_gate_2 = pulse_maker.generate_pulse((amp, phase))
+spectral_filter1 = spectral_filter_funcs.get_filter("lorentzian", frequency_inp, (1, 0.3, 0.0005))
+spectral_filter2 = spectral_filter_funcs.get_filter("lorentzian", frequency_inp, (1, 0.31, 0.0005))
 
 
 delay, frequency, trace, spectra=pulse_maker.generate_2dsi(time_inp, frequency_inp, pulse_t_inp, pulse_f_inp, "pg", cross_correlation=True,
-                                                          anc=((frequency_gate_1, pulse_f_gate_1),
-                                                               (frequency_gate_2, pulse_f_gate_2)), 
+                                                          gate=(frequency_gate, pulse_f_gate), 
                                                           N=64, scale_time_range=0.25, plot_stuff=True, cut_off_val=0.001, frequency_range=(0, 0.5))
+
+spectral_filter1 = do_interpolation_1d(frequency, frequency_inp, spectral_filter1)
+spectral_filter2 = do_interpolation_1d(frequency, frequency_inp, spectral_filter2)
 
 
 
@@ -46,7 +48,7 @@ amplitude_or_intensity = ("intensity", "amplitude", 3, 0.25, 1.5)
 amp_type = ("gaussian", "lorentzian", "bsplines_5", "discrete", "gaussian")
 phase_type = ("polynomial", "sinusoidal", "sigmoidal", "bsplines_5", "discrete")
 
-gate = ((frequency_gate_1, pulse_f_gate_1),(frequency_gate_2, pulse_f_gate_2))
+gate = (frequency_gate, pulse_f_gate)
 parameters_measurement = (delay, frequency, trace, spectra, gate)
 
 
@@ -81,11 +83,8 @@ def test_DifferentialEvolution(parameters):
             de.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = de.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = de.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = de.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     de.fd_grad = fd_grad
     de.amplitude_or_intensity = amplitude_or_intensity
@@ -129,11 +128,8 @@ def test_Evosax(parameters):
             evo.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = evo.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = evo.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = evo.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     evo.fd_grad = fd_grad
     evo.amplitude_or_intensity = amplitude_or_intensity
@@ -172,11 +168,8 @@ def test_LSF(parameters):
             lsf.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = lsf.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = lsf.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = lsf.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     lsf.fd_grad = fd_grad
     lsf.amplitude_or_intensity = amplitude_or_intensity
@@ -220,11 +213,8 @@ def test_AutoDiff(parameters):
             ad.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = ad.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = ad.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = ad.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     ad.fd_grad = fd_grad
     ad.amplitude_or_intensity = amplitude_or_intensity

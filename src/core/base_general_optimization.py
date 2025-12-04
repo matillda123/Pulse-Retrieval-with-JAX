@@ -794,6 +794,9 @@ class LSFBASE(GeneralOptimizationBASE):
         population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
         population = tree_at(lambda x: x.pulse, population, population_pulse)
 
+        assert (jnp.shape(population_pulse)[1]//self.no_points_for_continuous > 1) | (self.random_direction_mode!="continuous"), "N_points/N_points_cont must not be smaller than 2." 
+
+
         measurement_info = self.measurement_info
 
         self.descent_info = self.descent_info.expand(number_of_bisection_iterations = self.number_of_bisection_iterations,

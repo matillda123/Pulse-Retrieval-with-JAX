@@ -1,5 +1,7 @@
 from src.simulate_trace import MakePulse, GaussianAmplitude, PolynomialPhase
 from src.twodsi import DirectReconstruction, GeneralizedProjection, PtychographicIterativeEngine, COPRA
+from src import spectral_filter_funcs
+from src.utilities import do_interpolation_1d
 
 import numpy as np
 import lineax
@@ -15,24 +17,22 @@ time_inp, pulse_t_inp, frequency_inp, pulse_f_inp = pulse_maker.generate_pulse((
 input_pulses = pulse_maker.pulses
 
 
-
 central_f = np.array([0.4])
 phase = PolynomialPhase(central_frequency=central_f, coefficients = np.zeros(3))
 amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_1, pulse_f_gate_1 = pulse_maker.generate_pulse((amp, phase))
+_, _, frequency_gate, pulse_f_gate = pulse_maker.generate_pulse((amp, phase))
+
+spectral_filter1 = spectral_filter_funcs.get_filter("lorentzian", frequency_inp, (1, 0.3, 0.0005))
+spectral_filter2 = spectral_filter_funcs.get_filter("lorentzian", frequency_inp, (1, 0.31, 0.0005))
 
 
-central_f = np.array([0.41])
-phase = PolynomialPhase(central_frequency = central_f, coefficients = np.zeros(3))
-amp = GaussianAmplitude(central_frequency = central_f, amplitude = np.array([1.0]), fwhm = np.array([0.01]))
-_, _, frequency_gate_2, pulse_f_gate_2 = pulse_maker.generate_pulse((amp, phase))
-
-
-delay, frequency, trace, spectra=pulse_maker.generate_2dsi(time_inp, frequency_inp, pulse_t_inp, pulse_f_inp, "pg", cross_correlation=True,
-                                                          anc=((frequency_gate_1, pulse_f_gate_1),
-                                                               (frequency_gate_2, pulse_f_gate_2)), 
+delay, frequency, trace, spectra=pulse_maker.generate_2dsi(time_inp, frequency_inp, pulse_t_inp, pulse_f_inp, "pg", cross_correlation=False,
+                                                          gate=(frequency_gate, pulse_f_gate), spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2,
                                                           N=64, scale_time_range=0.25, plot_stuff=True, cut_off_val=0.001, frequency_range=(0, 0.5))
 
+
+spectral_filter1 = do_interpolation_1d(frequency, frequency_inp, spectral_filter1)
+spectral_filter2 = do_interpolation_1d(frequency, frequency_inp, spectral_filter2)
 
 
 
@@ -43,7 +43,7 @@ windowing = (False, "hamming", "hann", False)
 integration_method = ("cumsum", "euler_maclaurin_1", "euler_maclaurin_3", "euler_maclaurin_5")
 
 
-gate = ((frequency_gate_1, pulse_f_gate_1),(frequency_gate_2, pulse_f_gate_2))
+gate = (frequency_gate, pulse_f_gate)
 parameters_measurement = (delay, frequency, trace, spectra, gate)
 parameters = []
 for i in range(4):
@@ -59,18 +59,13 @@ def test_DirectReconstruction(parameters):
     delay, frequency, trace, spectra, gate = parameters_measurement
     nonlinear_method, guess_type, jit, windowing, integration_method = parameters_algorithm
 
-    dr = DirectReconstruction(delay, frequency, trace, nonlinear_method, anc1_frequency=0.4, anc2_frequency=0.405)
+    dr = DirectReconstruction(delay, frequency, trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2)
     dr.jit = jit
 
     dr.windowing = windowing
     dr.integration_method = integration_method
 
     dr.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
-    anc1, anc2 = gate
-    frequency_gate_1, pulse_f_gate_1 = anc1
-    frequency_gate_2, pulse_f_gate_2 = anc2
-    anc1 = dr.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-    anc2 = dr.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
 
     population = dr.create_initial_population(population_size=1, guess_type=guess_type)
     final_result = dr.run(population, no_iterations=1)
@@ -106,7 +101,7 @@ use_spectrum = (False, True, False, True, False, True)
 use_momentum = (False, True, False, False, True, False)
 
 
-gate = ((frequency_gate_1, pulse_f_gate_1),(frequency_gate_2, pulse_f_gate_2))
+gate = (frequency_gate, pulse_f_gate)
 parameters_measurement = (delay, frequency, trace, spectra, gate)
 parameters = []
 for i in range(6):
@@ -135,11 +130,8 @@ def test_GeneralizedProjection(parameters):
         gp.momentum(population_size=5, eta=0.5)
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = gp.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = gp.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = gp.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     if linesearch=="zoom":
         gp.delta_gamma=1.5
@@ -195,11 +187,8 @@ def test_PtychographicIterativeEngine(parameters):
         tdp.momentum(population_size=5, eta=0.5)
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = tdp.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = tdp.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = tdp.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     if linesearch=="zoom":
         tdp.delta_gamma=1.5
@@ -255,11 +244,8 @@ def test_COPRA(parameters):
         copra.momentum(population_size=5, eta=0.5)
 
     if cross_correlation==True:
-        anc1, anc2 = gate
-        frequency_gate_1, pulse_f_gate_1 = anc1
-        frequency_gate_2, pulse_f_gate_2 = anc2
-        anc1 = copra.get_anc_pulse(frequency_gate_1, pulse_f_gate_1, anc_no=1)
-        anc2 = copra.get_anc_pulse(frequency_gate_2, pulse_f_gate_2, anc_no=2)
+        frequency_gate, pulse_f_gate = gate
+        gate = copra.get_gate_pulse(frequency_gate, pulse_f_gate)
 
     if linesearch=="zoom":
         copra.delta_gamma=1.5
