@@ -74,7 +74,7 @@ def Z_gradient_sd_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp
 
 
 
-def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, delay, measurement_info, is_vampire):
+def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, is_vampire):
     frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
     nonlinear_method = measurement_info.nonlinear_method
 
@@ -82,11 +82,11 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gat
     
     if is_vampire==True:
         tau, phase_matrix = measurement_info.tau_interferometer, measurement_info.phase_matrix
-        exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*(phase_matrix-omega_arr*delay)))
+        exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*(phase_matrix-omega_arr*gd_correction)))
     else:
         spectral_filter1, spectral_filter2 = jnp.conjugate(measurement_info.spectral_filter1), jnp.conjugate(measurement_info.spectral_filter2)
         tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
-        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*(phase_matrix-omega_arr*delay))
+        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*(phase_matrix-omega_arr*gd_correction))
 
     deltaS = signal_t_new - signal_t
 
@@ -111,7 +111,7 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gat
 
 
 
-def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, delay, measurement_info, is_vampire):
+def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, is_vampire):
     frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
     nonlinear_method = measurement_info.nonlinear_method
 
@@ -119,11 +119,11 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate
     
     if is_vampire==True:
         tau, phase_matrix = measurement_info.tau_interferometer, measurement_info.phase_matrix
-        exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*(phase_matrix-omega_arr*delay)))
+        exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*(phase_matrix-omega_arr*gd_correction)))
     else:
         spectral_filter1, spectral_filter2 = jnp.conjugate(measurement_info.spectral_filter1), jnp.conjugate(measurement_info.spectral_filter2)
         tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
-        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*(phase_matrix-omega_arr*delay))
+        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*(phase_matrix-omega_arr*gd_correction))
 
     deltaS = signal_t_new-signal_t
 
@@ -138,7 +138,7 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate
 
 
 
-def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, delay, measurement_info, pulse_or_gate, is_vampire=False):
+def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, pulse_or_gate, is_vampire=False):
     """
     Calculates the Z-error gradient with respect to the pulse or the gate-pulse for a given 2DSI measurement. 
     The gradient is calculated in the frequency domain.
@@ -159,4 +159,4 @@ def calculate_Z_gradient(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau
         
     calculate_Z_gradient_dict={"pulse": calculate_Z_gradient_pulse,
                                "gate": calculate_Z_gradient_gate}
-    return calculate_Z_gradient_dict[pulse_or_gate](signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, delay, measurement_info, is_vampire)
+    return calculate_Z_gradient_dict[pulse_or_gate](signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, gd_correction, measurement_info, is_vampire)

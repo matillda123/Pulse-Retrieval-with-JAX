@@ -864,8 +864,8 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
 
         # return recovered delay -> put that in signal_t -> can be used in grad/hessian?
-        delay = measurement_info.time[idx0]-measurement_info.time[idx1]
-        return pulse_t_disp, delay
+        gd_correction = measurement_info.time[idx0]-measurement_info.time[idx1]
+        return pulse_t_disp, gd_correction
     
 
     def apply_spectral_filter(self, signal, spectral_filter, sk, rn):
@@ -901,7 +901,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
             gate = pulse_t
         
         # shift in time is solved, by jnp.roll -> isnt exact
-        gate, delay = self.apply_phase(gate, measurement_info, sk, rn) 
+        gate, gd_correction = self.apply_phase(gate, measurement_info, sk, rn) 
 
         gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk, rn)
         gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk, rn)
@@ -914,7 +914,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
         signal_t = pulse_t*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, gd_correction=gd_correction)
         return signal_t
 
 
@@ -1093,8 +1093,8 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
         idx1 = jnp.argmax(jnp.abs(pulse_t_disp))
         pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
-        delay = measurement_info.time[idx0] - measurement_info.time[idx1]
-        return pulse_t_disp, delay
+        gd_correction = measurement_info.time[idx0] - measurement_info.time[idx1]
+        return pulse_t_disp, gd_correction
     
 
 
@@ -1125,7 +1125,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         else:
             gate_pulse = pulse_t
 
-        gate_disp, delay = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+        gate_disp, gd_correction = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
 
         tau = measurement_info.tau_interferometer
         gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
@@ -1136,5 +1136,5 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
         signal_t = pulse_t*gate
 
-        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, delay=delay)
+        signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, gd_correction=gd_correction)
         return signal_t
