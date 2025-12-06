@@ -20,6 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Definitions" href="Definitions_and_Formulas.html" />
     <link rel="prev" title="core.hessians package" href="core.hessians.html" /> 
 </head>
 
@@ -44,11 +45,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html">Definitions and Derived Formulas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp package</a></li>
@@ -56,44 +52,22 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.flatten_MyNamespace"><code class="docutils literal notranslate"><span class="pre">flatten_MyNamespace()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.unflatten_MyNamespace"><code class="docutils literal notranslate"><span class="pre">unflatten_MyNamespace()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.MyNamespace"><code class="docutils literal notranslate"><span class="pre">MyNamespace</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#utilities.MyNamespace.expand"><code class="docutils literal notranslate"><span class="pre">MyNamespace.expand()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.run_scan"><code class="docutils literal notranslate"><span class="pre">run_scan()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.scan_helper"><code class="docutils literal notranslate"><span class="pre">scan_helper()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.while_loop_helper"><code class="docutils literal notranslate"><span class="pre">while_loop_helper()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.optimistix_helper_loss_function"><code class="docutils literal notranslate"><span class="pre">optimistix_helper_loss_function()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.scan_helper_equinox"><code class="docutils literal notranslate"><span class="pre">scan_helper_equinox()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.do_fft"><code class="docutils literal notranslate"><span class="pre">do_fft()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.do_ifft"><code class="docutils literal notranslate"><span class="pre">do_ifft()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.get_sk_rn"><code class="docutils literal notranslate"><span class="pre">get_sk_rn()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.do_interpolation_1d"><code class="docutils literal notranslate"><span class="pre">do_interpolation_1d()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.integrate_signal_1D"><code class="docutils literal notranslate"><span class="pre">integrate_signal_1D()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_gate"><code class="docutils literal notranslate"><span class="pre">calculate_gate()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_gate_with_Real_Fields"><code class="docutils literal notranslate"><span class="pre">calculate_gate_with_Real_Fields()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.project_onto_intensity"><code class="docutils literal notranslate"><span class="pre">project_onto_intensity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.project_onto_amplitude"><code class="docutils literal notranslate"><span class="pre">project_onto_amplitude()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_trace"><code class="docutils literal notranslate"><span class="pre">calculate_trace()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_mu"><code class="docutils literal notranslate"><span class="pre">calculate_mu()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_trace_error"><code class="docutils literal notranslate"><span class="pre">calculate_trace_error()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_Z_error"><code class="docutils literal notranslate"><span class="pre">calculate_Z_error()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.generate_random_continuous_function"><code class="docutils literal notranslate"><span class="pre">generate_random_continuous_function()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.solve_linear_system"><code class="docutils literal notranslate"><span class="pre">solve_linear_system()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.calculate_newton_direction"><code class="docutils literal notranslate"><span class="pre">calculate_newton_direction()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.get_idx_arr"><code class="docutils literal notranslate"><span class="pre">get_idx_arr()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.get_com"><code class="docutils literal notranslate"><span class="pre">get_com()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.center_signal"><code class="docutils literal notranslate"><span class="pre">center_signal()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.center_signal_to_max"><code class="docutils literal notranslate"><span class="pre">center_signal_to_max()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.loss_function_modifications"><code class="docutils literal notranslate"><span class="pre">loss_function_modifications()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.remove_phase_jumps"><code class="docutils literal notranslate"><span class="pre">remove_phase_jumps()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities.get_score_values"><code class="docutils literal notranslate"><span class="pre">get_score_values()</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utilities</a></li>
 </ul>
-</li>
+<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -510,6 +484,7 @@ A weighted and normalized L2-Norm of the GDD difference of reconstructed and exa
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="core.hessians.html" class="btn btn-neutral float-left" title="core.hessians package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Definitions_and_Formulas.html" class="btn btn-neutral float-right" title="Definitions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

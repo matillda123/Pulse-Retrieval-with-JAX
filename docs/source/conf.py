@@ -29,14 +29,9 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 
+html_theme_options = {
+    "collapse_navigation": False,
+    "titles_only": True,
+}
 
-nbsphinx_section_numbers = False
-nbsphinx_allow_errors = True
-nbsphinx_prolog = r"""
-.. raw:: html
-
-    <style>
-        .nbsphinx-nav { display: none; }
-    </style>
-"""
 

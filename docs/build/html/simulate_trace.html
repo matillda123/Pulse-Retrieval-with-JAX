@@ -45,149 +45,29 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html">Definitions and Derived Formulas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">simulate_trace package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-simulate_trace.make_pulse">simulate_trace.make_pulse module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.GaussianAmplitude"><code class="docutils literal notranslate"><span class="pre">GaussianAmplitude</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.GaussianAmplitude.amplitude"><code class="docutils literal notranslate"><span class="pre">GaussianAmplitude.amplitude</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.GaussianAmplitude.central_frequency"><code class="docutils literal notranslate"><span class="pre">GaussianAmplitude.central_frequency</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.GaussianAmplitude.fwhm"><code class="docutils literal notranslate"><span class="pre">GaussianAmplitude.fwhm</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.PolynomialPhase"><code class="docutils literal notranslate"><span class="pre">PolynomialPhase</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.PolynomialPhase.central_frequency"><code class="docutils literal notranslate"><span class="pre">PolynomialPhase.central_frequency</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.PolynomialPhase.coefficients"><code class="docutils literal notranslate"><span class="pre">PolynomialPhase.coefficients</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.SinusoidalPhase"><code class="docutils literal notranslate"><span class="pre">SinusoidalPhase</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.SinusoidalPhase.amplitude"><code class="docutils literal notranslate"><span class="pre">SinusoidalPhase.amplitude</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.SinusoidalPhase.periodicity"><code class="docutils literal notranslate"><span class="pre">SinusoidalPhase.periodicity</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.SinusoidalPhase.phase_shift"><code class="docutils literal notranslate"><span class="pre">SinusoidalPhase.phase_shift</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.RandomPhase"><code class="docutils literal notranslate"><span class="pre">RandomPhase</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.RandomPhase.number_of_points"><code class="docutils literal notranslate"><span class="pre">RandomPhase.number_of_points</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.RandomPhase.minval_phase"><code class="docutils literal notranslate"><span class="pre">RandomPhase.minval_phase</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.RandomPhase.maxval_phase"><code class="docutils literal notranslate"><span class="pre">RandomPhase.maxval_phase</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.RandomPhase.sigma"><code class="docutils literal notranslate"><span class="pre">RandomPhase.sigma</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.CustomPulse"><code class="docutils literal notranslate"><span class="pre">CustomPulse</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.CustomPulse.frequency"><code class="docutils literal notranslate"><span class="pre">CustomPulse.frequency</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.CustomPulse.amplitude"><code class="docutils literal notranslate"><span class="pre">CustomPulse.amplitude</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.CustomPulse.phase"><code class="docutils literal notranslate"><span class="pre">CustomPulse.phase</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse"><code class="docutils literal notranslate"><span class="pre">MultiPulse</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse.delay"><code class="docutils literal notranslate"><span class="pre">MultiPulse.delay</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse.duration"><code class="docutils literal notranslate"><span class="pre">MultiPulse.duration</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse.central_frequency"><code class="docutils literal notranslate"><span class="pre">MultiPulse.central_frequency</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse.amplitude"><code class="docutils literal notranslate"><span class="pre">MultiPulse.amplitude</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MultiPulse.phase"><code class="docutils literal notranslate"><span class="pre">MultiPulse.phase</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse"><code class="docutils literal notranslate"><span class="pre">MakePulse</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.N"><code class="docutils literal notranslate"><span class="pre">MakePulse.N</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.Delta_f"><code class="docutils literal notranslate"><span class="pre">MakePulse.Delta_f</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.gaussian"><code class="docutils literal notranslate"><span class="pre">MakePulse.gaussian()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.generate_gaussian_amplitude"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_gaussian_amplitude()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.generate_polynomial_phase"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_polynomial_phase()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.generate_sinusoidal_phase"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_sinusoidal_phase()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.get_spectral_phase"><code class="docutils literal notranslate"><span class="pre">MakePulse.get_spectral_phase()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.get_spectral_amplitude"><code class="docutils literal notranslate"><span class="pre">MakePulse.get_spectral_amplitude()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.init_generation"><code class="docutils literal notranslate"><span class="pre">MakePulse.init_generation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_pulse.MakePulse.generate_pulse"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_pulse()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-simulate_trace.make_trace">simulate_trace.make_trace module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.apply_noise"><code class="docutils literal notranslate"><span class="pre">apply_noise()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse"><code class="docutils literal notranslate"><span class="pre">MakePulse</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.maketrace"><code class="docutils literal notranslate"><span class="pre">MakePulse.maketrace</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.generate_frog"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_frog()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.generate_tdp"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_tdp()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.generate_chirpscan"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_chirpscan()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.generate_2dsi"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_2dsi()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakePulse.generate_vampire"><code class="docutils literal notranslate"><span class="pre">MakePulse.generate_vampire()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.interpolate_spectrum"><code class="docutils literal notranslate"><span class="pre">interpolate_spectrum()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceBASE"><code class="docutils literal notranslate"><span class="pre">MakeTraceBASE</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceBASE.generate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceBASE.generate_trace()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceBASE.plot_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceBASE.plot_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROG"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROG</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROG.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROG.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROG.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROG.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROG.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROG.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDP"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDP</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDP.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDP.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDP.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDP.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDP.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDP.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN"><code class="docutils literal notranslate"><span class="pre">MakeTraceCHIRPSCAN</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN.get_dispersed_pulse_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceCHIRPSCAN.get_dispersed_pulse_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceCHIRPSCAN.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceCHIRPSCAN.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSI"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSI</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSI.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSI.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSI.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSI.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSI.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSI.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIRE"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIRE</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIRE.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIRE.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIRE.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIRE.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIRE.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIRE.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROGReal"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROGReal</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceFROGReal.calculate_shifted_signal"><code class="docutils literal notranslate"><span class="pre">MakeTraceFROGReal.calculate_shifted_signal()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDPReal"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDPReal</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDPReal.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDPReal.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDPReal.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDPReal.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceTDPReal.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceTDPReal.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceCHIRPSCANReal"><code class="docutils literal notranslate"><span class="pre">MakeTraceCHIRPSCANReal</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSIReal"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSIReal</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSIReal.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSIReal.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTrace2DSIReal.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTrace2DSIReal.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIREReal"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIREReal</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIREReal.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIREReal.get_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIREReal.get_parameters_to_make_signal_t"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIREReal.get_parameters_to_make_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#simulate_trace.make_trace.MakeTraceVAMPIREReal.interpolate_trace"><code class="docutils literal notranslate"><span class="pre">MakeTraceVAMPIREReal.interpolate_trace()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-simulate_trace">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">simulate_trace package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>

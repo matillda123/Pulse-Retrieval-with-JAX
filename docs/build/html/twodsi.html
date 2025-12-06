@@ -45,80 +45,29 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html">Definitions and Derived Formulas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">twodsi package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-twodsi.classic_algorithms_2dsi">twodsi.classic_algorithms_2dsi module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.integration_method"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.integration_method</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.integration_order"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.integration_order</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.windowing"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.windowing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.cut_off_intensity_for_GD"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.cut_off_intensity_for_GD</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.apply_windowing"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.apply_windowing()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.interpolate_group_delay_onto_spectral_amplitude"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.interpolate_group_delay_onto_spectral_amplitude()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.reconstruct_2dsi_1dfft"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.reconstruct_2dsi_1dfft()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.calc_error_of_reconstruction"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.calc_error_of_reconstruction()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.step"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.step()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.DirectReconstruction.initialize_run"><code class="docutils literal notranslate"><span class="pre">DirectReconstruction.initialize_run()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.GeneralizedProjection.update_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.update_individual()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.update_individual"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.update_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.COPRA.update_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.update_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.classic_algorithms_2dsi.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-twodsi.general_algorithms_2dsi">twodsi.general_algorithms_2dsi module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.DifferentialEvolution"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#twodsi.general_algorithms_2dsi.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-twodsi">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">twodsi package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>

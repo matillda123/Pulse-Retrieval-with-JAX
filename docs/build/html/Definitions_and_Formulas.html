@@ -22,8 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="frog package" href="frog.html" />
-    <link rel="prev" title="PulseRetrievalwithJAX documentation" href="index.html" /> 
+    <link rel="prev" title="utilities" href="utilities.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,82 +45,6 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Nonlinear-Methods">Nonlinear Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#General">General</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Transformations">Transformations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Definition-of-nonlinear-signal-in-time-domain">Definition of nonlinear signal in time domain</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Error">Error</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#Z-Gradients">Z-Gradients</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Frog-(with-respect-to-Pulse)">Frog (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#X-Frog-(with-respect-to-Pulse)">X-Frog (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#X-Frog-(with-respect-to-Gate-Pulse)">X-Frog (with respect to Gate Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I-Frog-(with-respect-to-pulse)">I-Frog (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I-Frog-+-XFrog-(with-respect-to-pulse)">I-Frog + XFrog (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I-Frog-+-XFrog-(with-respect-to-gate-pulse)">I-Frog + XFrog (with respect to gate-pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Time-Domain-Ptychography-(with-respect-to-Pulse)">Time-Domain-Ptychography (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#X-Time-Domain-Ptychography-(with-respect-to-Pulse)">X-Time-Domain-Ptychography (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#X-Time-Domain-Ptychography-(with-respect-to-Gate-Pulse)">X-Time-Domain-Ptychography (with respect to Gate Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I-Time-Domain-Ptychography-(with-respect-to-pulse)">I-Time-Domain-Ptychography (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I+X-Time-Domain-Ptyhcography-(with-respect-to-gate-pulse)">I+X Time-Domain-Ptyhcography (with respect to gate-pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Chirp-Scan-(with-respect-to-Pulse)">Chirp-Scan (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#2D-SI-(with-respect-to-pulse-E_k)">2D-SI (with respect to pulse <span class="math notranslate nohighlight">\(E_k\)</span>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#2D-SI-(with-respect-to-pulse,-cross-correlation-setup)">2D-SI (with respect to pulse, cross-correlation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#2D-SI-(with-respect-to-gate-pulse-A_k/A_{mk})">2D-SI (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#VAMPIRE-(with-respect-to-pulse,-autocorrelation-setup)">VAMPIRE (with respect to pulse, autocorrelation-setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#VAMPIRE-(with-respect-to-pulse,-cross-correlation-setup)">VAMPIRE (with respect to pulse, cross-correlation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#VAMPIRE-(with-respect-to-gate-pulse,-cross-correlation-setup)">VAMPIRE (with respect to gate-pulse, cross-correlation-setup)</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#Z-Pseudo-Hessian">Z-Pseudo Hessian</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Frog (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">X-Frog (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">X-Frog (with respect to Gate Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">I-Frog (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">I-Frog + XFrog (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">I-Frog + XFrog (with respect to gate-pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Time-Domain-Ptachography-(with-respect-to-Pulse)">Time-Domain-Ptachography (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#X-Time-Domain-Ptachography-(with-respect-to-Pulse)">X-Time-Domain-Ptachography (with respect to Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">X-Time-Domain-Ptychography (with respect to Gate Pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">I-Time-Domain-Ptychography (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I+X-Time-Domain-Ptychogaphy-(with-respect-to-pulse)">I+X Time-Domain-Ptychogaphy (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#I+X-Time-Domain-Ptychography-(with-respect-to-gate-pulse)">I+X Time-Domain-Ptychography (with respect to gate-pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Chirp-Scan-(with-respect-to-pulse)">Chirp-Scan (with respect to pulse)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#2D-SI-(with-respect-to-pulse,-autocorrelation-setup)">2D-SI (with respect to pulse, autocorrelation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id10">2D-SI (with respect to pulse, cross-correlation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id11">2D-SI (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id12">VAMPIRE (with respect to pulse, autocorrelation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id13">VAMPIRE (with respect to pulse, cross-correlation setup)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#VAMPIRE-(with-respect-to-gate-pulse-A_k/A_{mk})">VAMPIRE (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#PIE-Gradient">PIE Gradient</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#With-respect-to-Object-(Frog)">With respect to Object (Frog)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#With-respect-to-Probe-Pulse-(X-Frog)">With respect to Probe-Pulse (X-Frog)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#With-respect-to-Object-(DScan)">With respect to Object (DScan)</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#With-respect-to-Pulse">With respect to Pulse</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Cross-Correlation:-with-respect-to-Gate-Pulse">Cross-Correlation: with respect to Gate-Pulse</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#Update-nonlinear-Signal">Update nonlinear Signal</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#1.-Via-Projection-(Standard-way)">1. Via Projection (Standard way)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#2.-Via-Descent-(COPRA-method)">2. Via Descent (COPRA method)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#3.-Alternative-definition-of-r-error">3. Alternative definition of r-error</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#Adaptive-Stepsize">Adaptive Stepsize</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Based-on-Taylor-Series">Based on Taylor-Series</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Based-on-Pade-Approximation">Based on Pade-Approximation</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
@@ -130,8 +53,22 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Z-Gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#PIE-Gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#Adaptive-Stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -158,9 +95,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <style>
-    .nbsphinx-nav { display: none; }
-</style><section id="Definitions">
+  <section id="Definitions">
 <h1>Definitions<a class="headerlink" href="#Definitions" title="Link to this heading"></a></h1>
 <section id="Nonlinear-Methods">
 <h2>Nonlinear Methods<a class="headerlink" href="#Nonlinear-Methods" title="Link to this heading"></a></h2>
@@ -190,7 +125,6 @@
 <div class="line-block">
 <div class="line"><span class="math notranslate nohighlight">\(E_k\quad\rightarrow\quad\)</span> pulse in time domain</div>
 <div class="line"><span class="math notranslate nohighlight">\(A_{mk}\quad\rightarrow\quad\)</span> transformed pulse in time domain</div>
-<div class="line"><span class="math notranslate nohighlight">\(\quad\rightarrow\quad\)</span> transformation is done in frequency domain by multiplication with <span class="math notranslate nohighlight">\(e^{-i\tau_m\omega_n}\)</span> or <span class="math notranslate nohighlight">\(e^{i\phi_{mn}}\)</span></div>
 </div>
 <div class="line-block">
 <div class="line"><span class="math notranslate nohighlight">\(D_{kn} \quad\rightarrow\quad\)</span> fourier matrix (inverse)</div>
@@ -1077,32 +1011,25 @@
 <li><p>Order</p></li>
 </ol>
 <div class="line-block">
-<div class="line"><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dag \nabla_nL\right\}\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\}\)</span></div>
 <div class="line"><br /></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Order</p></li>
 </ol>
-<p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dag \nabla_nL\right\} + \Re\left\{\sum_n (E_n'-E_n)^\dag H_L^n(E_n'-E_n)\right\}\)</span></p>
+<p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\} + \Re\left\{\sum_n (E_n'-E_n)^\dagger H_L^n(E_n'-E_n)\right\}\)</span></p>
 <p><span class="math notranslate nohighlight">\(E_n'-E_n = \eta\cdot d_n\)</span></p>
 <div class="line-block">
 <div class="line">For gradient-descent-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot\nabla L\)</span></div>
-<div class="line">For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot (H_L)^{-1}\nabla L \quad\Rightarrow\quad d^\dag H d = -1\cdot d^\dag\nabla L\)</span></div>
+<div class="line">For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot (H_L)^{-1}\nabla L \quad\Rightarrow\quad d^\dagger H d = -1\cdot d^\dagger\nabla L\)</span></div>
 </div>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">Order</div>
-<div class="line"><span class="math notranslate nohighlight">\(\eta = \frac{L'-L}{2\cdot \Re\{ d^\dag\cdot \nabla L \}}\)</span></div>
-<div class="line-block">
-<div class="line">In Copra <span class="math notranslate nohighlight">\(L'=-L\)</span>:</div>
-</div>
-<div class="line"><span class="math notranslate nohighlight">\(\eta = \frac{-L}{\Re\{ d^\dag\cdot \nabla L \}}\)</span></div>
-</div>
+<li><p>Order</p>
+<p><span class="math notranslate nohighlight">\(\eta = \frac{L'-L}{2\cdot \Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+<p>In Copra: <span class="math notranslate nohighlight">\(L'=-L \quad\rightarrow\quad\)</span> <span class="math notranslate nohighlight">\(\eta = \frac{-L}{\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">Order (with signed sqrt to keep numerical stability, is the case for all sqrt here)</div>
-<div class="line"><span class="math notranslate nohighlight">\(\eta = 2\cdot\left(1 \mp\sqrt{1-\frac{L'-L}{2\Re\{ d^\dag\cdot \nabla L \}}}\right)\)</span></div>
-</div>
+<li><p>Order (with signed sqrt to keep numerical stability, is the case for all sqrt here)</p>
+<p><span class="math notranslate nohighlight">\(\eta = 2\cdot\left(1 \mp\sqrt{1-\frac{L'-L}{2\Re\{ d^\dagger\cdot \nabla L \}}}\right)\)</span></p>
 </li>
 </ol>
 </section>
@@ -1114,9 +1041,9 @@
 <p><span class="math notranslate nohighlight">\(R_{01}(x)=\frac{a_0}{1+b_1x} = \frac{f_0}{1-\frac{f_1}{f_0}x}\)</span></p>
 <p><span class="math notranslate nohighlight">\(R_{11}(x)=\frac{a_0+a_1x}{1+b_1x} = \frac{f_0 + \left(f_1-\frac{f_2}{f_1}f_0\right)x}{1-\frac{f_2}{f_1}x}\)</span></p>
 <p><span class="math notranslate nohighlight">\(R_{02}(x)=\frac{a_0}{1+b_1x+b_2x^2} = \frac{f_0}{1-\frac{f_1}{f_0}x + \left(\left(\frac{f_1}{f_0}\right)^2-\frac{f_2}{f_0}\right)x^2}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\eta_{01}=\frac{L}{L'}\cdot\frac{L'-L}{2\cdot\Re\{ d^\dag\cdot \nabla L \}}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\eta_{11}=\frac{2(L'-L)}{4\cdot\Re\{ d^\dag\cdot \nabla L \} - (L'-L)}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\eta_{02}=\frac{L}{4\cdot\Re\{ d^\dag\cdot \nabla L \}+L}\cdot\left(1\pm\sqrt{1 - 4\cdot\left(1 + \frac{L}{4\cdot\Re\{ d^\dag\cdot \nabla L \}}\right)\cdot\frac{L'-L}{L'}}\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{01}=\frac{L}{L'}\cdot\frac{L'-L}{2\cdot\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{11}=\frac{2(L'-L)}{4\cdot\Re\{ d^\dagger\cdot \nabla L \} - (L'-L)}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{02}=\frac{L}{4\cdot\Re\{ d^\dagger\cdot \nabla L \}+L}\cdot\left(1\pm\sqrt{1 - 4\cdot\left(1 + \frac{L}{4\cdot\Re\{ d^\dagger\cdot \nabla L \}}\right)\cdot\frac{L'-L}{L'}}\right)\)</span></p>
 </section>
 </section>
 
@@ -1124,8 +1051,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="PulseRetrievalwithJAX documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="frog.html" class="btn btn-neutral float-right" title="frog package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="utilities.html" class="btn btn-neutral float-left" title="utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
