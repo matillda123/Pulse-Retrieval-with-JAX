@@ -135,7 +135,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
 
 class LSGPA(Vanilla):
-    # this could actually be a standalone classic algorithm. But its probably not worth it.
+    # for chirp-scan one ends up with somehting related to the pie i think.
     """
     The Least-Squares Generalized Projection Algorithm.
      

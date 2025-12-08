@@ -89,8 +89,8 @@ class MakePulse:
         n = len(parameters)
         phase = 0
         for i in range(n):
-            phase = phase + parameters[i]*(frequency-central_frequency)**i
-        return 2*np.pi*phase
+            phase = phase + parameters[i]*(2*np.pi*(frequency-central_frequency))**i
+        return phase
     
     
     def generate_sinusoidal_phase(self, frequency, a, b, c):

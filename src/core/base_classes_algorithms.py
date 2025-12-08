@@ -4,10 +4,11 @@ import jax.numpy as jnp
 from jax.tree_util import Partial
 from equinox import tree_at
 
-from src.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, loss_function_modifications
+from src.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, loss_function_modifications, project_onto_amplitude
 from .bsplines_1d import get_prefactor, get_M, make_bsplines
 from .create_population import create_population_general
 
+from .base_classes_algorithms import RetrievePulsesFROG, RetrievePulsesChirpScan, RetrievePulsesTDP, RetrievePulses2DSI, RetrievePulsesVAMPIRE
 
 class AlgorithmsBASE:
     """
@@ -50,19 +51,23 @@ class AlgorithmsBASE:
     
 
 
-
     def do_step_and_apply_spectrum(self, descent_state, measurement_info, descent_info, do_step):
         """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
         population = descent_state.population
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
+            norm_pulse = jnp.linalg.norm(population.pulse, axis=-1)
             pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
                                                                               measurement_info.sk, measurement_info.rn)
+            
+            pulse = pulse/jnp.linalg.norm(pulse,axis=-1)[:,jnp.newaxis]*norm_pulse[:,jnp.newaxis]
             population = tree_at(lambda x: x.pulse, population, pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
+            norm_gate = jnp.linalg.norm(population.gate, axis=-1)
             gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
                                                                              measurement_info.sk, measurement_info.rn)
+            gate = gate/jnp.linalg.norm(gate,axis=-1)[:,jnp.newaxis]*norm_gate[:,jnp.newaxis]
             population = tree_at(lambda x: x.gate, population, gate)
             
         descent_state = tree_at(lambda x: x.population, descent_state, population)
@@ -110,7 +115,30 @@ class AlgorithmsBASE:
 
 
 
+    def apply_spectrum(self, pulse, spectrum, sk, rn):
+        if isinstance(self, (RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
+            pulse = self.apply_spectrum_time_domain(pulse, spectrum, sk, rn)
+        elif isinstance(self, RetrievePulsesChirpScan):
+            pulse = self.apply_spectrum_frequency_domain(pulse, spectrum, sk, rn)
+        else:
+            raise ValueError(f"""self needs to be one of RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulses2DSI, 
+                             RetrievePulsesVAMPIRE or RetrievePulsesChripScan. Not {self}""")
+        return pulse
 
+    
+    def apply_spectrum_time_domain(self, pulse_t, spectrum, sk, rn):
+        pulse_f = self.fft(pulse_t, sk, rn)
+        pulse_f_new = project_onto_amplitude(pulse_f, spectrum)
+        pulse_t = self.ifft(pulse_f_new, sk, rn)
+        return pulse_t
+    
+    def apply_spectrum_frequency_domain(self, pulse, spectrum, sk, rn):
+        pulse = project_onto_amplitude(pulse, spectrum)
+        return pulse
+
+
+
+    
 
 
 
@@ -425,7 +453,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
 
     def polynomial_term(self, coefficient, order, x0, x):
-        return coefficient*(x-x0)**order
+        return coefficient*(2*jnp.pi*(x-x0))**order
     
 
     def polynomial_phase(self, coefficients, central_f, measurement_info):

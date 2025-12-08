@@ -593,16 +593,6 @@ class RetrievePulsesFROG(RetrievePulses):
     
 
 
-    
-    def apply_spectrum(self, pulse_t, spectrum, sk, rn):
-        """ FROG specific method to project the pulse guess onto a measured spectrum. """
-        pulse_f = self.fft(pulse_t, sk, rn)
-        pulse_f_new = project_onto_amplitude(pulse_f, spectrum)
-        pulse_t = self.ifft(pulse_f_new, sk, rn)
-        return pulse_t
-    
-
-
 
 
 
@@ -873,14 +863,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
         return pulse_t, gate_t, pulse_f, gate_f
     
-
-    def apply_spectrum(self, pulse, spectrum, sk, rn):
-        """ Chirp-Scan specific method to project the pulse guess onto a measured spectrum. """
-        pulse = project_onto_amplitude(pulse, spectrum)
-        return pulse
-
-
-
 
 
 
