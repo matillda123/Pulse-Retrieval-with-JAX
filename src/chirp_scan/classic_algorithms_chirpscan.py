@@ -21,8 +21,14 @@ from src.core.phase_matrix_funcs import phase_func_dict, calc_GDD
 
 class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     """
-    The (improoved)-MIIPS Algorithm as described in A. Comin et al., Opt. Express 24, 2505-2512 (2016).
-    Doesnt seem to work though.
+    The (improoved)-MIIPS Algorithm. Doesnt seem to work though.
+
+    [1] A. Comin et al., Opt. Express 24, 2505-2512 (2016)
+
+    Attributes:
+        integration_method (str): the integration method to use, can be cumsum or euler_maclaurin_k
+        integration_order (None, int): the order to which euler_maclaurin is performed. Is infered from integration_method.
+        global_gamma (float): the step size
     
     """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
@@ -123,12 +129,9 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
 class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Basic Reconstruction Algorithm. Inherits from ClassicAlgorithmsBASE and RetrievePulsesCHIRPSCAN.
+    The Basic Reconstruction Algorithm.
     
-    M. Miranda et al., J. Opt. Soc. Am. B 34, 190-197 (2017) 
-
-    Attributes:
-        None
+    [1] M. Miranda et al., J. Opt. Soc. Am. B 34, 190-197 (2017) 
 
     """
 
@@ -221,7 +224,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Generalized Projection Algorithm for Chirp-Scans. Inherits from GeneralizedProjectionBASE and RetrievePulsesCHIRPSCAN.
+    The Generalized Projection Algorithm for Chirp-Scans.
     
     """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
@@ -257,10 +260,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Ptychographic Iterative Engine (PIE) for Chirp-Scans. Inherits from PtychographicIterativeEngineBASE and RetrievePulsesCHIRPSCAN.
+    The Ptychographic Iterative Engine (PIE) for Chirp-Scans.
 
     Attributes:
-        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+
     """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, pie_method="rPIE", phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
@@ -371,7 +375,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
     """
-    The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans. Inherits from COPRABASE and  RetrievePulsesCHIRPSCAN.
+    The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans.
 
     """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):

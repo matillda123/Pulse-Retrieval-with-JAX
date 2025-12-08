@@ -112,37 +112,67 @@ Does not inherit from any class. But is supposed to be used via composition of i
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_exp">
 <span class="sig-name descname"><span class="pre">frequency_exp</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_exp" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the frequencies corresponding to the measured trace</p>
+<dd><p>the frequencies corresponding to the measured trace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.frequency">
 <span class="sig-name descname"><span class="pre">frequency</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the frequencies correpsonding to pulse/gate-pulse</p>
+<dd><p>the frequencies correpsonding to pulse/gate-pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_big">
 <span class="sig-name descname"><span class="pre">frequency_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_big" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, a large frequency axis needed for the signal field due to negative frequencies</p>
+<dd><p>a large frequency axis needed for the signal field due to negative frequencies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.time_big">
 <span class="sig-name descname"><span class="pre">time_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.time_big" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the corresponding time axis to frequency_big</p>
+<dd><p>the corresponding time axis to frequency_big</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.sk_big">
 <span class="sig-name descname"><span class="pre">sk_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.sk_big" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.rn_big">
 <span class="sig-name descname"><span class="pre">rn_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.rn_big" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -193,8 +223,7 @@ Does not inherit from any class. But is supposed to be used via composition of i
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesFROGwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
-<p>Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the
-signal field in order to use real fields instead of complex ones.</p>
+<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.get_gate_pulse">
 <span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
@@ -225,8 +254,7 @@ signal field in order to use real fields instead of complex ones.</p>
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesTDPwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the
-signal field in order to use real fields instead of complex ones.</p>
+<p>IOverwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.get_gate_pulse">
 <span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
@@ -257,8 +285,7 @@ signal field in order to use real fields instead of complex ones.</p>
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN</span></code></p>
-<p>Inherits from RetrievePulsesCHIRPSCAN. Has the same purpose. It overwrites the generation of the
-signal field in order to use real fields instead of complex ones.</p>
+<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields.calculate_signal_t">
 <span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
@@ -283,8 +310,7 @@ signal field in order to use real fields instead of complex ones.</p>
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulses2DSIwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSI</span></code></p>
-<p>Inherits from RetrievePulses2DSI. Has the same purpose. It overwrites the generation of the
-signal field in order to use real fields instead of complex ones.</p>
+<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.get_gate_pulse">
 <span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
@@ -315,8 +341,7 @@ signal field in order to use real fields instead of complex ones.</p>
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE</span></code></p>
-<p>Inherits from RetrievePulses2DSI. Has the same purpose. It overwrites the generation of the
-signal field in order to use real fields instead of complex ones.</p>
+<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.get_gate_pulse">
 <span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
@@ -350,24 +375,21 @@ signal field in order to use real fields instead of complex ones.</p>
 <dt class="sig sig-object py" id="real_fields.general_algorithms_2dsi_real_fields.DifferentialEvolution">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_2dsi_real_fields.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_2dsi_real_fields.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSIwithRealFields</span></code></p>
-<p>The Differential Evolution Algorithm applied to 2DSI with real fields.
-Inherits from  RetrievePulsesRealFields, DifferentialEvolution2DSI and RetrievePulses2DSIwithRealFields</p>
+<p>The Differential Evolution Algorithm applied to 2DSI with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_2dsi_real_fields.Evosax">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_2dsi_real_fields.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_2dsi_real_fields.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evosax</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSIwithRealFields</span></code></p>
-<p>The Evosax package applied to 2DSI with real fields.
-Inherits from  RetrievePulsesRealFields, Evosax2DSI and RetrievePulses2DSIwithRealFields</p>
+<p>The Evosax package applied to 2DSI with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_2dsi_real_fields.LSF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_2dsi_real_fields.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_2dsi_real_fields.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LSF</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSIwithRealFields</span></code></p>
-<p>The LSF Algorithm applied to 2DSI with real fields.
-Inherits from  RetrievePulsesRealFields, LSF2DSI and RetrievePulses2DSIwithRealFields</p>
+<p>The LSF Algorithm applied to 2DSI with real fields.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_2dsi_real_fields.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_2dsi_real_fields.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -402,8 +424,7 @@ The optimization is likely more efficient when the pulses are defined on time. T
 <dt class="sig sig-object py" id="real_fields.general_algorithms_2dsi_real_fields.AutoDiff">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_2dsi_real_fields.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_2dsi_real_fields.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiff</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSIwithRealFields</span></code></p>
-<p>The Optimistix package applied to 2DSI with real fields.
-Inherits from  RetrievePulsesRealFields, AutoDiff2DSI and RetrievePulses2DSIwithRealFields</p>
+<p>The Optimistix package applied to 2DSI with real fields.</p>
 </dd></dl>
 
 </section>
@@ -413,24 +434,21 @@ Inherits from  RetrievePulsesRealFields, AutoDiff2DSI and RetrievePulses2DSIwith
 <dt class="sig sig-object py" id="real_fields.general_algorithms_chirpscan_real_fields.DifferentialEvolution">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_chirpscan_real_fields.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_chirpscan_real_fields.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></code></p>
-<p>The Differential Evolution Algorithm applied to Chirp-Scans with real fields.
-Inherits from  RetrievePulsesRealFields, DifferentialEvolutionCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields</p>
+<p>The Differential Evolution Algorithm applied to Chirp-Scans with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_chirpscan_real_fields.Evosax">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_chirpscan_real_fields.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_chirpscan_real_fields.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evosax</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></code></p>
-<p>The Evosax package applied to Chirp-Scans with real fields.
-Inherits from  RetrievePulsesRealFields, EvosaxCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields</p>
+<p>The Evosax package applied to Chirp-Scans with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_chirpscan_real_fields.LSF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_chirpscan_real_fields.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_chirpscan_real_fields.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LSF</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></code></p>
-<p>The LSF Algorithm applied to Chirp-Scans with real fields.
-Inherits from  RetrievePulsesRealFields, LSFCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields</p>
+<p>The LSF Algorithm applied to Chirp-Scans with real fields.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_chirpscan_real_fields.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_chirpscan_real_fields.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -465,8 +483,7 @@ The optimization is likely more efficient when the pulses are defined on frequen
 <dt class="sig sig-object py" id="real_fields.general_algorithms_chirpscan_real_fields.AutoDiff">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_chirpscan_real_fields.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_chirpscan_real_fields.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiff</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></code></p>
-<p>The Optimistix package applied to Chirp-Scans with real fields.
-Inherits from  RetrievePulsesRealFields, AutoDiffCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields</p>
+<p>The Optimistix package applied to Chirp-Scans with real fields.</p>
 </dd></dl>
 
 </section>
@@ -476,24 +493,21 @@ Inherits from  RetrievePulsesRealFields, AutoDiffCHIRPSCAN and RetrievePulsesCHI
 <dt class="sig sig-object py" id="real_fields.general_algorithms_frog_real_fields.DifferentialEvolution">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_frog_real_fields.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_frog_real_fields.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROGwithRealFields</span></code></p>
-<p>The Differential Evolution Algorithm applied to FROG with real fields.
-Inherits from  RetrievePulsesRealFields, DifferentialEvolutionFROG and RetrievePulsesFROGwithRealFields</p>
+<p>The Differential Evolution Algorithm applied to FROG with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_frog_real_fields.Evosax">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_frog_real_fields.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_frog_real_fields.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evosax</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROGwithRealFields</span></code></p>
-<p>The Evosax package applied to FROG with real fields.
-Inherits from  RetrievePulsesRealFields, EvosaxFROG and RetrievePulsesFROGwithRealFields</p>
+<p>The Evosax package applied to FROG with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_frog_real_fields.LSF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_frog_real_fields.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_frog_real_fields.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LSF</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROGwithRealFields</span></code></p>
-<p>The LSF Algorithm applied to FROG with real fields.
-Inherits from  RetrievePulsesRealFields, LSFFROG and RetrievePulsesFROGwithRealFields</p>
+<p>The LSF Algorithm applied to FROG with real fields.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_frog_real_fields.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_frog_real_fields.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -528,8 +542,7 @@ The optimization is likely more efficient when the pulses are defined on time. T
 <dt class="sig sig-object py" id="real_fields.general_algorithms_frog_real_fields.AutoDiff">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_frog_real_fields.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_frog_real_fields.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiff</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROGwithRealFields</span></code></p>
-<p>The Optimistix package applied to FROG with real fields.
-Inherits from  RetrievePulsesRealFields, AutoDiffFROG and RetrievePulsesFROGwithRealFields</p>
+<p>The Optimistix package applied to FROG with real fields.</p>
 </dd></dl>
 
 </section>
@@ -539,24 +552,21 @@ Inherits from  RetrievePulsesRealFields, AutoDiffFROG and RetrievePulsesFROGwith
 <dt class="sig sig-object py" id="real_fields.general_algorithms_tdp_real_fields.DifferentialEvolution">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_tdp_real_fields.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_tdp_real_fields.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDPwithRealFields</span></code></p>
-<p>The Differential Evolution Algorithm applied to TDP with real fields.
-Inherits from  RetrievePulsesRealFields, DifferentialEvolutionTDP and RetrievePulsesTDPwithRealFields</p>
+<p>The Differential Evolution Algorithm applied to TDP with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_tdp_real_fields.Evosax">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_tdp_real_fields.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_tdp_real_fields.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evosax</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDPwithRealFields</span></code></p>
-<p>The Evosax package applied to TDP with real fields.
-Inherits from  RetrievePulsesRealFields, EvosaxTDP and RetrievePulsesTDPwithRealFields</p>
+<p>The Evosax package applied to TDP with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_tdp_real_fields.LSF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_tdp_real_fields.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_tdp_real_fields.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LSF</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDPwithRealFields</span></code></p>
-<p>The LSF Algorithm applied to TDP with real fields.
-Inherits from  RetrievePulsesRealFields, LSFTDP and RetrievePulsesTDPwithRealFields</p>
+<p>The LSF Algorithm applied to TDP with real fields.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_tdp_real_fields.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_tdp_real_fields.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -591,8 +601,7 @@ The optimization is likely more efficient when the pulses are defined on time. T
 <dt class="sig sig-object py" id="real_fields.general_algorithms_tdp_real_fields.AutoDiff">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_tdp_real_fields.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_tdp_real_fields.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiff</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDPwithRealFields</span></code></p>
-<p>The Optimistix package applied to TDP with real fields.
-Inherits from  RetrievePulsesRealFields, AutoDiffTDP and RetrievePulsesTDPwithRealFields</p>
+<p>The Optimistix package applied to TDP with real fields.</p>
 </dd></dl>
 
 </section>
@@ -602,24 +611,21 @@ Inherits from  RetrievePulsesRealFields, AutoDiffTDP and RetrievePulsesTDPwithRe
 <dt class="sig sig-object py" id="real_fields.general_algorithms_vampire_real_fields.DifferentialEvolution">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_vampire_real_fields.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code></p>
-<p>The Differential Evolution Algorithm applied to VAMPIRE with real fields.
-Inherits from  RetrievePulsesRealFields, DifferentialEvolutionVAMPIRE and RetrievePulsesVAMPIREwithRealFields</p>
+<p>The Differential Evolution Algorithm applied to VAMPIRE with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_vampire_real_fields.Evosax">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_vampire_real_fields.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evosax</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code></p>
-<p>The Evosax package applied to VAMPIRE with real fields.
-Inherits from  RetrievePulsesRealFields, EvosaxVAMPIRE and RetrievePulsesVAMPIREwithRealFields</p>
+<p>The Evosax package applied to VAMPIRE with real fields.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_vampire_real_fields.LSF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_vampire_real_fields.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LSF</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code></p>
-<p>The LSF Algorithm applied to VAMPIRE with real fields.
-Inherits from  RetrievePulsesRealFields, LSFVAMPIRE and RetrievePulsesVAMPIREwithRealFields</p>
+<p>The LSF Algorithm applied to VAMPIRE with real fields.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.general_algorithms_vampire_real_fields.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_vampire_real_fields.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -654,8 +660,7 @@ The optimization is likely more efficient when the pulses are defined on time. T
 <dt class="sig sig-object py" id="real_fields.general_algorithms_vampire_real_fields.AutoDiff">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.general_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.general_algorithms_vampire_real_fields.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiff</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code></p>
-<p>The Optimistix package applied to VAMPIRE with real fields.
-Inherits from  RetrievePulsesRealFields, AutoDiffVAMPIRE and RetrievePulsesVAMPIREwithRealFields</p>
+<p>The Optimistix package applied to VAMPIRE with real fields.</p>
 </dd></dl>
 
 </section>

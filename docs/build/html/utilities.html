@@ -99,27 +99,27 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.flatten_MyNamespace">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">flatten_MyNamespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MyNamespace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.flatten_MyNamespace" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Flattening the pytree. Needed for registering MyNamespace as a pytree.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.unflatten_MyNamespace">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">unflatten_MyNamespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaves</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.unflatten_MyNamespace" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Unflattening the pytree. Needed for registering MyNamespace as a pytree.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utilities.MyNamespace">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">MyNamespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.MyNamespace" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>The central Pytree.
-Does not have a fixed shaped/structure at initialization. Because it would be tedious and cumbersome to keep
-track of this for all different pytree types/version used.
-To solve the issues arising from this MyNamespace.expand() can be used to add attributes by returning a
-new MyNamespace object.
-On top inside jax-transformations one needs to make sure to keep the structure static. (If not jax may hopefully catch it.)</p>
+<p>The central Pytree. Supports basic arithmetic if shapes and structure are consistent.
+Does not have a fixed shape/structure at initialization.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="utilities.MyNamespace.expand">
 <span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.MyNamespace.expand" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns a new MyNamespace object containg all previous attributes as well as the <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs.
+Can be used to build an arbitrary pytree.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -130,10 +130,10 @@ On top inside jax-transformations one needs to make sure to keep the structure s
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>do_scan</strong> – Callable, the callable needs to take carry its argument</p></li>
-<li><p><strong>carry</strong> – Pytree, the initial state of the iteration</p></li>
-<li><p><strong>no_iterations</strong> – int, the number of iterations</p></li>
-<li><p><strong>use_jit</strong> – bool, whether jax.jit is supposed to be used or not</p></li>
+<li><p><strong>do_scan</strong> (<em>Callable</em>) – the callable needs to take carry its argument</p></li>
+<li><p><strong>carry</strong> (<em>Pytree</em>) – the initial state of the iteration</p></li>
+<li><p><strong>no_iterations</strong> (<em>int</em>) – the number of iterations</p></li>
+<li><p><strong>use_jit</strong> (<em>bool</em>) – whether jax.jit is supposed to be used or not</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -153,11 +153,11 @@ The output of actual_function needs to be of the same structure as carry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>carry</strong> – any or tuple, the initial state of the iteration</p></li>
-<li><p><strong>xs</strong> – any or tuple, the xs used by jax.lax.scan</p></li>
-<li><p><strong>actual_function</strong> – Callable, the function that is to be iterated over</p></li>
-<li><p><strong>number_of_args</strong> – int, the number of individual arguments in carry</p></li>
-<li><p><strong>number_of_xs</strong> – int, the number of individual arguments in xs</p></li>
+<li><p><strong>carry</strong> (<em>any</em><em>, </em><em>tuple</em>) – the initial state of the iteration</p></li>
+<li><p><strong>xs</strong> (<em>any</em><em>, </em><em>tuple</em>) – the xs used by jax.lax.scan</p></li>
+<li><p><strong>actual_function</strong> (<em>Callable</em>) – the function that is to be iterated over</p></li>
+<li><p><strong>number_of_args</strong> (<em>int</em>) – the number of individual arguments in carry</p></li>
+<li><p><strong>number_of_xs</strong> (<em>int</em>) – the number of individual arguments in xs</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -173,9 +173,9 @@ The output of actual_function needs to be of the same structure as carry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>carry</strong> – any or tuple, the initial state of the iteration</p></li>
-<li><p><strong>actual_function</strong> – Callable, the function to be iterated over</p></li>
-<li><p><strong>number_of_args</strong> – int, the number of individual arguments in carry</p></li>
+<li><p><strong>carry</strong> (<em>any</em><em>, </em><em>tuple</em>) – the initial state of the iteration</p></li>
+<li><p><strong>actual_function</strong> (<em>Callable</em>) – the function to be iterated over</p></li>
+<li><p><strong>number_of_args</strong> (<em>int</em>) – the number of individual arguments in carry</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -193,10 +193,10 @@ function and no_of_args have to be fixed via partial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> – any, the input the function</p></li>
-<li><p><strong>args</strong> – any, the args of function</p></li>
-<li><p><strong>function</strong> – Callable, the actual loss function</p></li>
-<li><p><strong>no_of_args</strong> – int, the number of extra arguments</p></li>
+<li><p><strong>input</strong> (<em>any</em>) – the input the function</p></li>
+<li><p><strong>args</strong> (<em>any</em>) – the args of function</p></li>
+<li><p><strong>function</strong> (<em>Callable</em>) – the actual loss function</p></li>
+<li><p><strong>no_of_args</strong> (<em>int</em>) – the number of extra arguments</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -215,10 +215,10 @@ step and static have to be fixed via partial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>carry</strong> – any or tuple, the carry to be iterated over</p></li>
-<li><p><strong>xs</strong> – any or tuple, unused but required by lax.scan</p></li>
-<li><p><strong>step</strong> – Callable, the function to be iterated over</p></li>
-<li><p><strong>static</strong> – any, a static non-jax-compatible object which is to be merged before calling step and removed afterwards</p></li>
+<li><p><strong>carry</strong> (<em>any</em><em>, </em><em>tuple</em>) – the carry to be iterated over</p></li>
+<li><p><strong>xs</strong> (<em>any</em><em>, </em><em>tuple</em>) – unused but required by lax.scan</p></li>
+<li><p><strong>step</strong> (<em>Callable</em>) – the function to be iterated over</p></li>
+<li><p><strong>static</strong> (<em>any</em>) – a static non-jax-compatible object which is to be merged before calling step and removed afterwards</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -235,10 +235,10 @@ applied which have the same effect and make the fft work any frequency range.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>signal</strong> – jnp.array, the signal on which the fft is applied</p></li>
-<li><p><strong>sk</strong> – jnp.array, corrective values which “shift” the signal to the correct frequencies</p></li>
-<li><p><strong>rn</strong> – jnp.array, corrective values which “shift” the signal to the correct frequencies</p></li>
-<li><p><strong>axis</strong> – int, the axis over which the fft is applied (Default is -1)</p></li>
+<li><p><strong>signal</strong> (<em>jnp.array</em>) – the signal on which the fft is applied</p></li>
+<li><p><strong>sk</strong> (<em>jnp.array</em>) – corrective values which “shift” the signal to the correct frequencies</p></li>
+<li><p><strong>rn</strong> (<em>jnp.array</em>) – corrective values which “shift” the signal to the correct frequencies</p></li>
+<li><p><strong>axis</strong> (<em>int</em>) – the axis over which the fft is applied (Default is -1)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -255,10 +255,10 @@ applied which have the same effect and make the fft work any frequency range.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>signal</strong> – jnp.array, the signal on which the ifft is applied</p></li>
-<li><p><strong>sk</strong> – jnp.array, corrective values which “shift” the signal to the correct positions</p></li>
-<li><p><strong>rn</strong> – jnp.array, corrective values which “shift” the signal to the correct positions</p></li>
-<li><p><strong>axis</strong> – int, the axis over which the ifft is applied (Default is -1)</p></li>
+<li><p><strong>signal</strong> (<em>jnp.array</em>) – the signal on which the ifft is applied</p></li>
+<li><p><strong>sk</strong> (<em>jnp.array</em>) – corrective values which “shift” the signal to the correct positions</p></li>
+<li><p><strong>rn</strong> (<em>jnp.array</em>) – corrective values which “shift” the signal to the correct positions</p></li>
+<li><p><strong>axis</strong> (<em>int</em>) – the axis over which the ifft is applied (Default is -1)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -276,8 +276,8 @@ time and frequency have to fullfill N=1/(df*dt).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time</strong> – jnp.array, the time axis</p></li>
-<li><p><strong>frequency</strong> – jnp.array, the frequency axis</p></li>
+<li><p><strong>time</strong> (<em>jnp.array</em>) – the time axis</p></li>
+<li><p><strong>frequency</strong> (<em>jnp.array</em>) – the frequency axis</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -355,12 +355,12 @@ With the current guess being scaled by mu.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – jnp.array, a jax.random.PRNGKey</p></li>
-<li><p><strong>no_points</strong> – int, the number of random points to use for the interpolation</p></li>
-<li><p><strong>x</strong> – jnp.array, the x-values from which to choose the location of random values</p></li>
-<li><p><strong>minval</strong> – int or float, the minimal random y-value, the interpolation may lead to lower values</p></li>
-<li><p><strong>maxval</strong> – int or float, the maximal random y-value, the interpolation may lead to higher values</p></li>
-<li><p><strong>distribution</strong> – jnp.array, a probability distribution for the x-location of the random values.</p></li>
+<li><p><strong>key</strong> (<em>jnp.array</em>) – a jax.random.PRNGKey</p></li>
+<li><p><strong>no_points</strong> (<em>int</em>) – the number of random points to use for the interpolation</p></li>
+<li><p><strong>x</strong> (<em>jnp.array</em>) – the x-values from which to choose the location of random values</p></li>
+<li><p><strong>minval</strong> (<em>int</em><em>, </em><em>float</em>) – the minimal random y-value, the interpolation may lead to lower values</p></li>
+<li><p><strong>maxval</strong> (<em>int</em><em>, </em><em>float</em>) – the maximal random y-value, the interpolation may lead to higher values</p></li>
+<li><p><strong>distribution</strong> (<em>jnp.array</em>) – a probability distribution for the x-location of the random values.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -376,10 +376,10 @@ With the current guess being scaled by mu.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>A</strong> – jnp.array, stack of 2D-arrays</p></li>
-<li><p><strong>b</strong> – jnp.array, stack of 1D-arrays</p></li>
-<li><p><strong>x_prev</strong> – jnp.array, stack of 1D-arrays with approximate solutions.</p></li>
-<li><p><strong>solver</strong> – str or lineax-solver, which library/method to use</p></li>
+<li><p><strong>A</strong> (<em>jnp.array</em>) – stack of 2D-arrays</p></li>
+<li><p><strong>b</strong> (<em>jnp.array</em>) – stack of 1D-arrays</p></li>
+<li><p><strong>x_prev</strong> (<em>jnp.array</em>) – stack of 1D-arrays with approximate solutions.</p></li>
+<li><p><strong>solver</strong> (<em>str</em><em>,</em><em>lineax-solver</em>) – which library/method to use</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -395,12 +395,12 @@ With the current guess being scaled by mu.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>grad_m</strong> – jnp.array,</p></li>
-<li><p><strong>hessian_m</strong> – jnp.array,</p></li>
-<li><p><strong>lambda_lm</strong> – float,</p></li>
-<li><p><strong>newton_direction_prev</strong> – jnp.array,</p></li>
-<li><p><strong>solver</strong> – str or lineax-solver,</p></li>
-<li><p><strong>full_or_diagonal</strong> – str.</p></li>
+<li><p><strong>grad_m</strong> (<em>jnp.array</em>)</p></li>
+<li><p><strong>hessian_m</strong> (<em>jnp.array</em>)</p></li>
+<li><p><strong>lambda_lm</strong> (<em>float</em>)</p></li>
+<li><p><strong>newton_direction_prev</strong> (<em>jnp.array</em>)</p></li>
+<li><p><strong>solver</strong> – (str, lineax-solver):</p></li>
+<li><p><strong>full_or_diagonal</strong> (<em>str</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -416,9 +416,9 @@ With the current guess being scaled by mu.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>N</strong> – int, the maximum index</p></li>
-<li><p><strong>M</strong> – int, the number of randomizations</p></li>
-<li><p><strong>key</strong> – jnp.array, a jax.random.PRNGKey</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – the maximum index</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – the number of randomizations</p></li>
+<li><p><strong>key</strong> (<em>jnp.array</em>) – a jax.random.PRNGKey</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -440,7 +440,7 @@ With the current guess being scaled by mu.</p>
 Is done in two stages since periodic boundaries distort the actual center of mass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>signal</strong> – jnp.array, the signal to be centered.</p>
+<dd class="field-odd"><p><strong>signal</strong> (<em>jnp.array</em>) – the signal to be centered.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>jnp.array, the signal with its center of mass located at index N/2</p>

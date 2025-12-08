@@ -8,7 +8,7 @@ from src.utilities import MyNamespace
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesTDP):
     """ 
-    The Differential Evolution Algorithm applied to TDP. Inherits from DifferentialEvolutionBASE and RetrievePulsesTDP.
+    The Differential Evolution Algorithm applied to TDP.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
@@ -25,7 +25,7 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesTDP):
 
 class Evosax(EvosaxBASE, RetrievePulsesTDP):
     """
-    The Evosax package utilized for pulse reconstruction from TDP. Inherits from EvosaxBASE and RetrievePulsesTDP.
+    The Evosax package utilized for pulse reconstruction from TDP.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
@@ -42,7 +42,7 @@ class Evosax(EvosaxBASE, RetrievePulsesTDP):
 
 class LSF(LSFBASE, RetrievePulsesTDP):
     """
-    The LSF Algorithm applied to TDP. Inherits from LSFBASE and RetrievePulsesTDP.
+    The LSF Algorithm applied to TDP.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
@@ -91,7 +91,7 @@ class LSF(LSFBASE, RetrievePulsesTDP):
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesTDP):
     """
-    The Optimistix package utilized for pulse reconstruction from TDP. Inherits from AutoDiffBASE and RetrievePulsesTDP.
+    The Optimistix package utilized for pulse reconstruction from TDP.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)

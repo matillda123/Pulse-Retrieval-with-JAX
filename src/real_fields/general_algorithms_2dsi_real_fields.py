@@ -6,8 +6,7 @@ import jax
 
 
 class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolution2DSI, RetrievePulses2DSIwithRealFields):
-    """ The Differential Evolution Algorithm applied to 2DSI with real fields. 
-    Inherits from  RetrievePulsesRealFields, DifferentialEvolution2DSI and RetrievePulses2DSIwithRealFields"""
+    """ The Differential Evolution Algorithm applied to 2DSI with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -15,8 +14,7 @@ class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolution2DSI,
 
 
 class Evosax(RetrievePulsesRealFields, Evosax2DSI, RetrievePulses2DSIwithRealFields):
-    """ The Evosax package applied to 2DSI with real fields. 
-    Inherits from  RetrievePulsesRealFields, Evosax2DSI and RetrievePulses2DSIwithRealFields"""
+    """ The Evosax package applied to 2DSI with real fields. """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -24,8 +22,7 @@ class Evosax(RetrievePulsesRealFields, Evosax2DSI, RetrievePulses2DSIwithRealFie
 
 
 class LSF(RetrievePulsesRealFields, LSF2DSI, RetrievePulses2DSIwithRealFields):
-    """ The LSF Algorithm applied to 2DSI with real fields. 
-    Inherits from  RetrievePulsesRealFields, LSF2DSI and RetrievePulses2DSIwithRealFields"""
+    """ The LSF Algorithm applied to 2DSI with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -116,8 +113,7 @@ class LSF(RetrievePulsesRealFields, LSF2DSI, RetrievePulses2DSIwithRealFields):
 
 
 class AutoDiff(RetrievePulsesRealFields, AutoDiff2DSI, RetrievePulses2DSIwithRealFields):
-    """ The Optimistix package applied to 2DSI with real fields. 
-    Inherits from  RetrievePulsesRealFields, AutoDiff2DSI and RetrievePulses2DSIwithRealFields"""
+    """ The Optimistix package applied to 2DSI with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()

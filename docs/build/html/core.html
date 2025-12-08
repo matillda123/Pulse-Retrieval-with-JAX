@@ -248,25 +248,45 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.AlgorithmsBASE.jit">
 <span class="sig-name descname"><span class="pre">jit</span></span><a class="headerlink" href="#core.base_classes_algorithms.AlgorithmsBASE.jit" title="Link to this definition"></a></dt>
-<dd><p>bool, enables/disables jax.jit</p>
+<dd><p>enables/disables jax.jit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.AlgorithmsBASE.spectrum_is_being_used">
 <span class="sig-name descname"><span class="pre">spectrum_is_being_used</span></span><a class="headerlink" href="#core.base_classes_algorithms.AlgorithmsBASE.spectrum_is_being_used" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><p>what the name says</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.AlgorithmsBASE.fft">
 <span class="sig-name descname"><span class="pre">fft</span></span><a class="headerlink" href="#core.base_classes_algorithms.AlgorithmsBASE.fft" title="Link to this definition"></a></dt>
-<dd><p>Callable, performs an fft, performs an fft of a signal. (Needs to expect signal, sk, rn, axis)</p>
+<dd><p>performs an fft, performs an fft of a signal. (Needs to expect signal, sk, rn, axis)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.AlgorithmsBASE.ifft">
 <span class="sig-name descname"><span class="pre">ifft</span></span><a class="headerlink" href="#core.base_classes_algorithms.AlgorithmsBASE.ifft" title="Link to this definition"></a></dt>
-<dd><p>Callable, performs an ifft, performs an ifft of a signal. (Needs to expect signal, sk, rn, axis)</p>
+<dd><p>performs an ifft, performs an ifft of a signal. (Needs to expect signal, sk, rn, axis)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -290,7 +310,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>frequency</strong> – jnp.array, the frequency axis of spectrum</p></li>
 <li><p><strong>spectrum</strong> – jnp.array, the spectrum</p></li>
-<li><p><strong>pulse_or_gate</strong> – str, whether the spectrum is from the pulse or the gate-pulse.</p></li>
+<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the spectrum is from the pulse or the gate-pulse.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -309,148 +329,268 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.local_gamma">
 <span class="sig-name descname"><span class="pre">local_gamma</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_gamma" title="Link to this definition"></a></dt>
-<dd><p>float, step size for local iterations</p>
+<dd><p>step size for local iterations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.global_gamma">
 <span class="sig-name descname"><span class="pre">global_gamma</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_gamma" title="Link to this definition"></a></dt>
-<dd><p>float, step size for global iterations</p>
+<dd><p>step size for global iterations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.linesearch">
 <span class="sig-name descname"><span class="pre">linesearch</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.linesearch" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/disables a linesearch. Can be False, backtracking or zoom.</p>
+<dd><p>enables/disables a linesearch. Can be False, backtracking or zoom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.max_steps_linesearch">
 <span class="sig-name descname"><span class="pre">max_steps_linesearch</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.max_steps_linesearch" title="Link to this definition"></a></dt>
-<dd><p>int, maximum number of linesearch steos</p>
+<dd><p>maximum number of linesearch steos</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.c1">
 <span class="sig-name descname"><span class="pre">c1</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.c1" title="Link to this definition"></a></dt>
-<dd><p>float, constant for the Armijo-condition</p>
+<dd><p>constant for the Armijo-condition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.c2">
 <span class="sig-name descname"><span class="pre">c2</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.c2" title="Link to this definition"></a></dt>
-<dd><p>float, constant for the strong Wolfe-condition</p>
+<dd><p>constant for the strong Wolfe-condition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.delta_gamma">
 <span class="sig-name descname"><span class="pre">delta_gamma</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.delta_gamma" title="Link to this definition"></a></dt>
-<dd><p>float, a factor which by which gamma is increased each iteration</p>
+<dd><p>a factor which by which gamma is increased each iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.local_newton">
 <span class="sig-name descname"><span class="pre">local_newton</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_newton" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/disables the use of a hessian in local iterations. Can be False, lbfgs or diagonal.</p>
+<dd><p>enables/disables the use of a hessian in local iterations. Can be False, lbfgs or diagonal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.global_newton">
 <span class="sig-name descname"><span class="pre">global_newton</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_newton" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/disables the use of a hessian in global iterations. Can be False, lbfgs, diagonal or full.</p>
+<dd><p>enables/disables the use of a hessian in global iterations. Can be False, lbfgs, diagonal or full.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.lambda_lm">
 <span class="sig-name descname"><span class="pre">lambda_lm</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.lambda_lm" title="Link to this definition"></a></dt>
-<dd><p>float, a Levenberg-Marquardt style damping coefficient.</p>
+<dd><p>a Levenberg-Marquardt style damping coefficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.lbfgs_memory">
 <span class="sig-name descname"><span class="pre">lbfgs_memory</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.lbfgs_memory" title="Link to this definition"></a></dt>
-<dd><p>int, the number of past iterations to use in LBFGS</p>
+<dd><p>the number of past iterations to use in LBFGS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.linalg_solver">
 <span class="sig-name descname"><span class="pre">linalg_solver</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.linalg_solver" title="Link to this definition"></a></dt>
-<dd><p>str or lineax-solver, chooses a library/method for inverting the hessian. Can be scipy, lineax or a specific lineax solver.</p>
+<dd><p>chooses a library/method for inverting the hessian. Can be scipy, lineax or a specific lineax solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, lineax-solver</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.conjugate_gradients">
 <span class="sig-name descname"><span class="pre">conjugate_gradients</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.conjugate_gradients" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/diables the use of the Nonlinear Conjugate Gradients method. Can be False, Fletcher-Reeves,
+<dd><p>enables/diables the use of the Nonlinear Conjugate Gradients method. Can be False, Fletcher-Reeves,
 Hestenes-Stiefel, Dai-Yuan, Polak-Ribiere or average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_local_method">
 <span class="sig-name descname"><span class="pre">r_local_method</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_local_method" title="Link to this definition"></a></dt>
-<dd><p>str, chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.</p>
+<dd><p>chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_global_method">
 <span class="sig-name descname"><span class="pre">r_global_method</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_global_method" title="Link to this definition"></a></dt>
-<dd><p>str, chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.</p>
+<dd><p>chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_gradient">
 <span class="sig-name descname"><span class="pre">r_gradient</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_gradient" title="Link to this definition"></a></dt>
-<dd><p>str, if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.</p>
+<dd><p>if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_newton">
 <span class="sig-name descname"><span class="pre">r_newton</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_newton" title="Link to this definition"></a></dt>
-<dd><p>bool, enables/diables the use of the diagonal hessian if r_method=iteration</p>
+<dd><p>enables/diables the use of the diagonal hessian if r_method=iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_weights">
 <span class="sig-name descname"><span class="pre">r_weights</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_weights" title="Link to this definition"></a></dt>
-<dd><p>float or jnp.array, allows the weigthing of residuals</p>
+<dd><p>allows the weigthing of residuals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_no_iterations">
 <span class="sig-name descname"><span class="pre">r_no_iterations</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_no_iterations" title="Link to this definition"></a></dt>
-<dd><p>int, the number of iterations if r_method=iteration</p>
+<dd><p>the number of iterations if r_method=iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.r_step_scaling">
 <span class="sig-name descname"><span class="pre">r_step_scaling</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_step_scaling" title="Link to this definition"></a></dt>
-<dd><p>str, the type of adpative step-size scaling to use if r_method=iteration</p>
+<dd><p>the type of adpative step-size scaling to use if r_method=iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.xi">
 <span class="sig-name descname"><span class="pre">xi</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.xi" title="Link to this definition"></a></dt>
-<dd><p>float, a damping coefficient for adaptive step-sizes, avoids division by zero</p>
+<dd><p>a damping coefficient for adaptive step-sizes, avoids division by zero</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.local_adaptive_scaling">
 <span class="sig-name descname"><span class="pre">local_adaptive_scaling</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_adaptive_scaling" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+<dd><p>enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
 pade_11, pade_01 or pade_02</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.global_adaptive_scaling">
 <span class="sig-name descname"><span class="pre">global_adaptive_scaling</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_adaptive_scaling" title="Link to this definition"></a></dt>
-<dd><p>bool or str, enables/disables adaptive step sized in global iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+<dd><p>enables/disables adaptive step sized in global iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
 pade_11, pade_01 or pade_02</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum_is_being_used">
 <span class="sig-name descname"><span class="pre">momentum_is_being_used</span></span><a class="headerlink" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum_is_being_used" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><p>what the name says</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -474,7 +614,7 @@ It returns shuffled but consistent(!) data.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>population_size</strong> – int, is needed for some initialization</p></li>
-<li><p><strong>eta</strong> – float, parameter that controls the momentum strength</p></li>
+<li><p><strong>eta</strong> (<em>float</em>) – parameter that controls the momentum strength</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -492,7 +632,7 @@ It returns shuffled but consistent(!) data.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>signal</strong> – jnp.array,</p></li>
 <li><p><strong>momentum</strong> – Pytree, contains the velocity map and its update</p></li>
-<li><p><strong>eta</strong> – float, the strength of the momentum</p></li>
+<li><p><strong>eta</strong> (<em>float</em>) – the strength of the momentum</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -511,31 +651,34 @@ It returns shuffled but consistent(!) data.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.GeneralOptimizationBASE.fd_grad">
 <span class="sig-name descname"><span class="pre">fd_grad</span></span><a class="headerlink" href="#core.base_classes_algorithms.GeneralOptimizationBASE.fd_grad" title="Link to this definition"></a></dt>
-<dd><p>bool or int,</p>
+<dd><p>the loss function can be calcualted with the residuals of the finite-differences of the trace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.GeneralOptimizationBASE.amplitude_or_intensity">
 <span class="sig-name descname"><span class="pre">amplitude_or_intensity</span></span><a class="headerlink" href="#core.base_classes_algorithms.GeneralOptimizationBASE.amplitude_or_intensity" title="Link to this definition"></a></dt>
-<dd><p>str,</p>
+<dd><p>the loss function can be calculated with the residuals of fields to arbitrary powers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, int, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_algorithms.GeneralOptimizationBASE.error_metric">
 <span class="sig-name descname"><span class="pre">error_metric</span></span><a class="headerlink" href="#core.base_classes_algorithms.GeneralOptimizationBASE.error_metric" title="Link to this definition"></a></dt>
-<dd><p>Callable,</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.base_classes_algorithms.GeneralOptimizationBASE.make_bsplines_phase">
-<span class="sig-name descname"><span class="pre">make_bsplines_phase</span></span><a class="headerlink" href="#core.base_classes_algorithms.GeneralOptimizationBASE.make_bsplines_phase" title="Link to this definition"></a></dt>
-<dd><p>Callable,</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.base_classes_algorithms.GeneralOptimizationBASE.make_bsplines_amp">
-<span class="sig-name descname"><span class="pre">make_bsplines_amp</span></span><a class="headerlink" href="#core.base_classes_algorithms.GeneralOptimizationBASE.make_bsplines_amp" title="Link to this definition"></a></dt>
-<dd><p>Callable,</p>
+<dd><p>an arbitrary loss-function, needs to expect (trace, measured_trace) as input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -546,8 +689,8 @@ It returns shuffled but consistent(!) data.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>population_size</strong> – int, the number of individuals</p></li>
-<li><p><strong>amp_type</strong> – str, the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines or discrete</p></li>
-<li><p><strong>phase_type</strong> – str, the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines or discrete</p></li>
+<li><p><strong>amp_type</strong> (<em>str</em>) – the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines or discrete</p></li>
+<li><p><strong>phase_type</strong> (<em>str</em>) – the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines or discrete</p></li>
 <li><p><strong>no_funcs_amp</strong> – int, the number of basis functions for the spectral amplitude (if parametrized)</p></li>
 <li><p><strong>no_funcs_phase</strong> – int, the number of basis functions for the spectral phase (if parametrized)</p></li>
 </ul>
@@ -732,91 +875,164 @@ Allows modification of the error-function via error_metric() and loss_function_m
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.nonlinear_method">
 <span class="sig-name descname"><span class="pre">nonlinear_method</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.nonlinear_method" title="Link to this definition"></a></dt>
-<dd><p>str, SHG, THG, PG or SD</p>
+<dd><p>SHG, THG, PG or SD</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.f0">
 <span class="sig-name descname"><span class="pre">f0</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.f0" title="Link to this definition"></a></dt>
-<dd><p>float, rarely some solvers need the central frequency to be zero. This saves the original central frequency.</p>
+<dd><p>rarely some solvers need the central frequency to be zero. This saves the original central frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.doubleblind">
 <span class="sig-name descname"><span class="pre">doubleblind</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.doubleblind" title="Link to this definition"></a></dt>
-<dd><p>bool, whether the reconstruction is supposed to yield the gate in addition to the pulse.</p>
+<dd><p>whether the reconstruction is supposed to yield the gate in addition to the pulse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.spectrum_is_being_used">
 <span class="sig-name descname"><span class="pre">spectrum_is_being_used</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.spectrum_is_being_used" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.momentum_is_being_used">
 <span class="sig-name descname"><span class="pre">momentum_is_being_used</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.momentum_is_being_used" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.measurement_info">
 <span class="sig-name descname"><span class="pre">measurement_info</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.measurement_info" title="Link to this definition"></a></dt>
-<dd><p>Pytree, a container of variable (but static) structure. Holds measurement data and parameters.</p>
+<dd><p>a container of variable (but static) structure. Holds measurement data and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pytree</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.descent_info">
 <span class="sig-name descname"><span class="pre">descent_info</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.descent_info" title="Link to this definition"></a></dt>
-<dd><p>Pytree, a container of variable (but static) structure. Holds parameters of the reconstruction algorithm.</p>
+<dd><p>a container of variable (but static) structure. Holds parameters of the reconstruction algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pytree</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.descent_state">
 <span class="sig-name descname"><span class="pre">descent_state</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.descent_state" title="Link to this definition"></a></dt>
-<dd><p>Pytree, a container of variable (but static) structure. Contains the current state of the solver.</p>
+<dd><p>a container of variable (but static) structure. Contains the current state of the solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Pytree</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.prng_seed">
 <span class="sig-name descname"><span class="pre">prng_seed</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.prng_seed" title="Link to this definition"></a></dt>
-<dd><p>int, seed for the key</p>
+<dd><p>seed for the key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.key">
 <span class="sig-name descname"><span class="pre">key</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.key" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, a jax.random.PRNGKey</p>
+<dd><p>a jax.random.PRNGKey</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.factor">
 <span class="sig-name descname"><span class="pre">factor</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.factor" title="Link to this definition"></a></dt>
-<dd><p>int, for SHG/THG the a correction factor of 2/3 needs to applied occasionally.</p>
+<dd><p>for SHG/THG the a correction factor of 2/3 needs to applied occasionally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.x_arr">
 <span class="sig-name descname"><span class="pre">x_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.x_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, an alias for the shifts/delays, internally indexed via m</p>
+<dd><p>an alias for the shifts/delays, internally indexed via m</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.time">
 <span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.time" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the time axis, internally indexed via k</p>
+<dd><p>the time axis, internally indexed via k</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.frequency">
 <span class="sig-name descname"><span class="pre">frequency</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.frequency" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the frequency axis, internally indexed via n</p>
+<dd><p>the frequency axis, internally indexed via n</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses.measured_trace">
 <span class="sig-name descname"><span class="pre">measured_trace</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses.measured_trace" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, 2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)</p>
+<dd><p>2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -905,67 +1121,111 @@ Allows modification of the error-function via error_metric() and loss_function_m
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesFROG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifrog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulses" title="core.base_classes_methods.RetrievePulses"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a></p>
 <p>The reconstruction class for FROG. Inherits from RetrievePulses.</p>
-<ol class="upperalpha simple" start="18">
-<li><p>Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p></li>
-</ol>
+<p>[1] R. Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.tau_arr">
 <span class="sig-name descname"><span class="pre">tau_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.tau_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the delays</p>
+<dd><p>the delays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.gate">
 <span class="sig-name descname"><span class="pre">gate</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.gate" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the gate-pulse (if its known).</p>
+<dd><p>the gate-pulse (if its known).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.transform_arr">
 <span class="sig-name descname"><span class="pre">transform_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.transform_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, an alias for tau_arr</p>
+<dd><p>an alias for tau_arr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.idx_arr">
 <span class="sig-name descname"><span class="pre">idx_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.idx_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, an array with indices for tau_arr</p>
+<dd><p>an array with indices for tau_arr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.dt">
 <span class="sig-name descname"><span class="pre">dt</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.dt" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.df">
 <span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.df" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.sk">
 <span class="sig-name descname"><span class="pre">sk</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.sk" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.rn">
 <span class="sig-name descname"><span class="pre">rn</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.rn" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.cross_correlation">
 <span class="sig-name descname"><span class="pre">cross_correlation</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.cross_correlation" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.ifrog">
 <span class="sig-name descname"><span class="pre">ifrog</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.ifrog" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1023,7 +1283,7 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
 <li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, … )</p></li>
 </ul>
 </dd>
@@ -1057,14 +1317,17 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesTDP">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesTDP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesTDP" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulsesFROG" title="core.base_classes_methods.RetrievePulsesFROG"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a></p>
-<p>The reconstruction class for Time-Domain-Ptychography. Inherits from RetrievePulsesFROG.</p>
-<ol class="upperalpha simple" start="4">
-<li><p>Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)</p></li>
-</ol>
+<p>The reconstruction class for Time-Domain-Ptychography.</p>
+<p>[1] D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesTDP.spectral_filter">
 <span class="sig-name descname"><span class="pre">spectral_filter</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesTDP.spectral_filter" title="Link to this definition"></a></dt>
-<dd><p>jnp.array,</p>
+<dd><p>the spectral filter in the gate arm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1081,7 +1344,7 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
 <li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, … )</p></li>
 </ul>
 </dd>
@@ -1097,43 +1360,71 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulses" title="core.base_classes_methods.RetrievePulses"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a></p>
-<p>The reconstruction class for Chirp-Scan methods. Inherits from RetrievePulses.</p>
-<p>V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
-M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
+<p>The reconstruction class for Chirp-Scan methods.</p>
+<p>[1] V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
+[2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr">
 <span class="sig-name descname"><span class="pre">z_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, the shifts</p>
+<dd><p>the shifts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.dt">
 <span class="sig-name descname"><span class="pre">dt</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.dt" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.df">
 <span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.df" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.sk">
 <span class="sig-name descname"><span class="pre">sk</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.sk" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.rn">
 <span class="sig-name descname"><span class="pre">rn</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.rn" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, correction values for FFT-&gt;DFT</p>
+<dd><p>correction values for FFT-&gt;DFT</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.phase_matrix">
 <span class="sig-name descname"><span class="pre">phase_matrix</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.phase_matrix" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, a 2D-array with the phase values applied to pulse</p>
+<dd><p>a 2D-array with the phase values applied to pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1145,13 +1436,23 @@ M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.transform_arr">
 <span class="sig-name descname"><span class="pre">transform_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.transform_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, an alias for phase_matrix</p>
+<dd><p>an alias for phase_matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr">
 <span class="sig-name descname"><span class="pre">idx_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, indices for z_arr</p>
+<dd><p>indices for z_arr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1191,7 +1492,7 @@ M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>phase_matrix</strong> – jnp.array, the applied phases</p></li>
+<li><p><strong>phase_matrix</strong> (<em>jnp.array</em>) – the applied phases</p></li>
 <li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
 </ul>
 </dd>
@@ -1225,59 +1526,94 @@ M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulses2DSI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter1=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter2=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_pulse_anc1=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulsesFROG" title="core.base_classes_methods.RetrievePulsesFROG"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a></p>
-<p>The reconstruction class for 2DSI. Inherits from RetrievePulsesFROG.</p>
-<ol class="upperalpha simple" start="10">
-<li><ol class="upperalpha simple" start="18">
-<li><p>Birge et al., Opt. Lett. 31, 2063-2065 (2006)</p></li>
-</ol>
-</li>
-</ol>
+<p>The reconstruction class for 2DSI.</p>
+<p>[1] J. R. Birge et al., Opt. Lett. 31, 2063-2065 (2006)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.spectral_filter1">
 <span class="sig-name descname"><span class="pre">spectral_filter1</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.spectral_filter1" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, 1st filter in interferometer</p>
+<dd><p>1st filter in interferometer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.spectral_filter2">
 <span class="sig-name descname"><span class="pre">spectral_filter2</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.spectral_filter2" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, 2nd filter in interferometer</p>
+<dd><p>2nd filter in interferometer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.tau_pulse_anc1">
 <span class="sig-name descname"><span class="pre">tau_pulse_anc1</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.tau_pulse_anc1" title="Link to this definition"></a></dt>
-<dd><p>float, delay between 1st interferometer arm and exterior pulse</p>
+<dd><p>delay between 1st interferometer arm and exterior pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.anc_frequency1">
 <span class="sig-name descname"><span class="pre">anc_frequency1</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.anc_frequency1" title="Link to this definition"></a></dt>
-<dd><p>float, central frequency of pulse in 1st arm (calculated from max of spectral_filter1)</p>
+<dd><p>central frequency of pulse in 1st arm (calculated from max of spectral_filter1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.anc_frequency2">
 <span class="sig-name descname"><span class="pre">anc_frequency2</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.anc_frequency2" title="Link to this definition"></a></dt>
-<dd><p>float, central frequency of pulse in 2nd arm (calculated from max of spectral_filter2)</p>
+<dd><p>central frequency of pulse in 2nd arm (calculated from max of spectral_filter2)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.c0">
 <span class="sig-name descname"><span class="pre">c0</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.c0" title="Link to this definition"></a></dt>
-<dd><p>float, the speed of light</p>
+<dd><p>the speed of light</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.refractive_index">
 <span class="sig-name descname"><span class="pre">refractive_index</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.refractive_index" title="Link to this definition"></a></dt>
-<dd><p>refractiveindex.RefractiveIndexMaterial, returns the refractive index for a material given a wavelength in um</p>
+<dd><p>returns the refractive index for a material given a wavelength in um</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>refractiveindex.RefractiveIndexMaterial, Callable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.phase_matrix">
 <span class="sig-name descname"><span class="pre">phase_matrix</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.phase_matrix" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, a 2D-array with phase values that could potentially have been applied to a pulse</p>
+<dd><p>a 2D-array with phase values that could potentially have been applied to a pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1308,7 +1644,7 @@ In addition the dispersion may contain a group delay. This delay is estimated, c
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
 <li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
 </ul>
 </dd>
@@ -1324,32 +1660,50 @@ In addition the dispersion may contain a group delay. This delay is estimated, c
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesVAMPIRE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesVAMPIRE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_interferometer=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesVAMPIRE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulsesFROG" title="core.base_classes_methods.RetrievePulsesFROG"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a></p>
-<p>The reconstruction class for VAMPIRE. Inherits from RetrievePulsesFROG.</p>
-<ol class="upperalpha simple" start="2">
-<li><p>Seifert and H. Stolz, Meas. Sci. Technol. 20 (2009) 015303 (7pp), 10.1088/0957-0233/20/1/015303 (2008)</p></li>
-</ol>
+<p>The reconstruction class for VAMPIRE.</p>
+<p>[1] B. Seifert and H. Stolz, Meas. Sci. Technol. 20 (2009) 015303 (7pp), 10.1088/0957-0233/20/1/015303 (2008)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesVAMPIRE.tau_interferometer">
 <span class="sig-name descname"><span class="pre">tau_interferometer</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesVAMPIRE.tau_interferometer" title="Link to this definition"></a></dt>
-<dd><p>float, delay of the interferometer arms</p>
+<dd><p>delay of the interferometer arms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesVAMPIRE.c0">
 <span class="sig-name descname"><span class="pre">c0</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesVAMPIRE.c0" title="Link to this definition"></a></dt>
-<dd><p>float, the speed of light</p>
+<dd><p>the speed of light</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesVAMPIRE.refractive_index">
 <span class="sig-name descname"><span class="pre">refractive_index</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesVAMPIRE.refractive_index" title="Link to this definition"></a></dt>
-<dd><p>refractiveindex.RefractiveIndexMaterial, returns the refractive index for a material given a wavelength in um</p>
+<dd><p>returns the refractive index for a material given a wavelength in um</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>refractiveindex.RefractiveIndexMaterial, Callable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesVAMPIRE.phase_matrix">
 <span class="sig-name descname"><span class="pre">phase_matrix</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesVAMPIRE.phase_matrix" title="Link to this definition"></a></dt>
-<dd><p>jnp.array, a 2D-array with phase values that could potentially have been applied to a pulse</p>
+<dd><p>a 2D-array with phase values that could potentially have been applied to a pulse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jnp.array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1374,7 +1728,7 @@ In addition the dispersion may contain a group delay. This delay is estimated, c
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
 <li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
 </ul>
 </dd>
@@ -1428,17 +1782,17 @@ In addition the dispersion may contain a group delay. This delay is estimated, c
 <dt class="sig sig-object py" id="core.base_classic_algorithms.GeneralizedProjectionBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjectionBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.GeneralizedProjectionBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
-<p>Implements the Generalized Projection Algorithm. Inherits from ClassicalAlgorithmsBASE.</p>
-<ol class="upperalpha simple" start="11">
-<li><ol class="upperalpha simple" start="23">
-<li><p>DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p></li>
-</ol>
-</li>
-</ol>
+<p>Implements the Generalized Projection Algorithm.</p>
+<p>[1] K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.GeneralizedProjectionBASE.no_steps_descent">
 <span class="sig-name descname"><span class="pre">no_steps_descent</span></span><a class="headerlink" href="#core.base_classic_algorithms.GeneralizedProjectionBASE.no_steps_descent" title="Link to this definition"></a></dt>
-<dd><p>int, the numer of descent steps per iteration</p>
+<dd><p>the numer of descent steps per iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1524,13 +1878,18 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_classic_algorithms.PtychographicIterativeEngineBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngineBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.PtychographicIterativeEngineBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
-<p>Implements a version of the Ptychographic Iterative Engine (PIE). Inherits from ClassicalAlgorithmsBASE.</p>
-<p>A. Maiden et al., Optica 4, 736-745 (2017)
-T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
+<p>Implements a version of the Ptychographic Iterative Engine (PIE).</p>
+<p>[1] A. Maiden et al., Optica 4, 736-745 (2017)
+[2] T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.PtychographicIterativeEngineBASE.alpha">
 <span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#core.base_classic_algorithms.PtychographicIterativeEngineBASE.alpha" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><p>a regularization parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1661,18 +2020,8 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_classic_algorithms.COPRABASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">COPRABASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.COPRABASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
-<p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA). Inherits from ClassicAlgorithmsBASE.</p>
-<ol class="upperalpha simple" start="14">
-<li><ol class="upperalpha simple" start="3">
-<li><p>Geib, Optica 6, 495-505 (2019)</p></li>
-</ol>
-</li>
-</ol>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">No</span> <span class="pre">attributes</span> <span class="pre">beyond</span> <span class="pre">ClassicalAlgorithmsBASE.</span></span></dt>
-<dd></dd></dl>
-
+<p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA).</p>
+<p>[1] N. C. Geib, Optica 6, 495-505 (2019)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.COPRABASE.update_population">
 <span class="sig-name descname"><span class="pre">update_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.COPRABASE.update_population" title="Link to this definition"></a></dt>
@@ -1803,36 +2152,61 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolutionBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
-<p>Implements a Differential-Evolution Algorithm. Inherits from GeneralOptimizationBASE.
+<p>Implements a Differential-Evolution Algorithm.
 Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for Global Optimization, 2014, <a class="reference external" href="https://www.osti.gov/servlets/purl/1163659">https://www.osti.gov/servlets/purl/1163659</a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE.strategy">
 <span class="sig-name descname"><span class="pre">strategy</span></span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE.strategy" title="Link to this definition"></a></dt>
-<dd><p>str,</p>
+<dd><p>the mutation and selection strategy, analogous to scipy’s differential evolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE.mutation_rate">
 <span class="sig-name descname"><span class="pre">mutation_rate</span></span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE.mutation_rate" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><p>the mutation rate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE.crossover_rate">
 <span class="sig-name descname"><span class="pre">crossover_rate</span></span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE.crossover_rate" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><p>the crossover rate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE.selection_mechanism">
 <span class="sig-name descname"><span class="pre">selection_mechanism</span></span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE.selection_mechanism" title="Link to this definition"></a></dt>
-<dd><p>str,</p>
+<dd><p>the selection mechanism, can be greedy or global, defined in select_population().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.DifferentialEvolutionBASE.temperature">
 <span class="sig-name descname"><span class="pre">temperature</span></span><a class="headerlink" href="#core.base_general_optimization.DifferentialEvolutionBASE.temperature" title="Link to this definition"></a></dt>
-<dd><p>float,</p>
+<dd><p>a temperature value for the global selection mechanism</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1986,12 +2360,17 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_general_optimization.EvosaxBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">EvosaxBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.EvosaxBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
-<p>Employs the evosax package to perform the optimization. Inherits from GeneralOptimizationBASE.
-Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
+<p>Employs the evosax package to perform the optimization.</p>
+<p>[1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.EvosaxBASE.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#core.base_general_optimization.EvosaxBASE.solver" title="Link to this definition"></a></dt>
-<dd><p>evosax-solver,</p>
+<dd><p>any evosax-solver should work</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>evosax-solver</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2049,38 +2428,41 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">LSFBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.LSFBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
-<p>Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG.
-Inherits from GeneralOptimizationBASE.</p>
+<p>Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG.</p>
 <p>The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
 and thus optimized in its discretized form.</p>
-<ol class="upperalpha simple" start="3">
-<li><ol class="upperalpha simple" start="15">
-<li><p>Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p></li>
-</ol>
-</li>
-</ol>
+<p>[1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE.number_of_bisection_iterations">
 <span class="sig-name descname"><span class="pre">number_of_bisection_iterations</span></span><a class="headerlink" href="#core.base_general_optimization.LSFBASE.number_of_bisection_iterations" title="Link to this definition"></a></dt>
-<dd><p>int,</p>
+<dd><p>as the name says</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE.random_direction_mode">
 <span class="sig-name descname"><span class="pre">random_direction_mode</span></span><a class="headerlink" href="#core.base_general_optimization.LSFBASE.random_direction_mode" title="Link to this definition"></a></dt>
-<dd><p>str,</p>
+<dd><p>can be random or continuous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE.no_points_for_continuous">
 <span class="sig-name descname"><span class="pre">no_points_for_continuous</span></span><a class="headerlink" href="#core.base_general_optimization.LSFBASE.no_points_for_continuous" title="Link to this definition"></a></dt>
-<dd><p>int,</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE.boundary">
-<span class="sig-name descname"><span class="pre">boundary</span></span><a class="headerlink" href="#core.base_general_optimization.LSFBASE.boundary" title="Link to this definition"></a></dt>
-<dd><p>int,</p>
+<dd><p>smaller value means less continuous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2198,26 +2580,29 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dt class="sig sig-object py" id="core.base_general_optimization.AutoDiffBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">AutoDiffBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
-<p>Employs the optimistix package to perform the optimization via Automatic-Differentiation. Inherits from GeneralOptimizationBASE.
-Is not implemented to optimize over a population. Instead only one individual is optimized.</p>
-<p>J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
-DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
+<p>Employs the optimistix package to perform the optimization via Automatic-Differentiation.</p>
+<p>[1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+[2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.AutoDiffBASE.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE.solver" title="Link to this definition"></a></dt>
-<dd><p>optimistix/optax-solver,</p>
+<dd><p>optax-solvers need to be initialized</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optimistix-solver, optax-solver</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.AutoDiffBASE.alternating_optimization">
 <span class="sig-name descname"><span class="pre">alternating_optimization</span></span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE.alternating_optimization" title="Link to this definition"></a></dt>
-<dd><p>bool,</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="core.base_general_optimization.AutoDiffBASE.optimize_individual_idx">
-<span class="sig-name descname"><span class="pre">optimize_individual_idx</span></span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE.optimize_individual_idx" title="Link to this definition"></a></dt>
-<dd><p>int,</p>
+<dd><p>if true, the optimizer alternates between amplitude and phase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

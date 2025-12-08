@@ -21,22 +21,22 @@ class RetrievePulses:
     The Base-Class for all reconstruction methods. Defines general initialization, preprocessing and postprocessing.
 
     Attributes:
-        nonlinear_method: str, SHG, THG, PG or SD
-        f0: float, rarely some solvers need the central frequency to be zero. This saves the original central frequency.
-        doubleblind: bool, whether the reconstruction is supposed to yield the gate in addition to the pulse.
-        spectrum_is_being_used: bool,
-        momentum_is_being_used: bool,
-        measurement_info: Pytree, a container of variable (but static) structure. Holds measurement data and parameters.
-        descent_info: Pytree, a container of variable (but static) structure. Holds parameters of the reconstruction algorithm.
-        descent_state: Pytree, a container of variable (but static) structure. Contains the current state of the solver.
-        prng_seed: int, seed for the key
-        key: jnp.array, a jax.random.PRNGKey
-        factor: int, for SHG/THG the a correction factor of 2/3 needs to applied occasionally.
+        nonlinear_method (str): SHG, THG, PG or SD
+        f0 (float): rarely some solvers need the central frequency to be zero. This saves the original central frequency.
+        doubleblind (bool): whether the reconstruction is supposed to yield the gate in addition to the pulse.
+        spectrum_is_being_used (bool):
+        momentum_is_being_used (bool):
+        measurement_info (Pytree): a container of variable (but static) structure. Holds measurement data and parameters.
+        descent_info (Pytree): a container of variable (but static) structure. Holds parameters of the reconstruction algorithm.
+        descent_state (Pytree): a container of variable (but static) structure. Contains the current state of the solver.
+        prng_seed (int): seed for the key
+        key (jnp.array): a jax.random.PRNGKey
+        factor (int): for SHG/THG the a correction factor of 2/3 needs to applied occasionally.
 
-        x_arr: jnp.array, an alias for the shifts/delays, internally indexed via m
-        time: jnp.array, the time axis, internally indexed via k
-        frequency: jnp.array, the frequency axis, internally indexed via n
-        measured_trace: jnp.array, 2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)
+        x_arr (jnp.array): an alias for the shifts/delays, internally indexed via m
+        time (jnp.array): the time axis, internally indexed via k
+        frequency (jnp.array): the frequency axis, internally indexed via n
+        measured_trace (jnp.array): 2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)
 
     """
 
@@ -366,19 +366,19 @@ class RetrievePulsesFROG(RetrievePulses):
     """
     The reconstruction class for FROG. Inherits from RetrievePulses.
 
-    R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
+    [1] R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
 
     Attributes:
-        tau_arr: jnp.array, the delays
-        gate: jnp.array, the gate-pulse (if its known).
-        transform_arr: jnp.array, an alias for tau_arr
-        idx_arr: jnp.array, an array with indices for tau_arr
-        dt: float,
-        df: float,
-        sk: jnp.array, correction values for FFT->DFT
-        rn: jnp.array, correction values for FFT->DFT
-        cross_correlation: bool,
-        ifrog: bool, 
+        tau_arr (jnp.array): the delays
+        gate (jnp.array): the gate-pulse (if its known).
+        transform_arr (jnp.array): an alias for tau_arr
+        idx_arr (jnp.array): an array with indices for tau_arr
+        dt (float):
+        df (float):
+        sk (jnp.array): correction values for FFT->DFT
+        rn (jnp.array): correction values for FFT->DFT
+        cross_correlation (bool):
+        ifrog (bool): 
 
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, ifrog=False, **kwargs):
@@ -518,7 +518,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
         Args:
             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
-            tau_arr: jnp.array, the delays
+            tau_arr (jnp.array): the delays
             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
 
         Returns:
@@ -609,12 +609,12 @@ class RetrievePulsesFROG(RetrievePulses):
 
 class RetrievePulsesTDP(RetrievePulsesFROG):
     """
-    The reconstruction class for Time-Domain-Ptychography. Inherits from RetrievePulsesFROG.
+    The reconstruction class for Time-Domain-Ptychography.
 
-    D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
+    [1] D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
 
     Attributes:
-        spectral_filter: jnp.array,
+        spectral_filter (jnp.array): the spectral filter in the gate arm.
 
     """
 
@@ -645,7 +645,7 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
 
         Args:
             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
-            tau_arr: jnp.array, the delays
+            tau_arr (jnp.array): the delays
             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
 
         Returns:
@@ -703,21 +703,21 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
 
 class RetrievePulsesCHIRPSCAN(RetrievePulses):
     """
-    The reconstruction class for Chirp-Scan methods. Inherits from RetrievePulses.
+    The reconstruction class for Chirp-Scan methods.
 
-    V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
-    M. Miranda et al., Opt. Express 20, 18732-18743 (2012) 
+    [1] V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
+    [2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012) 
 
     Attributes:
-        z_arr: jnp.array, the shifts
-        dt: float,
-        df: float,
-        sk: jnp.array, correction values for FFT->DFT
-        rn: jnp.array, correction values for FFT->DFT
-        phase_matrix: jnp.array, a 2D-array with the phase values applied to pulse
+        z_arr (jnp.array): the shifts
+        dt (float):
+        df (float):
+        sk (jnp.array): correction values for FFT->DFT
+        rn (jnp.array): correction values for FFT->DFT
+        phase_matrix (jnp.array): a 2D-array with the phase values applied to pulse
         parameters: tuple, parameters for the chirp function
-        transform_arr: jnp.array, an alias for phase_matrix
-        idx_arr: jnp.array, indices for z_arr
+        transform_arr (jnp.array): an alias for phase_matrix
+        idx_arr (jnp.array): indices for z_arr
 
     """
     
@@ -823,7 +823,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
         Args:
             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
-            phase_matrix: jnp.array, the applied phases
+            phase_matrix (jnp.array): the applied phases
             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:
@@ -890,19 +890,19 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 class RetrievePulses2DSI(RetrievePulsesFROG):
     """
-    The reconstruction class for 2DSI. Inherits from RetrievePulsesFROG.
+    The reconstruction class for 2DSI.
 
-    J. R. Birge et al., Opt. Lett. 31, 2063-2065 (2006) 
+    [1] J. R. Birge et al., Opt. Lett. 31, 2063-2065 (2006) 
 
     Attributes:
-        spectral_filter1: jnp.array, 1st filter in interferometer 
-        spectral_filter2: jnp.array, 2nd filter in interferometer
-        tau_pulse_anc1: float, delay between 1st interferometer arm and exterior pulse
-        anc_frequency1: float, central frequency of pulse in 1st arm (calculated from max of spectral_filter1)
-        anc_frequency2: float, central frequency of pulse in 2nd arm (calculated from max of spectral_filter2)
-        c0: float, the speed of light
-        refractive_index: refractiveindex.RefractiveIndexMaterial, returns the refractive index for a material given a wavelength in um
-        phase_matrix: jnp.array, a 2D-array with phase values that could potentially have been applied to a pulse
+        spectral_filter1 (jnp.array): 1st filter in interferometer 
+        spectral_filter2 (jnp.array): 2nd filter in interferometer
+        tau_pulse_anc1 (float): delay between 1st interferometer arm and exterior pulse
+        anc_frequency1 (float): central frequency of pulse in 1st arm (calculated from max of spectral_filter1)
+        anc_frequency2 (float): central frequency of pulse in 2nd arm (calculated from max of spectral_filter2)
+        c0 (float): the speed of light
+        refractive_index (refractiveindex.RefractiveIndexMaterial, Callable): returns the refractive index for a material given a wavelength in um
+        phase_matrix (jnp.array): a 2D-array with phase values that could potentially have been applied to a pulse
 
     """
 
@@ -984,7 +984,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
         Args:
             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
-            tau_arr: jnp.array, the delays
+            tau_arr (jnp.array): the delays
             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:
@@ -1029,15 +1029,15 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
 class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
     """
-    The reconstruction class for VAMPIRE. Inherits from RetrievePulsesFROG.
+    The reconstruction class for VAMPIRE.
 
-    B. Seifert and H. Stolz, Meas. Sci. Technol. 20 (2009) 015303 (7pp), 10.1088/0957-0233/20/1/015303 (2008)
+    [1] B. Seifert and H. Stolz, Meas. Sci. Technol. 20 (2009) 015303 (7pp), 10.1088/0957-0233/20/1/015303 (2008)
 
     Attributes:
-        tau_interferometer: float, delay of the interferometer arms
-        c0: float, the speed of light
-        refractive_index: refractiveindex.RefractiveIndexMaterial, returns the refractive index for a material given a wavelength in um
-        phase_matrix: jnp.array, a 2D-array with phase values that could potentially have been applied to a pulse
+        tau_interferometer (float): delay of the interferometer arms
+        c0 (float): the speed of light
+        refractive_index (refractiveindex.RefractiveIndexMaterial, Callable): returns the refractive index for a material given a wavelength in um
+        phase_matrix (jnp.array): a 2D-array with phase values that could potentially have been applied to a pulse
 
     """
 
@@ -1097,7 +1097,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
         Args:
             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
-            tau_arr: jnp.array, the delays
+            tau_arr (jnp.array): the delays
             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:

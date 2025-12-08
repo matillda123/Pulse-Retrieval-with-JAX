@@ -128,13 +128,13 @@ def initialize_newton_info(optimizer):
 
 class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     """
-    Implements the Generalized Projection Algorithm. Inherits from ClassicalAlgorithmsBASE.
+    Implements the Generalized Projection Algorithm.
 
-    K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994) 
+    [1] K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994) 
 
     
     Attributes:
-        no_steps_descent: int, the numer of descent steps per iteration
+        no_steps_descent (int): the numer of descent steps per iteration
 
     """
     def __init__(self, *args, **kwargs):
@@ -391,13 +391,13 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
 class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
     """
-    Implements a version of the Ptychographic Iterative Engine (PIE). Inherits from ClassicalAlgorithmsBASE.
+    Implements a version of the Ptychographic Iterative Engine (PIE).
 
-    A. Maiden et al., Optica 4, 736-745 (2017) 
-    T. Schweizer, "Time-Domain Ptychography and its Applications in Ultrafast Science", PhD Thesis, Bern (2021)
+    [1] A. Maiden et al., Optica 4, 736-745 (2017) 
+    [2] T. Schweizer, "Time-Domain Ptychography and its Applications in Ultrafast Science", PhD Thesis, Bern (2021)
 
     Attributes:
-        alpha: float,
+        alpha (float): a regularization parameter
 
     """
 
@@ -804,13 +804,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
 class COPRABASE(ClassicAlgorithmsBASE):
     """
-    Implements a version of the Common Pulse Retrieval Algorithm (COPRA). Inherits from ClassicAlgorithmsBASE.
+    Implements a version of the Common Pulse Retrieval Algorithm (COPRA).
 
-    N. C. Geib, Optica 6, 495-505 (2019) 
-    
-
-    Attributes:
-        No attributes beyond ClassicalAlgorithmsBASE.
+    [1] N. C. Geib, Optica 6, 495-505 (2019) 
 
     """
 

@@ -29,15 +29,15 @@ def shuffle_pytree(key, pytree, axis):
 
 class DifferentialEvolutionBASE(GeneralOptimizationBASE):
     """
-    Implements a Differential-Evolution Algorithm. Inherits from GeneralOptimizationBASE.
+    Implements a Differential-Evolution Algorithm. 
     Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for Global Optimization, 2014, https://www.osti.gov/servlets/purl/1163659
 
     Attributes:
-        strategy: str,
-        mutation_rate: float,
-        crossover_rate: float,
-        selection_mechanism: str,
-        temperature: float,
+        strategy (str): the mutation and selection strategy, analogous to scipy's differential evolution.
+        mutation_rate (float): the mutation rate
+        crossover_rate (float): the crossover rate
+        selection_mechanism (str): the selection mechanism, can be greedy or global, defined in select_population().
+        temperature (float): a temperature value for the global selection mechanism
 
     """
 
@@ -358,11 +358,12 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
 
 class EvosaxBASE(GeneralOptimizationBASE):
     """
-    Employs the evosax package to perform the optimization. Inherits from GeneralOptimizationBASE.
-    Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)
+    Employs the evosax package to perform the optimization.
+
+    [1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)
 
     Attributes:
-        solver: evosax-solver,
+        solver (evosax-solver): any evosax-solver should work
 
     """
     def __init__(self, *args, **kwargs):
@@ -540,19 +541,17 @@ class LSFBASE(GeneralOptimizationBASE):
 
     """
     Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG. 
-    Inherits from GeneralOptimizationBASE.
 
     The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
     and thus optimized in its discretized form.
 
 
-    C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
+    [1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
 
     Attributes:
-        number_of_bisection_iterations: int,
-        random_direction_mode: str,
-        no_points_for_continuous: int,
-        boundary: int,
+        number_of_bisection_iterations (int): as the name says
+        random_direction_mode (str): can be random or continuous
+        no_points_for_continuous (int): smaller value means less continuous
 
     """
 
@@ -849,16 +848,14 @@ class LSFBASE(GeneralOptimizationBASE):
 
 class AutoDiffBASE(GeneralOptimizationBASE):
     """
-    Employs the optimistix package to perform the optimization via Automatic-Differentiation. Inherits from GeneralOptimizationBASE.
-    Is not implemented to optimize over a population. Instead only one individual is optimized.
+    Employs the optimistix package to perform the optimization via Automatic-Differentiation.
 
-    J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
-    DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)
+    [1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+    [2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)
 
     Attributes:
-        solver: optimistix/optax-solver,
-        alternating_optimization: bool,
-        optimize_individual_idx: int,
+        solver (optimistix-solver, optax-solver): optax-solvers need to be initialized
+        alternating_optimization (bool): if true, the optimizer alternates between amplitude and phase
     
     """
 
@@ -871,7 +868,6 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         self.solver = optimistix.BFGS
         self.alternating_optimization = False
 
-        self.optimize_individual_idx = 0
 
 
     def get_phase(self, coefficients, central_f, measurement_info, descent_info):

@@ -17,7 +17,7 @@ from src.core.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
     """
-    The Generalized Projection Algorithm for VAMPIRE. Inherits from GeneralizedProjectionBASE and RetrievePulsesVAMPIRE.
+    The Generalized Projection Algorithm for VAMPIRE.
 
     """
 
@@ -60,12 +60,12 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesVAMPIRE):
     """
-    The Ptychographic Iterative Engine (PIE) for VAMPIRE. Inherits from PtychographicIterativeEngineBASE and RetrievePulsesVAMPIRE.
-
+    The Ptychographic Iterative Engine (PIE) for VAMPIRE.
     Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
 
     Attributes:
-        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, pie_method="rPIE", **kwargs):
         assert cross_correlation!="doubleblind", "Doubleblind is not implemented for VAMPIRE-PtychographicIterativeEngine."
@@ -136,7 +136,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
     """
-    The Common Pulse Retrieval Algorithm (COPRA) for VAMPIRE. Inherits from COPRABASE and RetrievePulsesVAMPIRE.
+    The Common Pulse Retrieval Algorithm (COPRA) for VAMPIRE.
+    
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)

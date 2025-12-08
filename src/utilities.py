@@ -12,6 +12,7 @@ from jax.scipy.special import bernoulli, factorial
 
 
 def flatten_MyNamespace(MyNamespace):
+    """ Flattening the pytree. Needed for registering MyNamespace as a pytree. """
     class_dict = MyNamespace.__dict__
     data_keys = list(class_dict.keys())
     data_values = list(class_dict.values())
@@ -19,17 +20,14 @@ def flatten_MyNamespace(MyNamespace):
 
 
 def unflatten_MyNamespace(aux_data, leaves):
+    """ Unflattening the pytree. Needed for registering MyNamespace as a pytree. """
     return MyNamespace(**dict(zip(aux_data, leaves)))
 
 
 class MyNamespace:
     """
-    The central Pytree.
-    Does not have a fixed shaped/structure at initialization. Because it would be tedious and cumbersome to keep 
-    track of this for all different pytree types/version used.
-    To solve the issues arising from this MyNamespace.expand() can be used to add attributes by returning a 
-    new MyNamespace object. 
-    On top inside jax-transformations one needs to make sure to keep the structure static. (If not jax may hopefully catch it.)
+    The central Pytree. Supports basic arithmetic if shapes and structure are consistent.
+    Does not have a fixed shape/structure at initialization.
     """
 
     def __init__(self, **kwargs):
@@ -37,6 +35,10 @@ class MyNamespace:
 
 
     def expand(self, **kwargs):
+        """ 
+        Returns a new MyNamespace object containg all previous attributes as well as the **kwargs. 
+        Can be used to build an arbitrary pytree.
+        """
         new_dict = {**self.__dict__, **kwargs}
         return MyNamespace(**new_dict)
     
@@ -93,6 +95,15 @@ class MyNamespace:
         return self.__add__((-1)*other)
     
 
+    def __div__(self, other):
+        if isinstance(other, MyNamespace):
+            tree_new = jax.tree.map(lambda x,y: x/y, self, other)
+        else:
+            y = other
+            tree_new = jax.tree.map(lambda x: x/y, self)
+        return tree_new
+    
+
 jax.tree_util.register_pytree_node(MyNamespace, flatten_MyNamespace, unflatten_MyNamespace)
     
 
@@ -105,10 +116,10 @@ def run_scan(do_scan, carry, no_iterations, use_jit):
     Run a solver iteratively using lax.scan with or without jax.jit.
 
     Args:
-        do_scan: Callable, the callable needs to take carry its argument
-        carry: Pytree, the initial state of the iteration
-        no_iterations: int, the number of iterations
-        use_jit: bool, whether jax.jit is supposed to be used or not
+        do_scan (Callable): the callable needs to take carry its argument
+        carry (Pytree): the initial state of the iteration
+        no_iterations (int): the number of iterations
+        use_jit (bool): whether jax.jit is supposed to be used or not
 
     Returns:
         tuple[Carry, Y], the output of jax.lax.scan
@@ -137,11 +148,11 @@ def scan_helper(carry, xs, actual_function, number_of_args, number_of_xs):
     The output of actual_function needs to be of the same structure as carry.
 
     Args:
-        carry: any or tuple, the initial state of the iteration
-        xs: any or tuple, the xs used by jax.lax.scan
-        actual_function: Callable, the function that is to be iterated over
-        number_of_args: int, the number of individual arguments in carry
-        number_of_xs: int, the number of individual arguments in xs
+        carry (any, tuple): the initial state of the iteration
+        xs (any, tuple): the xs used by jax.lax.scan
+        actual_function (Callable): the function that is to be iterated over
+        number_of_args (int): the number of individual arguments in carry
+        number_of_xs (int): the number of individual arguments in xs
     
     Return:
         Any, the output of actual_function
@@ -171,9 +182,9 @@ def while_loop_helper(carry, actual_function, number_of_args):
     Similar to scan_helper. Unpacks carry, such that the input of actual_function does not have to conform to lax.while_loop's requirements. 
 
     Args:
-        carry: any or tuple, the initial state of the iteration
-        actual_function: Callable, the function to be iterated over
-        number_of_args: int, the number of individual arguments in carry
+        carry (any, tuple): the initial state of the iteration
+        actual_function (Callable): the function to be iterated over
+        number_of_args (int): the number of individual arguments in carry
 
     Returns:
         Any, the output of actual_function
@@ -199,10 +210,10 @@ def optimistix_helper_loss_function(input, args, function, no_of_args):
     function and no_of_args have to be fixed via partial.
 
     Args:
-        input: any, the input the function
-        args: any, the args of function
-        function: Callable, the actual loss function 
-        no_of_args: int, the number of extra arguments
+        input (any): the input the function
+        args (any): the args of function
+        function (Callable): the actual loss function 
+        no_of_args (int): the number of extra arguments
 
     Returns:
         tuple, a tuple which contains the calculated error twice, since there is no auxilary information
@@ -228,10 +239,10 @@ def scan_helper_equinox(carry, xs, step, static):
     step and static have to be fixed via partial.
 
     Args:
-        carry: any or tuple, the carry to be iterated over
-        xs: any or tuple, unused but required by lax.scan
-        step: Callable, the function to be iterated over 
-        static: any, a static non-jax-compatible object which is to be merged before calling step and removed afterwards
+        carry (any, tuple): the carry to be iterated over
+        xs (any, tuple): unused but required by lax.scan
+        step (Callable): the function to be iterated over 
+        static (any): a static non-jax-compatible object which is to be merged before calling step and removed afterwards
 
     Returns:
         tuple, the output of step
@@ -262,10 +273,10 @@ def do_fft(signal, sk, rn, axis=-1):
     applied which have the same effect and make the fft work any frequency range.
 
     Args:
-        signal: jnp.array, the signal on which the fft is applied
-        sk: jnp.array, corrective values which "shift" the signal to the correct frequencies
-        rn: jnp.array, corrective values which "shift" the signal to the correct frequencies
-        axis: int, the axis over which the fft is applied (Default is -1)
+        signal (jnp.array): the signal on which the fft is applied
+        sk (jnp.array): corrective values which "shift" the signal to the correct frequencies
+        rn (jnp.array): corrective values which "shift" the signal to the correct frequencies
+        axis (int): the axis over which the fft is applied (Default is -1)
 
     Returns:
         jnp.array, the fourier transformed signal
@@ -284,10 +295,10 @@ def do_ifft(signal, sk, rn, axis=-1):
     applied which have the same effect and make the fft work any frequency range.
 
     Args:
-        signal: jnp.array, the signal on which the ifft is applied
-        sk: jnp.array, corrective values which "shift" the signal to the correct positions
-        rn: jnp.array, corrective values which "shift" the signal to the correct positions
-        axis: int, the axis over which the ifft is applied (Default is -1)
+        signal (jnp.array): the signal on which the ifft is applied
+        sk (jnp.array): corrective values which "shift" the signal to the correct positions
+        rn (jnp.array): corrective values which "shift" the signal to the correct positions
+        axis (int): the axis over which the ifft is applied (Default is -1)
 
     Returns:
         jnp.array, the inverse fourier transformed signal
@@ -304,8 +315,8 @@ def get_sk_rn(time, frequency):
     time and frequency have to fullfill N=1/(df*dt).
 
     Args:
-        time: jnp.array, the time axis
-        frequency: jnp.array, the frequency axis
+        time (jnp.array): the time axis
+        frequency (jnp.array): the frequency axis
 
     Returns:
         tuple[jnp.array, jnp.array], the corrections used by do_fft/do_ifft
@@ -485,12 +496,12 @@ def generate_random_continuous_function(key, no_points, x, minval, maxval, distr
     Generates a 1D-array with random but continuous values. Uses on cubic inter/extrapolation of random values.
 
     Args:
-        key: jnp.array, a jax.random.PRNGKey
-        no_points: int, the number of random points to use for the interpolation
-        x: jnp.array, the x-values from which to choose the location of random values
-        minval: int or float, the minimal random y-value, the interpolation may lead to lower values
-        maxval: int or float, the maximal random y-value, the interpolation may lead to higher values
-        distribution: jnp.array, a probability distribution for the x-location of the random values.
+        key (jnp.array): a jax.random.PRNGKey
+        no_points (int): the number of random points to use for the interpolation
+        x (jnp.array): the x-values from which to choose the location of random values
+        minval (int, float): the minimal random y-value, the interpolation may lead to lower values
+        maxval (int, float): the maximal random y-value, the interpolation may lead to higher values
+        distribution (jnp.array): a probability distribution for the x-location of the random values.
 
     Returns:
         jnp.array, the interpolated random y-values. 
@@ -535,10 +546,10 @@ def solve_linear_system(A, b, x_prev, solver):
     Solve a stack of linear equation Ax=b using scipy or lineax.
 
     Args:
-        A: jnp.array, stack of 2D-arrays
-        b: jnp.array, stack of 1D-arrays
-        x_prev: jnp.array, stack of 1D-arrays with approximate solutions.
-        solver: str or lineax-solver, which library/method to use
+        A (jnp.array): stack of 2D-arrays
+        b (jnp.array): stack of 1D-arrays
+        x_prev (jnp.array): stack of 1D-arrays with approximate solutions.
+        solver (str,lineax-solver): which library/method to use
 
     Returns:
         jnp.array, stack of 1D-arrays with the solution to Ax=b
@@ -566,12 +577,12 @@ def calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_pr
     Calculates the newton-direction give a gradient and a hessian. 
 
     Args:
-        grad_m: jnp.array,
-        hessian_m: jnp.array,
-        lambda_lm: float,
-        newton_direction_prev: jnp.array,
-        solver: str or lineax-solver,
-        full_or_diagonal: str.
+        grad_m (jnp.array):
+        hessian_m (jnp.array):
+        lambda_lm (float):
+        newton_direction_prev (jnp.array):
+        solver: (str, lineax-solver):
+        full_or_diagonal (str):
 
     Returns:
         tuple[jnp.array, Pytree]
@@ -621,9 +632,9 @@ def get_idx_arr(N, M, key):
     Create a stack of size M with randomized arrays with indices with range 0, N.
 
     Args:
-        N: int, the maximum index
-        M: int, the number of randomizations
-        key: jnp.array, a jax.random.PRNGKey
+        N (int): the maximum index
+        M (int): the number of randomizations
+        key (jnp.array): a jax.random.PRNGKey
 
     Returns:
         jnp.array, a stack of 1D-arrays with randomized indices
@@ -651,7 +662,7 @@ def center_signal(signal):
     Is done in two stages since periodic boundaries distort the actual center of mass.
 
     Args:
-        signal: jnp.array, the signal to be centered.
+        signal (jnp.array): the signal to be centered.
 
     Returns:
         jnp.array, the signal with its center of mass located at index N/2

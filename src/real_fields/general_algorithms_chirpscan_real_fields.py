@@ -7,8 +7,7 @@ import jax
 
 
 class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionCHIRPSCAN, RetrievePulsesCHIRPSCANwithRealFields):
-    """ The Differential Evolution Algorithm applied to Chirp-Scans with real fields. 
-    Inherits from  RetrievePulsesRealFields, DifferentialEvolutionCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields"""
+    """ The Differential Evolution Algorithm applied to Chirp-Scans with real fields."""
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=(None, None), phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=f_range_fields, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
         self._post_init()
@@ -16,8 +15,7 @@ class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionCHIRP
 
 
 class Evosax(RetrievePulsesRealFields, EvosaxCHIRPSCAN, RetrievePulsesCHIRPSCANwithRealFields):
-    """ The Evosax package applied to Chirp-Scans with real fields. 
-    Inherits from  RetrievePulsesRealFields, EvosaxCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields"""
+    """ The Evosax package applied to Chirp-Scans with real fields."""
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=(None, None), phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=f_range_fields, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
         self._post_init()
@@ -25,8 +23,7 @@ class Evosax(RetrievePulsesRealFields, EvosaxCHIRPSCAN, RetrievePulsesCHIRPSCANw
 
 
 class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRealFields):
-    """ The LSF Algorithm applied to Chirp-Scans with real fields. 
-    Inherits from  RetrievePulsesRealFields, LSFCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields"""
+    """ The LSF Algorithm applied to Chirp-Scans with real fields. """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=(None, None), phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=f_range_fields, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
         self._post_init()
@@ -103,8 +100,7 @@ class LSF(RetrievePulsesRealFields, LSFCHIRPSCAN, RetrievePulsesCHIRPSCANwithRea
 
 
 class AutoDiff(RetrievePulsesRealFields, AutoDiffCHIRPSCAN, RetrievePulsesCHIRPSCANwithRealFields):
-    """ The Optimistix package applied to Chirp-Scans with real fields. 
-    Inherits from  RetrievePulsesRealFields, AutoDiffCHIRPSCAN and RetrievePulsesCHIRPSCANwithRealFields"""
+    """ The Optimistix package applied to Chirp-Scans with real fields. """
     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=(None, None), phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, f_range_fields=f_range_fields, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
         self._post_init()

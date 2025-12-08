@@ -14,10 +14,10 @@ class AlgorithmsBASE:
     The Base-Class for all solvers.
 
     Attributes:
-        jit: bool, enables/disables jax.jit
-        spectrum_is_being_used: bool,
-        fft: Callable, performs an fft, performs an fft of a signal. (Needs to expect signal, sk, rn, axis)
-        ifft: Callable, performs an ifft, performs an ifft of a signal. (Needs to expect signal, sk, rn, axis)
+        jit (bool): enables/disables jax.jit
+        spectrum_is_being_used (bool): what the name says
+        fft (Callable): performs an fft, performs an fft of a signal. (Needs to expect signal, sk, rn, axis)
+        ifft (Callable): performs an ifft, performs an ifft of a signal. (Needs to expect signal, sk, rn, axis)
 
     """
     def __init__(self, *args, **kwargs):
@@ -79,7 +79,7 @@ class AlgorithmsBASE:
         Args:
             frequency: jnp.array, the frequency axis of spectrum
             spectrum: jnp.array, the spectrum
-            pulse_or_gate: str, whether the spectrum is from the pulse or the gate-pulse.
+            pulse_or_gate (str): whether the spectrum is from the pulse or the gate-pulse.
         
         Returns:
             the class instance
@@ -124,39 +124,39 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
     The Base-Class for all classical solvers (e.g. Generalized Projection, ...). Inherits from AlgorithmsBASE.
     
     Attributes:
-        local_gamma: float, step size for local iterations
-        global_gamma: float, step size for global iterations
+        local_gamma (float): step size for local iterations
+        global_gamma (float): step size for global iterations
 
-        linesearch: bool or str, enables/disables a linesearch. Can be False, backtracking or zoom.
-        max_steps_linesearch: int, maximum number of linesearch steos
-        c1: float, constant for the Armijo-condition
-        c2: float, constant for the strong Wolfe-condition
-        delta_gamma: float, a factor which by which gamma is increased each iteration
+        linesearch (bool, str): enables/disables a linesearch. Can be False, backtracking or zoom.
+        max_steps_linesearch (int): maximum number of linesearch steos
+        c1 (float): constant for the Armijo-condition
+        c2 (float): constant for the strong Wolfe-condition
+        delta_gamma (float): a factor which by which gamma is increased each iteration
 
-        local_newton: bool or str, enables/disables the use of a hessian in local iterations. Can be False, lbfgs or diagonal.
-        global_newton: bool or str, enables/disables the use of a hessian in global iterations. Can be False, lbfgs, diagonal or full.
-        lambda_lm: float, a Levenberg-Marquardt style damping coefficient.
-        lbfgs_memory: int, the number of past iterations to use in LBFGS
-        linalg_solver: str or lineax-solver, chooses a library/method for inverting the hessian. Can be scipy, lineax or a specific lineax solver.
+        local_newton (bool, str): enables/disables the use of a hessian in local iterations. Can be False, lbfgs or diagonal.
+        global_newton (bool, str): enables/disables the use of a hessian in global iterations. Can be False, lbfgs, diagonal or full.
+        lambda_lm (float): a Levenberg-Marquardt style damping coefficient.
+        lbfgs_memory (int): the number of past iterations to use in LBFGS
+        linalg_solver (str, lineax-solver): chooses a library/method for inverting the hessian. Can be scipy, lineax or a specific lineax solver.
 
-        conjugate_gradients: bool or str, enables/diables the use of the Nonlinear Conjugate Gradients method. Can be False, Fletcher-Reeves, 
+        conjugate_gradients (bool, str): enables/diables the use of the Nonlinear Conjugate Gradients method. Can be False, Fletcher-Reeves, 
                                             Hestenes-Stiefel, Dai-Yuan, Polak-Ribiere or average.
 
-        r_local_method: str, chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.
-        r_global_method: str, chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.
-        r_gradient: str, if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.
-        r_newton: bool, enables/diables the use of the diagonal hessian if r_method=iteration
-        r_weights: float or jnp.array, allows the weigthing of residuals
-        r_no_iterations: int, the number of iterations if r_method=iteration
-        r_step_scaling: str, the type of adpative step-size scaling to use if r_method=iteration
+        r_local_method (str): chooses the method on the calculation of S_prime in local iterations. Can be projection or iteration.
+        r_global_method (str): chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.
+        r_gradient (str): if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.
+        r_newton (bool): enables/diables the use of the diagonal hessian if r_method=iteration
+        r_weights (float, jnp.array): allows the weigthing of residuals
+        r_no_iterations (int): the number of iterations if r_method=iteration
+        r_step_scaling (str): the type of adpative step-size scaling to use if r_method=iteration
 
-        xi: float, a damping coefficient for adaptive step-sizes, avoids division by zero
-        local_adaptive_scaling: bool or str, enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+        xi (float): a damping coefficient for adaptive step-sizes, avoids division by zero
+        local_adaptive_scaling (bool, str): enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
                                             pade_11, pade_01 or pade_02
-        global_adaptive_scaling: bool or str, enables/disables adaptive step sized in global iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
+        global_adaptive_scaling (bool, str): enables/disables adaptive step sized in global iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
                                             pade_11, pade_01 or pade_02
 
-        momentum_is_being_used: bool,
+        momentum_is_being_used (bool): what the name says
 
 
     """
@@ -249,7 +249,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
         Args:
             population_size: int, is needed for some initialization 
-            eta: float, parameter that controls the momentum strength
+            eta (float): parameter that controls the momentum strength
 
         Returns:
             the class instance
@@ -290,7 +290,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         Args:
             signal: jnp.array,
             momentum: Pytree, contains the velocity map and its update
-            eta: float, the strength of the momentum
+            eta (float): the strength of the momentum
 
         Returns:
             tuple[jnp.array, Pytree], the updated signal and momentum state
@@ -321,11 +321,9 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     The Base-Class for all general solvers. Inherits from AlgorithmsBASE.
 
     Attributes:
-        fd_grad: bool or int,
-        amplitude_or_intensity: str,
-        error_metric: Callable,
-        make_bsplines_phase: Callable,
-        make_bsplines_amp: Callable,
+        fd_grad (bool, int): the loss function can be calcualted with the residuals of the finite-differences of the trace
+        amplitude_or_intensity (str, int, float): the loss function can be calculated with the residuals of fields to arbitrary powers
+        error_metric (Callable): an arbitrary loss-function, needs to expect (trace, measured_trace) as input
     
     """
 
@@ -343,8 +341,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
         Args:
             population_size: int, the number of individuals
-            amp_type: str, the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines or discrete
-            phase_type: str, the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines or discrete
+            amp_type (str): the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines or discrete
+            phase_type (str): the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines or discrete
             no_funcs_amp: int, the number of basis functions for the spectral amplitude (if parametrized)
             no_funcs_phase: int, the number of basis functions for the spectral phase (if parametrized)
 

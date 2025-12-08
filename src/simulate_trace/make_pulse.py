@@ -60,8 +60,8 @@ class MakePulse:
     Does not work with Jax.
 
     Attributes:
-        N: int,
-        Delta_f: float,
+        N (int): the number of points on the time/frequency-grid
+        Delta_f (float): the frequency range which is used. Extends from -Delta_f/2 to +Delta_f/2
 
     """
     def __init__(self, N=256, Delta_f=None):

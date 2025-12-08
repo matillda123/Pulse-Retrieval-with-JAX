@@ -17,15 +17,15 @@ from src.core.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
     """ 
-    Reconstructs a 2DSI trace non-iteratively by extracting the relative phase of the fringes for each frequency. Inherits from AlgorithmsBASE and RetrievePulses2DSI.
+    Reconstructs a 2DSI trace non-iteratively by extracting the relative phase of the fringes for each frequency.
 
-    J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)
+    [1] J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)
 
     Attributes:
-        integration_method: str, the integration method for the group delay. Has to be one of cumsum or euler_maclaurin_n
-        integration_order: None or int, the euler_maclaurin order
-        windowing: bool or str, windowing type for the FFT. Can be one of False, hamming or hann.
-        cut_off_intensity_for_GD: float, a cut-off which sets the GD to zero for smaller intensities. (Needed for stable numerics)
+        integration_method (str): the integration method for the group delay. Has to be one of cumsum or euler_maclaurin_k
+        integration_order (None, int): the euler_maclaurin order, infered from integration_method
+        windowing (bool, str): windowing type for the FFT. Can be one of False, hamming or hann.
+        cut_off_intensity_for_GD (float): a cut-off which sets the GD to zero for smaller intensities. (Needed for stable numerics)
         
     """
 
@@ -190,7 +190,7 @@ class DirectReconstruction(AlgorithmsBASE, RetrievePulses2DSI):
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
     """
-    The Generalized Projection Algorithm for 2DSI. Inherits from GeneralizedProjectionBASE and RetrievePulses2DSI.
+    The Generalized Projection Algorithm for 2DSI.
 
     """
 
@@ -233,12 +233,12 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulses2DSI):
     """
-    The Ptychographic Iterative Engine (PIE) for 2DSI. Inherits from PtychographicIterativeEngineBASE and RetrievePulses2DSI.
-
+    The Ptychographic Iterative Engine (PIE) for 2DSI.
     Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
 
     Attributes:
-        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, pie_method="rPIE", **kwargs):
         assert cross_correlation!="doubleblind", "Doubleblind is not implemented for 2DSI-PtychographicIterativeEngine."
@@ -309,7 +309,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 class COPRA(COPRABASE, RetrievePulses2DSI):
     """
-    The Common Pulse Retrieval Algorithm (COPRA) for 2DSI. Inherits from COPRABASE and RetrievePulses2DSI.
+    The Common Pulse Retrieval Algorithm (COPRA) for 2DSI.
+    
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)

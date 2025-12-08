@@ -6,8 +6,7 @@ import jax
 
 
 class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
-    """ The Differential Evolution Algorithm applied to VAMPIRE with real fields. 
-    Inherits from  RetrievePulsesRealFields, DifferentialEvolutionVAMPIRE and RetrievePulsesVAMPIREwithRealFields"""
+    """ The Differential Evolution Algorithm applied to VAMPIRE with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -15,8 +14,7 @@ class DifferentialEvolution(RetrievePulsesRealFields, DifferentialEvolutionVAMPI
 
 
 class Evosax(RetrievePulsesRealFields, EvosaxVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
-    """ The Evosax package applied to VAMPIRE with real fields. 
-    Inherits from  RetrievePulsesRealFields, EvosaxVAMPIRE and RetrievePulsesVAMPIREwithRealFields"""
+    """ The Evosax package applied to VAMPIRE with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -24,8 +22,7 @@ class Evosax(RetrievePulsesRealFields, EvosaxVAMPIRE, RetrievePulsesVAMPIREwithR
 
 
 class LSF(RetrievePulsesRealFields, LSFVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
-    """ The LSF Algorithm applied to VAMPIRE with real fields. 
-    Inherits from  RetrievePulsesRealFields, LSFVAMPIRE and RetrievePulsesVAMPIREwithRealFields"""
+    """ The LSF Algorithm applied to VAMPIRE with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
@@ -116,8 +113,7 @@ class LSF(RetrievePulsesRealFields, LSFVAMPIRE, RetrievePulsesVAMPIREwithRealFie
 
 
 class AutoDiff(RetrievePulsesRealFields, AutoDiffVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
-    """ The Optimistix package applied to VAMPIRE with real fields. 
-    Inherits from  RetrievePulsesRealFields, AutoDiffVAMPIRE and RetrievePulsesVAMPIREwithRealFields"""
+    """ The Optimistix package applied to VAMPIRE with real fields."""
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
         self._post_init()

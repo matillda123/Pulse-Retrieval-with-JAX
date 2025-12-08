@@ -7,7 +7,7 @@ from src.utilities import MyNamespace
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesCHIRPSCAN):
     """ 
-    The Differential Evolution Algorithm applied to Chirp-Scans. Inherits from DifferentialEvolutionBASE and RetrievePulsesCHIRPSCAN.
+    The Differential Evolution Algorithm applied to Chirp-Scans.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
@@ -24,7 +24,7 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesCHIRPSCAN):
 
 class Evosax(EvosaxBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Evosax package utilized for pulse reconstruction from Chirp-Scans. Inherits from EvosaxBASE and RetrievePulsesCHIRPSCAN.
+    The Evosax package utilized for pulse reconstruction from Chirp-Scans.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
@@ -41,7 +41,7 @@ class Evosax(EvosaxBASE, RetrievePulsesCHIRPSCAN):
 
 class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
     """
-    The LSF Algorithm applied to Chrip-Scans. Inherits from LSFBASE and RetrievePulsesCHIRPSCAN.
+    The LSF Algorithm applied to Chrip-Scans.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
@@ -88,7 +88,7 @@ class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesCHIRPSCAN):
     """
-    The Optimistix package utilized for pulse reconstruction from Chirp-Scans. Inherits from AutoDiffBASE and RetrievePulsesCHIRPSCAN.
+    The Optimistix package utilized for pulse reconstruction from Chirp-Scans.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)

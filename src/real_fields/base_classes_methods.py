@@ -21,12 +21,12 @@ class RetrievePulsesRealFields:
     Does not inherit from any class. But is supposed to be used via composition of its child classes with solver classes.
 
     Attributes:
-        frequency_exp: jnp.array, the frequencies corresponding to the measured trace
-        frequency: jnp.array, the frequencies correpsonding to pulse/gate-pulse
-        frequency_big: jnp.array, a large frequency axis needed for the signal field due to negative frequencies
-        time_big: jnp.array, the corresponding time axis to frequency_big
-        sk_big: jnp.array, correction values for FFT->DFT
-        rn_big: jnp.array, correction values for FFT->DFT
+        frequency_exp (jnp.array): the frequencies corresponding to the measured trace
+        frequency (jnp.array): the frequencies correpsonding to pulse/gate-pulse
+        frequency_big (jnp.array): a large frequency axis needed for the signal field due to negative frequencies
+        time_big (jnp.array): the corresponding time axis to frequency_big
+        sk_big (jnp.array): correction values for FFT->DFT
+        rn_big (jnp.array): correction values for FFT->DFT
 
     """
 
@@ -160,12 +160,10 @@ class RetrievePulsesRealFields:
 
 class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
     """ 
-    Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the 
-    signal field in order to use real fields instead of complex ones.
+    Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
 
 
 
@@ -235,8 +233,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
 class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
     """ 
-    Inherits from RetrievePulsesFROG. Has the same purpose. It overwrites the generation of the 
-    signal field in order to use real fields instead of complex ones.
+    IOverwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -321,8 +318,7 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
 
 class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
     """ 
-    Inherits from RetrievePulsesCHIRPSCAN. Has the same purpose. It overwrites the generation of the 
-    signal field in order to use real fields instead of complex ones.
+    Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -372,8 +368,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
 
 class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
     """ 
-    Inherits from RetrievePulses2DSI. Has the same purpose. It overwrites the generation of the 
-    signal field in order to use real fields instead of complex ones.
+    Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     
     def __init__(self, *args, **kwargs):
@@ -459,8 +454,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
 
 class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesVAMPIRE):
     """ 
-    Inherits from RetrievePulses2DSI. Has the same purpose. It overwrites the generation of the 
-    signal field in order to use real fields instead of complex ones.
+    Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     
     def __init__(self, *args, **kwargs):

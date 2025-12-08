@@ -22,11 +22,12 @@ from src.core.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
 
 class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     """
-    The Vanilla-FROG Algorithm as described by R. Trebino. Inherits from ClassicAlgorithmsBASE and RetrievePulsesFROG.
+    The Vanilla-FROG Algorithm as described by R. Trebino.
 
-    R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
+    [1] R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
 
-
+    Attributes:
+        f0 (float): the central frequency of the trace
 
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
@@ -136,9 +137,9 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 class LSGPA(Vanilla):
     # this could actually be a standalone classic algorithm. But its probably not worth it.
     """
-    The Least-Squares Generalized Projection Algorithm. Inherits from Vanilla.
+    The Least-Squares Generalized Projection Algorithm.
      
-    J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)
+    [1] J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)
     
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
@@ -204,14 +205,14 @@ class LSGPA(Vanilla):
 
 class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     """
-    The Constrained-PCGP-Algorithms. Inherits from ClassicAlgorithmsBASE and RetrievePulsesFROG.
+    The Constrained-PCGP-Algorithms.
 
-    D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364), 10.1016/j.pquantelec.2021.100364 (2022)
+    [1] D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364), 10.1016/j.pquantelec.2021.100364 (2022)
 
     Attributes:
-        constraints: bool, if true the operator based constraints are used.
-        svd: bool, if true a full SVD is performed instead of a single iteration of the power method
-        antialias: bool, if true anti-aliasing is applied to the outer-product-matrix-form
+        constraints (bool): if true the operator based constraints are used.
+        svd (bool): if true a full SVD is performed instead of a single iteration of the power method
+        antialias (bool): if true anti-aliasing is applied to the outer-product-matrix-form
     
     """
     def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, **kwargs):
@@ -491,7 +492,7 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
     """
-    The Generalized Projection Algorithm for FROG. Inherits from GeneralizedProjectionBASE and RetrievePulsesFROG.
+    The Generalized Projection Algorithm for FROG.
     
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
@@ -539,10 +540,10 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesFROG):
     """
-    The Ptychographic Iterative Engine (PIE) for FROG. Inherits from PtychographicIterativeEngineBASE and RetrievePulsesFROG.
+    The Ptychographic Iterative Engine (PIE) for FROG.
 
     Attributes:
-        pie_method: None or str, specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE.
+        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
@@ -669,7 +670,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 class COPRA(COPRABASE, RetrievePulsesFROG):
     """
-    The Common Pulse Retrieval Algorithm (COPRA) for FROG. Inherits from COPRABASE and RetrievePulsesFROG.
+    The Common Pulse Retrieval Algorithm (COPRA) for FROG.
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
