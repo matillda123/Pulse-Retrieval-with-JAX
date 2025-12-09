@@ -1113,3 +1113,52 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
         signal_t = MyNamespace(signal_t=signal_t, gate_pulses=gate_pulses, gate=gate, gd_correction=gd_correction)
         return signal_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class RetrievePulsesROTATIONALCHIRPSCAN(RetrievePulsesCHIRPSCAN):
+#     def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type="taylor", chirp_parameters=None, **kwargs):
+#         super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type, chirp_parameters, **kwargs)
+
+
+
+#     def calculate_signal_t(self, individual, phase_matrix, measurement_info):
+#         """
+#         Calculates the signal field of a Chirp-Scan in the time domain. 
+
+#         Args:
+#             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+#             phase_matrix (jnp.array): the applied phases
+#             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+
+#         Returns:
+#             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+#         """
+
+#         pulse = individual.pulse
+
+#         pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info.sk, measurement_info.rn)
+#         gate_disp = calculate_gate(pulse_t_disp, measurement_info.nonlinear_method)
+
+#         pulse_t = self.ifft(pulse, measurement_info.sk, measurement_info.rn)
+#         signal_t = pulse_t*gate_disp
+
+#         signal_t = MyNamespace(signal_t=signal_t, pulse_t_disp=pulse_t_disp, gate_disp=gate_disp)
+#         return signal_t
+
+
+
+    

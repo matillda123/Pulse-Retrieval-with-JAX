@@ -63,11 +63,31 @@ def calc_G_MIIPS_phase(omega, phase_shift, parameters):
     return calc_gaussian_phase(omega, phase_shift, (gamma, sigma, central_frequency)) + calc_sine_phase(omega, phase_shift, (alpha, gamma, central_frequency))
 
 
+
+
+# def calc_taylor_phase(omega, phase_amp, parameters):
+#     n, central_frequency = parameters
+#     assert n>=2, "the phase should not include a linear component"
+#     return phase_amp*(omega-2*jnp.pi*central_frequency)**n
+
+
+
+def calc_taylor_phase(omega, phase_shift, parameters):
+    a, n, central_frequency = parameters
+    assert n>=2, "the phase should not include a linear component"
+    omega = omega-2*jnp.pi*central_frequency
+    return a*(omega+phase_shift)**n
+
+
+
+
+
 phase_func_dict = {"sine": calc_sine_phase,
                      "tanh": calc_tanh_phase,
                      "gaussian": calc_gaussian_phase,
                      "MIIPS": calc_MIIPS_phase,
-                     "GMIIPS": calc_G_MIIPS_phase}
+                     "GMIIPS": calc_G_MIIPS_phase,
+                     "taylor": calc_taylor_phase}
 
 
 

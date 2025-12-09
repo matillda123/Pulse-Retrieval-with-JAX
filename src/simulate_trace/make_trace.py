@@ -610,9 +610,11 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
 
 
 
-    def get_dispersed_pulse_t(self, pulse_f, phase_matrix, sk, rn):
+    def get_dispersed_pulse_t(self, pulse_f, phase_matrix, sk, rn, do_centering=True):
         pulse_t_disp, phase_matrix = super().get_dispersed_pulse_t(pulse_f, phase_matrix, sk, rn)
-        pulse_t_disp = jax.vmap(center_signal_to_max)(pulse_t_disp)   # This FUCKS the retrieval. Only use in generation of traces
+
+        if do_centering==True:
+            pulse_t_disp = jax.vmap(center_signal_to_max)(pulse_t_disp)   # This FUCKS the retrieval. Only use in generation of traces
         #pulse_t_disp = jax.vmap(center_signal)(pulse_t_disp)
         return pulse_t_disp, phase_matrix
 
@@ -828,4 +830,3 @@ class MakeTraceVAMPIREReal(RetrievePulsesVAMPIREwithRealFields, MakeTraceVAMPIRE
 
     def get_gate_pulse(self, frequency_gate, gate_f):
         return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
-

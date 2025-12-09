@@ -8,7 +8,8 @@ from src.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_sca
 from .bsplines_1d import get_prefactor, get_M, make_bsplines
 from .create_population import create_population_general
 
-from .base_classes_algorithms import RetrievePulsesFROG, RetrievePulsesChirpScan, RetrievePulsesTDP, RetrievePulses2DSI, RetrievePulsesVAMPIRE
+from .base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulsesTDP, RetrievePulses2DSI, RetrievePulsesVAMPIRE
+
 
 class AlgorithmsBASE:
     """
@@ -77,6 +78,7 @@ class AlgorithmsBASE:
 
 
 
+
     def use_measured_spectrum(self, frequency, spectrum, pulse_or_gate="pulse"):
         """ 
         Needs to be called if a pulse spectrum is meant to be used in the reconstruction. 
@@ -118,7 +120,7 @@ class AlgorithmsBASE:
     def apply_spectrum(self, pulse, spectrum, sk, rn):
         if isinstance(self, (RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
             pulse = self.apply_spectrum_time_domain(pulse, spectrum, sk, rn)
-        elif isinstance(self, RetrievePulsesChirpScan):
+        elif isinstance(self, RetrievePulsesCHIRPSCAN):
             pulse = self.apply_spectrum_frequency_domain(pulse, spectrum, sk, rn)
         else:
             raise ValueError(f"""self needs to be one of RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulses2DSI, 

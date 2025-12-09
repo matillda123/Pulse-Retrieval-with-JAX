@@ -31,6 +31,10 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
+        if cross_correlation=="doubleblind":
+            print("Vanilla/LSGPA dont work for doubleblind.")
+            # which is weird because lsgpa was invented for attosecond-streaking -> is doubleblind by definition. 
+
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         self.name = "Vanilla"        
 
@@ -87,7 +91,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
-        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population_pulse)
+        population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
 
@@ -98,6 +102,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
             mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
             signal_t_new = jax.vmap(calculate_S_prime_projection, in_axes=(0,None,0,None))(signal_t.signal_t, measured_trace, mu, measurement_info)
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
+            population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
         return descent_state, trace_error.reshape(-1,1)
@@ -228,6 +233,37 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         self.constraints = False
         self.svd = False
         self.antialias = False
+
+
+
+
+
+    
+    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
+        """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
+
+        if self.measurement_info.doubleblind==True:
+            print("Actually C-PCGPA probably performs better without spectrum constraints.")
+
+
+        frequency = self.frequency
+        f0 = frequency[jnp.argmax(jnp.sum(self.measured_trace, axis=0))]
+
+        if pulse_or_gate=="pulse":
+            f0_p = measured_frequency[jnp.argmax(jnp.abs(measured_spectrum))]
+
+        elif pulse_or_gate=="gate" and self.descent_info.measured_spectrum_is_provided.pulse==True:
+            f0_p = frequency[jnp.argmax(jnp.abs(self.measurement_info.spectral_amplitude.pulse))]
+
+        elif pulse_or_gate=="gate" and self.descent_info.measured_spectrum_is_provided.pulse==False:
+            raise ValueError(f"For C-PCGPA you must provide a spectrum for the pulse first.")
+        else:
+            raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
+        
+        return super().get_spectral_amplitude(measured_frequency+(f0-f0_p), measured_spectrum, pulse_or_gate)
+    
+
+
 
 
     def do_anti_alias(self, opf, half_N):

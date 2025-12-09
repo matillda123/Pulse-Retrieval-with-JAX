@@ -675,7 +675,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, measured_trace, pie_error, 
                                                       population, global_state, measurement_info, descent_info, "pulse", "_global")
         
-        population_pulse = jax.vmap(lambda x, y: x/jnp.linalg.norm(x)*jnp.linalg.norm(y))(population.pulse, signal_t_new)
+        population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]*jnp.linalg.norm(signal_t_new,axis=(-2,-1))[:,jnp.newaxis]
         population = tree_at(lambda x: x.pulse, population, population_pulse)
 
         if measurement_info.doubleblind==True:
@@ -683,7 +683,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                           population, global_state, measurement_info, descent_info, "gate", "_global")
 
             if measurement_info.ifrog==True:
-                population_gate = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.gate)
+                population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.gate, population, population_gate)
         
 
@@ -946,14 +946,14 @@ class COPRABASE(ClassicAlgorithmsBASE):
         local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, population, local_state, measurement_info, descent_info, 
                                                    "pulse", "_local")
         
-        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
+        population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]
         population = tree_at(lambda x: x.pulse, population, population_pulse)
 
         if measurement_info.doubleblind==True:
             local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, population, local_state, measurement_info, descent_info, 
                                                         "gate", "_local")
             if measurement_info.ifrog==False:
-                population_gate = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.gate)
+                population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.pulse, population, population_gate)
 
             
@@ -1029,7 +1029,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, population, global_state, measurement_info, 
                                                      descent_info, "pulse", "_global")
         
-        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
+        population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]
         population = tree_at(lambda x: x.pulse, population, population_pulse)
 
         if measurement_info.doubleblind==True:
@@ -1037,7 +1037,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                          descent_info, "gate", "_global")
             
             if measurement_info.ifrog==False:
-                population_gate = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.gate)
+                population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.gate, population, population_gate)
 
             
