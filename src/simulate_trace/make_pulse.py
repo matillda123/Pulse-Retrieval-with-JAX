@@ -205,7 +205,7 @@ def check_and_correct_if_scalar(parameters):
     else:
         temp = []
         for param in parameters:
-            temp.append(np.squeeze(np.asarray([param])))
+            temp.append([np.squeeze(np.asarray([param]))])
     return temp
 
 class MakePulse:

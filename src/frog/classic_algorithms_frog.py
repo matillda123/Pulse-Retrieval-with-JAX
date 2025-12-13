@@ -225,7 +225,7 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     """
     def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        assert self.ifrog==False, "PCGPA is not intended for interferometric measurements."
+        assert self.interferometric==False, "PCGPA is not intended for interferometric measurements."
         assert nonlinear_method!="sd", "Doesnt work for SD. Which is weird."
 
         self.name = "CPCGPA"
@@ -363,7 +363,7 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
             if measurement_info.doubleblind==True:
                 gate = jnp.dot(opf.T.conj(), jnp.dot(opf, gate))
                 gate = gate/jnp.linalg.norm(gate) # needed. otherwise amplitude goes to zero.
-                # is fine, since amplitudes factor out -> wouldnt be fine for ifrog
+                # is fine, since amplitudes factor out -> wouldnt be fine for interferometric
             else:
                 gate = None
 
@@ -586,7 +586,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        assert self.ifrog==False, "Dont use ifrog with PIE. its not meant or made for that"
+        assert self.interferometric==False, "Dont use interferometric with PIE. its not meant or made for that"
 
         self.pie_method=pie_method
 

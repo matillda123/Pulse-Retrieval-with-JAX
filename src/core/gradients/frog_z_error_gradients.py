@@ -70,19 +70,19 @@ def Z_gradient_sd_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_
 
 
 
-def Z_gradient_shg_ifrog(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_shg_interferometric(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=2*(1+exp_arr)*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted), sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_thg_ifrog(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_thg_interferometric(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=3*(1+exp_arr)*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted)**2, sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_pg_ifrog(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_pg_interferometric(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     # is the same as sd
     term1=jnp.conjugate(deltaS)*(pulse_t+pulse_t_shifted)**2
     term2=deltaS*jnp.abs(pulse_t+pulse_t_shifted)**2
@@ -94,19 +94,19 @@ def Z_gradient_pg_ifrog(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr,
 
 
 
-def Z_gradient_shg_ifrog_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_shg_interferometric_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=2*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted), sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_thg_ifrog_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_thg_interferometric_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=3*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted)**2, sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_pg_ifrog_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_pg_interferometric_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     # is the same as sd
     term1=jnp.conjugate(deltaS)*(pulse_t+pulse_t_shifted)**2
     term2=deltaS*jnp.abs(pulse_t+pulse_t_shifted)**2
@@ -118,17 +118,17 @@ def Z_gradient_pg_ifrog_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted
 
 
 
-def Z_gradient_shg_ifrog_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_shg_interferometric_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=2*exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted), sk, rn)
     return -2*grad
 
 
-def Z_gradient_thg_ifrog_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_thg_interferometric_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     grad=3*exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t+pulse_t_shifted)**2, sk, rn)
     return -2*grad
 
 
-def Z_gradient_pg_ifrog_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
+def Z_gradient_pg_interferometric_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn):
     # is the same as sd
     term1=jnp.conjugate(deltaS)*(pulse_t+pulse_t_shifted)**2
     term2=deltaS*jnp.abs(pulse_t+pulse_t_shifted)**2
@@ -158,7 +158,7 @@ def Z_gradient_pg_ifrog_cross_correlation_gate(deltaS, pulse_t, pulse_t_shifted,
 
 def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted, gate_shifted, tau_arr, measurement_info, is_tdp):
     frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
-    cross_correlation, doubleblind, ifrog, frogmethod = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog, measurement_info.nonlinear_method
+    cross_correlation, doubleblind, interferometric, frogmethod = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric, measurement_info.nonlinear_method
 
     omega_arr = 2*jnp.pi*frequency
     exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))
@@ -175,23 +175,23 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted,
         cross_correlation=True
 
 
-    grad_func_ifrog_False_cross_correlation_False={"shg": Z_gradient_shg, "thg": Z_gradient_thg, "pg": Z_gradient_pg, "sd": Z_gradient_sd}
-    grad_func_ifrog_False_cross_correlation_True={"shg": Z_gradient_cross_correlation_pulse, "thg": Z_gradient_cross_correlation_pulse, "pg": Z_gradient_cross_correlation_pulse, "sd": Z_gradient_cross_correlation_pulse}
+    grad_func_interferometric_False_cross_correlation_False={"shg": Z_gradient_shg, "thg": Z_gradient_thg, "pg": Z_gradient_pg, "sd": Z_gradient_sd}
+    grad_func_interferometric_False_cross_correlation_True={"shg": Z_gradient_cross_correlation_pulse, "thg": Z_gradient_cross_correlation_pulse, "pg": Z_gradient_cross_correlation_pulse, "sd": Z_gradient_cross_correlation_pulse}
 
-    grad_func_ifrog_True_cross_correlation_False={"shg": Z_gradient_shg_ifrog, "thg": Z_gradient_thg_ifrog, "pg": Z_gradient_pg_ifrog}
-    grad_func_ifrog_True_cross_correlation_True={"shg": Z_gradient_shg_ifrog_cross_correlation_pulse, "thg": Z_gradient_thg_ifrog_cross_correlation_pulse, "pg": Z_gradient_pg_ifrog_cross_correlation_pulse}
+    grad_func_interferometric_True_cross_correlation_False={"shg": Z_gradient_shg_interferometric, "thg": Z_gradient_thg_interferometric, "pg": Z_gradient_pg_interferometric}
+    grad_func_interferometric_True_cross_correlation_True={"shg": Z_gradient_shg_interferometric_cross_correlation_pulse, "thg": Z_gradient_thg_interferometric_cross_correlation_pulse, "pg": Z_gradient_pg_interferometric_cross_correlation_pulse}
 
-    grad_func_ifrog_False={False: grad_func_ifrog_False_cross_correlation_False,
-                           True: grad_func_ifrog_False_cross_correlation_True}
+    grad_func_interferometric_False={False: grad_func_interferometric_False_cross_correlation_False,
+                           True: grad_func_interferometric_False_cross_correlation_True}
     
 
-    grad_func_ifrog_True={False: grad_func_ifrog_True_cross_correlation_False,
-                          True: grad_func_ifrog_True_cross_correlation_True}
+    grad_func_interferometric_True={False: grad_func_interferometric_True_cross_correlation_False,
+                          True: grad_func_interferometric_True_cross_correlation_True}
     
-    grad_func={False: grad_func_ifrog_False,
-               True: grad_func_ifrog_True}
+    grad_func={False: grad_func_interferometric_False,
+               True: grad_func_interferometric_True}
     
-    grad = grad_func[ifrog][cross_correlation][frogmethod](deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn)
+    grad = grad_func[interferometric][cross_correlation][frogmethod](deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn)
     return grad
 
 
@@ -204,7 +204,7 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted,
 
 def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, pulse_t_shifted, gate_shifted, tau_arr, measurement_info, is_tdp):
     frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
-    ifrog, frogmethod = measurement_info.ifrog, measurement_info.nonlinear_method
+    interferometric, frogmethod = measurement_info.interferometric, measurement_info.nonlinear_method
 
     omega_arr = 2*jnp.pi*frequency
     exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))
@@ -217,19 +217,19 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, pulse_t_shifted, 
     deltaS = signal_t_new-signal_t
 
 
-    grad_func_ifrog_False_cross_correlation_gate={"shg": Z_gradient_shg_cross_correlation_gate, 
+    grad_func_interferometric_False_cross_correlation_gate={"shg": Z_gradient_shg_cross_correlation_gate, 
                                       "thg": Z_gradient_thg_cross_correlation_gate, 
                                       "pg": Z_gradient_pg_cross_correlation_gate, 
                                       "sd": Z_gradient_sd_cross_correlation_gate}
     
-    grad_func_ifrog_True_cross_correlation_gate={"shg": Z_gradient_shg_ifrog_cross_correlation_gate, 
-                                     "thg": Z_gradient_thg_ifrog_cross_correlation_gate, 
-                                     "pg": Z_gradient_pg_ifrog_cross_correlation_gate}
+    grad_func_interferometric_True_cross_correlation_gate={"shg": Z_gradient_shg_interferometric_cross_correlation_gate, 
+                                     "thg": Z_gradient_thg_interferometric_cross_correlation_gate, 
+                                     "pg": Z_gradient_pg_interferometric_cross_correlation_gate}
     
-    grad_func={False: grad_func_ifrog_False_cross_correlation_gate,
-               True: grad_func_ifrog_True_cross_correlation_gate}
+    grad_func={False: grad_func_interferometric_False_cross_correlation_gate,
+               True: grad_func_interferometric_True_cross_correlation_gate}
     
-    grad = grad_func[ifrog][frogmethod](deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn)
+    grad = grad_func[interferometric][frogmethod](deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn)
     return grad
 
 

@@ -51,7 +51,7 @@ class RetrievePulses:
                                             spectral_amplitude = MyNamespace(pulse=None, gate=None), 
                                             central_f = MyNamespace(pulse=None, gate=None),
                                             real_fields = False,
-                                            ifrog = False)
+                                            interferometric = False)
         self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
         self.descent_state = MyNamespace()
 
@@ -378,10 +378,10 @@ class RetrievePulsesFROG(RetrievePulses):
         sk (jnp.array): correction values for FFT->DFT
         rn (jnp.array): correction values for FFT->DFT
         cross_correlation (bool):
-        ifrog (bool): 
+        interferometric (bool): 
 
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, ifrog=False, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
         
         super().__init__(nonlinear_method, **kwargs)
 
@@ -397,7 +397,7 @@ class RetrievePulsesFROG(RetrievePulses):
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
         self.cross_correlation = cross_correlation
-        self.ifrog = ifrog
+        self.interferometric = interferometric
 
         if self.cross_correlation=="doubleblind":
             self.doubleblind = True
@@ -413,7 +413,7 @@ class RetrievePulsesFROG(RetrievePulses):
                                                              measured_trace = self.measured_trace,
                                                              cross_correlation = self.cross_correlation,
                                                              doubleblind = self.doubleblind,
-                                                             ifrog = self.ifrog,
+                                                             interferometric = self.interferometric,
                                                              dt = self.dt,
                                                              df = self.df,
                                                              sk = self.sk,
@@ -526,7 +526,7 @@ class RetrievePulsesFROG(RetrievePulses):
         """
 
         time, frequency = measurement_info.time, measurement_info.frequency
-        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
@@ -547,9 +547,9 @@ class RetrievePulsesFROG(RetrievePulses):
             gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and cross_correlation==False and doubleblind==False:
+        if interferometric==True and cross_correlation==False and doubleblind==False:
             signal_t = (pulse + pulse_t_shifted)*calculate_gate(pulse + pulse_t_shifted, frogmethod)
-        elif ifrog==True:
+        elif interferometric==True:
             signal_t = (pulse + gate_pulse_shifted)*calculate_gate(pulse + gate_pulse_shifted, frogmethod)
         else:
             signal_t = pulse*gate_shifted
@@ -643,7 +643,7 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
         """
 
         time, frequency = measurement_info.time, measurement_info.frequency
-        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
 
         spectral_filter, sk, rn = measurement_info.spectral_filter, measurement_info.sk, measurement_info.rn
@@ -668,9 +668,9 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
             gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and cross_correlation==False and doubleblind==False:
+        if interferometric==True and cross_correlation==False and doubleblind==False:
             signal_t = (pulse + pulse_t_shifted)*calculate_gate(pulse + pulse_t_shifted, frogmethod)
-        elif ifrog==True:
+        elif interferometric==True:
             signal_t = (pulse + gate_pulse_shifted)*calculate_gate(pulse + gate_pulse_shifted, frogmethod)
         else:
             signal_t = pulse*gate_shifted
@@ -890,7 +890,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=False, **kwargs)
 
         self.tau_pulse_anc1 = tau_pulse_anc1
         self.c0 = c0
@@ -1025,7 +1025,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, tau_interferometer=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, ifrog=False, **kwargs)
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=False, **kwargs)
 
         self.tau_interferometer = tau_interferometer
         self.c0 = c0

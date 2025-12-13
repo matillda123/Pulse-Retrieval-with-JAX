@@ -66,7 +66,7 @@ class PtychographicIterativeEngine(RetrievePulsesTDP, PtychgraphicIterativeEngin
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        assert self.ifrog==False, "Dont use ifrog with PIE. its not meant or made for that"
+        assert self.interferometric==False, "Dont use interferometric with PIE. its not meant or made for that"
 
         self.pie_method=pie_method
 

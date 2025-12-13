@@ -269,12 +269,10 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         population_pulse = descent_state.population.pulse/jnp.linalg.norm(descent_state.population.pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
-        # updating descent_state before makeing gate step may be probelmatic
-
         if measurement_info.doubleblind==True:
             descent_state=self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, "gate")
 
-            if measurement_info.ifrog==False:
+            if measurement_info.interferometric==False:
                 population_gate = descent_state.population.gate/jnp.linalg.norm(descent_state.population.gate,axis=-1)[:,jnp.newaxis]
                 descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
@@ -617,7 +615,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
             local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, trace_line, pie_error, population, local_state, 
                                                       measurement_info, descent_info, "gate", "_local")
             
-            # if measurement_info.ifrog==False:
+            # if measurement_info.interferometric==False:
             #     population_gate = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.gate)
             #     population = tree_at(lambda x: x.gate, population, population_gate)
         
@@ -695,7 +693,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
             global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, measured_trace, pie_error, 
                                                           population, global_state, measurement_info, descent_info, "gate", "_global")
 
-            if measurement_info.ifrog==True:
+            if measurement_info.interferometric==True:
                 population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.gate, population, population_gate)
         
@@ -970,10 +968,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         if measurement_info.doubleblind==True:
             local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, population, local_state, measurement_info, descent_info, 
                                                         "gate", "_local")
-            if measurement_info.ifrog==False:
+            if measurement_info.interferometric==False:
                 population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.pulse, population, population_gate)
-
             
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x._local, descent_state, local_state)
@@ -1054,7 +1051,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
             global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, population, global_state, measurement_info, 
                                                          descent_info, "gate", "_global")
             
-            if measurement_info.ifrog==False:
+            if measurement_info.interferometric==False:
                 population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
                 population = tree_at(lambda x: x.gate, population, population_gate)
 

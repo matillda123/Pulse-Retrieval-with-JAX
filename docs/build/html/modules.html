@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>frog &mdash; PulseRetrievalwithJAX 2025 documentation</title>
+  <title>core &mdash; PulseRetrievalwithJAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -43,11 +43,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html">Definitions and Derived Formulas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Derivations.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp package</a></li>
@@ -55,8 +50,22 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -73,7 +82,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">frog</li>
+      <li class="breadcrumb-item active">core</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,89 +92,458 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="frog">
-<h1>frog<a class="headerlink" href="#frog" title="Link to this heading"></a></h1>
+  <section id="core">
+<h1>core<a class="headerlink" href="#core" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="frog.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="frog.html#module-frog.classic_algorithms_frog">frog.classic_algorithms_frog module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.Vanilla"><code class="docutils literal notranslate"><span class="pre">Vanilla</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.Vanilla.update_pulse"><code class="docutils literal notranslate"><span class="pre">Vanilla.update_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.Vanilla.update_gate"><code class="docutils literal notranslate"><span class="pre">Vanilla.update_gate()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.Vanilla.step"><code class="docutils literal notranslate"><span class="pre">Vanilla.step()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.Vanilla.initialize_run"><code class="docutils literal notranslate"><span class="pre">Vanilla.initialize_run()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.gradients.html">core.gradients package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients.chirpscan_z_error_gradients">core.gradients.chirpscan_z_error_gradients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients.frog_z_error_gradients">core.gradients.frog_z_error_gradients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients.tdp_z_error_gradients">core.gradients.tdp_z_error_gradients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients.twodsi_z_error_gradients">core.gradients.twodsi_z_error_gradients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients.vampire_z_error_gradients">core.gradients.vampire_z_error_gradients module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.gradients.html#module-core.gradients">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.LSGPA"><code class="docutils literal notranslate"><span class="pre">LSGPA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.LSGPA.update_pulse"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.LSGPA.update_gate"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_gate()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA"><code class="docutils literal notranslate"><span class="pre">CPCGPA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.constraints"><code class="docutils literal notranslate"><span class="pre">CPCGPA.constraints</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.svd"><code class="docutils literal notranslate"><span class="pre">CPCGPA.svd</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.antialias"><code class="docutils literal notranslate"><span class="pre">CPCGPA.antialias</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.do_anti_alias"><code class="docutils literal notranslate"><span class="pre">CPCGPA.do_anti_alias()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.calculate_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_opf()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.shift_rows"><code class="docutils literal notranslate"><span class="pre">CPCGPA.shift_rows()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.convert_opf_to_signal_t"><code class="docutils literal notranslate"><span class="pre">CPCGPA.convert_opf_to_signal_t()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.calculate_signal_t_using_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_signal_t_using_opf()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.convert_signal_t_to_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.convert_signal_t_to_opf()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.decompose_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.decompose_opf()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.impose_constraints"><code class="docutils literal notranslate"><span class="pre">CPCGPA.impose_constraints()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.update_individual"><code class="docutils literal notranslate"><span class="pre">CPCGPA.update_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.step"><code class="docutils literal notranslate"><span class="pre">CPCGPA.step()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.initialize_run"><code class="docutils literal notranslate"><span class="pre">CPCGPA.initialize_run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.CPCGPA.post_process_create_trace"><code class="docutils literal notranslate"><span class="pre">CPCGPA.post_process_create_trace()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.update_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.update_individual()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.reverse_transform_grad"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.reverse_transform_grad()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.modify_grad_for_gate_pulse"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.modify_grad_for_gate_pulse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.update_individual"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.update_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.get_gate_probe_for_hessian"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.get_gate_probe_for_hessian()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.COPRA.update_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.update_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.classic_algorithms_frog.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.hessians.html">core.hessians package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.chirpscan_z_error_pseudo_hessian">core.hessians.chirpscan_z_error_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.frog_z_error_pseudo_hessian">core.hessians.frog_z_error_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.pie_pseudo_hessian">core.hessians.pie_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.tdp_z_error_pseudo_hessian">core.hessians.tdp_z_error_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.twodsi_z_error_pseudo_hessian">core.hessians.twodsi_z_error_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians.vampire_z_error_pseudo_hessian">core.hessians.vampire_z_error_pseudo_hessian module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.hessians.html#module-core.hessians">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="frog.html#module-frog.general_algorithms_frog">frog.general_algorithms_frog module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.DifferentialEvolution"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.base_classes_algorithms">core.base_classes_algorithms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.jit"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.jit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.spectrum_is_being_used"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.spectrum_is_being_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.fft"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.fft</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.ifft"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.ifft</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.run"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.do_step_and_apply_spectrum"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.do_step_and_apply_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.use_measured_spectrum"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.use_measured_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.apply_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum_time_domain"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.apply_spectrum_time_domain()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum_frequency_domain"><code class="docutils literal notranslate"><span class="pre">AlgorithmsBASE.apply_spectrum_frequency_domain()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.local_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.global_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.linesearch"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.linesearch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.max_steps_linesearch"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.max_steps_linesearch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.c1"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.c1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.c2"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.c2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.delta_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.delta_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_newton"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.local_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_newton"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.global_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.lambda_lm"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.lambda_lm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.lbfgs_memory"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.lbfgs_memory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.linalg_solver"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.linalg_solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.conjugate_gradients"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.conjugate_gradients</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_local_method"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_local_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_global_method"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_global_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_gradient"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_gradient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_newton"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_weights"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_no_iterations"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_no_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_step_scaling"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.r_step_scaling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.xi"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.xi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_adaptive_scaling"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.local_adaptive_scaling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.global_adaptive_scaling"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.global_adaptive_scaling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum_is_being_used"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.momentum_is_being_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.shuffle_data_along_m"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.shuffle_data_along_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.do_step_and_apply_momentum"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.do_step_and_apply_momentum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.momentum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.apply_momentum"><code class="docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE.apply_momentum()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.fd_grad"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.fd_grad</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.amplitude_or_intensity"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.amplitude_or_intensity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.error_metric"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.error_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.create_initial_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.create_initial_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.split_population_in_amp_and_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.split_population_in_amp_and_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.merge_population_from_amp_and_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.merge_population_from_amp_and_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.polynomial_term"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.polynomial_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.polynomial_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.polynomial_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.sinusoidal_term"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.sinusoidal_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.sinusoidal_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.sinusoidal_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.discrete_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.discrete_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.tanh_term"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.tanh_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.tanh_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.tanh_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.bspline_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.bspline_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.gaussian_term"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.gaussian_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.gaussian_amplitude"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.gaussian_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.lorentzian_term"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.lorentzian_term()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.lorentzian_amplitude"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.lorentzian_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.discrete_amplitude"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.discrete_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.bspline_amplitude"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.bspline_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.get_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_amplitude"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.get_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.make_pulse_f_from_individual"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.make_pulse_f_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_pulses_f_from_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.get_pulses_f_from_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.make_pulse_t_from_individual"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.make_pulse_t_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_pulses_t_from_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.get_pulses_t_from_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.construct_trace"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.construct_trace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.trace_error"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.trace_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.calculate_error_individual"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.calculate_error_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.calculate_error_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.calculate_error_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.initialize_general_optimizer"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.initialize_general_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_idx_best_individual"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.get_idx_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.post_process_get_pulse_and_gate"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASE.post_process_get_pulse_and_gate()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="frog.html#frog.general_algorithms_frog.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.base_classes_methods">core.base_classes_methods module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses"><code class="docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.nonlinear_method"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.nonlinear_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.f0"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.f0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.doubleblind"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.doubleblind</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.spectrum_is_being_used"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.spectrum_is_being_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.momentum_is_being_used"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.momentum_is_being_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.measurement_info"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.measurement_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.descent_info"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.descent_info</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.descent_state"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.descent_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.prng_seed"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.prng_seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.key"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.factor"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.factor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.x_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.x_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.time"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.frequency"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.frequency</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.measured_trace"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.measured_trace</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.update_PRNG_key"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.update_PRNG_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_data"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_spectral_amplitude"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_spectral_amplitude()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_gate_pulse"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_gate_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.create_initial_population"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.create_initial_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_individual_from_idx"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_individual_from_idx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.plot_results"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.plot_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_idx_best_individual"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_idx_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.post_process_center_pulse_and_gate"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.post_process_center_pulse_and_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.post_process_create_trace"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.post_process_create_trace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.post_process"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses.get_final_result_population"><code class="docutils literal notranslate"><span class="pre">RetrievePulses.get_final_result_population()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.tau_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.tau_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.gate"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.gate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.transform_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.transform_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.idx_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.idx_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.dt"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.dt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.df"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.sk"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.sk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.rn"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.rn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.cross_correlation"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.cross_correlation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.interferometric"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.interferometric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.create_initial_population"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.create_initial_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.create_initial_population_doublepulse"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.create_initial_population_doublepulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.shift_signal_in_time"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.shift_signal_in_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.calculate_shifted_signal"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.calculate_shifted_signal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.calculate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.calculate_signal_t()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.generate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.generate_signal_t()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesFROG.post_process_get_pulse_and_gate"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesFROG.post_process_get_pulse_and_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesTDP"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesTDP.spectral_filter"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesTDP.spectral_filter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesTDP.apply_spectral_filter"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesTDP.apply_spectral_filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesTDP.calculate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesTDP.calculate_signal_t()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.z_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.dt"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.dt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.df"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.sk"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.sk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.rn"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.rn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.phase_matrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.parameters"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.parameters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.transform_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.transform_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.idx_arr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.get_phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.get_phase_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.create_initial_population"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.create_initial_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.get_dispersed_pulse_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.get_dispersed_pulse_t()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.calculate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.calculate_signal_t()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.generate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.generate_signal_t()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.post_process_get_pulse_and_gate"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN.post_process_get_pulse_and_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.spectral_filter1"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.spectral_filter1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.spectral_filter2"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.spectral_filter2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.tau_pulse_anc1"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.tau_pulse_anc1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.anc_frequency1"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.anc_frequency1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.anc_frequency2"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.anc_frequency2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.c0"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.c0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.refractive_index"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.refractive_index</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.phase_matrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.get_phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.get_phase_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.apply_phase"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.apply_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.apply_spectral_filter"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.apply_spectral_filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulses2DSI.calculate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulses2DSI.calculate_signal_t()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.tau_interferometer"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.tau_interferometer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.c0"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.c0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.refractive_index"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.refractive_index</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.phase_matrix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.get_phase_matrix"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.get_phase_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.apply_phase"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.apply_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.calculate_signal_t"><code class="docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE.calculate_signal_t()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="frog.html#module-frog">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.base_classic_algorithms">core.base_classic_algorithms module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_CG_state"><code class="docutils literal notranslate"><span class="pre">initialize_CG_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_pseudo_newton_state"><code class="docutils literal notranslate"><span class="pre">initialize_pseudo_newton_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_lbfgs_state"><code class="docutils literal notranslate"><span class="pre">initialize_lbfgs_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.update_lbfgs_state"><code class="docutils literal notranslate"><span class="pre">update_lbfgs_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_linesearch_info"><code class="docutils literal notranslate"><span class="pre">initialize_linesearch_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_S_prime_params"><code class="docutils literal notranslate"><span class="pre">initialize_S_prime_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.initialize_newton_info"><code class="docutils literal notranslate"><span class="pre">initialize_newton_info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.update_population"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.update_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.get_Z_gradient"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.get_Z_gradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.calc_Z_error_for_linesearch"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.calc_Z_error_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.calc_Z_grad_for_linesearch"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.calc_Z_grad_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.descent_Z_error_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.descent_Z_error_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.do_descent_Z_error_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.do_descent_Z_error_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.do_descent_Z_error"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.do_descent_Z_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE.initialize_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calculate_PIE_error"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.calculate_PIE_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.get_PIE_weights"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.get_PIE_weights()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.update_population"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.update_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calculate_PIE_descent_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.calculate_PIE_descent_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calc_error_for_linesearch"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.calc_error_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calc_grad_for_linesearch"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.calc_grad_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.do_iteration"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.do_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.local_iteration"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.local_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.local_step"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.local_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.global_step"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.global_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.initialize_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.run"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE"><code class="docutils literal notranslate"><span class="pre">COPRABASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.update_population"><code class="docutils literal notranslate"><span class="pre">COPRABASE.update_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.get_Z_gradient"><code class="docutils literal notranslate"><span class="pre">COPRABASE.get_Z_gradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.calc_Z_error_for_linesearch"><code class="docutils literal notranslate"><span class="pre">COPRABASE.calc_Z_error_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.calc_Z_grad_for_linesearch"><code class="docutils literal notranslate"><span class="pre">COPRABASE.calc_Z_grad_for_linesearch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.do_iteration"><code class="docutils literal notranslate"><span class="pre">COPRABASE.do_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.local_iteration"><code class="docutils literal notranslate"><span class="pre">COPRABASE.local_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.local_step"><code class="docutils literal notranslate"><span class="pre">COPRABASE.local_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.global_step"><code class="docutils literal notranslate"><span class="pre">COPRABASE.global_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">COPRABASE.initialize_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_classic_algorithms.COPRABASE.run"><code class="docutils literal notranslate"><span class="pre">COPRABASE.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.base_general_optimization">core.base_general_optimization module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.make_key_tree"><code class="docutils literal notranslate"><span class="pre">make_key_tree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.shuffle_pytree"><code class="docutils literal notranslate"><span class="pre">shuffle_pytree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.strategy"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.strategy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.mutation_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.crossover_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.selection_mechanism</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.temperature</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.best1"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.best1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.best2"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.best2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.rand1"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.rand1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.rand2"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.rand2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.randtobest1"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.randtobest1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.randtobest2"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.randtobest2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.currenttorand1"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.currenttorand1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.currenttorand2"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.currenttorand2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.currenttobest1"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.currenttobest1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.currenttobest2"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.currenttobest2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.make_bin_mask_tree"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.make_bin_mask_tree()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.make_exp_mask_tree"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.make_exp_mask_tree()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.bin_crossover"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.bin_crossover()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.exp_crossover"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.exp_crossover()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.smooth_crossover"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.smooth_crossover()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.custom_mutation"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.custom_mutation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.custom_crossover"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.custom_crossover()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.do_mutation"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.do_mutation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.do_crossover"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.do_crossover()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.select_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.select_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.step"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE.initialize_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE.solver"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE.step_amp_or_phase"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE.step_amp_or_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE.step"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE.initialize_evosax_solver"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE.initialize_evosax_solver()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.EvosaxBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">EvosaxBASE.initialize_run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE"><code class="docutils literal notranslate"><span class="pre">LSFBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSFBASE.number_of_bisection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSFBASE.random_direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.no_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSFBASE.no_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.get_random_values"><code class="docutils literal notranslate"><span class="pre">LSFBASE.get_random_values()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.get_search_direction_individual"><code class="docutils literal notranslate"><span class="pre">LSFBASE.get_search_direction_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.get_search_direction"><code class="docutils literal notranslate"><span class="pre">LSFBASE.get_search_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.get_scalars"><code class="docutils literal notranslate"><span class="pre">LSFBASE.get_scalars()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_0"><code class="docutils literal notranslate"><span class="pre">LSFBASE.bisection_step_logic_0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_1"><code class="docutils literal notranslate"><span class="pre">LSFBASE.bisection_step_logic_1()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_2"><code class="docutils literal notranslate"><span class="pre">LSFBASE.bisection_step_logic_2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.bisection_step"><code class="docutils literal notranslate"><span class="pre">LSFBASE.bisection_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.do_bisection_search"><code class="docutils literal notranslate"><span class="pre">LSFBASE.do_bisection_search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.search_along_direction"><code class="docutils literal notranslate"><span class="pre">LSFBASE.search_along_direction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.make_population_bisection_search"><code class="docutils literal notranslate"><span class="pre">LSFBASE.make_population_bisection_search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.calculate_error"><code class="docutils literal notranslate"><span class="pre">LSFBASE.calculate_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.step"><code class="docutils literal notranslate"><span class="pre">LSFBASE.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">LSFBASE.initialize_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.LSFBASE.post_process_get_pulse_and_gate"><code class="docutils literal notranslate"><span class="pre">LSFBASE.post_process_get_pulse_and_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.alternating_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.get_phase"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.get_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.loss_function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function_amp"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.loss_function_amp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function_phase"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.loss_function_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.step"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.initialize_alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.initialize_alternating_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.initialize_optimistix"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.initialize_optimistix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="core.html#core.base_general_optimization.AutoDiffBASE.initialize_run"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASE.initialize_run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.bsplines_1d">core.bsplines_1d module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.bsplines_1d.get_C_in"><code class="docutils literal notranslate"><span class="pre">get_C_in()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.bsplines_1d.get_m_ij"><code class="docutils literal notranslate"><span class="pre">get_m_ij()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.bsplines_1d.get_M"><code class="docutils literal notranslate"><span class="pre">get_M()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.bsplines_1d.get_prefactor"><code class="docutils literal notranslate"><span class="pre">get_prefactor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.bsplines_1d.make_bsplines"><code class="docutils literal notranslate"><span class="pre">make_bsplines()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.construct_s_prime">core.construct_s_prime module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_S_prime_projection"><code class="docutils literal notranslate"><span class="pre">calculate_S_prime_projection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_newton_diagonal_intensity"><code class="docutils literal notranslate"><span class="pre">calculate_r_newton_diagonal_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_newton_diagonal_amplitude"><code class="docutils literal notranslate"><span class="pre">calculate_r_newton_diagonal_amplitude()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_newton_diagonal"><code class="docutils literal notranslate"><span class="pre">calculate_r_newton_diagonal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_gradient_intensity"><code class="docutils literal notranslate"><span class="pre">calculate_r_gradient_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_gradient_amplitude"><code class="docutils literal notranslate"><span class="pre">calculate_r_gradient_amplitude()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_gradient"><code class="docutils literal notranslate"><span class="pre">calculate_r_gradient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_descent_direction"><code class="docutils literal notranslate"><span class="pre">calculate_r_descent_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_error_intensity"><code class="docutils literal notranslate"><span class="pre">calculate_r_error_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_error_amplitude"><code class="docutils literal notranslate"><span class="pre">calculate_r_error_amplitude()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_r_error"><code class="docutils literal notranslate"><span class="pre">calculate_r_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_S_prime_iterative_step"><code class="docutils literal notranslate"><span class="pre">calculate_S_prime_iterative_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_S_prime_iterative"><code class="docutils literal notranslate"><span class="pre">calculate_S_prime_iterative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.construct_s_prime.calculate_S_prime"><code class="docutils literal notranslate"><span class="pre">calculate_S_prime()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.create_population">core.create_population module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.get_initial_amp"><code class="docutils literal notranslate"><span class="pre">get_initial_amp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.random"><code class="docutils literal notranslate"><span class="pre">random()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.random_phase"><code class="docutils literal notranslate"><span class="pre">random_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.constant"><code class="docutils literal notranslate"><span class="pre">constant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.constant_phase"><code class="docutils literal notranslate"><span class="pre">constant_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.create_population_classic"><code class="docutils literal notranslate"><span class="pre">create_population_classic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.polynomial_guess"><code class="docutils literal notranslate"><span class="pre">polynomial_guess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.sinusoidal_guess"><code class="docutils literal notranslate"><span class="pre">sinusoidal_guess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.sigmoidal_guess"><code class="docutils literal notranslate"><span class="pre">sigmoidal_guess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.bspline_guess_phase"><code class="docutils literal notranslate"><span class="pre">bspline_guess_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.continuous_discrete_guess_phase"><code class="docutils literal notranslate"><span class="pre">continuous_discrete_guess_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.gaussian_or_lorentzian_guess"><code class="docutils literal notranslate"><span class="pre">gaussian_or_lorentzian_guess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.continuous_discrete_guess_amp"><code class="docutils literal notranslate"><span class="pre">continuous_discrete_guess_amp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.bspline_guess_amp"><code class="docutils literal notranslate"><span class="pre">bspline_guess_amp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.general_phase"><code class="docutils literal notranslate"><span class="pre">general_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.general_amp"><code class="docutils literal notranslate"><span class="pre">general_amp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.create_phase"><code class="docutils literal notranslate"><span class="pre">create_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.create_amp"><code class="docutils literal notranslate"><span class="pre">create_amp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.create_population.create_population_general"><code class="docutils literal notranslate"><span class="pre">create_population_general()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.initial_guess_doublepulse">core.initial_guess_doublepulse module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.initial_guess_doublepulse.gaussian"><code class="docutils literal notranslate"><span class="pre">gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.initial_guess_doublepulse.get_double_pulse_amps"><code class="docutils literal notranslate"><span class="pre">get_double_pulse_amps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.initial_guess_doublepulse.get_flat_spectral_phase"><code class="docutils literal notranslate"><span class="pre">get_flat_spectral_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.initial_guess_doublepulse.get_double_pulse_initial_guess"><code class="docutils literal notranslate"><span class="pre">get_double_pulse_initial_guess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.initial_guess_doublepulse.make_population_doublepulse"><code class="docutils literal notranslate"><span class="pre">make_population_doublepulse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.lbfgs">core.lbfgs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.lbfgs.backward_loop"><code class="docutils literal notranslate"><span class="pre">backward_loop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.lbfgs.forward_loop"><code class="docutils literal notranslate"><span class="pre">forward_loop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.lbfgs.calculate_quasi_newton_direction"><code class="docutils literal notranslate"><span class="pre">calculate_quasi_newton_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.lbfgs.do_lbfgs"><code class="docutils literal notranslate"><span class="pre">do_lbfgs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.lbfgs.get_quasi_newton_direction"><code class="docutils literal notranslate"><span class="pre">get_quasi_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.nonlinear_cg">core.nonlinear_cg module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.get_nonlinear_CG_direction"><code class="docutils literal notranslate"><span class="pre">get_nonlinear_CG_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.get_beta"><code class="docutils literal notranslate"><span class="pre">get_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.beta_fletcher_reeves"><code class="docutils literal notranslate"><span class="pre">beta_fletcher_reeves()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.beta_polak_ribiere"><code class="docutils literal notranslate"><span class="pre">beta_polak_ribiere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.beta_hestenes_stiefel"><code class="docutils literal notranslate"><span class="pre">beta_hestenes_stiefel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.beta_dai_yuan"><code class="docutils literal notranslate"><span class="pre">beta_dai_yuan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.nonlinear_cg.beta_average"><code class="docutils literal notranslate"><span class="pre">beta_average()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.phase_matrix_funcs">core.phase_matrix_funcs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.get_parameters_material_scan"><code class="docutils literal notranslate"><span class="pre">get_parameters_material_scan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calculate_phase_matrix_material"><code class="docutils literal notranslate"><span class="pre">calculate_phase_matrix_material()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_sine_phase"><code class="docutils literal notranslate"><span class="pre">calc_sine_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_tanh_phase"><code class="docutils literal notranslate"><span class="pre">calc_tanh_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_gaussian_phase"><code class="docutils literal notranslate"><span class="pre">calc_gaussian_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_MIIPS_phase"><code class="docutils literal notranslate"><span class="pre">calc_MIIPS_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_G_MIIPS_phase"><code class="docutils literal notranslate"><span class="pre">calc_G_MIIPS_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calculate_phase_matrix"><code class="docutils literal notranslate"><span class="pre">calculate_phase_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.phase_matrix_funcs.calc_GDD"><code class="docutils literal notranslate"><span class="pre">calc_GDD()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.spectral_filter_funcs">core.spectral_filter_funcs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.spectral_filter_funcs.gaussian_filter"><code class="docutils literal notranslate"><span class="pre">gaussian_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.spectral_filter_funcs.lorentzian_filter"><code class="docutils literal notranslate"><span class="pre">lorentzian_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.spectral_filter_funcs.rectangular_filter"><code class="docutils literal notranslate"><span class="pre">rectangular_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.spectral_filter_funcs.multi_filter"><code class="docutils literal notranslate"><span class="pre">multi_filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.spectral_filter_funcs.get_filter"><code class="docutils literal notranslate"><span class="pre">get_filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core.stepsize">core.stepsize module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.backtracking_linesearch"><code class="docutils literal notranslate"><span class="pre">backtracking_linesearch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.zoom_interpolation"><code class="docutils literal notranslate"><span class="pre">zoom_interpolation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.finding_phase"><code class="docutils literal notranslate"><span class="pre">finding_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.zoom_phase"><code class="docutils literal notranslate"><span class="pre">zoom_phase()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.zoom_linesearch"><code class="docutils literal notranslate"><span class="pre">zoom_linesearch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.do_linesearch_step"><code class="docutils literal notranslate"><span class="pre">do_linesearch_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.end_linesearch"><code class="docutils literal notranslate"><span class="pre">end_linesearch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.do_linesearch"><code class="docutils literal notranslate"><span class="pre">do_linesearch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.get_scaling"><code class="docutils literal notranslate"><span class="pre">get_scaling()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.get_step_size"><code class="docutils literal notranslate"><span class="pre">get_step_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html#core.stepsize.adaptive_step_size"><code class="docutils literal notranslate"><span class="pre">adaptive_step_size()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="core.html#module-core">Module contents</a></li>
 </ul>
 </li>
 </ul>

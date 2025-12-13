@@ -190,7 +190,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
         """
 
         time_big, frequency_big = measurement_info.time_big, measurement_info.frequency_big
-        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
@@ -211,9 +211,9 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
             gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and cross_correlation==False and doubleblind==False:
+        if interferometric==True and cross_correlation==False and doubleblind==False:
             signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
-        elif ifrog==True:
+        elif interferometric==True:
             signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
         else:
             signal_t = jnp.real(pulse)*gate_shifted
@@ -272,7 +272,7 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
         """
 
         time_big, frequency_big = measurement_info.time_big, measurement_info.frequency_big
-        cross_correlation, doubleblind, ifrog = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.ifrog
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
         sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
 
@@ -296,9 +296,9 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
             gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
 
 
-        if ifrog==True and cross_correlation==False and doubleblind==False:
+        if interferometric==True and cross_correlation==False and doubleblind==False:
             signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
-        elif ifrog==True:
+        elif interferometric==True:
             signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
         else:
             signal_t = jnp.real(pulse)*gate_shifted

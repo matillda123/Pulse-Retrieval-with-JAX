@@ -59,7 +59,7 @@ class MakeTrace(MakePulseBase):
         self.maketrace = None
 
     
-    def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation=False, ifrog=False, gate=(None, None), 
+    def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation=False, interferometric=False, gate=(None, None), 
                       real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
         """
         Generates a FROG trace using the provide pulse/gate. 
@@ -71,7 +71,7 @@ class MakeTrace(MakePulseBase):
             pulse_f
             nonlinear_method,
             cross_correlation,
-            ifrog,
+            interferometric,
             gate,
             real_fields,
             frequency_range,
@@ -91,7 +91,7 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceFROG
         
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, ifrog, 
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, interferometric, 
                                    frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range)
 
 
@@ -109,7 +109,7 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_tdp(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation=False, ifrog=False, gate=(None, None), 
+    def generate_tdp(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, gate=(None, None), 
                      real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
         
         """
@@ -123,7 +123,7 @@ class MakeTrace(MakePulseBase):
             nonlinear_method,
             spectral_filter,
             cross_correlation,
-            ifrog,
+            interferometric,
             gate,
             real_fields,
             frequency_range,
@@ -143,7 +143,7 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceTDP
         
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, ifrog, 
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, interferometric, 
                                    frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range)
 
 
@@ -432,7 +432,7 @@ class MakeTraceBASE:
 
 
 class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, ifrog, 
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, interferometric, 
                  frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range):
         super().__init__()
         
@@ -447,7 +447,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
         self.cross_correlation=cross_correlation
-        self.ifrog=ifrog
+        self.interferometric=interferometric
         self.gate = None
 
         self.x_arr = time
@@ -465,7 +465,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
     def get_parameters_to_make_signal_t(self):
         measurement_info = MyNamespace(gate=self.gate, time=self.time, frequency=self.frequency, frequency_exp=self.frequency, 
                                        time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn,
-                                       cross_correlation=self.cross_correlation, ifrog=self.ifrog, 
+                                       cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
                                        nonlinear_method=self.nonlinear_method, doubleblind=False)
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
         return individual, measurement_info, self.time
@@ -537,7 +537,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
 
 
 class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, ifrog, 
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, interferometric, 
                                    frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range):
         super().__init__()
         
@@ -552,7 +552,7 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
         self.cross_correlation=cross_correlation
-        self.ifrog=ifrog
+        self.interferometric=interferometric
         self.gate = None
 
         self.x_arr = time
@@ -757,7 +757,7 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
         self.cross_correlation=cross_correlation
-        self.ifrog=False
+        self.interferometric=False
         self.gate = None
         self.tau_interferometer = tau_interferometer
 
