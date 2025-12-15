@@ -662,11 +662,9 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     def construct_trace(self, individual, measurement_info, descent_info):
         """ Generates a trace for a given individual. Calls the method specific function for calculating the nonlinear signal fields. """
         x_arr, frequency = measurement_info.x_arr, measurement_info.frequency
-        sk, rn = measurement_info.sk, measurement_info.rn
         
         signal_t = self.calculate_signal_t(individual, measurement_info.transform_arr, measurement_info)
-        signal_f = self.fft(signal_t.signal_t, sk, rn)
-        trace = calculate_trace(signal_f)
+        trace = calculate_trace(signal_t.signal_f)
         return x_arr, frequency, trace
     
 

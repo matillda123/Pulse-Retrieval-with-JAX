@@ -374,8 +374,7 @@ class MakeTraceBASE:
         individual, measurement_info, transform_arr = self.get_parameters_to_make_signal_t()
 
         self.signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        signal_f = self.fft(self.signal_t.signal_t, self.sk, self.rn)
-        self.trace = jnp.abs(signal_f)**2
+        self.trace = jnp.abs(self.signal_t.signal_f)**2
 
         time, frequency, trace, spectra = self.interpolate_trace()
 
@@ -786,7 +785,7 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
 
 
 
-class MakeTraceFROGReal(RetrievePulsesFROGwithRealFields, MakeTraceFROG):
+class MakeTraceFROGReal(MakeTraceFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -797,7 +796,7 @@ class MakeTraceFROGReal(RetrievePulsesFROGwithRealFields, MakeTraceFROG):
 
 
 
-class MakeTraceTDPReal(RetrievePulsesTDPwithRealFields, MakeTraceTDP):
+class MakeTraceTDPReal(MakeTraceTDP, RetrievePulsesTDPwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
@@ -807,14 +806,14 @@ class MakeTraceTDPReal(RetrievePulsesTDPwithRealFields, MakeTraceTDP):
 
 
 
-class MakeTraceCHIRPSCANReal(RetrievePulsesCHIRPSCANwithRealFields, MakeTraceCHIRPSCAN):
+class MakeTraceCHIRPSCANReal(MakeTraceCHIRPSCAN, RetrievePulsesCHIRPSCANwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
 
 
-class MakeTrace2DSIReal(RetrievePulses2DSIwithRealFields, MakeTrace2DSI):
+class MakeTrace2DSIReal(MakeTrace2DSI, RetrievePulses2DSIwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
@@ -824,7 +823,7 @@ class MakeTrace2DSIReal(RetrievePulses2DSIwithRealFields, MakeTrace2DSI):
 
 
 
-class MakeTraceVAMPIREReal(RetrievePulsesVAMPIREwithRealFields, MakeTraceVAMPIRE):
+class MakeTraceVAMPIREReal(MakeTraceVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

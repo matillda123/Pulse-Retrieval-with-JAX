@@ -239,7 +239,6 @@ def do_linesearch(linesearch_info, measurement_info, descent_info, error_func, g
 
 
 def get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or_gate, local_or_global):
-
     scaling = jnp.real(jnp.sum(jnp.vecdot(descent_direction, gradient))) + xi
 
     if local_or_global=="_local":
@@ -259,11 +258,27 @@ def get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or
 
 
 
-def get_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global):
+def adaptive_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global):
+    """
+    Calculate an improved step size based through a pade approximation of the error function at the current position.
+
+    Args:
+        error (float): the current error
+        gradient (jnp.array): the current gradient
+        descent_direction (jnp.array): the current descent direction
+        local_or_global_state (Pytree): holds information of the current descent_state
+        xi (float): a damping factor to avoid division by zero
+        order (str): the pade-approximation to be used, can be one of pade_10 (linear), pade_20 (nonlinear), pade_01, pade_11 or pade_02
+        pulse_or_gate (str): whether this is applied to pulse or gate
+        local_or_global (str): whether this happens inside a local or global iteration
+
+    Returns:
+        tuple[jnp.array, Pytree], the scaled descent direction and the local_or_global_state
+    """
+
     scaling, local_or_global_state = get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or_gate, local_or_global)
 
-
-    L_prime = -1*error # this is the definition in copra paper, seems very aggressive
+    L_prime = -1*error # this is the definition in copra paper, seems aggressive
 
     if order=="linear" or order=="pade_10":
         eta = (L_prime-error)/(2*scaling)
@@ -292,34 +307,6 @@ def get_step_size(error, gradient, descent_direction, local_or_global_state, xi,
     # # if eta is negative then it is not used -> (e.g. if newton direction points opposite to gradient -> scaling is positive -> eta likely negative)
     # is_negative = (eta < 0)
     # eta = 1*is_negative + eta*(1-is_negative)
-
-    return eta, local_or_global_state
-
-
-
-
-def adaptive_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global):
-    """
-    Calculate an improved step size based through a pade approximation of the error function at the current position.
-
-    Args:
-        error (float): the current error
-        gradient (jnp.array): the current gradient
-        descent_direction (jnp.array): the current descent direction
-        local_or_global_state (Pytree): holds information of the current descent_state
-        xi (float): a damping factor to avoid division by zero
-        order (str): the pade-approximation to be used, can be one of pade_10 (linear), pade_20 (nonlinear), pade_01, pade_11 or pade_02
-        pulse_or_gate (str): whether this is applied to pulse or gate
-        local_or_global (str): whether this happens inside a local or global iteration
-
-    Returns:
-        tuple[jnp.array, Pytree], the scaled descent direction and the local_or_global_state
-    """
-
-    if order!=False:
-        eta, local_or_global_state = get_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global)
-    else:
-        eta = 1
 
     return eta*descent_direction, local_or_global_state
 

@@ -18,10 +18,6 @@ def get_initial_amp(measurement_info):
     mean_trace = jnp.mean(measured_trace, axis=0)
     amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
-    if measurement_info.real_fields==True:
-        amp = do_interpolation_1d(measurement_info.frequency, measurement_info.frequency_exp, amp)
-
-
     if nonlinear_method=="shg" or nonlinear_method=="thg":
         if nonlinear_method=="shg":
             factor=2

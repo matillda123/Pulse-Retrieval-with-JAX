@@ -225,11 +225,12 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
             descent_direction, cg =jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, conjugate_gradients)
             descent_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), descent_state, cg)
 
-
-        descent_direction, descent_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,None,None,None,None), out_axes=(0,None))(Z_error, grad_sum, descent_direction, 
-                                                                                                                   descent_state, descent_info.xi, 
-                                                                                                                   getattr(descent_info.adaptive_scaling, "_global"), 
-                                                                                                                   pulse_or_gate, "_global")
+        order = getattr(descent_info.adaptive_scaling, "_global")
+        if order!=False:
+            descent_direction, descent_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,None,None,None,None), out_axes=(0,None))(Z_error, grad_sum, descent_direction, 
+                                                                                                                    descent_state, descent_info.xi, 
+                                                                                                                    order,
+                                                                                                                    pulse_or_gate, "_global")
 
         if descent_info.linesearch_params.linesearch!=False:
             pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
@@ -553,11 +554,12 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
             local_or_global_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), local_or_global_state, cg)
 
 
-
-        descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(pie_error, grad_sum, descent_direction, 
-                                                                                                                          local_or_global_state, descent_info.xi,
-                                                                                                                        getattr(descent_info.adaptive_scaling, local_or_global) ,
-                                                                                                                          pulse_or_gate, local_or_global)
+        order = getattr(descent_info.adaptive_scaling, local_or_global)
+        if order!=False:
+            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(pie_error, grad_sum, descent_direction, 
+                                                                                                                            local_or_global_state, descent_info.xi,
+                                                                                                                            order,
+                                                                                                                            pulse_or_gate, local_or_global)
 
 
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
@@ -910,11 +912,13 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
-        descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(Z_error, grad_sum, descent_direction, 
-                                                                                                                          local_or_global_state, descent_info.xi,
-                                                                                                                        getattr(descent_info.adaptive_scaling, local_or_global),
-                                                                                                                          pulse_or_gate, local_or_global)
-        
+        order = getattr(descent_info.adaptive_scaling, local_or_global)
+        if order!=False:
+            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(Z_error, grad_sum, descent_direction, 
+                                                                                                                            local_or_global_state, descent_info.xi,
+                                                                                                                            order,
+                                                                                                                            pulse_or_gate, local_or_global)
+            
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
             pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)        
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 

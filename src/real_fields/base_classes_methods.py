@@ -3,25 +3,19 @@ import jax
 
 from equinox import tree_at
 
-from src.utilities import MyNamespace, get_sk_rn, do_interpolation_1d, calculate_gate_with_Real_Fields, calculate_trace, center_signal
-from src.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE
+from src.utilities import MyNamespace, get_sk_rn, do_interpolation_1d, calculate_gate_with_Real_Fields
+from src.core.base_classes_methods import RetrievePulses, RetrievePulsesFROG, RetrievePulsesTDP, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE
 
 
 
 
 
-
-# this is meant to be a parent to general optimization for real fields
-# needs to come in first position to yield the correct mro
-class RetrievePulsesRealFields:
+class RetrievePulsesRealFields(RetrievePulses):
     """  
     A Base-Class for reconstruction via real fields. Real fields need to be considered if multiple nonlinear signals are present in the same trace.
     A complex signal does not inherently express difference frequency generation. Because complex signals do not possess negative frequencies.
-    This can only be used with general solvers, because for classical solvers analytic gradients/hessians are required. 
-    Does not inherit from any class. But is supposed to be used via composition of its child classes with solver classes.
-
+    
     Attributes:
-        frequency_exp (jnp.array): the frequencies corresponding to the measured trace
         frequency (jnp.array): the frequencies correpsonding to pulse/gate-pulse
         frequency_big (jnp.array): a large frequency axis needed for the signal field due to negative frequencies
         time_big (jnp.array): the corresponding time axis to frequency_big
@@ -60,7 +54,6 @@ class RetrievePulsesRealFields:
         return self.x_arr, self.time, self.frequency, self.measured_trace
     
 
-
     def interpolate_signal_from_big(self, signal_t, measurement_info):
         frequency, frequency_big = measurement_info.frequency, measurement_info.frequency_big
         sk, rn, sk_big, rn_big = measurement_info.sk, measurement_info.rn, measurement_info.sk_big, measurement_info.rn_big
@@ -73,9 +66,9 @@ class RetrievePulsesRealFields:
     def interpolate_signal_to_big(self, signal_t, measurement_info):
         frequency, frequency_big = measurement_info.frequency, measurement_info.frequency_big
         sk, rn, sk_big, rn_big = measurement_info.sk, measurement_info.rn, measurement_info.sk_big, measurement_info.rn_big
-        signal_f = self.fft(signal_t, sk_big, rn_big)
+        signal_f = self.fft(signal_t, sk, rn)
         signal_f = do_interpolation_1d(frequency_big, frequency, signal_f.T).T
-        signal_t = self.ifft(signal_f, sk, rn)
+        signal_t = self.ifft(signal_f, sk_big, rn_big)
         return signal_t, signal_f
     
 
@@ -83,50 +76,18 @@ class RetrievePulsesRealFields:
 
     
 
-    def make_pulse_f_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate="pulse"):
-        """ Evaluates an individual onto the frequency domain. Interpolates it onto frequency_big. """
-        signal_f = super().make_pulse_f_from_individual(individual, measurement_info, descent_info, pulse_or_gate=pulse_or_gate)
-        
-        frequency_big, frequency = measurement_info.frequency_big, measurement_info.frequency
-        signal_f = do_interpolation_1d(frequency_big, frequency, signal_f)
-        return signal_f
     
 
+    
 
-    def make_pulse_t_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate="pulse"):
-        """ Evaluates an individual onto the time domain. Onto time_big. """
-        signal_f = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, pulse_or_gate)
-        signal = self.ifft(signal_f, measurement_info.sk_big, measurement_info.rn_big)
-        return signal
     
 
 
 
 
 
-    def construct_trace(self, individual, measurement_info, descent_info):
-        """ Generates a trace for a given individual. Calls the method specific function for calculating the nonlinear signal fields. """
-        x_arr = measurement_info.x_arr
-        frequency = measurement_info.frequency
 
-        signal_t = self.calculate_signal_t(individual, measurement_info.transform_arr, measurement_info)
-        trace = calculate_trace(signal_t.signal_f)
-        return x_arr, frequency, trace
-
-    
-
-    def post_process_create_trace(self, individual):
-        """ Post processing to get the final trace """
-        _, _, trace = self.construct_trace(individual, self.measurement_info, self.descent_info)
-        return trace
-
-
-
-
-
-
-
-class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
+class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesFROG):
     """ 
     Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
@@ -162,6 +123,10 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
+
+        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
+        if doubleblind==True:
+            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
 
 
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
@@ -202,7 +167,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesFROG):
 
 
 
-class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
+class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTDP):
     """ 
     IOverwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
@@ -249,6 +214,11 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
 
         pulse, gate = individual.pulse, individual.gate
 
+        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
+        if doubleblind==True:
+            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
+
+
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
 
         if cross_correlation==True:
@@ -290,7 +260,7 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesTDP):
 
 
 
-class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
+class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesRealFields, RetrievePulsesCHIRPSCAN):
     """ 
     Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
@@ -324,6 +294,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
         """
 
         pulse = individual.pulse
+        pulse = do_interpolation_1d(measurement_info.frequency_big, measurement_info.frequency, pulse)
 
         pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info.sk_big, measurement_info.rn_big)
         gate_disp = calculate_gate_with_Real_Fields(pulse_t_disp, measurement_info.nonlinear_method)
@@ -342,7 +313,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesCHIRPSCAN):
 
 
 
-class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
+class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2DSI):
     """ 
     Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
@@ -394,12 +365,14 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
         nonlinear_method = measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
+        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
 
         if measurement_info.cross_correlation==True:
             gate = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
             gate = individual.gate
+            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
 
         else:
             gate = pulse_t
@@ -429,7 +402,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulses2DSI):
 
 
 
-class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesVAMPIRE):
+class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePulsesVAMPIRE):
     """ 
     Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
@@ -476,13 +449,14 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesVAMPIRE):
         nonlinear_method = measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
+        pulse_t, _ = self.interpolate_signal_to_big(pulse_t, measurement_info)
 
         if measurement_info.cross_correlation==True:
             gate_pulse = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
             gate_pulse = individual.gate
-
+            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
         else:
             gate_pulse = pulse_t
 
