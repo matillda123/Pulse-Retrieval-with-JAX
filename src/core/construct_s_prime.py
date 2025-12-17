@@ -12,7 +12,7 @@ from .stepsize import adaptive_step_size
 
 
 
-def calculate_S_prime_projection(signal_f, measured_trace, mu, measurement_info):
+def calculate_S_prime_projection(signal_f, measured_trace, mu, sk, rn):
     """
     Calculates signal_t_new/S_prime via a projection onto the measured intensity.
 
@@ -25,8 +25,6 @@ def calculate_S_prime_projection(signal_f, measured_trace, mu, measurement_info)
     Returns:
         jnp.array, the complex signal field in the time domain projected onto the measured intensity
     """
-    sk, rn = measurement_info.sk, measurement_info.rn
-
     signal_f_new = project_onto_intensity(signal_f, measured_trace)
     signal_t_new = do_ifft(signal_f_new, sk, rn)*1/(jnp.sqrt(mu)+1e-12)
     return signal_t_new
@@ -51,7 +49,7 @@ def calculate_r_newton_diagonal_amplitude(trace, measured_trace):
     return H_zz_diag
 
 
-def calculate_r_newton_diagonal(signal_f, measured_trace, measurement_info, descent_info):
+def calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info):
     trace = calculate_trace(signal_f)
 
     calc_r_newton_diag_dict={"amplitude": calculate_r_newton_diagonal_amplitude,
@@ -75,8 +73,7 @@ def calculate_r_gradient_amplitude(signal_f, mu, measured_trace, weights, sk, rn
 
 
 
-def calculate_r_gradient(signal_f, mu, measured_trace, measurement_info, descent_info):
-    sk, rn = measurement_info.sk, measurement_info.rn
+def calculate_r_gradient(signal_f, mu, measured_trace, sk, rn, descent_info):
     weights = descent_info.s_prime_params.weights
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
@@ -86,16 +83,16 @@ def calculate_r_gradient(signal_f, mu, measured_trace, measurement_info, descent
     return gradient
 
 
-def calculate_r_descent_direction(signal_f, mu, measured_trace, measurement_info, descent_info):
+def calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_info):
     """
     Calculates descent direction of the iterative calculation of signal_t_new/S_prime. 
     Uses either gradient descent or newtons method with the diagonal approximation. 
     The error-functions can be based on intensity or amplitude based residuals. 
     """
-    gradient = calculate_r_gradient(signal_f, mu, measured_trace, measurement_info, descent_info)
+    gradient = calculate_r_gradient(signal_f, mu, measured_trace, sk, rn, descent_info)
 
     if descent_info.s_prime_params.r_newton!=False:
-        hessian = calculate_r_newton_diagonal(signal_f, measured_trace, measurement_info, descent_info)
+        hessian = calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info)
         descent_direction = -1*gradient/(hessian[:,jnp.newaxis] + 1e-12)
     else:
         descent_direction = -1*gradient
@@ -153,12 +150,12 @@ def calculate_r_error(trace, measured_trace, mu, descent_info):
 
 
 
-def calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global):
+def calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global):
     """ One iteration of the iterative descent based calculation of signal_t_new/S_prime. """
     gamma = getattr(descent_info.gamma, local_or_global)
 
     trace = calculate_trace(signal_f)
-    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measured_trace, measurement_info, descent_info)
+    descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_info)
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
 
     descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, MyNamespace(), descent_info.xi, "pade_10", None, "_global")
@@ -177,7 +174,7 @@ def calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, mea
     return signal_t_new, None
 
 
-def calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global):
+def calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global):
     """
     Calculates signal_t_new/S_prime via an iterative optimization of the least-squares error.
 
@@ -197,10 +194,10 @@ def calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, measurem
 
     number_of_iterations = descent_info.s_prime_params.number_of_iterations
     if number_of_iterations==1:
-        signal_t_new, _ = calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
+        signal_t_new, _ = calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global)
     else:
         # this might be broken because of tuple input to scan?
-        step = Partial(calculate_S_prime_iterative_step, measured_trace=measured_trace, mu=mu, measurement_info=measurement_info, descent_info=descent_info, 
+        step = Partial(calculate_S_prime_iterative_step, measured_trace=measured_trace, mu=mu, sk=sk, rn=rn, descent_info=descent_info, 
                        local_or_global=local_or_global)
         do_step = Partial(scan_helper, actual_function=step, number_of_args=2, number_of_xs=0)
         signal_t_new, _ = jax.lax.scan(do_step, (signal_t, signal_f), length=number_of_iterations)
@@ -230,11 +227,17 @@ def calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, 
         
     method = getattr(descent_info.s_prime_params, local_or_global)
 
+    if measurement_info.real_fields==True:
+        sk, rn = measurement_info.sk_exp, measurement_info.rn_exp
+    else:
+        sk, rn = measurement_info.sk, measurement_info.rn
+        
+
     if method=="projection":
-        signal_t_new = calculate_S_prime_projection(signal_f, measured_trace, mu, measurement_info)
+        signal_t_new = calculate_S_prime_projection(signal_f, measured_trace, mu, sk, rn)
 
     elif method=="iteration":
-        signal_t_new = calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
+        signal_t_new = calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global)
 
     else:
          raise ValueError(f"method needs to be one of projection or iteration. Not {method}")

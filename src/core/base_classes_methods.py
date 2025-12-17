@@ -240,7 +240,7 @@ class RetrievePulses:
         measurement_info, descent_info = self.measurement_info, self.descent_info 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
-        trace = calculate_trace(self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn))
+        trace = calculate_trace(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
         idx = jnp.argmin(trace_error)
         return idx
@@ -265,12 +265,10 @@ class RetrievePulses:
 
     def post_process_create_trace(self, individual):
         """ Post processing to get the final trace """
-        sk, rn = self.measurement_info.sk, self.measurement_info.rn
         transform_arr = self.measurement_info.transform_arr
     
         signal_t = self.calculate_signal_t(individual, transform_arr, self.measurement_info)
-        signal_f = self.fft(signal_t.signal_t, sk, rn)
-        trace = calculate_trace(signal_f)
+        trace = calculate_trace(signal_t.signal_f)
         return trace
     
 
@@ -303,8 +301,13 @@ class RetrievePulses:
         x_arr = self.measurement_info.x_arr
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
+        if self.measurement_info.real_fields==True:
+            frequency_exp = self.measurement_info.frequency_exp
+        else:
+            frequency_exp = frequency
+
         final_result_population = self.get_final_result_population()
-        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency,
+        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
                                  error_arr=error_arr, population=final_result_population)
@@ -506,6 +509,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
         sk, rn = get_sk_rn(time, frequency)
 
+        # its not really necessary to vmap here. could be done by broadcasting i guess.
         signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
         return signal_shifted[ ... , :N]
 

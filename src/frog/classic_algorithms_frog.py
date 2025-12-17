@@ -627,14 +627,15 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
             
         elif pulse_or_gate=="gate":
-            probe = jnp.broadcast_to(population.pulse, jnp.shape(difference_signal_t))
+            probe = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(difference_signal_t))
             grad = -1*jnp.conjugate(probe)*difference_signal_t
             U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
 
             grad = self.modify_grad_for_gate_pulse(grad, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
-            U = self.reverse_transform_grad(U, tau, measurement_info)
-            grad = self.reverse_transform_grad(grad, tau, measurement_info)
+            do_reverse = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))
+            U = do_reverse(U, tau, measurement_info)
+            grad = do_reverse(grad, tau, measurement_info)
 
         return grad, U
     

@@ -337,9 +337,6 @@ def get_sk_rn(time, frequency):
 
 
 
-
-
-
 def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12):
     """
     Wraps around interpax.interp1d

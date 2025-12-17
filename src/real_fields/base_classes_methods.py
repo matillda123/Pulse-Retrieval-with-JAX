@@ -28,47 +28,55 @@ class RetrievePulsesRealFields(RetrievePulses):
         self._fmin, self._fmax = f_range_fields
         super().__init__(*args, **kwargs)
 
-        self.measurement_info = self.measurement_info.expand(real_fields = True)
-        
-        f = jnp.abs(self.measurement_info.frequency)
-        df = jnp.mean(jnp.diff(self.measurement_info.frequency))
-        self.frequency_big = jnp.arange(-1*jnp.max(f), jnp.max(f)+df, df)
-        self.time_big = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_big), jnp.mean(jnp.diff(self.frequency_big))))
-        self.sk_big, self.rn_big = get_sk_rn(self.time_big, self.frequency_big)
-        self.measurement_info = self.measurement_info.expand(time_big=self.time_big, frequency_big=self.frequency_big, 
+        self.measurement_info = self.measurement_info.expand(real_fields = True, 
+                                                             frequency_exp=self.frequency_exp, sk_exp=self.sk_exp,rn_exp=self.rn_exp, 
+                                                             time_big=self.time_big, frequency_big=self.frequency_big, 
                                                              sk_big=self.sk_big, rn_big=self.rn_big)
-
-
+        
 
     def get_data(self, x_arr, frequency_exp, measured_trace):
         """ Prepare/Convert data. """
-        measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
+        self.measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
 
         self.x_arr = jnp.asarray(x_arr)
         df = jnp.mean(jnp.diff(jnp.asarray(frequency_exp)))
         self.frequency = jnp.arange(self._fmin, self._fmax+df, df)
         self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), df))
         
-        assert self._fmax >= jnp.max(frequency_exp) and self._fmin <= jnp.min(frequency_exp), "the frequency range needs to include the frequency range of the trace."
-        self.measured_trace = do_interpolation_1d(self.frequency, frequency_exp, jnp.asarray(measured_trace).T).T
+        self.frequency_exp = jnp.asarray(frequency_exp)
+        self.time_exp = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_exp), jnp.mean(jnp.diff(self.frequency_exp))))
+        self.sk_exp, self.rn_exp = get_sk_rn(self.time_exp, self.frequency_exp)
+
+
+        f = jnp.abs(self.frequency_exp)
+        df = jnp.mean(jnp.diff(self.frequency_exp))
+        self.frequency_big = jnp.arange(-1*jnp.max(f), jnp.max(f)+df, df)
+        self.time_big = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_big), jnp.mean(jnp.diff(self.frequency_big))))
+        self.sk_big, self.rn_big = get_sk_rn(self.time_big, self.frequency_big)
+
         return self.x_arr, self.time, self.frequency, self.measured_trace
     
 
-    def interpolate_signal_from_big(self, signal_t, measurement_info):
-        frequency, frequency_big = measurement_info.frequency, measurement_info.frequency_big
-        sk, rn, sk_big, rn_big = measurement_info.sk, measurement_info.rn, measurement_info.sk_big, measurement_info.rn_big
-        signal_f = self.fft(signal_t, sk_big, rn_big)
-        signal_f = do_interpolation_1d(frequency, frequency_big, signal_f.T).T
-        signal_t = self.ifft(signal_f, sk, rn)
-        return signal_t, signal_f
-    
 
-    def interpolate_signal_to_big(self, signal_t, measurement_info):
-        frequency, frequency_big = measurement_info.frequency, measurement_info.frequency_big
-        sk, rn, sk_big, rn_big = measurement_info.sk, measurement_info.rn, measurement_info.sk_big, measurement_info.rn_big
-        signal_f = self.fft(signal_t, sk, rn)
-        signal_f = do_interpolation_1d(frequency_big, frequency, signal_f.T).T
-        signal_t = self.ifft(signal_f, sk_big, rn_big)
+
+    def interpolate_signal(self, signal_t, measurement_info, axis_in, axis_out, batch_axes=-2):
+        axis_dict = {"main": (measurement_info.frequency, measurement_info.sk, measurement_info.rn),
+                     "exp": (measurement_info.frequency_exp, measurement_info.sk_exp, measurement_info.rn_exp),
+                     "big": (measurement_info.frequency_big, measurement_info.sk_big, measurement_info.rn_big)}
+        
+        frequency_1, sk_1, rn_1 = axis_dict[axis_in]
+        frequency_2, sk_2, rn_2 = axis_dict[axis_out]
+
+        signal_f = self.fft(signal_t, sk_1, rn_1)
+
+        if signal_f.ndim==0:
+            raise ValueError
+        elif signal_f.ndim==1:
+            signal_f = do_interpolation_1d(frequency_2, frequency_1, signal_f)
+        else:
+            signal_f = jax.vmap(do_interpolation_1d, in_axes=(None,None,batch_axes), out_axes=batch_axes)(frequency_2, frequency_1, signal_f)
+
+        signal_t = self.ifft(signal_f, sk_2, rn_2)
         return signal_t, signal_f
     
 
@@ -93,7 +101,6 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
 
 
     def get_gate_pulse(self, frequency, gate_f):
@@ -124,9 +131,9 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
 
         pulse, gate = individual.pulse, individual.gate
 
-        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
+        pulse, _ = self.interpolate_signal(pulse, measurement_info, "main", "big")
         if doubleblind==True:
-            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
+            gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
 
 
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
@@ -152,7 +159,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
             signal_t = jnp.real(pulse)*gate_shifted
 
 
-        signal_t, signal_f = self.interpolate_signal_from_big(signal_t, measurement_info)
+        signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
 
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f,
@@ -169,7 +176,7 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
 
 class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTDP):
     """ 
-    IOverwrites the generation of the signal field in order to use real fields instead of complex ones.
+    Overwrites the generation of the signal field in order to use real fields instead of complex ones.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -214,9 +221,9 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTD
 
         pulse, gate = individual.pulse, individual.gate
 
-        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
+        pulse, _ = self.interpolate_signal(pulse, measurement_info, "main", "big")
         if doubleblind==True:
-            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
+            gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
 
 
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
@@ -245,7 +252,7 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTD
             signal_t = jnp.real(pulse)*gate_shifted
 
 
-        signal_t, signal_f = self.interpolate_signal_from_big(signal_t, measurement_info)
+        signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
         
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f,
@@ -280,6 +287,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesRealFields, RetrievePu
         self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, self.transform_arr)
     
 
+
     def calculate_signal_t(self, individual, phase_matrix, measurement_info):
         """
         Calculates the signal field of a Chirp-Scan in the time domain. Does so by using real fields instead of complex ones.
@@ -300,7 +308,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesRealFields, RetrievePu
         gate_disp = calculate_gate_with_Real_Fields(pulse_t_disp, measurement_info.nonlinear_method)
         signal_t = jnp.real(pulse_t_disp)*gate_disp
 
-        signal_t, signal_f = self.interpolate_signal_from_big(signal_t, measurement_info)
+        signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f,
                                pulse_t_disp = pulse_t_disp, 
@@ -347,6 +355,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         return self.gate
 
 
+
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         """
         Calculates the signal field of 2DSI in the time domain. Does so by using real fields instead of complex ones.
@@ -365,14 +374,14 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         nonlinear_method = measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
-        pulse, _ = self.interpolate_signal_to_big(pulse, measurement_info)
+        pulse, _ = self.interpolate_signal(pulse, measurement_info, "main", "big")
 
         if measurement_info.cross_correlation==True:
             gate = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
             gate = individual.gate
-            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
+            gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
 
         else:
             gate = pulse_t
@@ -390,7 +399,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
         signal_t = jnp.real(pulse_t)*gate
-        signal_t, signal_f = self.interpolate_signal_from_big(signal_t, measurement_info)
+        signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
 
         signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, delay=delay)
         return signal_t
@@ -449,14 +458,14 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         nonlinear_method = measurement_info.nonlinear_method
 
         pulse_t = individual.pulse
-        pulse_t, _ = self.interpolate_signal_to_big(pulse_t, measurement_info)
+        pulse_t, _ = self.interpolate_signal(pulse_t, measurement_info, "main", "big")
 
         if measurement_info.cross_correlation==True:
             gate_pulse = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
             gate_pulse = individual.gate
-            gate, _ = self.interpolate_signal_to_big(gate, measurement_info)
+            gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
         else:
             gate_pulse = pulse_t
 
@@ -471,6 +480,6 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
 
         signal_t = jnp.real(pulse_t)*gate
 
-        signal_t, signal_f = self.interpolate_signal_from_big(signal_t, measurement_info)
+        signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
         signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, delay=delay)
         return signal_t

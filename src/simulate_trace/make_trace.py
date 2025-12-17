@@ -464,6 +464,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
     def get_parameters_to_make_signal_t(self):
         measurement_info = MyNamespace(gate=self.gate, time=self.time, frequency=self.frequency, frequency_exp=self.frequency, 
                                        time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn,
+                                       sk_exp=self.sk, rn_exp=self.rn,
                                        cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
                                        nonlinear_method=self.nonlinear_method, doubleblind=False)
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)

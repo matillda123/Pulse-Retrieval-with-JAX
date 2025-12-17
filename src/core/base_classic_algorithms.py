@@ -265,6 +265,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         """ Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate. """
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
+        
+        jax.debug.print("{error}", error=Z_error)
 
         descent_state = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, "pulse")
         population_pulse = descent_state.population.pulse/jnp.linalg.norm(descent_state.population.pulse,axis=-1)[:,jnp.newaxis]
@@ -352,12 +354,10 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         self.descent_info = self.descent_info.expand(gamma = MyNamespace(_local=self.local_gamma, _global=self.global_gamma), 
                                                      no_steps_descent = self.no_steps_descent, 
-                                                     
                                                      conjugate_gradients = self.conjugate_gradients,
                                                      linesearch_params = linesearch_params, 
                                                      s_prime_params = s_prime_params, 
                                                      newton = newton, 
-
                                                      xi = self.xi, 
                                                      adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling))
     
@@ -450,23 +450,13 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
     
 
 
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the descent direction based on the PIE version. """
         get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, population=population, pie_method=pie_method, 
                                         measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate=pulse_or_gate)
 
-        # in some cases the signal_t contains a leaf with a mismatching shape the vmap call below
-        leafs, treedef = jax.tree.flatten(signal_t)
-        map_list = []
-        for leaf in leafs:
-            if leaf.ndim==3:
-                map_list.append(1)
-            else:
-                map_list.append(None)
-        signal_t_map = jax.tree.unflatten(treedef, map_list)
-
-
-        grad_all_m, U = jax.vmap(get_descent_direction, in_axes=(signal_t_map,1,1), out_axes=(1,1))(signal_t, signal_t_new, transform_arr)
+        # not vmaping over m here anymore -> probably broke PIE version for all non-frog things.
+        grad_all_m, U = get_descent_direction(signal_t, signal_t_new, transform_arr, measured_trace)
         return grad_all_m, U
 
 
@@ -476,7 +466,6 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
     def calc_error_for_linesearch(self, gamma, linesearch_info, measurement_info, pulse_or_gate):
         """ Calculates the PIE-error such that it can be called in a linesearch. """
-        sk, rn = measurement_info.sk, measurement_info.rn
 
         transform_arr, measured_trace = linesearch_info.transform_arr, linesearch_info.measured_trace
         individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
@@ -530,7 +519,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         conjugate_gradients = descent_info.conjugate_gradients
         newton_info = getattr(descent_info.newton, local_or_global)
 
-        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
+        grad, U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
 
         if newton_info=="diagonal" or (newton_info=="full" and pulse_or_gate=="pulse"):
@@ -739,7 +728,6 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
                                                      xi = self.xi,
                                                      adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling))
-                                                     #idx_arr = self.idx_arr)
         
         descent_info = self.descent_info
 
@@ -991,8 +979,6 @@ class COPRABASE(ClassicAlgorithmsBASE):
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
 
-        sk, rn = measurement_info.sk, measurement_info.rn
-
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
         local_mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measurement_info.measured_trace)
@@ -1029,12 +1015,12 @@ class COPRABASE(ClassicAlgorithmsBASE):
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
 
-        measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
+        measured_trace = measurement_info.measured_trace
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, measurement_info, 
+        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, measurement_info, 
                                                                                       descent_info, "_global")
 
 
@@ -1056,7 +1042,6 @@ class COPRABASE(ClassicAlgorithmsBASE):
             
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
-
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
@@ -1093,7 +1078,6 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                      newton = newton,
                                                      s_prime_params = s_prime_params,
                                                      adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling),
-                                                     #idx_arr = self.idx_arr,
                                                      conjugate_gradients = self.conjugate_gradients)
         descent_info = self.descent_info
 

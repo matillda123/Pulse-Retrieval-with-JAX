@@ -64,15 +64,10 @@ def calc_grad_AD(individual, transform_arr, signal_t_new, measured_trace, measur
     """
     individual = split_population_real_imag(individual, pulse_or_gate)
 
-    loss_func = Partial(loss_func, measurement_info=measurement_info, calc_signal_t=calculate_signal_t, pulse_or_gate=pulse_or_gate)
-    if pulse_or_gate=="pulse":
-        argnums=0
-    elif pulse_or_gate=="gate":
-        argnums=1
-    else:
-        raise ValueError(f"pulse_or_gate has to be pulse or gate. Not {pulse_or_gate}")
-
-    grad = jax.grad(loss_func, argnums=argnums)(individual.pulse, individual.gate, transform_arr, signal_t_new, measured_trace)
+    loss_func = Partial(loss_func, transform_arr=transform_arr, signal_t_new=signal_t_new, measured_trace=measured_trace, 
+                        measurement_info=measurement_info, calc_signal_t=calculate_signal_t, pulse_or_gate=pulse_or_gate)
+    argnum_dict = {"pulse": 0,"gate": 1}
+    grad = jax.grad(loss_func, argnums=argnum_dict[pulse_or_gate])(individual.pulse, individual.gate)
     return grad.real + 1j*grad.imag
 
 
@@ -83,7 +78,7 @@ def calc_z_error(pulse, gate, transform_arr, signal_t_new, measured_trace, measu
     """ Calculates the Z-error for an individual. """
     individual = merge_real_imag_population(MyNamespace(pulse=pulse, gate=gate), pulse_or_gate)
     signal_t = calc_signal_t(individual, transform_arr, measurement_info)
-    error = jnp.sum(jnp.abs(signal_t_new-signal_t.signal_t)**2)
+    error = jnp.sum(jnp.abs(signal_t_new - signal_t.signal_t)**2)
     return error
 
 
@@ -96,10 +91,10 @@ def calc_pie_error(pulse, gate, transform_arr, signal_t_new, measured_trace, mea
 
 
 
-
 def calc_grad_AD_z_error(individual, transform_arr, signal_t_new, measured_trace, measurement_info, calculate_signal_t, pulse_or_gate):
     grad = calc_grad_AD(individual, transform_arr, signal_t_new, measured_trace, measurement_info, calculate_signal_t, pulse_or_gate, calc_z_error)
     return jnp.expand_dims(grad, 0)  # is needed since returned gradient does not explicitely depend on m
+
 
 def calc_grad_AD_pie_error(individual, transform_arr, signal_t_new, measured_trace, measurement_info, calculate_signal_t, pulse_or_gate):
     grad = calc_grad_AD(individual, transform_arr, signal_t_new, measured_trace, measurement_info, calculate_signal_t, pulse_or_gate, calc_pie_error)

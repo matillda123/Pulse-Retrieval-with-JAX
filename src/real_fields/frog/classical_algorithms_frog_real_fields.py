@@ -71,29 +71,30 @@ class PtychographicIterativeEngine(RetrievePulsesFROGwithRealFields, Ptychograph
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        assert self.interferometric==False, "Dont use interferometric with PIE. its not meant or made for that"
+
+        # interferometiric should work here since the gradient is obtained via AD
+        # assert self.interferometric==False, "Dont use interferometric=True with PIE. its not meant or made for that"
 
         self.pie_method=pie_method
 
 
 
-
-    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
 
         grad = jax.vmap(calc_grad_AD_pie_error, in_axes=(0,0,0,0,None,None,None))(population, tau, signal_t_new, 
-                                                                                  jnp.abs(signal_t.signal_f), 
+                                                                                  measured_trace, 
                                                                                   measurement_info, self.calculate_signal_t, 
                                                                                   pulse_or_gate)
         alpha = descent_info.alpha
         if pulse_or_gate=="pulse":
-            probe = signal_t.gate_shifted
+            probe, _ = jax.vmap(self.interpolate_signal, in_axes=(0,None,None,None))(signal_t.gate_shifted, measurement_info, "big", "main")
             U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
             
         elif pulse_or_gate=="gate":
-            probe = jnp.broadcast_to(population.pulse, jnp.shape(signal_t.gate_shifted))
+            probe = jnp.broadcast_to(population.pulse, jnp.shape(signal_t.gate_shifted)[:2] + (jnp.shape(population.pulse)[-1], ))
             U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
-            U = self.reverse_transform_grad(U, tau, measurement_info)
+            U = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(U, tau, measurement_info)
 
         return grad, U
 
