@@ -1,4 +1,4 @@
-tdp package
+tdp
 ===========
 
 Submodules

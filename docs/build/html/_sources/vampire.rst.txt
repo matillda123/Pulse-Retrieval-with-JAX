@@ -1,4 +1,4 @@
-vampire package
+vampire
 ===============
 
 Submodules

@@ -2,16 +2,14 @@ import jax.numpy as jnp
 
 
 def gaussian_filter(frequency, parameters, filter_dict):
-    a, f0, fwhm = parameters
-    sigma = fwhm/2.355
-    y = a*jnp.exp(-(frequency-f0)**2/(2*sigma**2))
+    a, f0, fwhm, p = parameters
+    y = a*jnp.exp(-jnp.log(2)*(4*(frequency-f0)**2/fwhm**2)**p)
     return y
 
 
 def lorentzian_filter(frequency, parameters, filter_dict):
-    a, f0, fwhm = parameters
-    gamma = fwhm/2
-    y = a*gamma/((frequency-f0)**2 + gamma**2)
+    a, f0, fwhm, p = parameters
+    y = a/(1+jnp.abs(2*(frequency-f0)/fwhm)**(2*p))
     return y
 
 

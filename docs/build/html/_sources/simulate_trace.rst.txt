@@ -1,4 +1,4 @@
-simulate\_trace package
+simulate\_trace
 =======================
 
 Submodules

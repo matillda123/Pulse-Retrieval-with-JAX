@@ -1,4 +1,4 @@
-chirp\_scan package
+chirp\_scan
 ===================
 
 Submodules

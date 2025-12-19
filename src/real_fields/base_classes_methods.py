@@ -26,6 +26,8 @@ class RetrievePulsesRealFields(RetrievePulses):
 
     def __init__(self, *args, f_range_fields=(None, None), **kwargs):
         self._fmin, self._fmax = f_range_fields
+        assert self._fmin!=None and self._fmax!=None, "f_range_fields needs to be provided"
+        
         super().__init__(*args, **kwargs)
 
         self.measurement_info = self.measurement_info.expand(real_fields = True, 

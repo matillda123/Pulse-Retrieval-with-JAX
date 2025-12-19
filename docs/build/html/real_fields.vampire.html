@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="core package" href="core.html" />
+    <link rel="next" title="core" href="core.html" />
     <link rel="prev" title="real_fields.twodsi package" href="real_fields.twodsi.html" /> 
 </head>
 
@@ -43,14 +43,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="frog.html">frog package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="real_fields.html">real_fields package</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog package</a></li>
@@ -59,9 +59,9 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">real_fields.vampire package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
@@ -106,6 +106,42 @@
 <h1>real_fields.vampire package<a class="headerlink" href="#real-fields-vampire-package" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-real_fields.vampire.classical_algorithms_vampire_real_fields">
+<span id="real-fields-vampire-classical-algorithms-vampire-real-fields-module"></span><h2>real_fields.vampire.classical_algorithms_vampire_real_fields module<a class="headerlink" href="#module-real_fields.vampire.classical_algorithms_vampire_real_fields" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.vampire.classical_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></p>
+<p>The Generalized Projection Algorithm for VAMPIRE.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.vampire.classical_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pie_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rPIE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></p>
+<p>The Ptychographic Iterative Engine (PIE) for VAMPIRE.
+Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.pie_method">
+<span class="sig-name descname"><span class="pre">pie_method</span></span><a class="headerlink" href="#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.pie_method" title="Link to this definition"></a></dt>
+<dd><p>specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None, str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.vampire.classical_algorithms_vampire_real_fields.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">COPRA</span></code></p>
+<p>The Common Pulse Retrieval Algorithm (COPRA) for VAMPIRE.</p>
+</dd></dl>
+
 </section>
 <section id="module-real_fields.vampire.general_algorithms_vampire_real_fields">
 <span id="real-fields-vampire-general-algorithms-vampire-real-fields-module"></span><h2>real_fields.vampire.general_algorithms_vampire_real_fields module<a class="headerlink" href="#module-real_fields.vampire.general_algorithms_vampire_real_fields" title="Link to this heading"></a></h2>
@@ -183,7 +219,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="real_fields.twodsi.html" class="btn btn-neutral float-left" title="real_fields.twodsi package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="core.html" class="btn btn-neutral float-right" title="core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="core.html" class="btn btn-neutral float-right" title="core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -305,9 +305,9 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         Performs one iteration of the Generalized Projection Algorithm.
         
         Args:
-            descent_state: Pytree,
-            measurement_info: Pytree,
-            descent_info: Pytree,
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
 
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
@@ -337,7 +337,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
 
         Args:
-            population: Pytree, the initial guess as created by self.create_initial_population()
+            population (Pytree): the initial guess as created by self.create_initial_population()
         
         Returns:
             tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
@@ -617,9 +617,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         This means the method loops over the randomized measurement data once and updates the population using each data point individually.
         
         Args:
-            descent_state: Pytree,
-            measurement_info: Pytree,
-            descent_info: Pytree,
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
 
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
@@ -650,9 +650,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         This means the method updates the population once using all measured data at once.
         
         Args:
-            descent_state: Pytree,
-            measurement_info: Pytree,
-            descent_info: Pytree,
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
 
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
@@ -702,7 +702,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
 
         Args:
-            population: Pytree, the initial guess as created by self.create_initial_population()
+            population (Pytree): the initial guess as created by self.create_initial_population()
         
         Returns:
             tuple[Pytree, Callable, Callable], the initial descent state, the local and global step-functions of the algorithm.
@@ -762,7 +762,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         The Algorithm can use a local and a global sequentially.
         
         Args:
-            population: Pytree, the initial guess
+            population (Pytree): the initial guess
             no_iterations_local: int, the number of local iterations. Accepts zero as a value.
             no_iterations_global: int, the number of globale iterations. Accepts zero as a value.
 
@@ -938,7 +938,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
     def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
         """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,0,None,None,None))(signal_t.signal_t,signal_t.signal_f, trace_line, descent_state._local.mu, measurement_info, 
+        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,0,None,None,None))(signal_t.signal_t, signal_t.signal_f, trace_line, descent_state._local.mu, measurement_info, 
                                                                                    descent_info, "_local")
 
 
@@ -969,9 +969,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         This means the method loops over the randomized measurement data once and updates the population using each data point individually.
         
         Args:
-            descent_state: Pytree,
-            measurement_info: Pytree,
-            descent_info: Pytree,
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
 
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
@@ -1005,9 +1005,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         This means the method updates the population once using all measured data at once.
         
         Args:
-            descent_state: Pytree,
-            measurement_info: Pytree,
-            descent_info: Pytree,
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
 
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
@@ -1057,7 +1057,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
 
         Args:
-            population: Pytree, the initial guess as created by create_initial_population()
+            population (Pytree): the initial guess as created by create_initial_population()
         
         Returns:
             tuple[Pytree, Callable, Callable], the initial descent state, the local and global step-functions of the algorithm.
@@ -1114,7 +1114,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         The Algorithm can use a local and a global sequentially.
 
         Args:
-            population: Pytree, the initial guess
+            population (Pytree): the initial guess
             no_iterations_local: int, the number of local iterations. Accepts zero as a value.
             no_iterations_global: int, the number of globale iterations. Accepts zero as a value.
 

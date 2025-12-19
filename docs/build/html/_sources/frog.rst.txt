@@ -1,4 +1,4 @@
-frog package
+frog
 ============
 
 Submodules

@@ -125,8 +125,8 @@ class RetrievePulses:
         Creates an initial population.
 
         Args:
-            population_size: int,
-            guess_type: str, can be one of random, random_phase, constant or constant_phase
+            population_size (int):
+            guess_type (str): can be one of random, random_phase, constant or constant_phase
 
         Returns:
             tuple[jnp.array, jnp.array or None], initial populations for the pulse and possibly the gate-pulse
@@ -432,11 +432,11 @@ class RetrievePulsesFROG(RetrievePulses):
         Creates an initial guess. The guess is in the time domain.
 
         Args:
-            population_size: int, the number of guesses
-            guess_type: str, the guess type. Can be one of random, random_phase, constant or constant_phase.
+            population_size (int): the number of guesses
+            guess_type (str): the guess type. Can be one of random, random_phase, constant or constant_phase.
 
         Returns:
-            Pytree
+            Pytree, the initial population
         
         """
 
@@ -461,11 +461,11 @@ class RetrievePulsesFROG(RetrievePulses):
         The guess is in the time domain. Assumes an autocorrelation FROG.
         
         Args:
-            population_size: int,
+            population_size (int):
             **kwargs: passed to make_population_doublepulse()
 
         Returns:
-            Pytree
+            Pytree, the initial population
 
         """
         measurement_info = self.measurement_info
@@ -521,9 +521,9 @@ class RetrievePulsesFROG(RetrievePulses):
         Calculates the signal field of a FROG in the time domain. 
 
         Args:
-            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
             tau_arr (jnp.array): the delays
-            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
 
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
@@ -638,9 +638,9 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
         Calculates the signal field of TDP in the time domain. 
 
         Args:
-            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
             tau_arr (jnp.array): the delays
-            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
 
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
@@ -709,7 +709,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         sk (jnp.array): correction values for FFT->DFT
         rn (jnp.array): correction values for FFT->DFT
         phase_matrix (jnp.array): a 2D-array with the phase values applied to pulse
-        parameters: tuple, parameters for the chirp function
+        parameters (tuple): parameters for the chirp function
         transform_arr (jnp.array): an alias for phase_matrix
         idx_arr (jnp.array): indices for z_arr
 
@@ -779,8 +779,8 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         Creates an initial guess. The guess is in the frequency domain.
 
         Args:
-            population_size: int, the number of guesses
-            guess_type: str, the guess type. Can be one of random, random_phase, constant or constant_phase.
+            population_size (int): the number of guesses
+            guess_type (str): the guess type. Can be one of random, random_phase, constant or constant_phase.
 
         Returns:
             Pytree
@@ -816,9 +816,9 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         Calculates the signal field of a Chirp-Scan in the time domain. 
 
         Args:
-            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
             phase_matrix (jnp.array): the applied phases
-            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
@@ -970,9 +970,9 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         Calculates the signal field of 2DSI in the time domain. 
 
         Args:
-            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
             tau_arr (jnp.array): the delays
-            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
@@ -1084,9 +1084,9 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         Calculates the signal field in the time domain. 
 
         Args:
-            individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
             tau_arr (jnp.array): the delays
-            measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, ... )
 
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
@@ -1147,9 +1147,9 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 #         Calculates the signal field of a Chirp-Scan in the time domain. 
 
 #         Args:
-#             individual: Pytree, a population containing only one member. (jax.vmap over whole population)
+#             individual (Pytree): a population containing only one member. (jax.vmap over whole population)
 #             phase_matrix (jnp.array): the applied phases
-#             measurement_info: Pytree, contains the measurement parameters (e.g. nonlinear method, ... )
+#             measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, ... )
 
 #         Returns:
 #             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.

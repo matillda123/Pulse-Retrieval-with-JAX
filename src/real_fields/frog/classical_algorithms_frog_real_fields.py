@@ -24,7 +24,9 @@ class GeneralizedProjection(RetrievePulsesFROGwithRealFields, GeneralizedProject
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-
+        
+        not_working=True
+        assert not_working==False, "This is running. But not converging."
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
@@ -127,12 +129,14 @@ class COPRA(RetrievePulsesFROGwithRealFields, COPRABASE):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
 
+        not_working=True
+        assert not_working==False, "This is running. But not converging."
 
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        return calc_grad_AD_z_error(population, tau_arr, signal_t_new, None, measurement_info, self.calculate_signal_t, pulse_or_gate)
-
+        grad = calc_grad_AD_z_error(population, tau_arr, signal_t_new, None, measurement_info, self.calculate_signal_t, pulse_or_gate)
+        return grad
 
 
     def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
@@ -145,6 +149,7 @@ class COPRA(RetrievePulsesFROGwithRealFields, COPRABASE):
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and a step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
+        # this sk, rn should be correct, ad grad is with respect to pulse/gate -> these are defined on main
 
         signal = getattr(individual, pulse_or_gate)
         signal_f = self.fft(signal, sk, rn)

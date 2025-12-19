@@ -1,4 +1,4 @@
-twodsi package
+twodsi
 ==============
 
 Submodules

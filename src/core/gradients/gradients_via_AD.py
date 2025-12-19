@@ -2,6 +2,8 @@ import jax
 import jax.numpy as jnp
 from jax.tree_util import Partial
 
+from equinox import tree_at
+
 from src.utilities import MyNamespace
 
 
