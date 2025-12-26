@@ -9,7 +9,7 @@ from .stepsize import do_linesearch, adaptive_step_size
 from .nonlinear_cg import get_nonlinear_CG_direction
 from .lbfgs import get_quasi_newton_direction
 
-from src.utilities import scan_helper, MyNamespace, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan
+from src.utilities import scan_helper, MyNamespace, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan, do_checks_before_running
 from .base_classes_algorithms import ClassicAlgorithmsBASE
 
 from .construct_s_prime import calculate_S_prime
@@ -757,7 +757,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
 
 
-    def run(self, population, no_iterations_local, no_iterations_global):
+    def run(self, population, no_iterations_local, no_iterations_global, **kwargs):
         """ 
         The Algorithm can use a local and a global sequentially.
         
@@ -769,6 +769,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         Returns:
             Pytree, the final result
         """
+
+        do_checks_before_running(self, **kwargs)
 
         descent_state, do_local, do_global = self.initialize_run(population)
 
@@ -1109,7 +1111,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
 
-    def run(self, population, no_iterations_local, no_iterations_global):
+    def run(self, population, no_iterations_local, no_iterations_global, **kwargs):
         """ 
         The Algorithm can use a local and a global sequentially.
 
@@ -1121,6 +1123,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
         Returns:
             Pytree, the final result
         """
+
+        do_checks_before_running(self, **kwargs)
 
         descent_state, do_local, do_global = self.initialize_run(population)
 
