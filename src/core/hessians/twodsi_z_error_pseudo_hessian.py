@@ -6,7 +6,7 @@ from src.utilities import calculate_newton_direction, scan_helper
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 0.5*jnp.conjugate(gate_m + pulse_t*exp_arr_mn)*(gate_m + pulse_t*exp_arr_mp)
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
@@ -15,7 +15,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg_pulse(pulse_t, gate_pulses_m, gat
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_thg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 0.5*jnp.conjugate(gate_m + 2*pulse_t*gate_pulses_m*exp_arr_mn)*(gate_m + 2*pulse_t*gate_pulses_m*exp_arr_mp)
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
@@ -24,7 +24,7 @@ def calc_Z_error_pseudo_hessian_subelement_thg_pulse(pulse_t, gate_pulses_m, gat
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_pg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     term1 = gate_m + jnp.conjugate(pulse_t)*gate_pulses_m*jnp.conjugate(exp_arr_mn)
     term2 = gate_m + pulse_t*jnp.conjugate(gate_pulses_m)*exp_arr_mp
     term3 = jnp.conjugate(gate_pulses_m)*exp_arr_mp*deltaS_m
@@ -37,10 +37,19 @@ def calc_Z_error_pseudo_hessian_subelement_pg_pulse(pulse_t, gate_pulses_m, gate
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_sd_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_sd_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     term1 = 2*gate_pulses_m*deltaS_m
     Uzz_k = 0.5*(jnp.abs(gate_pulses_m)**4 + 4*jnp.abs(pulse_t)**2*jnp.abs(gate_pulses_m)**2*jnp.conjugate(exp_arr_mn)*exp_arr_mp)
     Vzz_k = 0.5*(term1*exp_arr_mp + jnp.conjugate(term1*exp_arr_mn))
+    Hzz_k = Uzz_k-Vzz_k
+
+    val = D_arr_pn*Hzz_k
+    return val
+
+
+def calc_Z_error_pseudo_hessian_subelement_nhg_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
+    Uzz_k = 0.5*jnp.conjugate(gate_m + (n-1)*pulse_t*gate_pulses_m**(n-2)*exp_arr_mn)*(gate_m + (n-1)*pulse_t*gate_pulses_m**(n-2)*exp_arr_mp)
+    Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
 
     val = D_arr_pn*Hzz_k
@@ -52,7 +61,7 @@ def calc_Z_error_pseudo_hessian_subelement_sd_pulse(pulse_t, gate_pulses_m, gate
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 0.5*jnp.abs(gate_m)**2
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
@@ -64,7 +73,7 @@ def calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse(pulse_t, gate
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 0.5*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
@@ -73,7 +82,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate(pulse_t, g
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 2*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t*gate_pulses_m)**2
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
@@ -82,7 +91,7 @@ def calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate(pulse_t, g
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t*gate_pulses_m)**2
     Vzz_k = jnp.real(deltaS_m*jnp.conjugate(pulse_t))*jnp.conjugate(exp_arr_mn)*exp_arr_mp
     Hzz_k = Uzz_k-Vzz_k
@@ -91,8 +100,17 @@ def calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate(pulse_t, ga
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k = 2*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t*gate_pulses_m)**2
+    Vzz_k = 0
+    Hzz_k = Uzz_k-Vzz_k
+
+    val = D_arr_pn*Hzz_k
+    return val
+
+
+def calc_Z_error_pseudo_hessian_subelement_nhg_cross_correlation_gate(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
+    Uzz_k = 0.5*(n-1)**2*jnp.conjugate(exp_arr_mn)*exp_arr_mp*jnp.abs(pulse_t)**2*jnp.abs(gate_pulses_m)**(2*n-4)
     Vzz_k = 0
     Hzz_k = Uzz_k-Vzz_k
 
@@ -112,16 +130,22 @@ def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, o
     
     D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
 
+    if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
+        n = int(nonlinear_method[0])
+        nonlinear_method = "nhg"
+    else:
+        n = None
+
     func_dict_xcorr = {"shg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, "thg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, 
-                       "pg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, "sd": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse}
+                       "pg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, "sd": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse, "nhg": calc_Z_error_pseudo_hessian_subelement_cross_correlation_pulse}
     
     func_dict_ac = {"shg": calc_Z_error_pseudo_hessian_subelement_shg_pulse, "thg": calc_Z_error_pseudo_hessian_subelement_thg_pulse, 
-                    "pg": calc_Z_error_pseudo_hessian_subelement_pg_pulse, "sd": calc_Z_error_pseudo_hessian_subelement_sd_pulse}
+                    "pg": calc_Z_error_pseudo_hessian_subelement_pg_pulse, "sd": calc_Z_error_pseudo_hessian_subelement_sd_pulse, "nhg": calc_Z_error_pseudo_hessian_subelement_nhg_pulse}
 
     func_dict = {True: func_dict_xcorr,
                  False: func_dict_ac}
 
-    calc_subelement=Partial(func_dict[cross_correlation][nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
+    calc_subelement=Partial(func_dict[cross_correlation][nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp, n=n)
 
     hessian_element_arr = jax.vmap(calc_subelement, in_axes=(0,0,0,0,0))(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn)
     hessian_element = jnp.sum(hessian_element_arr)
@@ -141,12 +165,19 @@ def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, om
     
     D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
 
+    if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
+        n = int(nonlinear_method[0])
+        nonlinear_method = "nhg"
+    else:
+        n = None
+
     calc_hessian_subelement={"shg": calc_Z_error_pseudo_hessian_subelement_shg_cross_correlation_gate,
                              "thg": calc_Z_error_pseudo_hessian_subelement_thg_cross_correlation_gate,
                              "pg": calc_Z_error_pseudo_hessian_subelement_pg_cross_correlation_gate,
-                             "sd": calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate}
+                             "sd": calc_Z_error_pseudo_hessian_subelement_sd_cross_correlation_gate,
+                             "nhg": calc_Z_error_pseudo_hessian_subelement_nhg_cross_correlation_gate}
 
-    calc_subelement=Partial(calc_hessian_subelement[nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
+    calc_subelement=Partial(calc_hessian_subelement[nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp, n=n)
 
     hessian_element_arr = jax.vmap(calc_subelement, in_axes=(0,0,0,0,0))(pulse_t, gate_pulses_m, gate_m, deltaS_m, D_arr_pn)
     hessian_element = jnp.sum(hessian_element_arr)

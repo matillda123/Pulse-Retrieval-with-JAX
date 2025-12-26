@@ -442,8 +442,9 @@ class MakeTraceBASE:
             frequency_gate_spectrum, spectrum_gate = interpolate_spectrum(self.frequency, gate_f, self.N)
         else:
             frequency_gate_spectrum, spectrum_gate = None, None
-            spectra = MyNamespace(pulse=(frequency_pulse_spectrum, spectrum_pulse), 
-            gate=(frequency_gate_spectrum, spectrum_gate))
+            
+        spectra = MyNamespace(pulse=(frequency_pulse_spectrum, spectrum_pulse), 
+                              gate = (frequency_gate_spectrum, spectrum_gate))
 
         return time_interpolate, frequency_interpolate, np.abs(trace_interpolate).T, spectra
 

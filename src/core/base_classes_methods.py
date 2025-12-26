@@ -6,9 +6,7 @@ import refractiveindex
 import jax
 import jax.numpy as jnp
 
-from equinox import tree_at
-
-from src.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, project_onto_amplitude
+from src.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, calculate_mu
 from .create_population import create_population_classic
 from src.core.initial_guess_doublepulse import make_population_doublepulse
 from src.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material
@@ -46,12 +44,14 @@ class RetrievePulses:
         self.nonlinear_method = nonlinear_method
         self.f0 = 0
         self.doubleblind = False 
+        self.interferometric = False
 
         self.measurement_info = MyNamespace(nonlinear_method = self.nonlinear_method, 
                                             spectral_amplitude = MyNamespace(pulse=None, gate=None), 
                                             central_f = MyNamespace(pulse=None, gate=None),
                                             real_fields = False,
-                                            interferometric = False)
+                                            interferometric = False,
+                                            doubleblind = False)
         self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
         self.descent_state = MyNamespace()
 
@@ -156,7 +156,7 @@ class RetrievePulses:
     
 
 
-    def plot_results(self, final_result, exact_pulse=None, doubleblind=False):
+    def plot_results(self, final_result, exact_pulse=None):
         pulse_t, pulse_f, trace = final_result.pulse_t, final_result.pulse_f, final_result.trace
         gate_t, gate_f = final_result.gate_t, final_result.gate_f
         error_arr = final_result.error_arr
@@ -179,7 +179,7 @@ class RetrievePulses:
         ax2.set_ylabel(r"Phase [$\pi$]")
         ax2.legend(loc=1)
 
-        if doubleblind==True:
+        if self.measurement_info.doubleblind==True:
             ax1.plot(time, np.abs(gate_t), label="Gate-Pulse", c="tab:red")
             ax2.plot(time, np.unwrap(np.angle(gate_t))*1/np.pi, label="Gate-Pulse", c="tab:green")
 
@@ -198,7 +198,7 @@ class RetrievePulses:
         ax2.set_ylabel(r"Phase [$\pi$]")
         ax2.legend(loc=1)
 
-        if doubleblind==True:
+        if self.measurement_info.doubleblind==True:
             ax1.plot(frequency, np.abs(gate_f), label="Gate-Pulse", c="tab:red")
             ax2.plot(frequency, np.unwrap(np.angle(gate_f))*1/np.pi, label="Gate-Pulse", c="tab:green")
 

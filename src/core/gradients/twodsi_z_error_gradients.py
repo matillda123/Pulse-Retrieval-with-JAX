@@ -3,31 +3,38 @@ from src.utilities import do_fft
 
 
 
-def Z_gradient_shg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_shg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     term1 = do_fft(deltaS*jnp.conjugate(gate), sk, rn)
     term2 = do_fft(deltaS*jnp.conjugate(pulse_t), sk, rn)
     grad = term1 + exp_arr*term2
     return -2*grad
 
 
-def Z_gradient_thg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_thg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     term1 = do_fft(deltaS*jnp.conjugate(gate), sk, rn)
     term2 = do_fft(deltaS*jnp.conjugate(pulse_t*gate_pulses), sk, rn)
     grad = term1 + 2*exp_arr*term2
     return -2*grad
 
 
-def Z_gradient_pg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_pg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     term1 = do_fft(deltaS*gate, sk, rn)
     term2 = do_fft(jnp.real(jnp.conjugate(deltaS)*(pulse_t*gate_pulses)), sk, rn)
     grad = term1 + 2*exp_arr*term2
     return -2*grad
 
 
-def Z_gradient_sd_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_sd_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     term1 = do_fft(deltaS*jnp.conjugate(gate), sk, rn)
     term2 = do_fft(pulse_t*jnp.conjugate(deltaS*gate_pulses), sk, rn)
     grad = term1 + 2*exp_arr*term2
+    return -2*grad
+
+
+def Z_gradient_nhg_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
+    term1 = do_fft(deltaS*jnp.conjugate(gate), sk, rn)
+    term2 = do_fft(deltaS*jnp.conjugate(pulse_t*gate_pulses**(n-2)), sk, rn)
+    grad = term1 + (n-1)*exp_arr*term2
     return -2*grad
 
 
@@ -36,7 +43,7 @@ def Z_gradient_sd_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
 
 
 
-def Z_gradient_cross_correlation_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_cross_correlation_pulse(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     # gradient with respect to pulse, is the same for all nonlinear methods
     grad = do_fft(deltaS*jnp.conjugate(gate), sk, rn)
     return -2*grad
@@ -45,28 +52,31 @@ def Z_gradient_cross_correlation_pulse(deltaS, pulse_t, gate_pulses, gate, exp_a
 
 
 
-def Z_gradient_shg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_shg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     grad = exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t), sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_thg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_thg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     grad = 2*exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t*gate_pulses), sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_pg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_pg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     grad = 2*exp_arr*do_fft(gate_pulses*jnp.real(jnp.conjugate(pulse_t)*deltaS), sk, rn)
     return -2*grad
 
 
 
-def Z_gradient_sd_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn):
+def Z_gradient_sd_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
     grad = 2*exp_arr*do_fft(pulse_t*jnp.conjugate(deltaS*gate_pulses), sk, rn)
     return -2*grad
 
+def Z_gradient_nhg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n):
+    grad = (n-1)*exp_arr*do_fft(deltaS*jnp.conjugate(pulse_t*gate_pulses**(n-2)), sk, rn)
+    return -2*grad
 
 
 
@@ -96,16 +106,22 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gat
     else:
         xcorr = False
 
+    if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
+        n = int(nonlinear_method[0])
+        nonlinear_method = "nhg"
+    else:
+        n = None
+
     grad_func_ac = {"shg": Z_gradient_shg_pulse, "thg": Z_gradient_thg_pulse, 
-                    "pg": Z_gradient_pg_pulse, "sd": Z_gradient_sd_pulse}
+                    "pg": Z_gradient_pg_pulse, "sd": Z_gradient_sd_pulse, "nhg": Z_gradient_nhg_pulse}
     
     grad_func_xcorr = {"shg": Z_gradient_cross_correlation_pulse, "thg": Z_gradient_cross_correlation_pulse, 
-                       "pg": Z_gradient_cross_correlation_pulse, "sd": Z_gradient_cross_correlation_pulse}
+                       "pg": Z_gradient_cross_correlation_pulse, "sd": Z_gradient_cross_correlation_pulse, "nhg": Z_gradient_cross_correlation_pulse}
     
     grad_func = {True: grad_func_xcorr,
                  False: grad_func_ac}
 
-    grad = grad_func[xcorr][nonlinear_method](deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn)
+    grad = grad_func[xcorr][nonlinear_method](deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n)
     return grad
 
 
@@ -125,12 +141,18 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate
         tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
         exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*(phase_matrix-omega_arr*gd_correction))
 
+    if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
+        n = int(nonlinear_method[0])
+        nonlinear_method = "nhg"
+    else:
+        n = None
+
     deltaS = signal_t_new-signal_t
 
     grad_func = {"shg": Z_gradient_shg_cross_correlation_gate, "thg": Z_gradient_thg_cross_correlation_gate, 
-                 "pg": Z_gradient_pg_cross_correlation_gate, "sd": Z_gradient_sd_cross_correlation_gate}
+                 "pg": Z_gradient_pg_cross_correlation_gate, "sd": Z_gradient_sd_cross_correlation_gate, "nhg": Z_gradient_nhg_cross_correlation_gate}
 
-    grad = grad_func[nonlinear_method](deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn)
+    grad = grad_func[nonlinear_method](deltaS, pulse_t, gate_pulses, gate, exp_arr, sk, rn, n)
     return grad
 
 

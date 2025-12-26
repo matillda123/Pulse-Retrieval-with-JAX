@@ -4,7 +4,7 @@ from jax.tree_util import Partial
 
 from equinox import tree_at
 
-from src.utilities import MyNamespace
+from src.utilities import MyNamespace, do_fft
 
 
 

@@ -408,6 +408,10 @@ def calculate_gate(pulse_t, method):
         
     elif method == "sd":
         gate = jnp.conjugate(pulse_t)**2
+    
+    elif method[-2:] == "hg":
+        n = int(method[0])
+        gate = pulse_t**(n-1)
 
     else:
         raise NotImplementedError(f"method={method} is not implemented")
@@ -434,6 +438,10 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
 
     elif method=="sd":
         raise ValueError(f"idk if/how one can implement method=sd here.")
+    
+    elif method[-2:] == "hg":
+        n = int(method[0])
+        gate = jnp.real(pulse_t)**(n-1)
     
     else:
         raise NotImplementedError(f"method={method} is not implemented")

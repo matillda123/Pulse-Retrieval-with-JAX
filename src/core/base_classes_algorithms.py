@@ -93,7 +93,7 @@ class AlgorithmsBASE:
         Returns:
             the class instance
         """
-        spectral_amplitude = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
+        _ = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
 
         if self.spectrum_is_being_used==True:
             return self

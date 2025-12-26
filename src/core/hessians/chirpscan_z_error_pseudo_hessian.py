@@ -7,7 +7,7 @@ from src.utilities import scan_helper, calculate_newton_direction
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_shg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_shg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k=2*jnp.abs(pulse_t_dispersed)**2*exp_arr_mn*jnp.conjugate(exp_arr_mp)
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -16,7 +16,7 @@ def calc_Z_error_pseudo_hessian_subelement_shg(pulse_t_dispersed, deltaS_m, D_ar
     return val
 
 
-def calc_Z_error_pseudo_hessian_subelement_thg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_thg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k=4.5*jnp.abs(pulse_t_dispersed)**4*exp_arr_mn*jnp.conjugate(exp_arr_mp)
     Vzz_k=0
     Hzz_k=Uzz_k-Vzz_k
@@ -26,12 +26,21 @@ def calc_Z_error_pseudo_hessian_subelement_thg(pulse_t_dispersed, deltaS_m, D_ar
 
 
 
-def calc_Z_error_pseudo_hessian_subelement_pg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp):
+def calc_Z_error_pseudo_hessian_subelement_pg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
     Uzz_k=2.5*jnp.abs(pulse_t_dispersed)**4
     Vzz_k=2*jnp.real(jnp.conjugate(pulse_t_dispersed)*deltaS_m)
     Hzz_k=Uzz_k-Vzz_k
 
     val = D_arr_pn*Hzz_k*exp_arr_mn*jnp.conjugate(exp_arr_mp)
+    return val
+
+
+def calc_Z_error_pseudo_hessian_subelement_nhg(pulse_t_dispersed, deltaS_m, D_arr_pn, exp_arr_mn, exp_arr_mp, n):
+    Uzz_k=0.5*n**2*jnp.abs(pulse_t_dispersed)**(2*n-2)*exp_arr_mn*jnp.conjugate(exp_arr_mp)
+    Vzz_k=0
+    Hzz_k=Uzz_k-Vzz_k
+
+    val = D_arr_pn*Hzz_k
     return val
 
 
@@ -43,15 +52,22 @@ def calc_Z_error_pseudo_hessian_element(exp_arr_mp, exp_arr_mn, omega_p, omega_n
     """ Sum over time axis via jax.lax.scan. """
     
     D_arr_pn=jnp.exp(1j*time*(omega_p-omega_n))
+    
+    if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
+        n = int(nonlinear_method[0])
+        nonlinear_method = "nhg"
+    else:
+        n = None
 
     calc_hessian_subelement={"shg": calc_Z_error_pseudo_hessian_subelement_shg,
                              "thg": calc_Z_error_pseudo_hessian_subelement_thg,
                              "pg": calc_Z_error_pseudo_hessian_subelement_pg,
                              "sd": calc_Z_error_pseudo_hessian_subelement_pg,
-                             "tg": calc_Z_error_pseudo_hessian_subelement_pg}
+                             "tg": calc_Z_error_pseudo_hessian_subelement_pg,
+                             "nhg": calc_Z_error_pseudo_hessian_subelement_nhg}
 
 
-    calc_subelement = Partial(calc_hessian_subelement[nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp)
+    calc_subelement = Partial(calc_hessian_subelement[nonlinear_method], exp_arr_mn=exp_arr_mn, exp_arr_mp=exp_arr_mp, n=n)
     hessian_element_arr = jax.vmap(calc_subelement, in_axes=(0,0,0))(pulse_t_dispersed, deltaS_m, D_arr_pn)
     hessian_element = jnp.sum(hessian_element_arr)
     return hessian_element

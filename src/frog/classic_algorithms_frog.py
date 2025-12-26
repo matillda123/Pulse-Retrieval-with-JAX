@@ -276,7 +276,7 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     
     def calculate_opf(self, pulse_t, gate, pulse_t_prime, gate_prime, iteration, nonlinear_method, measurement_info):
         """ Calculates the opf given a pulse and gate. """
-        if nonlinear_method=="shg" or nonlinear_method=="thg":
+        if nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
             opf = jnp.outer(pulse_t, gate) + jnp.outer(pulse_t_prime, gate) + jnp.outer(pulse_t, gate_prime)
         elif nonlinear_method=="pg" or nonlinear_method=="sd":
             opf = jnp.outer(pulse_t, gate)
@@ -609,6 +609,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             grad_all_m = grad_all_m*gate_pulse_shifted
         elif nonlinear_method=="sd":
             grad_all_m = jnp.conjugate(grad_all_m*2*gate_pulse_shifted)
+        elif nonlinear_method[-2:]=="hg":
+            n = int(nonlinear_method[0])
+            grad_all_m = grad_all_m*jnp.conjugate((n-1)*gate_pulse_shifted**(n-2))
         else:
             raise NotImplementedError(f"nonlinear_method={nonlinear_method} is not available.")
 
@@ -660,6 +663,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             probe = pulse_t*jnp.conjugate(gate_pulse_shifted)
         elif nonlinear_method=="sd":
             probe = jnp.conjugate(pulse_t)*2*gate_pulse_shifted
+        elif nonlinear_method[-2:]=="hg":
+            n = int(nonlinear_method[0])
+            probe = pulse_t*(n-1)*gate_pulse_shifted**(n-2)
         else:
              raise NotImplementedError(f"nonlinear_method={nonlinear_method} is not available.")
 
