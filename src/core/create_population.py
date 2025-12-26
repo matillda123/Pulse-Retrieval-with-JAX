@@ -19,11 +19,13 @@ def get_initial_amp(measurement_info):
     amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
 
-    if nonlinear_method=="shg" or nonlinear_method=="thg":
+    if nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
         if nonlinear_method=="shg":
             factor=2
         elif nonlinear_method=="thg":
             factor=3
+        elif nonlinear_method[-2:]=="hg":
+            factor=int(nonlinear_method[0])
         else:
             raise ValueError(f"nonlinear_method needs to be one of shg or thg. Not {nonlinear_method}")
         

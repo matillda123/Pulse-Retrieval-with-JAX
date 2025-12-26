@@ -67,6 +67,8 @@ class RetrievePulses:
             self.factor = 2
         elif nonlinear_method=="thg":
             self.factor = 3
+        elif nonlinear_method[-2:]=="hg":
+            self.factor = int(nonlinear_method[0])
         else:
             self.factor = 1
 
@@ -484,7 +486,7 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
 
-
+    # this and calculate_shifted signal would probably be better/more sensibly placed in utilites.py
     def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
         """ The Fourier-Shift theorem. """
         signal_f = self.fft(signal, sk, rn)
