@@ -59,8 +59,8 @@ class MakeTrace(MakePulseBase):
         self.maketrace = None
 
     
-    def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation=False, interferometric=False, gate=(None, None), 
-                      real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
+    def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation=False, interferometric=False, gate=(None, None), 
+                      real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         """
         Generates a FROG trace using the provide pulse/gate. 
 
@@ -70,6 +70,7 @@ class MakeTrace(MakePulseBase):
             pulse_t (jnp.array): the input pulse in the time domain
             pulse_f (jnp.array): the input pulse in the frequency domain
             nonlinear_method (str): the nonlinear method
+            delay (jnp.array): the delays
             cross_correlation (bool): whether cross_correlation should be used
             interferometric (bool): whether interferometric setup should be used
             gate (tuple[jnp.array, jnp.array]): a tuple containing the frequency axis and the gate-pulse in the frequency domain. Is used as gate if cross_correlation=True
@@ -78,7 +79,6 @@ class MakeTrace(MakePulseBase):
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
-            scale_time_range (float): scales the time range of the trace by the provided factor
             plot_stuff (bool): whether the trace and pulse should be plotted
 
         Returns:
@@ -91,8 +91,8 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceFROG
         
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range)
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation, interferometric, 
+                                   frequency_range, N, cut_off_val, interpolate_fft_conform)
 
 
         if cross_correlation==True:
@@ -109,8 +109,8 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_tdp(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, gate=(None, None), 
-                     real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
+    def generate_tdp(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation=False, interferometric=False, gate=(None, None), 
+                     real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         
         """
         Generates a TDP trace using the provide pulse/gate. 
@@ -121,6 +121,7 @@ class MakeTrace(MakePulseBase):
             pulse_t (jnp.array): the input pulse in the time domain
             pulse_f (jnp.array): the input pulse in the frequency domain
             nonlinear_method (str): the nonlinear method
+            delay (jnp.array): the delays
             spectral_filter (jnp.array): the spectral filter used in the setup
             cross_correlation (bool): whether cross_correlation should be used
             interferometric (bool): whether interferometric setup should be used
@@ -130,7 +131,6 @@ class MakeTrace(MakePulseBase):
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
-            scale_time_range (float): scales the time range of the trace by the provided factor
             plot_stuff (bool): whether the trace and pulse should be plotted
 
         Returns:
@@ -143,8 +143,8 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceTDP
         
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range)
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation, interferometric, 
+                                   frequency_range, N, cut_off_val, interpolate_fft_conform)
 
 
         if cross_correlation==True:
@@ -208,10 +208,10 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_2dsi(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0, 
+    def generate_2dsi(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0, 
                       material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
                       cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, 
-                      interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
+                      interpolate_fft_conform=False, plot_stuff=True):
         
         """
         Generates a 2DSI trace using the provide pulse/gate. 
@@ -222,6 +222,7 @@ class MakeTrace(MakePulseBase):
             pulse_t (jnp.array): the input pulse in the time domain
             pulse_f (jnp.array): the input pulse in the frequency domain
             nonlinear_method (str): the nonlinear method
+            delay (jnp.array): the delays
             spectral_filter1 (jnp.array): the first spectral filter in the interferometer
             spectral_filter2 (jnp.array): the second spectral filter in the interferometer
             tau_pulse_anc1 (int, float): the delay of the fixed interferometer arm and the external pulse
@@ -234,7 +235,6 @@ class MakeTrace(MakePulseBase):
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
-            scale_time_range (float): scales the time range of the trace by the provided factor
             plot_stuff (bool): whether the trace and pulse should be plotted
 
         Returns:
@@ -247,9 +247,9 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTrace2DSI
 
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
                                    material_thickness, refractive_index, cross_correlation, frequency_range, N, cut_off_val, 
-                                   interpolate_fft_conform, scale_time_range)
+                                   interpolate_fft_conform)
         
         if self.maketrace.cross_correlation==True:
             gate = self.maketrace.get_gate_pulse(gate[0], gate[1])
@@ -266,10 +266,10 @@ class MakeTrace(MakePulseBase):
 
     
 
-    def generate_vampire(self, time, frequency, pulse_t, pulse_f, nonlinear_method, tau_interferometer=0, material_thickness=0, 
+    def generate_vampire(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer=0, material_thickness=0, 
                          refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
                          cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, N=256, 
-                         cut_off_val=0.001, interpolate_fft_conform=False, scale_time_range=1, plot_stuff=True):
+                         cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         
 
         """
@@ -281,6 +281,7 @@ class MakeTrace(MakePulseBase):
             pulse_t (jnp.array): the input pulse in the time domain
             pulse_f (jnp.array): the input pulse in the frequency domain
             nonlinear_method (str): the nonlinear method
+            delay (jnp.array): the delays
             tau_interferometer (int, float): the delay inside the interferometer
             material_thickness (int, float): material thickness in the interferometer
             refractive_index (refractiveindex.RefractiveIndexMaterial): refractive index of the material in the interferometer
@@ -291,7 +292,6 @@ class MakeTrace(MakePulseBase):
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
-            scale_time_range (float): scales the time range of the trace by the provided factor
             plot_stuff (bool): whether the trace and pulse should be plotted
 
         Returns:
@@ -305,8 +305,8 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceVAMPIRE
 
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, tau_interferometer, material_thickness, 
-                                   refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range)
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer, material_thickness, 
+                                   refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform)
 
         if self.maketrace.cross_correlation==True:
             gate = self.maketrace.get_gate_pulse(gate[0], gate[1])
@@ -394,7 +394,7 @@ class MakeTraceBASE:
         idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
 
 
-        time_zoom = self.time[idx_0_min:idx_0_max]
+        time_zoom = self.x_arr[idx_0_min:idx_0_max]
         frequency_zoom = self.frequency[idx_1_min:idx_1_max]
 
         if self.frequency_range!=None:
@@ -407,7 +407,7 @@ class MakeTraceBASE:
         if is_delay_based==True:
             if self.interpolate_fft_conform==True:
                 central_f = (fmin+fmax)/2
-                df = 1/np.abs((time_zoom[-1]-time_zoom[0])*self.scale_time_range)
+                df = 1/np.abs((self.x_arr[-1]-self.x_arr[0]))
 
                 frequency_min = central_f-df*self.N/2
                 frequency_max = central_f+df*self.N/2
@@ -417,20 +417,17 @@ class MakeTraceBASE:
 
             else:
                 frequency_interpolate = np.linspace(fmin, fmax, self.N)
-
-                t_central = (time_zoom[0]+time_zoom[-1])/2
-                Delta_t = np.abs(time_zoom[-1]-time_zoom[0])*self.scale_time_range
-                time_interpolate = np.linspace(t_central-Delta_t/2, t_central+Delta_t/2, self.N)
+                time_interpolate = self.x_arr
         else:		
             frequency_interpolate = np.linspace(fmin, fmax, self.N)
-            time_interpolate = self.time
+            time_interpolate = self.x_arr
 		
 
 
         trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
-            trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,1))(time_interpolate, self.time, trace_interpolate)
+            trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,1))(time_interpolate, self.x_arr, trace_interpolate)
             trace_interpolate = np.abs(trace_interpolate).T
         else:
             trace_interpolate = np.abs(trace_interpolate)
@@ -511,8 +508,8 @@ class MakeTraceBASE:
 
 
 class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, cross_correlation, interferometric, 
-                 frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range):
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation, interferometric, 
+                 frequency_range, N, cut_off_val, interpolate_fft_conform):
         super().__init__()
         
         self.time=time
@@ -521,7 +518,6 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
         self.pulse_f=pulse_f
         self.nonlinear_method=nonlinear_method
         self.N=N
-        self.scale_time_range=scale_time_range
         self.interpolate_fft_conform=interpolate_fft_conform
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
@@ -529,7 +525,7 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
         self.interferometric=interferometric
         self.gate = None
 
-        self.x_arr = time
+        self.x_arr = delay
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
@@ -548,14 +544,14 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
                                        cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
                                        nonlinear_method=self.nonlinear_method, doubleblind=False)
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
-        return individual, measurement_info, self.time
+        return individual, measurement_info, self.x_arr
 
 
 
 
 class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range):
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation, interferometric, 
+                                   frequency_range, N, cut_off_val, interpolate_fft_conform):
         super().__init__()
         
         self.time=time
@@ -564,7 +560,6 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
         self.pulse_f=pulse_f
         self.nonlinear_method=nonlinear_method
         self.N=N
-        self.scale_time_range=scale_time_range
         self.interpolate_fft_conform=interpolate_fft_conform
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
@@ -572,7 +567,7 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
         self.interferometric=interferometric
         self.gate = None
 
-        self.x_arr = time
+        self.x_arr = delay
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
         if spectral_filter==None:
@@ -587,9 +582,9 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
 
 
     def get_parameters_to_make_signal_t(self):
-        individual, measurement_info, time = MakeTraceFROG.get_parameters_to_make_signal_t(self)
+        individual, measurement_info, x_arr = MakeTraceFROG.get_parameters_to_make_signal_t(self)
         measurement_info = measurement_info.expand(spectral_filter=self.spectral_filter)
-        return individual, measurement_info, time
+        return individual, measurement_info, x_arr
     
 
     def interpolate_trace(self):
@@ -655,9 +650,9 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
 
 
 class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
                  material_thickness, refractive_index, cross_correlation, frequency_range, N, cut_off_val, 
-                 interpolate_fft_conform, scale_time_range):
+                 interpolate_fft_conform):
         super().__init__()
 
         self.interpolate_fft_conform=interpolate_fft_conform
@@ -671,14 +666,13 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
         self.pulse_f=pulse_f
         self.nonlinear_method=nonlinear_method
         self.N=N
-        self.scale_time_range=scale_time_range
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
         self.cross_correlation = cross_correlation
         self.gate = None
         self.tau_pulse_anc1 = tau_pulse_anc1
 
-        self.x_arr = time
+        self.x_arr = delay
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
         self.refractive_index, self.material_thickness = refractive_index, material_thickness
@@ -711,7 +705,7 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
         measurement_info = measurement_info.expand(phase_matrix = self.phase_matrix)
 
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
-        return individual, measurement_info, self.time
+        return individual, measurement_info, self.x_arr
 
 
     def interpolate_trace(self):
@@ -724,8 +718,8 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
 
 
 class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, tau_interferometer, material_thickness, 
-                 refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform, scale_time_range):
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer, material_thickness, 
+                 refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform):
         super().__init__()
 
         self.c0=c0
@@ -738,7 +732,6 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         self.pulse_f=pulse_f
         self.nonlinear_method=nonlinear_method
         self.N=N
-        self.scale_time_range=scale_time_range
         self.interpolate_fft_conform=interpolate_fft_conform
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
@@ -747,7 +740,7 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         self.gate = None
         self.tau_interferometer = tau_interferometer
 
-        self.x_arr = time
+        self.x_arr = delay
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
         
 
@@ -756,11 +749,11 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
 
 
     def get_parameters_to_make_signal_t(self):
-        individual, measurement_info, time = MakeTraceFROG.get_parameters_to_make_signal_t(self)
+        individual, measurement_info, x_arr = MakeTraceFROG.get_parameters_to_make_signal_t(self)
         measurement_info = measurement_info.expand(c0=self.c0)
         self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, measurement_info)
         measurement_info = measurement_info.expand(tau_interferometer=self.tau_interferometer, phase_matrix = self.phase_matrix)
-        return individual, measurement_info, time
+        return individual, measurement_info, x_arr
     
 
     def interpolate_trace(self):

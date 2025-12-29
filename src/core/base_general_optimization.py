@@ -426,7 +426,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
 
         population_amp, population_phase = self.split_population_in_amp_and_phase(descent_state.population)
 
-        if descent_info.measured_spectrum_is_provided.pulse==False or descent_info.measured_spectrum_is_provided.gate==False:
+        if descent_info.measured_spectrum_is_provided.pulse==False or (descent_info.measured_spectrum_is_provided.gate==False and measurement_info.doubleblind==True):
             descent_state, population_amp, fitness = self.step_amp_or_phase(population_phase, descent_state, measurement_info, descent_info, "amp")
 
         descent_state, population_phase, fitness = self.step_amp_or_phase(population_amp, descent_state, measurement_info, descent_info, "phase")
@@ -506,7 +506,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
                                                                           phase=solver_phase(population_size=population_size, solution=individual_phase)))
         descent_info=self.descent_info
 
-        if descent_info.measured_spectrum_is_provided.pulse==False or descent_info.measured_spectrum_is_provided.gate==False:
+        if descent_info.measured_spectrum_is_provided.pulse==False or (descent_info.measured_spectrum_is_provided.gate==False and measurement_info.doubleblind==True):
             state_amp, params_amp, self.key = self.initialize_evosax_solver(self.key, descent_info.solver.amp, population, individual_amp, "amp")
         else:
             state_amp, params_amp = None, None
@@ -1000,8 +1000,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         
         if solver.__class__.__module__.split(".")[0]=="optax":
             solver=optimistix.OptaxMinimiser(solver, rtol=1, atol=1)
-        else:
-            solver=solver(rtol=1, atol=1)
+        # else:
+        #     solver=solver(rtol=1, atol=1)
 
 
         args = None
@@ -1058,7 +1058,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         """
 
-        assert self.solver!=optimistix.IndirectLevenbergMarquardt, f"{self.solver} cannot be used here, because of a jax/xla bug involving the memory layout for FFTs."
+        assert self.solver!=optimistix.IndirectLevenbergMarquardt, f"{self.solver} cannot be used here, because of a jax/xla issue involving the memory layout for FFTs."
 
 
         self.initialize_general_optimizer(population)

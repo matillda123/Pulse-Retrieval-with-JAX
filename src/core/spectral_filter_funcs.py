@@ -35,6 +35,19 @@ def multi_filter(frequency, parameters, filter_dict):
 
 
 def get_filter(filter_func, frequency, parameters, custom_func=None):
+    """ 
+    Generate a spectral filter.
+
+    Args:
+        filter_func (str, tuple[str]): can be one of gaussian, lorentzian, rectangular, multi or custom. 
+                                        For multi, parameters needs to specify the repsective filetr function
+        frequency (jnp.array): the frequency axis
+        parameters (tuple): the parameters required by the filter function
+        custom_func (Callable, None): in case of filter_func="custom" the custom filter function needs to be provided here.
+    
+    Returns:
+        jnp.array, the spectral filter on the frequency axis
+    """
     filter_dict = dict(gaussian=gaussian_filter,
                        lorentzian=lorentzian_filter,
                        rectangular=rectangular_filter,
