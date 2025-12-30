@@ -1,29 +1,46 @@
-# Pulse-Retrieval with Jax
+# Pulse-Retrieval with JAX
 
 Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.  
-Available methods are FROG, Time-Domain-Ptychography, 2D-SI, VAMPIRE and Chirp-Scans based in material dispersion or pulse-shaping.  
-For each method SHG, THG, PG and SD as well as cross-correlation and interferometric are implemented (with some exceptions).
+Available methods are FROG, Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Chirp-Scans based in material dispersion or pulse-shaping.  
+For each method SHG, THG, PG and SD as well as cross-correlation and interferometric retrievals are implemented (with some exceptions).  
+
+
 
 The available algorithms are: 
 
-
 | Algorithm | Citation |
 |---|---|
-| Generalized Projection | K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)  |
-| Ptychographic Iterative Engine | A. Maiden et al., Optica 4, 736-745 (2017) |
-| Common Pulse Retrieval Algorithm | N. C. Geib, Optica 6, 495-505 (2019) |
-| Differential Evolution | J. Qiang and C. Mitchell (2014).  IEEE Transactions on Evolutionary Computation. |
-| Linesearch-Frog-Algorithm (for all methods) | C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)  |
-| AD-Solvers (optax and optimistix) | [optax](https://github.com/google-deepmind/optax), [optimistix](https://github.com/patrick-kidger/optimistix) |
-| Evolutionary solvers (evosax) | [evosax](https://github.com/RobertTLange/evosax) |
+| Generalized Projection | [K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)](https://doi.org/10.1364/OL.19.002152)  |
+| Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) |
+| Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) |
+| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) |
+| Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
+| AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The {D}eep{M}ind {JAX} {E}cosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
+| Evolutionary solvers ([evosax](https://github.com/RobertTLange/evosax)) | [R. T. Lange, arXiv 2212.04180 (2022)](https://arxiv.org/abs/2212.04180) |
 
 
-For some methods specific additional algorithms are implemented:
+For some methods, specific additional algorithms are implemented:
 
 | Method | Algorithms | Citation |
 |---|---|---|
-| FROG | Vanilla | R. Trebino, 10.1007/978-1-4615-1181-6 (2000) |
-|  | LSGPA | J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008) |
-|  |  CPCGPA | D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364),  (2022) |
+| FROG | Vanilla | [R. Trebino, 10.1007/978-1-4615-1181-6 (2000)](https://link.springer.com/book/10.1007/978-1-4615-1181-6) |
+|  | LSGPA | [J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)](https://doi.org/10.1007/s00340-008-3063-x) |
+|  |  CPCGPA | [D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364),  (2022)](https://doi.org/10.1016/j.pquantelec.2021.100364) |
 |  |  |  |
-| 2D-SI | Direct-Reconstruction | J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006) |
+| 2D-SI | Direct-Reconstruction | [J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)](https://doi.org/10.1364/OL.31.002063) |  
+
+
+
+
+
+If you end up using this code for a publication, please use the citation below:
+
+```bibtex
+@software{pulseretrievalwithjax,
+  title = {Pulse {R}etrieval with {JAX},
+  author = {T. J. Stehling},
+  url = {https://github.com/matillda123/Pulse-Retrieval-with-Jax/}
+  year = {2025}
+}
+```
+
