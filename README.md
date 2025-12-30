@@ -4,6 +4,8 @@ Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics
 Available methods are FROG, Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Chirp-Scans based in material dispersion or pulse-shaping.  
 For each method SHG, THG, PG and SD as well as cross-correlation and interferometric retrievals are implemented (with some exceptions).  
 
+On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid.
+
 
 
 The available algorithms are: 
@@ -15,7 +17,7 @@ The available algorithms are:
 | Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) |
 | Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) |
 | Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
-| AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The {D}eep{M}ind {JAX} {E}cosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
+| AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The DeepMind JAX Ecosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
 | Evolutionary solvers ([evosax](https://github.com/RobertTLange/evosax)) | [R. T. Lange, arXiv 2212.04180 (2022)](https://arxiv.org/abs/2212.04180) |
 
 
@@ -43,4 +45,5 @@ If you end up using this code for a publication, please use the citation below:
   year = {2025}
 }
 ```
+
 
