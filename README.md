@@ -1,8 +1,8 @@
 # Pulse-Retrieval with JAX
 
 Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.  
-Available methods are FROG, Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Chirp-Scans based in material dispersion or pulse-shaping.  
-For each method SHG, THG, PG and SD as well as cross-correlation and interferometric retrievals are implemented (with some exceptions).  
+Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE.  
+For each method SHG, THG, PG/TG and SD as well as cross-correlation and interferometric retrievals are implemented (with some exceptions).  
 
 On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid.
 
@@ -14,8 +14,8 @@ The available algorithms are:
 |---|---|
 | Generalized Projection | [K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)](https://doi.org/10.1364/OL.19.002152)  |
 | Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) |
-| Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) |
-| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) |
+| Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) and [pypret](https://github.com/ncgeib/pypret) |
+| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1.)|
 | Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
 | AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The DeepMind JAX Ecosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
 | Evolutionary solvers ([evosax](https://github.com/RobertTLange/evosax)) | [R. T. Lange, arXiv 2212.04180 (2022)](https://arxiv.org/abs/2212.04180) |
@@ -39,11 +39,13 @@ If you end up using this code for a publication, please use the citation below:
 
 ```bibtex
 @software{pulseretrievalwithjax,
-  title = {Pulse {R}etrieval with {JAX},
+  title = {Pulse {R}etrieval with {JAX}},
   author = {T. J. Stehling},
   url = {https://github.com/matillda123/Pulse-Retrieval-with-Jax/}
   year = {2025}
 }
 ```
+
+
 
 
