@@ -1,7 +1,7 @@
 # Pulse-Retrieval with JAX
 
 Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.  
-Available methods are FROG, Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Chirp-Scans based in material dispersion or pulse-shaping.  
+Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE.  
 For each method SHG, THG, PG/TG and SD as well as cross-correlation and interferometric retrievals are implemented (with some exceptions).  
 
 On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid.
@@ -39,12 +39,13 @@ If you end up using this code for a publication, please use the citation below:
 
 ```bibtex
 @software{pulseretrievalwithjax,
-  title = {Pulse {R}etrieval with {JAX},
+  title = {Pulse {R}etrieval with {JAX}},
   author = {T. J. Stehling},
   url = {https://github.com/matillda123/Pulse-Retrieval-with-Jax/}
   year = {2025}
 }
 ```
+
 
 
 
