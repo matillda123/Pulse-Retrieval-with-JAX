@@ -23,7 +23,7 @@ The available algorithms are:
 | Generalized Projection | [K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)](https://doi.org/10.1364/OL.19.002152)  |
 | Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) |
 | Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) and [pypret](https://github.com/ncgeib/pypret) |
-| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1.)|
+| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1)|
 | Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
 | AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The DeepMind JAX Ecosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
 | Evolutionary solvers ([evosax](https://github.com/RobertTLange/evosax)) | [R. T. Lange, arXiv 2212.04180 (2022)](https://arxiv.org/abs/2212.04180) |
@@ -53,6 +53,7 @@ If you end up using this code for a publication, please use the citation below a
   year = {2025}
 }
 ```
+
 
 
 
