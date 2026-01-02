@@ -402,3 +402,5 @@ class MakePulse:
         plt.plot(self.pulses.frequency, np.abs(self.pulses.pulse_f))
         plt.xlabel("Frequency [pHz]")
         plt.ylabel("Amplitude [arb. u.]")
+
+        plt.show()

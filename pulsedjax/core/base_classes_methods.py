@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, center_signal_to_max, center_signal
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
-from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material
+from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase
 
 
 
@@ -37,7 +37,7 @@ class RetrievePulses:
 
     """
 
-    def __init__(self, nonlinear_method, *args, seed=None, **kwargs):
+    def __init__(self, nonlinear_method, *args, seed=None, central_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.nonlinear_method = nonlinear_method
@@ -45,6 +45,7 @@ class RetrievePulses:
         self.cross_correlation = False
         self.doubleblind = False 
         self.interferometric = False
+        self.central_frequency = central_frequency
 
         if nonlinear_method=="shg":
             self.factor = 2
@@ -89,8 +90,13 @@ class RetrievePulses:
         self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
         self.measured_trace = jnp.asarray(measured_trace)
 
-        # i should do this also in 2dsi and vampire -> but there one can have cross_correlation -> this way of getting omega_0 isnt valid.
-        self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
+        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
+            if self.cross_correlation==False and self.doubleblind==False:
+                self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
+            else:
+                if self.central_frequency==None and self.material_thickness!=0:
+                    raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
+                                     Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
 
         return self.x_arr, self.time, self.frequency, self.measured_trace, self.central_frequency
 
@@ -212,6 +218,7 @@ class RetrievePulses:
         plt.ylabel("Frequency [arb. u.]")
         plt.colorbar()
 
+        plt.show()
 
 
 
@@ -858,8 +865,12 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         wavelength = c0/frequency*1e-6 # wavelength in nm
         n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
         n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
-        k_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9)*n_arr #wavelength is needed in mm
-        phase_matrix = k_arr*material_thickness
+        k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
+        k_arr = k0_arr*n_arr
+
+        wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
+        Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
+        phase_matrix = material_thickness*(k_arr-Tg_phase)
         return phase_matrix
 
 
@@ -868,21 +879,13 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         """
         For a 2DSI reconstruction one may need to consider effects of material dispersion in the interferometer.
         This applies a dispersion based on phase_matrix in order to achieve this. 
-        In addition the dispersion may contain a group delay. This delay is estimated, corrected and returned as well.
         """
-        idx0 = jnp.argmax(jnp.abs(pulse_t))
-        
         pulse_f = self.fft(pulse_t, sk, rn)
         pulse_f = pulse_f*jnp.exp(1j*measurement_info.phase_matrix)
         pulse_t_disp = self.ifft(pulse_f, sk, rn)
 
-        idx1 = jnp.argmax(jnp.abs(pulse_t_disp))
-        pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
+        return pulse_t_disp
 
-        # return recovered delay -> put that in signal_t -> can be used in grad/hessian?
-        gd_correction = measurement_info.time[idx0]-measurement_info.time[idx1]
-        return pulse_t_disp, gd_correction
-    
 
     def apply_spectral_filter(self, signal, spectral_filter, sk, rn):
         """ Apply a spectral filter to a signal. """
@@ -917,8 +920,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         else:
             gate = pulse_t
         
-        # shift in time is solved, by jnp.roll -> isnt exact
-        gate, gd_correction = self.apply_phase(gate, measurement_info, sk, rn) 
+        gate = self.apply_phase(gate, measurement_info, sk, rn) 
 
         gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk, rn)
         gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk, rn)
@@ -932,7 +934,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gd_correction=gd_correction)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
         return signal_t
 
 
@@ -980,8 +982,12 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         wavelength = c0/frequency*1e-6 # wavelength in nm
         n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
         n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
-        k_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9)*n_arr #wavelength is needed in mm
-        phase_matrix = k_arr*material_thickness
+        k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
+        k_arr = k0_arr*n_arr
+
+        wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
+        Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
+        phase_matrix = material_thickness*(k_arr-Tg_phase)
         return phase_matrix
 
 
@@ -990,19 +996,13 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         """
         For an VAMPIRE reconstruction one may need to consider effects of material dispersion in the interferometer.
         This applies a dispersion based on phase_matrix in order to achieve this. 
-        In addition the dispersion may contain a group delay. This delay is estimated, corrected and returned as well.
         """
-
-        idx0 = jnp.argmax(jnp.abs(pulse_t))
 
         pulse_f = self.fft(pulse_t, sk, rn)
         pulse_f = pulse_f*jnp.exp(1j*measurement_info.phase_matrix)
         pulse_t_disp = self.ifft(pulse_f, sk, rn)
 
-        idx1 = jnp.argmax(jnp.abs(pulse_t_disp))
-        pulse_t_disp = jnp.roll(pulse_t_disp, (idx0-idx1))
-        gd_correction = measurement_info.time[idx0] - measurement_info.time[idx1]
-        return pulse_t_disp, gd_correction
+        return pulse_t_disp
     
 
 
@@ -1033,7 +1033,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         else:
             gate_pulse = pulse_t
 
-        gate_disp, gd_correction = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
 
         tau = measurement_info.tau_interferometer
         gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
@@ -1045,7 +1045,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gd_correction=gd_correction)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
         return signal_t
 
 

@@ -494,6 +494,8 @@ class MakeTraceBASE:
         plt.ylabel("Frequency [PHz]")
         plt.colorbar()
 
+        plt.show()
+
 
 
 
