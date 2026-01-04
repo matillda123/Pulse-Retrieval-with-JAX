@@ -6,9 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tdp &mdash; PulseRetrievalwithJAX 2025 documentation</title>
+  <title>tdp &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -16,6 +19,8 @@
       <script src="_static/documentation_options.js?v=cb975c41"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -33,7 +38,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            PulseRetrievalwithJAX
+            PulsedJAX: Pulse-Retrieval-with-JAX
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -43,7 +48,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -52,29 +57,29 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -83,7 +88,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PulseRetrievalwithJAX</a>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -110,9 +115,21 @@
 <span id="tdp-classic-algorithms-tdp-module"></span><h2>tdp.classic_algorithms_tdp module<a class="headerlink" href="#module-tdp.classic_algorithms_tdp" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.GeneralizedProjection">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.GeneralizedProjection" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.GeneralizedProjection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The Generalized Projection Algorithm for FROG.</p>
+<p>Implements the Generalized Projection Algorithm.</p>
+<p>[1] K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.GeneralizedProjection.no_steps_descent">
+<span class="sig-name descname"><span class="pre">no_steps_descent</span></span><a class="headerlink" href="#tdp.classic_algorithms_tdp.GeneralizedProjection.no_steps_descent" title="Link to this definition"></a></dt>
+<dd><p>the numer of descent steps per iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.GeneralizedProjection.calculate_Z_gradient_individual">
 <span class="sig-name descname"><span class="pre">calculate_Z_gradient_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.GeneralizedProjection.calculate_Z_gradient_individual" title="Link to this definition"></a></dt>
@@ -135,9 +152,22 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.PtychographicIterativeEngine">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pie_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rPIE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.PtychographicIterativeEngine" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.PtychographicIterativeEngine" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></p>
-<p>The Ptychographic Iterative Engine (PIE) for FROG.</p>
+<p>Implements a version of the Ptychographic Iterative Engine (PIE).</p>
+<p>[1] A. Maiden et al., Optica 4, 736-745 (2017)
+[2] T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.PtychographicIterativeEngine.alpha">
+<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#tdp.classic_algorithms_tdp.PtychographicIterativeEngine.alpha" title="Link to this definition"></a></dt>
+<dd><p>a regularization parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.PtychographicIterativeEngine.pie_method">
 <span class="sig-name descname"><span class="pre">pie_method</span></span><a class="headerlink" href="#tdp.classic_algorithms_tdp.PtychographicIterativeEngine.pie_method" title="Link to this definition"></a></dt>
@@ -153,9 +183,10 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.COPRA">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.COPRA" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.classic_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.COPRA" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">COPRABASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The Common Pulse Retrieval Algorithm (COPRA) for FROG.</p>
+<p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA).</p>
+<p>[1] N. C. Geib, Optica 6, 495-505 (2019)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.classic_algorithms_tdp.COPRA.update_individual">
 <span class="sig-name descname"><span class="pre">update_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.classic_algorithms_tdp.COPRA.update_individual" title="Link to this definition"></a></dt>
@@ -181,9 +212,65 @@
 <span id="tdp-general-algorithms-tdp-module"></span><h2>tdp.general_algorithms_tdp module<a class="headerlink" href="#module-tdp.general_algorithms_tdp" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best1_bin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolutionBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The Differential Evolution Algorithm applied to TDP.</p>
+<p>Implements a Differential-Evolution Algorithm.
+Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for Global Optimization, 2014, <a class="reference external" href="https://www.osti.gov/servlets/purl/1163659">https://www.osti.gov/servlets/purl/1163659</a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.strategy">
+<span class="sig-name descname"><span class="pre">strategy</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.strategy" title="Link to this definition"></a></dt>
+<dd><p>the mutation and selection strategy, analogous to scipy’s differential evolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.mutation_rate">
+<span class="sig-name descname"><span class="pre">mutation_rate</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.mutation_rate" title="Link to this definition"></a></dt>
+<dd><p>the mutation rate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.crossover_rate">
+<span class="sig-name descname"><span class="pre">crossover_rate</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.crossover_rate" title="Link to this definition"></a></dt>
+<dd><p>the crossover rate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.selection_mechanism">
+<span class="sig-name descname"><span class="pre">selection_mechanism</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.selection_mechanism" title="Link to this definition"></a></dt>
+<dd><p>the selection mechanism, can be greedy or global, defined in select_population().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.temperature">
+<span class="sig-name descname"><span class="pre">temperature</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.temperature" title="Link to this definition"></a></dt>
+<dd><p>a temperature value for the global selection mechanism</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.DifferentialEvolution.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.DifferentialEvolution.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -194,9 +281,32 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.Evosax">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.Evosax" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">EvosaxBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The Evosax package utilized for pulse reconstruction from TDP.</p>
+<p>Employs the evosax package to perform the optimization.</p>
+<p>[1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.Evosax.solver">
+<span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.Evosax.solver" title="Link to this definition"></a></dt>
+<dd><p>any evosax-solver should work</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>evosax-solver</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.Evosax.solver_params">
+<span class="sig-name descname"><span class="pre">solver_params</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.Evosax.solver_params" title="Link to this definition"></a></dt>
+<dd><p>user defined parameters for the evosax-solver, if None the default params set in evosax are used</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.Evosax.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.Evosax.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -207,9 +317,45 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.LSF">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">LSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectal_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">LSFBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The LSF Algorithm applied to TDP.</p>
+<p>Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG.</p>
+<p>The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
+and thus optimized in its discretized form.</p>
+<p>[1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.LSF.number_of_bisection_iterations">
+<span class="sig-name descname"><span class="pre">number_of_bisection_iterations</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF.number_of_bisection_iterations" title="Link to this definition"></a></dt>
+<dd><p>as the name says</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.LSF.random_direction_mode">
+<span class="sig-name descname"><span class="pre">random_direction_mode</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF.random_direction_mode" title="Link to this definition"></a></dt>
+<dd><p>can be random or continuous</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.LSF.ratio_points_for_continuous">
+<span class="sig-name descname"><span class="pre">ratio_points_for_continuous</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF.ratio_points_for_continuous" title="Link to this definition"></a></dt>
+<dd><p>smaller value means more randomness/eratic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.LSF.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.LSF.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -226,9 +372,33 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.AutoDiff">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.AutoDiff" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tdp.general_algorithms_tdp.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiffBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>The Optimistix package utilized for pulse reconstruction from TDP.</p>
+<p>Employs the optimistix package to perform the optimization via Automatic-Differentiation.</p>
+<p>[1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+[2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.AutoDiff.solver">
+<span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.AutoDiff.solver" title="Link to this definition"></a></dt>
+<dd><p>solvers need to be initialized</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optimistix-solver, optax-solver</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tdp.general_algorithms_tdp.AutoDiff.alternating_optimization">
+<span class="sig-name descname"><span class="pre">alternating_optimization</span></span><a class="headerlink" href="#tdp.general_algorithms_tdp.AutoDiff.alternating_optimization" title="Link to this definition"></a></dt>
+<dd><p>if true, the optimizer alternates between amplitude and phase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tdp.general_algorithms_tdp.AutoDiff.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tdp.general_algorithms_tdp.AutoDiff.get_pulses_from_population" title="Link to this definition"></a></dt>

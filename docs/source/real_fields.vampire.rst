@@ -1,4 +1,4 @@
-real\_fields.vampire package
+real\_fields.vampire
 ============================
 
 Submodules

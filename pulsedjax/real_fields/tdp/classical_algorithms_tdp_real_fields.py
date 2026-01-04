@@ -1,6 +1,6 @@
 from pulsedjax.real_fields.base_classes_methods import RetrievePulsesTDPwithRealFields
 from pulsedjax.real_fields.frog import (GeneralizedProjection as GeneralizedProjectionFROG, 
-                                  PtychographicIterativeEngine as PtychgraphicIterativeEngineFROG,
+                                  PtychographicIterativeEngine as PtychographicIterativeEngineFROG,
                                   COPRA as COPRAFROG)
 
 
@@ -8,38 +8,30 @@ from pulsedjax.real_fields.frog import (GeneralizedProjection as GeneralizedProj
 
 
 class GeneralizedProjection(RetrievePulsesTDPwithRealFields, GeneralizedProjectionFROG):
-    """
-    The Generalized Projection Algorithm for FROG.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = GeneralizedProjectionFROG.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
 
 
 
 
 
 
-class PtychographicIterativeEngine(RetrievePulsesTDPwithRealFields, PtychgraphicIterativeEngineFROG):
-    """
-    The Ptychographic Iterative Engine (PIE) for FROG.
+class PtychographicIterativeEngine(RetrievePulsesTDPwithRealFields, PtychographicIterativeEngineFROG):
+    __doc__ = PtychographicIterativeEngineFROG.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
 
-        self.pie_method=pie_method
 
 
 
 
 
 class COPRA(RetrievePulsesTDPwithRealFields, COPRAFROG):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRAFROG.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
 

@@ -6,9 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PulseRetrievalwithJAX &mdash; PulseRetrievalwithJAX 2025 documentation</title>
+  <title>PulsedJAX: Pulse-Retrieval with JAX &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -16,6 +19,8 @@
       <script src="_static/documentation_options.js?v=cb975c41"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -32,7 +37,7 @@
           
           
           <a href="#" class="icon icon-home">
-            PulseRetrievalwithJAX
+            PulsedJAX: Pulse-Retrieval-with-JAX
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -42,7 +47,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -51,29 +56,29 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -82,7 +87,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">PulseRetrievalwithJAX</a>
+          <a href="#">PulsedJAX: Pulse-Retrieval-with-JAX</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -90,7 +95,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">PulseRetrievalwithJAX</li>
+      <li class="breadcrumb-item active">PulsedJAX: Pulse-Retrieval with JAX</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -100,25 +105,101 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pulseretrievalwithjax">
-<h1>PulseRetrievalwithJAX<a class="headerlink" href="#pulseretrievalwithjax" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="pulsedjax-pulse-retrieval-with-jax">
+<h1>PulsedJAX: Pulse-Retrieval with JAX<a class="headerlink" href="#pulsedjax-pulse-retrieval-with-jax" title="Link to this heading"></a></h1>
+<p>Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>To install (create a new environment and) run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">matillda123</span><span class="o">/</span><span class="n">pulse</span><span class="o">-</span><span class="n">retrieval</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+</section>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
-<div class="line-block">
-<div class="line">This library aims to implement a variety of retrieval algorithms for pulse characterization methods. The available pulse characterization methods so far are Frequency-Resolved-Optical-Gating (FROG), Time-Domain-Ptychography (TDP), Two-Dimensional Spectral-Shearing Interferometry (2D-SI), Very advanced method for phase and intensity retrieval of E-fields (VAMPIRE) and Chirp-Scans based on material dispersion or pulse shaping. For all these methods second-harmonic generation (SHG), third-harmonic generation (THG), polarization gating (PG) and self-diffraction (SD) are supported. In addition, all methods (except Chirp-Scans) support cross-correlation and doubleblind retrieval.</div>
-<div class="line">All implemented algorithms support the incorporation of additional constraints in the form of a pulse spectrum. Some will use these to perform a true constrained optimization, while others will project the current guess onto the available spectrum.</div>
+<p>Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE.
+For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.</p>
+<p>On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid.</p>
+<p>The available algorithms are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
+<th class="head"><p>Citation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Generalized Projection</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OL.19.002152">K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Ptychographic Iterative Engine</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OPTICA.4.000736">A. Maiden et al., Optica 4, 736-745 (2017)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Common Pulse Retrieval Algorithm</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OPTICA.6.000495">N. C. Geib, Optica 6, 495-505 (2019)</a> and <a class="reference external" href="https://github.com/ncgeib/pypret">pypret</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Differential Evolution</p></td>
+<td><p><a class="reference external" href="https://www.osti.gov/biblio/1163659">J. Qiang and C. Mitchell (2014)</a> and <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Linesearch-Frog-Algorithm (for all methods)</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OE.569606">C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>AD-Solvers (<a class="reference external" href="https://github.com/google-deepmind/optax">optax</a> and <a class="reference external" href="https://github.com/patrick-kidger/optimistix">optimistix</a>)</p></td>
+<td><p><a class="reference external" href="https://github.com/google-deepmind/optax"> DeepMind et al., <em>The DeepMind JAX Ecosystem</em> (2020)</a> and<br><a class="reference external" href="https://arxiv.org/abs/2402.09983">J. Rader, T. Lyons and P. Kidger, <em>Optimistix: modular optimisation in JAX and Equinox</em>, arXiv:2402.09983 (2024)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Evolutionary solvers (<a class="reference external" href="https://github.com/RobertTLange/evosax">evosax</a>)</p></td>
+<td><p><a class="reference external" href="https://arxiv.org/abs/2212.04180">R. T. Lange, arXiv 2212.04180 (2022)</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>For some methods, specific additional algorithms are implemented:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Algorithms</p></th>
+<th class="head"><p>Citation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FROG</p></td>
+<td><p>Vanilla</p></td>
+<td><p><a class="reference external" href="https://link.springer.com/book/10.1007/978-1-4615-1181-6">R. Trebino, 10.1007/978-1-4615-1181-6 (2000)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>LSGPA</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1007/s00340-008-3063-x">J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)</a></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>CPCGPA</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1016/j.pquantelec.2021.100364">D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364),  (2022)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>2D-SI</p></td>
+<td><p>Direct-Reconstruction</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OL.31.002063">J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>If you end up using this code for a publication, please use the citation below as well as the appropriate citations for the algorithm used.</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">pulseretrievalwithjax</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Pulse {R}etrieval with {JAX}}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{T. J. Stehling}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://github.com/matillda123/Pulse-Retrieval-with-Jax/}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
+</section>
+</section>
 <div class="line-block">
-<div class="line">The implemented algorithms may be split into two categories. Namely “classical” and “general” optimizers, where the term classical refers to algorithms, which have been specifically developed and applied in the context of pulse-retrieval. Some of these algorithms have been augmented through standard optimiztion approaches such as linesearch, newton-like methods and momentum.</div>
-<div class="line">The term general refers to general optimization algorihms such as Gradient Descent or Differential Evolution. Since such algorithms are widely used and their implementations are readily available, the preexisting packages <a class="reference external" href="https://github.com/google-deepmind/optax">Optax</a>, <a class="reference external" href="https://github.com/patrick-kidger/optimistix">Optimistix</a> and <a class="reference external" href="https://github.com/RobertTLange/evosax">evosax</a> are being used in this library.</div>
 <div class="line">People who consider using this library should definitely look at <a class="reference external" href="https://github.com/ncgeib/pypret">pypret</a> the original implementation of the Common-Pulse-Retrieval-Algorithm (COPRA).</div>
 </div>
-</section>
-</section>
-<section id="content">
-<h1>Content<a class="headerlink" href="#content" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -127,23 +208,22 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 </div>
-</section>
 
 
            </div>

@@ -7,11 +7,12 @@ from pulsedjax.utilities import MyNamespace
 
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesFROG):
-    """ 
-    The Differential Evolution Algorithm applied to FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = DifferentialEvolutionBASE.__doc__
+    
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, 
+                 strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation,
+                         strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -24,11 +25,10 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesFROG):
 
 
 class Evosax(EvosaxBASE, RetrievePulsesFROG):
-    """
-    The Evosax package utilized for pulse reconstruction from FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = EvosaxBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, solver=solver, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -41,11 +41,10 @@ class Evosax(EvosaxBASE, RetrievePulsesFROG):
 
 
 class LSF(LSFBASE, RetrievePulsesFROG):
-    """
-    The LSF Algorithm applied to FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
 
@@ -90,11 +89,10 @@ class LSF(LSFBASE, RetrievePulsesFROG):
 
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesFROG):
-    """
-    The Optimistix package utilized for pulse reconstruction from FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = AutoDiffBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, solver=solver, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):

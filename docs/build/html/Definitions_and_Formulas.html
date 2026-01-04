@@ -6,9 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Definitions &mdash; PulseRetrievalwithJAX 2025 documentation</title>
+  <title>Definitions &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -16,6 +19,8 @@
       <script src="_static/documentation_options.js?v=cb975c41"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -34,7 +39,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            PulseRetrievalwithJAX
+            PulsedJAX: Pulse-Retrieval-with-JAX
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -44,7 +49,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -53,29 +58,29 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Adaptive-Stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -84,7 +89,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PulseRetrievalwithJAX</a>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -102,54 +107,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="Definitions">
-<h1>Definitions<a class="headerlink" href="#Definitions" title="Link to this heading"></a></h1>
-<section id="Nonlinear-Methods">
-<h2>Nonlinear Methods<a class="headerlink" href="#Nonlinear-Methods" title="Link to this heading"></a></h2>
+  <section id="definitions">
+<h1>Definitions<a class="headerlink" href="#definitions" title="Link to this heading"></a></h1>
+<section id="nonlinear-methods">
+<h2>Nonlinear Methods<a class="headerlink" href="#nonlinear-methods" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(G(E) = E\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(G(E) = E^2\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(G(E) = |E|^2\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD (This definition causes a flip in delay and frequency-sign)</p>
 <p><span class="math notranslate nohighlight">\(G(E) = (E^*)^2\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(G(E) = E^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="General">
-<h2>General<a class="headerlink" href="#General" title="Link to this heading"></a></h2>
-<div class="line-block">
-<div class="line">Indices:</div>
-<div class="line"><span class="math notranslate nohighlight">\(\quad k,j\quad\rightarrow\quad\)</span> Time Domain</div>
-<div class="line"><span class="math notranslate nohighlight">\(\quad n,p\quad\rightarrow\quad\)</span> Frequency Domain</div>
-<div class="line"><span class="math notranslate nohighlight">\(\quad m\quad\rightarrow\quad\)</span> Transformation (e.g. shift in time, applied chirp, … )</div>
-</div>
-<div class="line-block">
-<div class="line"><span class="math notranslate nohighlight">\(E_k\quad\rightarrow\quad\)</span> pulse in time domain</div>
-<div class="line"><span class="math notranslate nohighlight">\(A_{mk}\quad\rightarrow\quad\)</span> transformed pulse in time domain</div>
-</div>
-<div class="line-block">
-<div class="line"><span class="math notranslate nohighlight">\(D_{kn} \quad\rightarrow\quad\)</span> fourier matrix (inverse)</div>
-<div class="line"><span class="math notranslate nohighlight">\(D_{nk} \quad\rightarrow\quad\)</span> fourier matrix (forward)</div>
-</div>
+<section id="general">
+<h2>General<a class="headerlink" href="#general" title="Link to this heading"></a></h2>
+<p>Indices:<br />
+<span class="math notranslate nohighlight">\(\quad k,j\quad\rightarrow\quad\)</span> Time Domain<br />
+<span class="math notranslate nohighlight">\(\quad n,p\quad\rightarrow\quad\)</span> Frequency Domain<br />
+<span class="math notranslate nohighlight">\(\quad m\quad\rightarrow\quad\)</span> Transformation (e.g. shift in time, applied chirp, … )</p>
+<br>
+<p><span class="math notranslate nohighlight">\(E_k\quad\rightarrow\quad\)</span> pulse in time domain<br />
+<span class="math notranslate nohighlight">\(A_{mk}\quad\rightarrow\quad\)</span> transformed pulse in time domain</p>
+<br>
+<p><span class="math notranslate nohighlight">\(D_{kn} \quad\rightarrow\quad\)</span> fourier matrix (inverse)<br />
+<span class="math notranslate nohighlight">\(D_{nk} \quad\rightarrow\quad\)</span> fourier matrix (forward)</p>
 </section>
-<section id="Transformations">
-<h2>Transformations<a class="headerlink" href="#Transformations" title="Link to this heading"></a></h2>
+<section id="transformations">
+<h2>Transformations<a class="headerlink" href="#transformations" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>Fourier Transform</p>
 <p><span class="math notranslate nohighlight">\(E_n = \sum_k D_{nk} E_n = \sum_k e^{-i \omega_n t_k} E_k\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>Inverse Fourier Transform</p>
 <p><span class="math notranslate nohighlight">\(E_k = \sum_n D_{kn} E_n = \sum_n e^{i \omega_n t_k} E_n\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>Method dependent transformation</p>
 <p><span class="math notranslate nohighlight">\(A_{mk} = \sum_n D_{kn} E_n \cdot e^{i\phi_{mn}}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\phi_{mn} = -\tau_m \cdot \omega_n\)</span> (linear -&gt; time shift)</p>
@@ -158,558 +177,567 @@
 </li>
 </ol>
 </section>
-<section id="Definition-of-nonlinear-signal-in-time-domain">
-<h2>Definition of nonlinear signal in time domain<a class="headerlink" href="#Definition-of-nonlinear-signal-in-time-domain" title="Link to this heading"></a></h2>
-<ol class="arabic">
-<li><div class="line-block">
-<div class="line">Frog</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = E_k \cdot G(A_{mk})\)</span></div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Chirp-Scan</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = A_{mk}\cdot G(A_{mk})\)</span></div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Interferometric Frog</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = (E_k + A_{mk})\cdot G(E_k + A_{mk})\)</span></div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Time-Domain-Ptychography</div>
-<div class="line">Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\)</span> is different.</div>
-<div class="line"><span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">2D-SI</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = G(E_k'\cdot e^{-i\tau_0\omega_n} + A_{mk}'') \cdot E_k \quad\)</span> ( <span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay of <span class="math notranslate nohighlight">\(E_k\)</span> and <span class="math notranslate nohighlight">\(E_k'\)</span> )</div>
-<div class="line"><span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)</div>
-<div class="line"><span class="math notranslate nohighlight">\(E_k'\)</span> and <span class="math notranslate nohighlight">\(A_{mk}''\)</span> have an optional material <span class="math notranslate nohighlight">\(\phi_n\)</span> dispersion from the interferometer. The corresponding correction to the GD is only optimized implicitely.</div>
-</div>
-</li>
-<li><div class="line-block">
-<div class="line">Vampire</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = G(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot A_{mk}\quad\)</span> (Original definition, pushing <span class="math notranslate nohighlight">\(m\)</span> onto gate makes it easier with PIE.)</div>
-<div class="line"><span class="math notranslate nohighlight">\(S_{mk} = G_m(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot E_k = G(A_{mk}\cdot e^{-i\tau_0\omega_n} + A_{mk}')\cdot E_k\)</span></div>
-<div class="line"><span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}E_ne^{i\phi_n}\quad\)</span> (<span class="math notranslate nohighlight">\(\phi_n\)</span> represents a material dispersion)</div>
-<div class="line">The correction to the GD is only optimized implicitely.</div>
-<div class="line"><span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay in the interferometer.</div>
-</div>
-</li>
+<section id="definition-of-nonlinear-signal-in-time-domain">
+<h2>Definition of nonlinear signal in time domain<a class="headerlink" href="#definition-of-nonlinear-signal-in-time-domain" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Frog<br />
+<span class="math notranslate nohighlight">\(S_{mk} = E_k \cdot G(A_{mk})\)</span></p></li>
+<li><p>Chirp-Scan<br />
+<span class="math notranslate nohighlight">\(S_{mk} = A_{mk}\cdot G(A_{mk})\)</span></p></li>
+<li><p>Interferometric Frog<br />
+<span class="math notranslate nohighlight">\(S_{mk} = (E_k + A_{mk})\cdot G(E_k + A_{mk})\)</span></p></li>
+<li><p>Time-Domain-Ptychography<br />
+Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\)</span> is different.<br />
+<span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)</p></li>
+<li><p>2D-SI<br />
+<span class="math notranslate nohighlight">\(S_{mk} = G(E_k'\cdot e^{-i\tau_0\omega_n} + A_{mk}'') \cdot E_k \quad\)</span> ( <span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay of <span class="math notranslate nohighlight">\(E_k\)</span> and <span class="math notranslate nohighlight">\(E_k'\)</span> )<br />
+<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)<br />
+<span class="math notranslate nohighlight">\(E_k'\)</span> and <span class="math notranslate nohighlight">\(A_{mk}''\)</span> have an optional material <span class="math notranslate nohighlight">\(\phi_n\)</span> dispersion from the interferometer.</p></li>
+<li><p>Vampire<br />
+<span class="math notranslate nohighlight">\(S_{mk} = G(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot A_{mk}\quad\)</span>  (Original definition, pushing <span class="math notranslate nohighlight">\(m\)</span> onto gate makes it easier with PIE.)<br />
+<span class="math notranslate nohighlight">\(S_{mk} = G_m(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot E_k = G(A_{mk}\cdot e^{-i\tau_0\omega_n} + A_{mk}')\cdot E_k\)</span><br />
+<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}E_ne^{i\phi_n}\quad\)</span> (<span class="math notranslate nohighlight">\(\phi_n\)</span> represents a material dispersion)<br />
+<span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay in the interferometer.</p></li>
 </ol>
 </section>
-<section id="Error">
-<h2>Error<a class="headerlink" href="#Error" title="Link to this heading"></a></h2>
+<section id="error">
+<h2>Error<a class="headerlink" href="#error" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>G-Error (Trace Error)</p>
 <p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum_n\sum_m (T_{mn}^{\mathrm{exp}} - \mu \cdot T_{mn})^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\mu = \frac{\sum_n\sum_m T_{mn} \cdot T_{mn}^{\mathrm{exp}}}{\sum_n\sum_m T_{mn}^2}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>Z-Error</p>
 <p><span class="math notranslate nohighlight">\(Z = \sum_k\sum_m | S_{mk}' - S_{mk}|^2\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PIE-Error</p>
 <p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum_n\sum_m (\sqrt{T_{mn}^{\mathrm{exp}}} - |S_{mn}|)^2\)</span></p>
 </li>
 </ol>
 </section>
 </section>
-<section id="Z-Gradients">
-<h1>Z-Gradients<a class="headerlink" href="#Z-Gradients" title="Link to this heading"></a></h1>
+<section id="z-gradients">
+<h1>Z-Gradients<a class="headerlink" href="#z-gradients" title="Link to this heading"></a></h1>
 <p><span class="math notranslate nohighlight">\(\nabla_n Z_m = 2 \frac{d}{d E^*} \sum_k \Delta S_{mk}\cdot\Delta S_{mk}^* = -2\cdot\sum_k \Delta S_{mk}^*\cdot\frac{dS_{mk}}{dE_n^*} + \Delta S_{mk}\cdot\left(\frac{dS_{mk}}{dE_n}\right)^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\nabla_n Z = \sum_m \nabla_n Z_m\)</span></p>
-<section id="Frog-(with-respect-to-Pulse)">
-<h2>Frog (with respect to Pulse)<a class="headerlink" href="#Frog-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="frog-with-respect-to-pulse">
+<h2>Frog (with respect to Pulse)<a class="headerlink" href="#frog-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk} + e^{-i\tau_m\omega_n} E_k)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}^2 + 2e^{-i\tau_m\omega_n} E_k A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot e^{i\tau_m\omega_n} E_k A_{mk}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot e^{i\tau_m\omega_n} E_k A_{mk}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} A_{mk}^* \cdot (A_{mk} + e^{-i\tau_m\omega_n} E_k)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} (A_{mk}^*)^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}^{n-1} + (n-1)e^{-i\tau_m\omega_n} E_k A_{mk}^{n-2})\)</span></p>
 </li>
 </ol>
 </section>
-<section id="X-Frog-(with-respect-to-Pulse)">
-<h2>X-Frog (with respect to Pulse)<a class="headerlink" href="#X-Frog-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="x-frog-with-respect-to-pulse">
+<h2>X-Frog (with respect to Pulse)<a class="headerlink" href="#x-frog-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} G(A_{mk})\)</span></p>
 </section>
-<section id="X-Frog-(with-respect-to-Gate-Pulse)">
-<h2>X-Frog (with respect to Gate Pulse)<a class="headerlink" href="#X-Frog-(with-respect-to-Gate-Pulse)" title="Link to this heading"></a></h2>
+<section id="x-frog-with-respect-to-gate-pulse">
+<h2>X-Frog (with respect to Gate Pulse)<a class="headerlink" href="#x-frog-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = \frac{dS_{mk}}{dA_{mk}}\frac{dA_{mk}}{dE_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = \frac{dS_{mk}}{dA_{mk}^*}\left(\frac{dA_{mk}}{dE_n}\right)^*\)</span></p>
+<br>
+<br>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} E_k e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2 \cdot D_{kn} E_k A_{mk} e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot E_k A_{mk} e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot E_k A_{mk} e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} \cdot E_k A_{mk}^* e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2\cdot D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2\cdot D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1) \cdot D_{kn} E_k A_{mk}^{n-2} e^{-i\tau_m\omega_n}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I-Frog-(with-respect-to-pulse)">
-<h2>I-Frog (with respect to pulse)<a class="headerlink" href="#I-Frog-(with-respect-to-pulse)" title="Link to this heading"></a></h2>
+<section id="i-frog-with-respect-to-pulse">
+<h2>I-Frog (with respect to pulse)<a class="headerlink" href="#i-frog-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(1+e^{i\tau_m\omega_n})\cdot (E_k + A_{mk})^2\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(1+e^{i\tau_m\omega_n})\cdot (E_k + A_{mk})^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+e^{-i\tau_m\omega_n})\cdot |E_k + A_{mk}|^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I-Frog-+-XFrog-(with-respect-to-pulse)">
-<h2>I-Frog + XFrog (with respect to pulse)<a class="headerlink" href="#I-Frog-+-XFrog-(with-respect-to-pulse)" title="Link to this heading"></a></h2>
+<section id="i-frog-xfrog-with-respect-to-pulse">
+<h2>I-Frog + XFrog (with respect to pulse)<a class="headerlink" href="#i-frog-xfrog-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(E_k + A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn} (E_k + A_{mk})^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(E_k + A_{mk})^2\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(E_k + A_{mk})^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}|E_k + A_{mk}|^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn} (E_k + A_{mk})^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I-Frog-+-XFrog-(with-respect-to-gate-pulse)">
-<h2>I-Frog + XFrog (with respect to gate-pulse)<a class="headerlink" href="#I-Frog-+-XFrog-(with-respect-to-gate-pulse)" title="Link to this heading"></a></h2>
+<section id="i-frog-xfrog-with-respect-to-gate-pulse">
+<h2>I-Frog + XFrog (with respect to gate-pulse)<a class="headerlink" href="#i-frog-xfrog-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}e^{-i\tau_m\omega_n}(E_k + A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}e^{-i\tau_m\omega_n}(E_k + A_{mk})^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}e^{i\tau_m\omega_n}(E_k + A_{mk})^2\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}e^{i\tau_m\omega_n}(E_k + A_{mk})^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}e^{-i\tau_m\omega_n}|E_k + A_{mk}|^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}e^{-i\tau_m\omega_n} (E_k + A_{mk})^{n-1}\)</span></p>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}e^{-i\tau_m\omega_n}  (E_k + A_{mk})^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="Time-Domain-Ptychography-(with-respect-to-Pulse)">
-<h2>Time-Domain-Ptychography (with respect to Pulse)<a class="headerlink" href="#Time-Domain-Ptychography-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="time-domain-ptychography-with-respect-to-pulse">
+<h2>Time-Domain-Ptychography (with respect to Pulse)<a class="headerlink" href="#time-domain-ptychography-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <p>Should be correct, just derived based on FROG result</p>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}' + B_n\cdot e^{-i\tau_m\omega_n} E_k)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}'^2 + 2B_n\cdot e^{-i\tau_m\omega_n} E_k A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot B_n^*\cdot e^{i\tau_m\omega_n} E_k A_{mk}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot B_n^*\cdot e^{i\tau_m\omega_n} E_k A_{mk}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} A_{mk}'^* \cdot (A_{mk}' + B_n\cdot e^{-i\tau_m\omega_n} E_k)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk} B_n^*\cdot E_k A_{mk}'^* e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk} B_n^*\cdot E_k A_{mk}'^* e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} (A_{mk}'^*)^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}'^{n-1} + (n-1)B_n\cdot e^{-i\tau_m\omega_n} E_k A_{mk}^{n-2})\)</span></p>
 </li>
 </ol>
 </section>
-<section id="X-Time-Domain-Ptychography-(with-respect-to-Pulse)">
-<h2>X-Time-Domain-Ptychography (with respect to Pulse)<a class="headerlink" href="#X-Time-Domain-Ptychography-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="x-time-domain-ptychography-with-respect-to-pulse">
+<h2>X-Time-Domain-Ptychography (with respect to Pulse)<a class="headerlink" href="#x-time-domain-ptychography-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} G(A_{mk}')\)</span></p>
 </section>
-<section id="X-Time-Domain-Ptychography-(with-respect-to-Gate-Pulse)">
-<h2>X-Time-Domain-Ptychography (with respect to Gate Pulse)<a class="headerlink" href="#X-Time-Domain-Ptychography-(with-respect-to-Gate-Pulse)" title="Link to this heading"></a></h2>
+<section id="x-time-domain-ptychography-with-respect-to-gate-pulse">
+<h2>X-Time-Domain-Ptychography (with respect to Gate Pulse)<a class="headerlink" href="#x-time-domain-ptychography-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = \frac{dS_{mk}}{dA_{mk}'}\frac{dA_{mk}'}{dE_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = \frac{dS_{mk}}{dA_{mk}'^*}\left(\frac{dA_{mk}'}{dE_n}\right)^*\)</span></p>
+<br>
+<br>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} B_n\cdot E_k e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2 \cdot D_{kn} B_n\cdot E_k A_{mk}' e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot B_n^*\cdot E_k A_{mk}' e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot B_n^*\cdot E_k A_{mk}' e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} \cdot B_n\cdot E_k A_{mk}'^* e^{-i\tau_m\omega_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2\cdot D_{nk} B_n^*\cdot E_k A_{mk}'^* e^{i\tau_m\omega_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2\cdot D_{nk} B_n^*\cdot E_k A_{mk}'^* e^{i\tau_m\omega_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1) \cdot D_{kn} B_n\cdot E_k \left(A_{mk}'\right)^{n-2} e^{-i\tau_m\omega_n}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I-Time-Domain-Ptychography-(with-respect-to-pulse)">
-<h2>I-Time-Domain-Ptychography (with respect to pulse)<a class="headerlink" href="#I-Time-Domain-Ptychography-(with-respect-to-pulse)" title="Link to this heading"></a></h2>
+<section id="i-time-domain-ptychography-with-respect-to-pulse">
+<h2>I-Time-Domain-Ptychography (with respect to pulse)<a class="headerlink" href="#i-time-domain-ptychography-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+B_n\cdot e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk}')\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}(1+B_n\cdot e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk}')^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(1+B_n^*\cdot e^{i\tau_m\omega_n})\cdot (E_k + A_{mk}')^2\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(1+B_n^*\cdot e^{i\tau_m\omega_n})\cdot (E_k + A_{mk}')^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+B_n\cdot e^{-i\tau_m\omega_n})\cdot |E_k + A_{mk}'|^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}(1+B_n\cdot e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk}')^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I+X-Time-Domain-Ptyhcography-(with-respect-to-gate-pulse)">
-<h2>I+X Time-Domain-Ptyhcography (with respect to gate-pulse)<a class="headerlink" href="#I+X-Time-Domain-Ptyhcography-(with-respect-to-gate-pulse)" title="Link to this heading"></a></h2>
+<section id="i-x-time-domain-ptyhcography-with-respect-to-gate-pulse">
+<h2>I+X Time-Domain-Ptyhcography (with respect to gate-pulse)<a class="headerlink" href="#i-x-time-domain-ptyhcography-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}B_n\cdot e^{-i\tau_m\omega_n}(E_k + A_{mk}')\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}B_n\cdot e^{-i\tau_m\omega_n}(E_k + A_{mk}')^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}B_n^*\cdot e^{i\tau_m\omega_n}(E_k + A_{mk}')^2\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}B_n^*\cdot e^{i\tau_m\omega_n}(E_k + A_{mk}')^2\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}B_n\cdot e^{-i\tau_m\omega_n}|E_k + A_{mk}'|^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}B_n\cdot e^{-i\tau_m\omega_n}(E_k + A_{mk}')^{n-1}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="Chirp-Scan-(with-respect-to-Pulse)">
-<h2>Chirp-Scan (with respect to Pulse)<a class="headerlink" href="#Chirp-Scan-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="chirp-scan-with-respect-to-pulse">
+<h2>Chirp-Scan (with respect to Pulse)<a class="headerlink" href="#chirp-scan-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2 D_{kn} A_{mk} e^{i\phi_{mn}}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3 D_{kn} A_{mk}^2 e^{i\phi_{mn}}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} A_{mk}^2 e^{-i\phi_{mn}}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} A_{mk}^2 e^{-i\phi_{mn}}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2 D_{kn} |A_{mk}|^2 e^{i\phi_{mn}}\)</span></p>
 </li>
 </ol>
+<br>
 <ol class="arabic" start="5">
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn} A_{mk}^{n-1} e^{i\phi_{mn}}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="2D-SI-(with-respect-to-pulse-E_k)">
-<h2>2D-SI (with respect to pulse <span class="math notranslate nohighlight">\(E_k\)</span>)<a class="headerlink" href="#2D-SI-(with-respect-to-pulse-E_k)" title="Link to this heading"></a></h2>
-<p><span class="math notranslate nohighlight">\(\phi_n = \phi_n(material) - \omega_n\cdot\Delta t\quad\)</span> (<span class="math notranslate nohighlight">\(\Delta t\)</span> is the GD correction)</p>
+<section id="d-si-with-respect-to-pulse-e-k">
+<h2>2D-SI (with respect to pulse <span class="math notranslate nohighlight">\(E_k\)</span>)<a class="headerlink" href="#d-si-with-respect-to-pulse-e-k" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')+E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^2+2E_k\cdot(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot E_k\right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(E_k'+A_{mk}'')\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(E_k'+A_{mk}'')\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left(|E_k'+A_{mk}''|^2 + E_k\cdot(E_k'+A_{mk}'')^*\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\right)\cdot e^{i\phi_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(E_k' + A_{mk}'')^*\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(E_k' + A_{mk}'')^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^*\right)^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^{n-1}+(n-1)E_k\cdot(E_k'+A_{mk}'')^{n-2}(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot E_k\right)\)</span></p>
 </li>
 </ol>
 </section>
-<section id="2D-SI-(with-respect-to-pulse,-cross-correlation-setup)">
-<h2>2D-SI (with respect to pulse, cross-correlation setup)<a class="headerlink" href="#2D-SI-(with-respect-to-pulse,-cross-correlation-setup)" title="Link to this heading"></a></h2>
+<section id="d-si-with-respect-to-pulse-cross-correlation-setup">
+<h2>2D-SI (with respect to pulse, cross-correlation setup)<a class="headerlink" href="#d-si-with-respect-to-pulse-cross-correlation-setup" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}G_{mk}\)</span></p>
 </section>
-<section id="2D-SI-(with-respect-to-gate-pulse-A_k/A_{mk})">
-<h2>2D-SI (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)<a class="headerlink" href="#2D-SI-(with-respect-to-gate-pulse-A_k/A_{mk})" title="Link to this heading"></a></h2>
+<section id="d-si-with-respect-to-gate-pulse-a-k-a-mk">
+<h2>2D-SI (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)<a class="headerlink" href="#d-si-with-respect-to-gate-pulse-a-k-a-mk" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 2D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})^*\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})^*\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1)D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})^{n-2}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="VAMPIRE-(with-respect-to-pulse,-autocorrelation-setup)">
-<h2>VAMPIRE (with respect to pulse, autocorrelation-setup)<a class="headerlink" href="#VAMPIRE-(with-respect-to-pulse,-autocorrelation-setup)" title="Link to this heading"></a></h2>
-<p><span class="math notranslate nohighlight">\(\phi_n = \phi_n(material) - \omega_n\cdot\Delta t\quad\)</span> (<span class="math notranslate nohighlight">\(\Delta t\)</span> is the GD correction)</p>
+<section id="vampire-with-respect-to-pulse-autocorrelation-setup">
+<h2>VAMPIRE (with respect to pulse, autocorrelation-setup)<a class="headerlink" href="#vampire-with-respect-to-pulse-autocorrelation-setup" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left(A_{mk}+A_{mk}'+E_k\cdot e^{-i\tau_m\omega_n}\cdot(e^{-i\tau_0\omega_n} + e^{i\phi_n})\right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}(A_{mk}+A_{mk}')\cdot\left(A_{mk}+A_{mk}'+2E_k\cdot e^{-i\tau_m\omega_n}\cdot(e^{-i\tau_0\omega_n} + e^{i\phi_n})\right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(A_{mk}+A_{mk}')\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(A_{mk}+A_{mk}')\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}(A_{mk}+A_{mk}')^*\cdot\left(A_{mk}+A_{mk}'+E_k e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n}+e^{i\phi_n})\right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk}E_k (A_{mk}+A_{mk}')^*\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk}E_k (A_{mk}+A_{mk}')^*\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((A_{mk}+A_{mk}')^*\right)^2\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}(A_{mk}+A_{mk}')^{n-2}\cdot\left(A_{mk}+A_{mk}'+(n-1)E_k\cdot e^{-i\tau_m\omega_n}\cdot(e^{-i\tau_0\omega_n} + e^{i\phi_n})\right)\)</span></p>
 </li>
 </ol>
 </section>
-<section id="VAMPIRE-(with-respect-to-pulse,-cross-correlation-setup)">
-<h2>VAMPIRE (with respect to pulse, cross-correlation setup)<a class="headerlink" href="#VAMPIRE-(with-respect-to-pulse,-cross-correlation-setup)" title="Link to this heading"></a></h2>
+<section id="vampire-with-respect-to-pulse-cross-correlation-setup">
+<h2>VAMPIRE (with respect to pulse, cross-correlation setup)<a class="headerlink" href="#vampire-with-respect-to-pulse-cross-correlation-setup" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}G_{mk}\)</span></p>
 </section>
-<section id="VAMPIRE-(with-respect-to-gate-pulse,-cross-correlation-setup)">
-<h2>VAMPIRE (with respect to gate-pulse, cross-correlation-setup)<a class="headerlink" href="#VAMPIRE-(with-respect-to-gate-pulse,-cross-correlation-setup)" title="Link to this heading"></a></h2>
+<section id="vampire-with-respect-to-gate-pulse-cross-correlation-setup">
+<h2>VAMPIRE (with respect to gate-pulse, cross-correlation-setup)<a class="headerlink" href="#vampire-with-respect-to-gate-pulse-cross-correlation-setup" title="Link to this heading"></a></h2>
 <ol class="arabic">
-<li><div class="line-block">
-<div class="line">SHG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></div>
-</div>
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n}+e^{i\phi_n})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">THG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 2 D_{kn}E_k (A_{mk}+A_{mk}')\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n}+e^{i\phi_n})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k(A_{mk}+A_{mk}')\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k(A_{mk}+A_{mk}')\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k(A_{mk}+A_{mk}')^*\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n}+e^{i\phi_n})\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2 D_{nk}E_k (A_{mk}+A_{mk}')^*\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2 D_{nk}E_k (A_{mk}+A_{mk}')^*\cdot e^{i\tau_m\omega_n}(e^{i\tau_0\omega_n}+e^{-i\phi_n})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">nth-HG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1) D_{kn}E_k (A_{mk}+A_{mk}')^{n-2}\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n}+e^{i\phi_n})\)</span></p>
 </li>
 </ol>
 </section>
 </section>
-<section id="Z-Pseudo-Hessian">
-<h1>Z-Pseudo Hessian<a class="headerlink" href="#Z-Pseudo-Hessian" title="Link to this heading"></a></h1>
+<section id="z-pseudo-hessian">
+<h1>Z-Pseudo Hessian<a class="headerlink" href="#z-pseudo-hessian" title="Link to this heading"></a></h1>
 <p><span class="math notranslate nohighlight">\(H_{zz} = U_{zz} - V_{zz}\)</span></p>
 <p><span class="math notranslate nohighlight">\(U_{zz}^m = \frac{1}{2}\cdot\sum_k\left(\left(\frac{dS_{mk}}{dE_n}\right)^*\frac{dS_{mk}}{dE_p} + \left(\left(\frac{dS_{mk}}{dE_n^*}\right)^*\frac{dS_{mk}}{dE_p^*}\right)^*\right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(V_{zz}^m = \frac{1}{2}\cdot\sum_k\left( \frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^*\cdot \Delta S_{mk} + \left(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^*\cdot \Delta S_{mk}\right)^* \right)\)</span></p>
@@ -719,21 +747,29 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{pk} D_{kn}\cdot \left( A_{mk}^* e^{-i\tau_m\omega_p} + E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p} \right)\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{pk} D_{kn}\cdot \left( A_{mk}^* e^{-i\tau_m\omega_p} + E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p} \right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{nk} D_{kp} \cdot \left( A_{mk}^* e^{-i\tau_m\omega_n} + E_k^* e^{i\tau_m\omega_p} e^{-i\tau_m\omega_n} \right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2\cdot D_{pk}D_{kn} \cdot A_{mk} e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2\cdot D_{pk}D_{kn} \cdot A_{mk} e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2\cdot D_{nk}D_{kp} \cdot A_{mk} e^{-i\tau_m\omega_n}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -750,21 +786,29 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp} E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp} E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{kn}D_{pk} E_k^* e^{-i\tau_m\omega_n} e^{i\tau_m\omega_p}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -776,15 +820,22 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* (1+e^{i\tau_m\omega_n}) (1+e^{-i\tau_m\omega_p})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* (1+e^{i\tau_m\omega_n}) (1+e^{-i\tau_m\omega_p})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^* (1+e^{-i\tau_m\omega_n}) (1+e^{i\tau_m\omega_p})\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -796,15 +847,22 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^*\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^*\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -816,48 +874,63 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* e^{i\tau_m\omega_n}e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* e^{i\tau_m\omega_n}e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^*e^{-i\tau_m\omega_n}e^{i\tau_m\omega_p}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="Time-Domain-Ptachography-(with-respect-to-Pulse)">
-<h2>Time-Domain-Ptachography (with respect to Pulse)<a class="headerlink" href="#Time-Domain-Ptachography-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="time-domain-ptachography-with-respect-to-pulse">
+<h2>Time-Domain-Ptachography (with respect to Pulse)<a class="headerlink" href="#time-domain-ptachography-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{pk} D_{kn}\cdot \left( A_{mk}'^* B_p e^{-i\tau_m\omega_p} + E_k^* B_n^*B_p e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p} \right)\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{pk} D_{kn}\cdot \left( A_{mk}'^* B_p e^{-i\tau_m\omega_p} + E_k^* B_n^*B_p e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p} \right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{nk} D_{kp} \cdot \left( A_{mk}'^* B_n e^{-i\tau_m\omega_n} + E_k^* B_nB_p^* e^{i\tau_m\omega_p} e^{-i\tau_m\omega_n} \right)\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2\cdot D_{pk}D_{kn} \cdot A_{mk}' B_p e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2\cdot D_{pk}D_{kn} \cdot A_{mk}' B_p e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2\cdot D_{nk}D_{kp} \cdot A_{mk}' B_n e^{-i\tau_m\omega_n}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="X-Time-Domain-Ptachography-(with-respect-to-Pulse)">
-<h2>X-Time-Domain-Ptachography (with respect to Pulse)<a class="headerlink" href="#X-Time-Domain-Ptachography-(with-respect-to-Pulse)" title="Link to this heading"></a></h2>
+<section id="x-time-domain-ptachography-with-respect-to-pulse">
+<h2>X-Time-Domain-Ptachography (with respect to Pulse)<a class="headerlink" href="#x-time-domain-ptachography-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods.</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </section>
@@ -867,21 +940,29 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp} E_k^* B_n^*B_p e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp} E_k^* B_n^*B_p e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{kn}D_{pk} E_k^* B_nB_p^* e^{-i\tau_m\omega_n} e^{i\tau_m\omega_p}\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 0\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 0\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -893,100 +974,137 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^* (1+B_n^*e^{i\tau_m\omega_n}) (1+B_p e^{-i\tau_m\omega_p})\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^* (1+B_n^*e^{i\tau_m\omega_n}) (1+B_p e^{-i\tau_m\omega_p})\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk}')^* (1+B_n e^{-i\tau_m\omega_n}) (1+B_p^*e^{i\tau_m\omega_p})\)</span></p>
 </li>
 </ol>
+<br>
 <ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I+X-Time-Domain-Ptychogaphy-(with-respect-to-pulse)">
-<h2>I+X Time-Domain-Ptychogaphy (with respect to pulse)<a class="headerlink" href="#I+X-Time-Domain-Ptychogaphy-(with-respect-to-pulse)" title="Link to this heading"></a></h2>
+<section id="i-x-time-domain-ptychogaphy-with-respect-to-pulse">
+<h2>I+X Time-Domain-Ptychogaphy (with respect to pulse)<a class="headerlink" href="#i-x-time-domain-ptychogaphy-with-respect-to-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^*\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk}')^*\)</span></p>
 </li>
 </ol>
+<br>
 <ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="I+X-Time-Domain-Ptychography-(with-respect-to-gate-pulse)">
-<h2>I+X Time-Domain-Ptychography (with respect to gate-pulse)<a class="headerlink" href="#I+X-Time-Domain-Ptychography-(with-respect-to-gate-pulse)" title="Link to this heading"></a></h2>
+<section id="i-x-time-domain-ptychography-with-respect-to-gate-pulse">
+<h2>I+X Time-Domain-Ptychography (with respect to gate-pulse)<a class="headerlink" href="#i-x-time-domain-ptychography-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
-<li><div class="line-block">
-<div class="line">PG/SD</div>
-<div class="line"><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^* B_n^*B_p e^{i\tau_m\omega_n}e^{-i\tau_m\omega_p}\)</span></div>
-</div>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk}')^* B_n^*B_p e^{i\tau_m\omega_n}e^{-i\tau_m\omega_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk}')^* B_nB_p^* e^{-i\tau_m\omega_n}e^{i\tau_m\omega_p}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="Chirp-Scan-(with-respect-to-pulse)">
-<h2>Chirp-Scan (with respect to pulse)<a class="headerlink" href="#Chirp-Scan-(with-respect-to-pulse)" title="Link to this heading"></a></h2>
+<section id="id9">
+<h2>Chirp-Scan (with respect to pulse)<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG/SD</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} A_{mk}^* e^{-i \phi_{mn}} e^{i \phi_{mp}}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} A_{mk}^* e^{i \phi_{mn}} e^{-i \phi_{mp}}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
-<section id="2D-SI-(with-respect-to-pulse,-autocorrelation-setup)">
-<h2>2D-SI (with respect to pulse, autocorrelation setup)<a class="headerlink" href="#2D-SI-(with-respect-to-pulse,-autocorrelation-setup)" title="Link to this heading"></a></h2>
-<p><span class="math notranslate nohighlight">\(\phi_n = \phi_n(material) - \omega_n\cdot\Delta t\quad\)</span> (<span class="math notranslate nohighlight">\(\Delta t\)</span> is the GD correction)</p>
+<section id="d-si-with-respect-to-pulse-autocorrelation-setup">
+<h2>2D-SI (with respect to pulse, autocorrelation setup)<a class="headerlink" href="#d-si-with-respect-to-pulse-autocorrelation-setup" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot\left((E_k'+A_{mk}'')^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{i\phi_p} + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{-i\phi_n}\cdot e^{i\phi_p}\right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot\left((E_k'+A_{mk}'')^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})\cdot e^{i\phi_n} + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})^*\cdot e^{i\phi_n}\cdot e^{-i\phi_p}\right)\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot 2(E_k'+A_{mk}'')(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{i\phi_p}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot 2(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})\cdot e^{i\phi_n}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -1003,16 +1121,28 @@
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_p}\left(\frac{dS_{mk}}{dA_n}\right)^* = D_{nk}D_{kp}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')\cdot e^{-i\phi_n}\cdot e^{i\phi_p}\cdot E_k^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_p^*}\left(\frac{dS_{mk}}{dA_n^*}\right)^* = D_{kn}D_{pk}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')^*\cdot e^{i\phi_n}\cdot e^{-i\phi_p}\cdot E_k^*\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -1020,22 +1150,33 @@
 </section>
 <section id="id12">
 <h2>VAMPIRE (with respect to pulse, autocorrelation setup)<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
-<p><span class="math notranslate nohighlight">\(\phi_n = \phi_n(material) - \omega_n\cdot\Delta t\quad\)</span> (<span class="math notranslate nohighlight">\(\Delta t\)</span> is the GD correction)</p>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot\left((E_k'+A_{mk}'')^*\cdot e^{-i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p}) + E_k^*\cdot e^{i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n})^*e^{-i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p})\right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot\left((E_k'+A_{mk}'')^*\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n}) + E_k^*\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n}) e^{i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p})^*\right)\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot 2(E_k'+A_{mk}'')e^{i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p})^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot 2(E_k'+A_{mk}'')e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n})\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
@@ -1046,149 +1187,175 @@
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </section>
-<section id="VAMPIRE-(with-respect-to-gate-pulse-A_k/A_{mk})">
-<h2>VAMPIRE (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)<a class="headerlink" href="#VAMPIRE-(with-respect-to-gate-pulse-A_k/A_{mk})" title="Link to this heading"></a></h2>
+<section id="vampire-with-respect-to-gate-pulse-a-k-a-mk">
+<h2>VAMPIRE (with respect to gate-pulse <span class="math notranslate nohighlight">\(A_k/A_{mk}\)</span>)<a class="headerlink" href="#vampire-with-respect-to-gate-pulse-a-k-a-mk" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_p}\left(\frac{dS_{mk}}{dA_n}\right)^* = D_{nk}D_{kp}\cdot e^{i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n})^* e^{-i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p})\cdot E_k^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_p^*}\left(\frac{dS_{mk}}{dA_n^*}\right)^* = D_{kn}D_{pk}\cdot e^{-i\tau_m\omega_n}(e^{-i\tau_0\omega_n} + e^{i\phi_n})e^{i\tau_m\omega_p}(e^{-i\tau_0\omega_p} + e^{i\phi_p})^*\cdot E_k^*\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD</p>
 <p><span class="math notranslate nohighlight">\(V_{zz}=0\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
 </li>
 </ol>
 </section>
 </section>
-<section id="PIE-Gradient">
-<h1>PIE Gradient<a class="headerlink" href="#PIE-Gradient" title="Link to this heading"></a></h1>
+<section id="pie-gradient">
+<h1>PIE Gradient<a class="headerlink" href="#pie-gradient" title="Link to this heading"></a></h1>
 <p>PIE ultimately assumes independent Object and Probe. This is respected in these derivatives.</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dx_k^*} = -2 \cdot \sum_n (\sqrt{T_{mn}^{\mathrm{exp}}}- |S_{mn}|) \cdot \frac{S_{mn}}{2|S_{mn}|}\cdot D_{kn} \left(\frac{dS_{mk}}{dx_k}\right)^* = -1 \cdot \Delta S_{mk} \cdot \left(\frac{dS_{mk}}{dx_k}\right)^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(P_{mk} = G(A_{mk})\)</span></p>
-<section id="With-respect-to-Object-(Frog)">
-<h2>With respect to Object (Frog)<a class="headerlink" href="#With-respect-to-Object-(Frog)" title="Link to this heading"></a></h2>
+<section id="with-respect-to-object-frog">
+<h2>With respect to Object (Frog)<a class="headerlink" href="#with-respect-to-object-frog" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dE_k^*} = -1\cdot P_{mk}^*\cdot \Delta S_{mk}\)</span></p>
 </section>
-<section id="With-respect-to-Probe-Pulse-(X-Frog)">
-<h2>With respect to Probe-Pulse (X-Frog)<a class="headerlink" href="#With-respect-to-Probe-Pulse-(X-Frog)" title="Link to this heading"></a></h2>
+<section id="with-respect-to-probe-pulse-x-frog">
+<h2>With respect to Probe-Pulse (X-Frog)<a class="headerlink" href="#with-respect-to-probe-pulse-x-frog" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot \Delta S_{mk}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>THG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot 2A_{mk}^*\cdot \Delta S_{mk}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="3">
 <li><p>PG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot A_{mk} \cdot \Delta S_{mk}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="4">
 <li><p>SD</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_{k}\cdot 2 A_{mk}^* \cdot \Delta S_{mk}^* = \left(-1\cdot E_{k}^*\cdot 2 A_{mk} \cdot \Delta S_{mk}\right)^*\)</span></p>
 </li>
 </ol>
+<br>
 <ol class="arabic" start="2">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -2\cdot E_k^*\cdot \left((n-1)A_{mk}^*\right)^{n-2}\cdot \Delta S_{mk}\)</span></p>
 </li>
 </ol>
 </section>
-<section id="With-respect-to-Object-(DScan)">
-<h2>With respect to Object (DScan)<a class="headerlink" href="#With-respect-to-Object-(DScan)" title="Link to this heading"></a></h2>
+<section id="with-respect-to-object-dscan">
+<h2>With respect to Object (DScan)<a class="headerlink" href="#with-respect-to-object-dscan" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot P_{mk}^*\cdot \Delta S_{mk}\)</span></p>
 </section>
 </section>
-<section id="PIE---Pseudo-Hessian">
-<h1>PIE - Pseudo Hessian<a class="headerlink" href="#PIE---Pseudo-Hessian" title="Link to this heading"></a></h1>
+<section id="pie-pseudo-hessian">
+<h1>PIE - Pseudo Hessian<a class="headerlink" href="#pie-pseudo-hessian" title="Link to this heading"></a></h1>
 <p><span class="math notranslate nohighlight">\(H_{zz} = U_{zz} - V_{zz}\)</span></p>
 <p><span class="math notranslate nohighlight">\(U_{zz}^m = \frac{1}{2}\cdot\sum_n\left(\left(\frac{d|S_{mn}|}{dE_j}\right)^*\frac{d|S_{mn}|}{dE_k} + \left(\left(\frac{d|S_{mn}|}{dE_j^*}\right)^*\frac{d|S_{mn}|}{dE_k^*}\right)^*\right)\)</span></p>
 <p><span class="math notranslate nohighlight">\(V_{zz}^m = \frac{1}{2}\cdot\sum_n\left( \frac{d}{dE_k}\left(\frac{d|S_{mn}|}{dE_j}\right)^*\cdot (\sqrt{T_{mn}^{\mathrm{exp}}} - |S_{mn}|) + \left(\frac{d}{dE_k^*}\left(\frac{d|S_{mn}|}{dE_j^*}\right)^*\cdot (\sqrt{T_{mn}^{\mathrm{exp}}} - |S_{mn}|)\right)^* \right)\)</span></p>
-<section id="With-respect-to-Pulse">
-<h2>With respect to Pulse<a class="headerlink" href="#With-respect-to-Pulse" title="Link to this heading"></a></h2>
+<section id="with-respect-to-pulse">
+<h2>With respect to Pulse<a class="headerlink" href="#with-respect-to-pulse" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{d|S_{mn}|}{dE_k^*} = \frac{S_{mn}}{2|S_{mn}|} \cdot D_{kn} P_{mk}^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_j}\left(\frac{d|S_{mn}|}{dE_k}\right)^* = \frac{1}{4}D_{kn}D_{nj} P_{mk}^*P_{mj}\cdot\frac{1}{|S_{mn}|}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_j^*}\left(\frac{d|S_{mn}|}{dE_k^*}\right)^* = \frac{1}{4}D_{jn}D_{nk} P_{mk}P_{mj}^*\cdot\frac{1}{|S_{mn}|}\)</span></p>
 </section>
-<section id="Cross-Correlation:-with-respect-to-Gate-Pulse">
-<h2>Cross-Correlation: with respect to Gate-Pulse<a class="headerlink" href="#Cross-Correlation:-with-respect-to-Gate-Pulse" title="Link to this heading"></a></h2>
+<section id="cross-correlation-with-respect-to-gate-pulse">
+<h2>Cross-Correlation: with respect to Gate-Pulse<a class="headerlink" href="#cross-correlation-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
 <p>Not the same for all nonlinear methods.</p>
 <p><span class="math notranslate nohighlight">\(\frac{d|S_{mn}|}{dA_{mk}^*} = \frac{S_{mn}}{2|S_{mn}|} \cdot \left(\frac{dS_{mn}}{dA_{mk}}\right)^* = \frac{S_{mn}}{2|S_{mn}|} \cdot D_{kn} E_k^* \cdot \left(\frac{dP_{mk}}{dA_{mk}}\right)^*\)</span></p>
+<br>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_{mj}}\left(\frac{d|S_{mn}|}{dA_{mk}}\right)^* = \frac{1}{4}D_{kn}D_{nj} E_{k}^*E_{j}\cdot\frac{1}{|S_{mn}|} \cdot \left(\frac{dP_{mk}}{dA_{mk}}\right)^* \frac{dP_{mj}}{dA_{mj}}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dA_{mj}^*}\left(\frac{d|S_{mn}|}{dA_{mk}^*}\right)^* = \frac{1}{4}D_{jn}D_{nk} E_{k}E_{j}^*\cdot\frac{1}{|S_{mn}|}\cdot \frac{dP_{mk}}{dA_{mk}} \left(\frac{dP_{mj}}{dA_{mj}}\right)^*\)</span></p>
+<br>
 <ol class="arabic simple">
 <li><p>SHG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = 1\)</span></p></li>
 <li><p>THG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = 2A_{mk}\)</span></p></li>
 <li><p>PG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = A_{mk}^*\)</span></p></li>
-<li><p>SD: <span class="math notranslate nohighlight">\(\frac{dP_{mk}^*}{dA_{mk}} = 2A_{mk}\)</span> (the conjugate is no mistake, the other wirtinger derivative is zero.)</p></li>
+<li><p>SD: <span class="math notranslate nohighlight">\(\frac{dP_{mk}^*}{dA_{mk}} = 2A_{mk}\)</span>  (the conjugate is no mistake, the other wirtinger derivative is zero.)</p></li>
 <li><p>nth-HG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = (n-1)A_{mk}^{n-2}\)</span></p></li>
 </ol>
 </section>
 </section>
-<section id="Update-nonlinear-Signal">
-<h1>Update nonlinear Signal<a class="headerlink" href="#Update-nonlinear-Signal" title="Link to this heading"></a></h1>
-<section id="1.-Via-Projection-(Standard-way)">
-<h2>1. Via Projection (Standard way)<a class="headerlink" href="#1.-Via-Projection-(Standard-way)" title="Link to this heading"></a></h2>
+<section id="update-nonlinear-signal">
+<h1>Update nonlinear Signal<a class="headerlink" href="#update-nonlinear-signal" title="Link to this heading"></a></h1>
+<section id="via-projection-standard-way">
+<h2>1. Via Projection (Standard way)<a class="headerlink" href="#via-projection-standard-way" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(S_{mk}' = \mathrm{IFFT}\{ \mathrm{sgn}(T_{mn}^{\mathrm{exp}})\sqrt{|T_{mn}^{\mathrm{exp}}|} \cdot \frac{S_{mn}}{|S_{mn}|}\}\)</span></p>
 </section>
-<section id="2.-Via-Descent-(COPRA-method)">
-<h2>2. Via Descent (COPRA method)<a class="headerlink" href="#2.-Via-Descent-(COPRA-method)" title="Link to this heading"></a></h2>
+<section id="via-descent-copra-method">
+<h2>2. Via Descent (COPRA method)<a class="headerlink" href="#via-descent-copra-method" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(S_{mk}' = S_{mk} - \alpha\eta\cdot\nabla_{mk}r\)</span></p>
+<br>
 <p><span class="math notranslate nohighlight">\(r=\sum_n(T_{mn}^{\mathrm{exp}} - \mu T_{mn})^2\)</span></p>
+<br>
 <p><span class="math notranslate nohighlight">\(\frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (T_{mn}^{\mathrm{exp}} - \mu T_{mn})\cdot S_{mn}\)</span></p>
 <p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj} (2\mu T_{mn} - T_{mn}^{\mathrm{exp}})\)</span></p>
+<br>
+<br>
 </section>
-<section id="3.-Alternative-definition-of-r-error">
-<h2>3. Alternative definition of r-error<a class="headerlink" href="#3.-Alternative-definition-of-r-error" title="Link to this heading"></a></h2>
+<section id="alternative-definition-of-r-error">
+<h2>3. Alternative definition of r-error<a class="headerlink" href="#alternative-definition-of-r-error" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(r=\sum_n(\sqrt{T_{mn}^{\mathrm{exp}}} - \mu |S_{mn}|)^2\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{|S_mn|} - S_{mn})\)</span> -&gt; is essentially the projection but averaged/damped if stepsize is not 1</p>
+<br>
+<p><span class="math notranslate nohighlight">\(\frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{|S_mn|} - S_{mn})\)</span>  -&gt; is essentially the projection but averaged/damped if stepsize is not 1</p>
 <p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj}\)</span></p>
 </section>
 </section>
-<section id="Adaptive-Stepsize">
-<h1>Adaptive Stepsize<a class="headerlink" href="#Adaptive-Stepsize" title="Link to this heading"></a></h1>
-<section id="Based-on-Taylor-Series">
-<h2>Based on Taylor-Series<a class="headerlink" href="#Based-on-Taylor-Series" title="Link to this heading"></a></h2>
+<section id="adaptive-stepsize">
+<h1>Adaptive Stepsize<a class="headerlink" href="#adaptive-stepsize" title="Link to this heading"></a></h1>
+<section id="based-on-taylor-series">
+<h2>Based on Taylor-Series<a class="headerlink" href="#based-on-taylor-series" title="Link to this heading"></a></h2>
 <p>Expansion of error-function as taylor series. (Like COPRA-Paper or CR-Calculus chapter)</p>
-<ol class="arabic simple">
-<li><p>Order</p></li>
-</ol>
-<div class="line-block">
-<div class="line"><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\}\)</span></div>
-<div class="line"><br /></div>
-</div>
-<ol class="arabic simple" start="2">
-<li><p>Order</p></li>
-</ol>
+<br>
+1. Order 
+<p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\}\)</span><br />
+<br>
+2. Order</p>
 <p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\} + \Re\left\{\sum_{np} (E_n'-E_n)^\dagger H_{np}(E_p'-E_p)\right\}\)</span></p>
 <p><span class="math notranslate nohighlight">\(E_n'-E_n = \eta\cdot d_n\)</span></p>
-<div class="line-block">
-<div class="line">For gradient-descent-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot\nabla L\)</span></div>
-<div class="line">For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot (H_L)^{-1}\nabla L \quad\Rightarrow\quad d^\dagger H d = -1\cdot d^\dagger\nabla L\)</span></div>
-</div>
+<p>For gradient-descent-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot\nabla L\)</span><br />
+For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot (H_L)^{-1}\nabla L \quad\Rightarrow\quad d^\dagger H d = -1\cdot d^\dagger\nabla L\)</span></p>
 <ol class="arabic">
 <li><p>Order</p>
 <p><span class="math notranslate nohighlight">\(\eta = \frac{L'-L}{2\cdot \Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
-<p>In Copra: <span class="math notranslate nohighlight">\(L'=-L \quad\rightarrow\quad\)</span> <span class="math notranslate nohighlight">\(\eta = \frac{-L}{\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+<p>In Copra: <span class="math notranslate nohighlight">\(L'=-L \quad\rightarrow\quad\)</span>  <span class="math notranslate nohighlight">\(\eta = \frac{-L}{\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
 </li>
+</ol>
+<br>
+<ol class="arabic" start="2">
 <li><p>Order (with signed sqrt to keep numerical stability, is the case for all sqrt here)</p>
 <p><span class="math notranslate nohighlight">\(\eta = 2\cdot\left(1 \mp\sqrt{1-\frac{L'-L}{2\Re\{ d^\dagger\cdot \nabla L \}}}\right)\)</span></p>
 </li>
 </ol>
 </section>
-<section id="Based-on-Pade-Approximation">
-<h2>Based on Pade-Approximation<a class="headerlink" href="#Based-on-Pade-Approximation" title="Link to this heading"></a></h2>
+<section id="based-on-pade-approximation">
+<h2>Based on Pade-Approximation<a class="headerlink" href="#based-on-pade-approximation" title="Link to this heading"></a></h2>
 <p>Question: Is the fact that for R01 and R02 s cannot be zero an issue? -&gt; maybe this prevents that one reaches the optimal solution?</p>
 <p><span class="math notranslate nohighlight">\(R_{nm}(x)=\frac{P(x)}{Q(x)} = \frac{\sum\limits_{i=0}^{n} a_i x^i}{1+\sum\limits_{i=1}^{m} b_i x^i}\)</span></p>
 <p>If Taylor-series is: <span class="math notranslate nohighlight">\(\quad T(x)=f_0 + f_1 x +f_2x^2 + \mathcal{O}(x^3)\)</span></p>
+<br>
 <p><span class="math notranslate nohighlight">\(R_{01}(x)=\frac{a_0}{1+b_1x} = \frac{f_0}{1-\frac{f_1}{f_0}x}\)</span></p>
 <p><span class="math notranslate nohighlight">\(R_{11}(x)=\frac{a_0+a_1x}{1+b_1x} = \frac{f_0 + \left(f_1-\frac{f_2}{f_1}f_0\right)x}{1-\frac{f_2}{f_1}x}\)</span></p>
 <p><span class="math notranslate nohighlight">\(R_{02}(x)=\frac{a_0}{1+b_1x+b_2x^2} = \frac{f_0}{1-\frac{f_1}{f_0}x + \left(\left(\frac{f_1}{f_0}\right)^2-\frac{f_2}{f_0}\right)x^2}\)</span></p>

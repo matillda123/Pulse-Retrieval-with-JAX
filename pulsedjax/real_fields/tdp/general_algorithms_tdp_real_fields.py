@@ -6,9 +6,12 @@ from pulsedjax.utilities import MyNamespace
 
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesTDPwithRealFields):
-    """ The Differential Evolution Algorithm applied to TDP with real fields."""
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
+    __doc__ = DifferentialEvolutionBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), 
+                 strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields,
+                         strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
         self._post_init()
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -18,9 +21,10 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesTDPwithReal
 
 
 class Evosax(EvosaxBASE, RetrievePulsesTDPwithRealFields):
-    """ The Evosax package applied to TDP with real fields. """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
+    __doc__ = EvosaxBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, solver=solver, **kwargs)
         self._post_init()
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -29,9 +33,10 @@ class Evosax(EvosaxBASE, RetrievePulsesTDPwithRealFields):
 
 
 class LSF(LSFBASE, RetrievePulsesTDPwithRealFields):
-    """ The LSF Algorithm applied to TDP with real fields. """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
         self._post_init()
 
 
@@ -49,9 +54,10 @@ class LSF(LSFBASE, RetrievePulsesTDPwithRealFields):
 
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesTDPwithRealFields):
-    """ The Optimistix package applied to TDP with real fields. """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, f_range_fields=(None, None), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
+    __doc__ = AutoDiffBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, f_range_fields=(None, None), solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, solver=solver, **kwargs)
         self._post_init()
 
 

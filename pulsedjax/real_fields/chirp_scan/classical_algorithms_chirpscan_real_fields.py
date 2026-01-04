@@ -12,12 +12,10 @@ from pulsedjax.core.gradients.gradients_via_AD import calc_grad_AD_z_error, calc
 
 
 class GeneralizedProjection(RetrievePulsesCHIRPSCANwithRealFields, GeneralizedProjectionBASE):
-    """
-    The Generalized Projection Algorithm for Chirp-Scans.
-    
-    """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    __doc__ = GeneralizedProjectionBASE.__doc__
+
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, f_range_fields=(None, None), **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, f_range_fields=f_range_fields, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
@@ -43,17 +41,11 @@ class GeneralizedProjection(RetrievePulsesCHIRPSCANwithRealFields, GeneralizedPr
 
 
 class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, PtychographicIterativeEngineBASE):
-    """
-    The Ptychographic Iterative Engine (PIE) for Chirp-Scans.
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, f_range_fields=(None, None), **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, f_range_fields=f_range_fields, **kwargs)
 
-    """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, pie_method="rPIE", phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
-
-        self.pie_method = pie_method
 
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
@@ -112,12 +104,11 @@ class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, Ptycho
 
 
 class COPRA(RetrievePulsesCHIRPSCANwithRealFields, COPRABASE):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for Chirp-Scans.
+    __doc__ = COPRABASE.__doc__
 
-    """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+
+    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, f_range_fields=(None, None), **kwargs):
+        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, f_range_fields=f_range_fields, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

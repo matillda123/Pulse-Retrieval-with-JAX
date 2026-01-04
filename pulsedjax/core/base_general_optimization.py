@@ -41,15 +41,15 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._name = "DifferentialEvolution"
 
-        self.strategy = "best1_bin"
-        self.mutation_rate = 0.5
-        self.crossover_rate = 0.7
-        self.selection_mechanism = "greedy"
+        self.strategy = strategy
+        self.mutation_rate = mutation_rate
+        self.crossover_rate = crossover_rate
+        self.selection_mechanism = selection_mechanism
         self.temperature = 0.1
 
 
@@ -367,11 +367,11 @@ class EvosaxBASE(GeneralOptimizationBASE):
         solver_params (any): user defined parameters for the evosax-solver, if None the default params set in evosax are used
 
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, solver=None, **kwargs):
         super().__init__(*args, **kwargs)
         
         self._name = "Evosax"
-        self.solver = None
+        self.solver = solver
         self.solver_params = None
         
 
@@ -550,7 +550,7 @@ class LSFBASE(GeneralOptimizationBASE):
     Attributes:
         number_of_bisection_iterations (int): as the name says
         random_direction_mode (str): can be random or continuous
-        ratio_points_for_continuous (int): smaller value means less continuous
+        ratio_points_for_continuous (int): smaller value means more randomness/eratic
 
     """
 
@@ -857,12 +857,12 @@ class AutoDiffBASE(GeneralOptimizationBASE):
     """
 
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, solver=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._name = "AutoDiff"
 
-        self.solver = None
+        self.solver = solver
         self.alternating_optimization = False
 
 

@@ -29,7 +29,7 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
         
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1=None, spectral_filter2=None, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, **kwargs):
 
         if "cross_correlation" in kwargs:
             if kwargs["cross_correlation"]=="doubleblind":
@@ -188,13 +188,10 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
-    """
-    The Generalized Projection Algorithm for 2DSI.
+    __doc__ = GeneralizedProjectionBASE.__doc__
 
-    """
-
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method,  spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -231,21 +228,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
 
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulses2DSI):
-    """
-    The Ptychographic Iterative Engine (PIE) for 2DSI.
-    Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, pie_method="rPIE", **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, **kwargs):
         assert cross_correlation!="doubleblind", "Doubleblind is not implemented for 2DSI-PtychographicIterativeEngine."
-        
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-
-        self.pie_method = pie_method
-
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, **kwargs)
 
     # def reverse_transform_grad(self, signal, tau_arr, measurement_info):
     #     frequency, time = measurement_info.frequency, measurement_info.time
@@ -307,12 +294,10 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 class COPRA(COPRABASE, RetrievePulses2DSI):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for 2DSI.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRABASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

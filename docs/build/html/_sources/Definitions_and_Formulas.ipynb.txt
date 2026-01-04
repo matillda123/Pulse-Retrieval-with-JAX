@@ -124,14 +124,12 @@
     "5. 2D-SI  \n",
     "    $S_{mk} = G(E_k'\\cdot e^{-i\\tau_0\\omega_n} + A_{mk}'') \\cdot E_k \\quad$ ( $\\tau_0$ is a fixed delay of $E_k$ and $E_k'$ )  \n",
     "    $E_k' = \\sum_n D_{kn}B_n E_n\\quad$ ( $B_n$ represents a known spectral filter)  \n",
-    "    $E_k'$ and $A_{mk}''$ have an optional material $\\phi_n$ dispersion from the interferometer. The corresponding correction to the GD is only optimized implicitely.\n",
-    "\n",
+    "    $E_k'$ and $A_{mk}''$ have an optional material $\\phi_n$ dispersion from the interferometer.\n",
     "\n",
     "6. Vampire  \n",
     "    $S_{mk} = G(E_k\\cdot e^{-i\\tau_0\\omega_n} + E_k') \\cdot A_{mk}\\quad$  (Original definition, pushing $m$ onto gate makes it easier with PIE.)  \n",
     "    $S_{mk} = G_m(E_k\\cdot e^{-i\\tau_0\\omega_n} + E_k') \\cdot E_k = G(A_{mk}\\cdot e^{-i\\tau_0\\omega_n} + A_{mk}')\\cdot E_k$  \n",
-    "    $E_k' = \\sum_n D_{kn}E_ne^{i\\phi_n}\\quad$ ($\\phi_n$ represents a material dispersion)  \n",
-    "    The correction to the GD is only optimized implicitely.  \n",
+    "    $E_k' = \\sum_n D_{kn}E_ne^{i\\phi_n}\\quad$ ($\\phi_n$ represents a material dispersion)   \n",
     "    $\\tau_0$ is a fixed delay in the interferometer."
    ]
   },
@@ -604,7 +602,7 @@
    "source": [
     "### 2D-SI (with respect to pulse $E_k$)\n",
     "\n",
-    "$\\phi_n = \\phi_n(material) - \\omega_n\\cdot\\Delta t\\quad$ ($\\Delta t$ is the GD correction)\n",
+    "\n",
     "\n",
     "1. SHG  \n",
     "    $\\frac{dS_{mk}}{dE_n^*} = 0$  \n",
@@ -702,7 +700,7 @@
    "source": [
     "### VAMPIRE (with respect to pulse, autocorrelation-setup)\n",
     "\n",
-    "$\\phi_n = \\phi_n(material) - \\omega_n\\cdot\\Delta t\\quad$ ($\\Delta t$ is the GD correction)\n",
+    "\n",
     "\n",
     "1. SHG  \n",
     "    $\\frac{dS_{mk}}{dE_n^*} = 0$  \n",
@@ -1239,7 +1237,7 @@
    "source": [
     "### 2D-SI (with respect to pulse, autocorrelation setup)\n",
     "\n",
-    "$\\phi_n = \\phi_n(material) - \\omega_n\\cdot\\Delta t\\quad$ ($\\Delta t$ is the GD correction)\n",
+    "\n",
     "\n",
     "\n",
     "1. SHG  \n",
@@ -1336,7 +1334,7 @@
    "source": [
     "### VAMPIRE (with respect to pulse, autocorrelation setup)\n",
     "\n",
-    "$\\phi_n = \\phi_n(material) - \\omega_n\\cdot\\Delta t\\quad$ ($\\Delta t$ is the GD correction)\n",
+    "\n",
     "\n",
     "1. SHG  \n",
     "\n",

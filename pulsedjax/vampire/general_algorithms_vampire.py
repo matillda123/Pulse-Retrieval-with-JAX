@@ -1,3 +1,5 @@
+import refractiveindex
+
 from pulsedjax.core.base_classes_methods import RetrievePulsesVAMPIRE
 from pulsedjax.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
@@ -7,11 +9,14 @@ from pulsedjax.utilities import MyNamespace
 
 
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesVAMPIRE):
-    """ 
-    The Differential Evolution Algorithm applied to VAMPIRE.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = DifferentialEvolutionBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -24,11 +29,16 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesVAMPIRE):
 
 
 class Evosax(EvosaxBASE, RetrievePulsesVAMPIRE):
-    """
-    The Evosax package utilized for pulse reconstruction from VAMPIRE.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = EvosaxBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, solver=None, 
+                 strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7,**kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, solver=solver,
+                         strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -41,11 +51,14 @@ class Evosax(EvosaxBASE, RetrievePulsesVAMPIRE):
 
 
 class LSF(LSFBASE, RetrievePulsesVAMPIRE):
-    """
-    The LSF Algorithm applied to VAMPIRE.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
 
@@ -90,11 +103,14 @@ class LSF(LSFBASE, RetrievePulsesVAMPIRE):
 
 
 class AutoDiff(AutoDiffBASE, RetrievePulsesVAMPIRE):
-    """
-    The Optimistix package utilized for pulse reconstruction from VAMPIRE.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = AutoDiffBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, solver=solver, **kwargs)
 
 
 

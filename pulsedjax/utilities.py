@@ -38,7 +38,7 @@ class MyNamespace:
 
     def expand(self, **kwargs):
         """ 
-        Returns a new MyNamespace object containg all previous attributes as well as the **kwargs. 
+        Returns a new MyNamespace object containg all previous attributes as well as the ``**kwargs``. 
         Can be used to build an arbitrary pytree.
         """
         new_dict = {**self.__dict__, **kwargs}

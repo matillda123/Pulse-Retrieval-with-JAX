@@ -18,12 +18,11 @@ from pulsedjax.core.gradients.gradients_via_AD import calc_grad_AD_z_error, calc
 
 
 class GeneralizedProjection(RetrievePulsesFROGwithRealFields, GeneralizedProjectionBASE):
-    """
-    The Generalized Projection Algorithm for FROG.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = GeneralizedProjectionBASE.__doc__
+
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
         
         not_working=True
         assert not_working==False, "This is running. But not converging."
@@ -65,19 +64,13 @@ class GeneralizedProjection(RetrievePulsesFROGwithRealFields, GeneralizedProject
 
 
 class PtychographicIterativeEngine(RetrievePulsesFROGwithRealFields, PtychographicIterativeEngineBASE):
-    """
-    The Ptychographic Iterative Engine (PIE) for FROG.
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
 
         # interferometiric should work here since the gradient is obtained via AD
         # assert self.interferometric==False, "Dont use interferometric=True with PIE. its not meant or made for that"
-
-        self.pie_method=pie_method
 
 
 
@@ -124,11 +117,10 @@ class PtychographicIterativeEngine(RetrievePulsesFROGwithRealFields, Ptychograph
 
 
 class COPRA(RetrievePulsesFROGwithRealFields, COPRABASE):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRABASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, f_range_fields=f_range_fields, **kwargs)
 
         not_working=True
         assert not_working==False, "This is running. But not converging."

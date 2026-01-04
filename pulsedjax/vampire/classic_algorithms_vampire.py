@@ -3,6 +3,8 @@ import jax
 
 from equinox import tree_at
 
+import refractiveindex
+
 from pulsedjax.core.base_classes_methods import RetrievePulsesVAMPIRE
 from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 
@@ -16,13 +18,14 @@ from pulsedjax.core.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_dir
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
-    """
-    The Generalized Projection Algorithm for VAMPIRE.
+    __doc__ = GeneralizedProjectionBASE.__doc__
 
-    """
-
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -59,20 +62,15 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
 
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesVAMPIRE):
-    """
-    The Ptychographic Iterative Engine (PIE) for VAMPIRE.
-    Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, pie_method="rPIE", **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
         assert cross_correlation!="doubleblind", "Doubleblind is not implemented for VAMPIRE-PtychographicIterativeEngine."
-        
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-
-        self.pie_method = pie_method
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
     # def reverse_transform_grad(self, signal, tau_arr, measurement_info):
@@ -135,12 +133,13 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for VAMPIRE.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRABASE.__doc__
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

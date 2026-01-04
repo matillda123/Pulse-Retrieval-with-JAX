@@ -1,4 +1,4 @@
-real\_fields.frog package
+real\_fields.frog
 =========================
 
 Submodules

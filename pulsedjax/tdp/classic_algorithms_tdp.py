@@ -13,12 +13,10 @@ from pulsedjax.frog import PtychographicIterativeEngine as PtychgraphicIterative
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesTDP):
-    """
-    The Generalized Projection Algorithm for FROG.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = GeneralizedProjectionBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -58,18 +56,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesTDP):
 
 
 class PtychographicIterativeEngine(RetrievePulsesTDP, PtychgraphicIterativeEngineFROG):
-    """
-    The Ptychographic Iterative Engine (PIE) for FROG.
+    __doc__ = PtychgraphicIterativeEngineFROG.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "Dont use interferometric with PIE. its not meant or made for that"
-
-        self.pie_method=pie_method
-
 
 
 
@@ -78,12 +69,10 @@ class PtychographicIterativeEngine(RetrievePulsesTDP, PtychgraphicIterativeEngin
 
 
 class COPRA(COPRABASE, RetrievePulsesTDP):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRABASE.__doc__
 
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

@@ -26,9 +26,6 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
     [1] R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
 
-    Attributes:
-        f0 (float): the central frequency of the trace
-
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         if cross_correlation=="doubleblind":
@@ -36,7 +33,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
             # which is weird because lsgpa was invented for attosecond-streaking -> is doubleblind by definition. 
 
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        self.name = "Vanilla"        
+        self._name = "Vanilla"        
 
         # for some reason vanilla only works with central_f=0. No idea why. Is undone when using LSGPA.
         idx = get_com(jnp.mean(self.measured_trace, axis=0), jnp.arange(jnp.size(self.frequency)))
@@ -151,7 +148,7 @@ class LSGPA(Vanilla):
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        self.name = "LSGPA"
+        self._name = "LSGPA"
 
         self.frequency = self.frequency + self.f0
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
@@ -222,19 +219,19 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         antialias (bool): if true anti-aliasing is applied to the outer-product-matrix-form
     
     """
-    def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, **kwargs):
+    def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
         super().__init__(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "PCGPA is not intended for interferometric measurements."
         assert nonlinear_method!="sd", "Doesnt work for SD. Which is weird."
 
-        self.name = "CPCGPA"
+        self._name = "CPCGPA"
         
         self.idx_arr = jnp.arange(jnp.size(self.frequency))
         self.measurement_info = self.measurement_info.expand(idx_arr = self.idx_arr)
 
-        self.constraints = False
-        self.svd = False
-        self.antialias = False
+        self.constraints = constraints
+        self.svd = svd
+        self.antialias = antialias
 
 
 
@@ -529,12 +526,10 @@ class CPCGPA(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
 
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
-    """
-    The Generalized Projection Algorithm for FROG.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = GeneralizedProjectionBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
@@ -577,17 +572,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
 
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesFROG):
-    """
-    The Ptychographic Iterative Engine (PIE) for FROG.
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, pie_method="rPIE", cross_correlation=False, **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "Dont use interferometric with PIE. its not meant or made for that"
-
-        self.pie_method=pie_method
 
 
     def reverse_transform_grad(self, signal, tau_arr, measurement_info):
@@ -712,11 +701,10 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 class COPRA(COPRABASE, RetrievePulsesFROG):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for FROG.
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRABASE.__doc__
+    
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
 

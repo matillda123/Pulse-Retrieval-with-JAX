@@ -400,14 +400,16 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
     Attributes:
         alpha (float): a regularization parameter
+        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, pie_method="rPIE", **kwargs):
         super().__init__(*args, **kwargs)
 
         self._name = "PtychographicIterativeEngine"
         self.alpha = 0.5
+        self.pie_method = pie_method
 
 
 

@@ -6,9 +6,12 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>core.gradients &mdash; PulseRetrievalwithJAX 2025 documentation</title>
+  <title>core.gradients &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -16,12 +19,14 @@
       <script src="_static/documentation_options.js?v=cb975c41"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="core.hessians package" href="core.hessians.html" />
-    <link rel="prev" title="core package" href="core.html" /> 
+    <link rel="prev" title="core" href="core.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -33,7 +38,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            PulseRetrievalwithJAX
+            PulsedJAX: Pulse-Retrieval-with-JAX
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -43,7 +48,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -52,29 +57,29 @@
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="core.html">core package</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="core.html">core</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">core.gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Z-Pseudo-Hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE-Gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#PIE---Pseudo-Hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Update-nonlinear-Signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#Adaptive-Stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -83,7 +88,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">PulseRetrievalwithJAX</a>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -91,7 +96,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="core.html">core package</a></li>
+          <li class="breadcrumb-item"><a href="core.html">core</a></li>
       <li class="breadcrumb-item active">core.gradients</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/core.gradients.rst.txt" rel="nofollow"> View page source</a>
@@ -116,7 +121,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.gradients.chirpscan_z_error_gradients.Z_gradient_thg">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.chirpscan_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">Z_gradient_thg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t_dispersed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">difference_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.chirpscan_z_error_gradients.Z_gradient_thg" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.gradients.chirpscan_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">Z_gradient_thg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t_dispersed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">difference_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.chirpscan_z_error_gradients.Z_gradient_thg" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -450,17 +455,17 @@ Time-Domain-Ptychography measurement. The gradient is calculated in the frequenc
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_pulse">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_pulse" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_pulse" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_gate">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_gate" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_gate" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.gradients.twodsi_z_error_gradients.calculate_Z_gradient">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.gradients.twodsi_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient" title="Link to this definition"></a></dt>
 <dd><p>Calculates the Z-error gradient with respect to the pulse or the gate-pulse for a given 2DSI measurement.
 The gradient is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -472,7 +477,6 @@ The gradient is calculated in the frequency domain.</p>
 <li><p><strong>gate_pulses</strong> (<em>jnp.array</em>) – the current gate-pulse guess</p></li>
 <li><p><strong>gate</strong> (<em>jnp.array</em>) – the current gate</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
-<li><p><strong>gd_correction</strong> (<em>jnp.array</em>) – corrects for the group-delay from material dispersion</p></li>
 <li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the gradient is calculated with respect to the pulse or the gate-pulse</p></li>
 </ul>
@@ -488,7 +492,7 @@ The gradient is calculated in the frequency domain.</p>
 <span id="core-gradients-vampire-z-error-gradients-module"></span><h2>core.gradients.vampire_z_error_gradients module<a class="headerlink" href="#module-core.gradients.vampire_z_error_gradients" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.gradients.vampire_z_error_gradients.calculate_Z_gradient">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.vampire_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.vampire_z_error_gradients.calculate_Z_gradient" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.gradients.vampire_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.vampire_z_error_gradients.calculate_Z_gradient" title="Link to this definition"></a></dt>
 <dd><p>Calculates the Z-error gradient with respect to the pulse or the gate-pulse for a given VAMPIRE measurement.
 The gradient is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -500,7 +504,6 @@ The gradient is calculated in the frequency domain.</p>
 <li><p><strong>gate_pulses</strong> (<em>jnp.array</em>) – the current gate-pulse guess</p></li>
 <li><p><strong>gate</strong> (<em>jnp.array</em>) – the current gate</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
-<li><p><strong>gd_correction</strong> (<em>jnp.array</em>) – corrects for the group-delay from material dispersion</p></li>
 <li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the gradient is calculated with respect to the pulse or the gate-pulse</p></li>
 </ul>
@@ -521,7 +524,7 @@ The gradient is calculated in the frequency domain.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="core.html" class="btn btn-neutral float-left" title="core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core.html" class="btn btn-neutral float-left" title="core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="core.hessians.html" class="btn btn-neutral float-right" title="core.hessians package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

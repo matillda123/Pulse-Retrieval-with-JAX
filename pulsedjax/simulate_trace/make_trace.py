@@ -51,7 +51,7 @@ class MakeTrace(MakePulseBase):
     Inherits from make_pulse.MakePulse.
 
     Attributes:
-        maketrace (MakeTraceFROG, MakeTraceCHIRPSCAN, MakeTrace2DSI, MakeTraceTDP, or MakeTraceVAMPIRE): defined via the respective generate_ ... () method
+        maketrace (MakeTraceFROG, MakeTraceCHIRPSCAN, MakeTrace2DSI, MakeTraceTDP, or MakeTraceVAMPIRE): default is None, defined via respective method
 
     """
     def __init__(self, *args, **kwargs):

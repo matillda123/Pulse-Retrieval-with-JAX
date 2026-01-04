@@ -1,4 +1,4 @@
-real\_fields.twodsi package
+real\_fields.twodsi
 ===========================
 
 Submodules

@@ -7,31 +7,21 @@ from pulsedjax.real_fields.frog import (GeneralizedProjection as GeneralizedProj
 
 
 class GeneralizedProjection(RetrievePulses2DSIwithRealFields, GeneralizedProjectionFROG):
-    """
-    The Generalized Projection Algorithm for 2DSI.
+    __doc__ = GeneralizedProjectionFROG.__doc__
 
-    """
-
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
 
 
 
 
 class PtychographicIterativeEngine(RetrievePulses2DSIwithRealFields, PtychographicIterativeEngineFROG):
-    """
-    The Ptychographic Iterative Engine (PIE) for 2DSI.
-    Is not set up to be used for doubleblind. The PIE was not invented for reconstruction of interferometric signals.
+    __doc__ = PtychographicIterativeEngineFROG.__doc__
 
-    Attributes:
-        pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), **kwargs): 
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, pie_method="rPIE", **kwargs): 
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-
-        self.pie_method = pie_method
 
 
 
@@ -39,10 +29,8 @@ class PtychographicIterativeEngine(RetrievePulses2DSIwithRealFields, Ptychograph
 
 
 class COPRA(RetrievePulses2DSIwithRealFields, COPRAFROG):
-    """
-    The Common Pulse Retrieval Algorithm (COPRA) for 2DSI.
-    
-    """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
+    __doc__ = COPRAFROG.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
 
