@@ -1,4 +1,4 @@
-real\_fields package
+real\_fields
 ====================
 
 Subpackages

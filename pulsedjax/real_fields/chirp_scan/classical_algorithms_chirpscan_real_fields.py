@@ -50,7 +50,7 @@ class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, Ptycho
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
         """ For Chirp-Scan the effects of the phase matrix have to be undone to obtain the actual PIE-direction. """
-        sk, rn = measurement_info.sk, measurement_info.rn
+        sk, rn = measurement_info.sk_big, measurement_info.rn_big
         signal_f = self.fft(signal, sk, rn)
         signal_f = signal_f*jnp.exp(-1j*phase_matrix)
         signal = self.ifft(signal_f, sk, rn)
@@ -65,11 +65,12 @@ class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, Ptycho
         grad = jax.vmap(calc_grad_AD_pie_error, in_axes=(0,0,0,0,None,None,None))(population, phase_matrix_m, signal_t_new, measured_trace, measurement_info, 
                                                                                   self.calculate_signal_t, pulse_or_gate)
 
-        probe, _ = jax.vmap(self.interpolate_signal, in_axes=(0,None,None,None))(signal_t.gate_disp, measurement_info, "big", "main")
-        U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
+
+        U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(signal_t.gate_disp, alpha, pie_method)
 
         # reverse transform of U only because grad is with respect to pulse and not Amk. 
         U = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(U, phase_matrix_m, measurement_info)
+        U, _ = jax.vmap(self.interpolate_signal, in_axes=(0,None,None,None))(U, measurement_info, "big", "main")
         return grad*U
 
 

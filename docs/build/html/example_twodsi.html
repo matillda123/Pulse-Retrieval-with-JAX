@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D-SI &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="VAMPIRE" href="example_vampire.html" />
+    <link rel="prev" title="Time-Domain-Ptychography" href="example_tdp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2D-SI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">2D-SI</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/example_twodsi.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="d-si">
+<h1>2D-SI<a class="headerlink" href="#d-si" title="Link to this heading"></a></h1>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="example_tdp.html" class="btn btn-neutral float-left" title="Time-Domain-Ptychography" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_vampire.html" class="btn btn-neutral float-right" title="VAMPIRE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

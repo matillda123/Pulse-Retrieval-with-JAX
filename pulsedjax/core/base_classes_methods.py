@@ -157,7 +157,7 @@ class RetrievePulses:
         measured_trace = measured_trace/jnp.max(measured_trace)
         trace_difference = measured_trace-trace
 
-        fig=plt.figure(figsize=(22,14))
+        fig=plt.figure(figsize=(22,16))
         ax1=plt.subplot(2,3,1)
         ax1.plot(time, np.abs(pulse_t), label="Amplitude")
         ax1.set_xlabel(r"Time [arb. u.]")
@@ -206,17 +206,20 @@ class RetrievePulses:
         plt.pcolormesh(x_arr, frequency_exp, measured_trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
+        plt.title("Measured")
 
         plt.subplot(2,3,5)
         plt.pcolormesh(x_arr, frequency_exp, trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
+        plt.title("Retrieved")
 
         plt.subplot(2,3,6)
         plt.pcolormesh(x_arr, frequency_exp, trace_difference.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.colorbar()
+        plt.title("Difference")
 
         plt.show()
 

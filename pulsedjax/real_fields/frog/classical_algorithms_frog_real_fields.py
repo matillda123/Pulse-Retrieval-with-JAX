@@ -74,6 +74,15 @@ class PtychographicIterativeEngine(RetrievePulsesFROGwithRealFields, Ptychograph
 
 
 
+    def reverse_transform_grad(self, signal, tau_arr, measurement_info):
+        """ For reconstruction of the gate-pulse the shift has to be undone. """
+        frequency, time = measurement_info.frequency, measurement_info.time
+
+        signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
+        return signal
+
+
+
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
 

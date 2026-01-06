@@ -10,15 +10,14 @@
    :maxdepth: 1
    :caption: Examples
 
-   frog_example
-   chirp_scan_example
-   tdp_example
-   twodsi_example
-   vampire_example
+   example_frog
+   example_chirp_scan
+   example_tdp
+   example_twodsi
+   example_vampire
 
-   add_new_methods
-
-
+   example_nonlinear_optimization
+   example_advanced_things
 
 
 .. toctree::
