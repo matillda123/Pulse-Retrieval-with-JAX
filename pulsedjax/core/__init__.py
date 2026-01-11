@@ -1,0 +1,1 @@
+from .spectral_filter_funcs import get_filter

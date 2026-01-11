@@ -5,16 +5,11 @@ from jax.tree_util import Partial
 from pulsedjax.utilities import scan_helper, calculate_newton_direction
 
 
-# def PIE_get_pseudo_hessian_subelement(signal_f, measured_trace, D_arr_kj):
-#     """ Calculates one term of one hessian element. Sum over all terms yields one matrix element."""
-#     val = D_arr_kj*(2 - jnp.sign(measured_trace)*jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-9))
-#     return val
-
 
 def PIE_get_pseudo_hessian_element(probe_k, probe_j, time_k, time_j, omega, signal_f, measured_trace):
     """ Sum over frequency axis via jax.lax.scan."""
 
-    D_arr_kj=jnp.exp(1j*omega*(time_k-time_j))
+    D_arr_kj = jnp.exp(1j*omega*(time_k-time_j))
 
     val_subelement_arr = D_arr_kj*(2 - jnp.sign(measured_trace)*jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-9))
     val_subelement = jnp.sum(val_subelement_arr)
@@ -86,6 +81,9 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
     full_or_diagonal = getattr(newton, local_or_global)
 
     # vmap over population
-    hessian_all_m=jax.vmap(PIE_get_pseudo_hessian_all_m, in_axes=(0,0,0,None,None))(probe, signal_f, measured_trace, measurement_info, full_or_diagonal)
+    hessian_all_m = jax.vmap(PIE_get_pseudo_hessian_all_m, in_axes=(0,0,0,None,None))(probe, signal_f, measured_trace, measurement_info, full_or_diagonal)
+
+    # if pulse_or_gate == "gate":
+    #     hessian_all_m = jax.vmap(reverse_transform)(hessian_all_m, transform_arr)
 
     return calculate_newton_direction(grad, hessian_all_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)

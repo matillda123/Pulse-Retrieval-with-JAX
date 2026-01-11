@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
@@ -25,7 +26,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="FROG" href="example_frog.html" /> 
+    <link rel="next" title="Overview Methods" href="example_overview_methods.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,17 +48,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_twodsi.html">2D-SI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -79,16 +88,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -117,7 +116,8 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="pulsedjax-pulse-retrieval-with-jax">
 <h1>PulsedJAX: Pulse-Retrieval with JAX<a class="headerlink" href="#pulsedjax-pulse-retrieval-with-jax" title="Link to this heading"></a></h1>
-<p>Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.</p>
+<p>Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.
+This does not mean that the implemented algorithms are differentiable. (They are probably not.) The point is to take advantage of jax.jit and other Jax-transformations.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>To install (create a new environment and) run:</p>
@@ -179,7 +179,7 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <td><p><a class="reference external" href="https://doi.org/10.1007/s00340-008-3063-x">J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)</a></p></td>
 </tr>
 <tr class="row-even"><td><p></p></td>
-<td><p>CPCGPA</p></td>
+<td><p>C-PCGPA</p></td>
 <td><p><a class="reference external" href="https://doi.org/10.1016/j.pquantelec.2021.100364">D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364),  (2022)</a></p></td>
 </tr>
 <tr class="row-odd"><td><p></p></td>
@@ -207,29 +207,40 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <div class="line">People who consider using this library should definitely look at <a class="reference external" href="https://github.com/ncgeib/pypret">pypret</a> the original implementation of the Common-Pulse-Retrieval-Algorithm (COPRA).</div>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_twodsi.html">2D-SI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
-<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#frog">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#chirp-scan">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#time-domain-ptchography">Time-Domain-Ptchography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#d-si">2D-SI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#vampire">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#classical-algorithms">Classical Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#general-algorithms">General Algorithms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_method_specific_algorithms.html#frog">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_method_specific_algorithms.html#chirp-scan">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_method_specific_algorithms.html#d-si">2D-SI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_nonlinear_optimization.html#linesearch-and-adaptive-stepsize">Linesearch and Adaptive-Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_nonlinear_optimization.html#nonlinear-conjugate-gradients">Nonlinear Conjugate-Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_nonlinear_optimization.html#quasi-newton-methods">(Quasi)-Newton Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_nonlinear_optimization.html#updating-s-prime">Updating S_prime</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#mixing-algorithms">Mixing Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#adding-new-methods">Adding new Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#adding-new-algorithms">Adding new Algorithms</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -244,18 +255,32 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 </div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+</div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_frog.html" class="btn btn-neutral float-right" title="FROG" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_overview_methods.html" class="btn btn-neutral float-right" title="Overview Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Till Stehling.</p>
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

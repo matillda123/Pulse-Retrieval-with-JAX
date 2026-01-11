@@ -118,6 +118,24 @@ def initialize_newton_info(optimizer):
 
 
 
+def initialize_descent_info(optimizer):
+    linesearch_params = initialize_linesearch_info(optimizer)
+    newton = initialize_newton_info(optimizer)
+    s_prime_params = initialize_S_prime_params(optimizer)
+    
+    descent_info = optimizer.descent_info.expand(gamma = MyNamespace(_local=optimizer.local_gamma, _global=optimizer.global_gamma),
+                                                 conjugate_gradients = optimizer.conjugate_gradients,
+                                                 linesearch_params = linesearch_params,
+                                                 newton = newton,
+                                                 s_prime_params = s_prime_params,
+                                                 xi = optimizer.xi,
+                                                 adaptive_scaling = MyNamespace(_local=MyNamespace(order=optimizer.local_adaptive_scaling, 
+                                                                                                   factor=optimizer.local_adaptive_scaling_factor), 
+                                                                                _global=MyNamespace(order=optimizer.global_adaptive_scaling, 
+                                                                                                    factor=optimizer.global_adaptive_scaling_factor)))
+    return descent_info
+
+
 
 
 
@@ -225,11 +243,12 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
             descent_direction, cg =jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, conjugate_gradients)
             descent_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), descent_state, cg)
 
-        order = getattr(descent_info.adaptive_scaling, "_global")
-        if order!=False:
-            descent_direction, descent_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,None,None,None,None), out_axes=(0,None))(Z_error, grad_sum, descent_direction, 
-                                                                                                                    descent_state, descent_info.xi, 
-                                                                                                                    order,
+        adaptive_scaling_info = getattr(descent_info.adaptive_scaling, "_global")
+        if adaptive_scaling_info.order!=False:
+            descent_direction, descent_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,None,None,None,None), out_axes=(0,None))(Z_error, grad_sum, descent_direction,
+                                                                                                                                    descent_info.xi,
+                                                                                                                    descent_state,
+                                                                                                                    adaptive_scaling_info,
                                                                                                                     pulse_or_gate, "_global")
 
         if descent_info.linesearch_params.linesearch!=False:
@@ -346,19 +365,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        linesearch_params = initialize_linesearch_info(self)
-        newton = initialize_newton_info(self)
-        s_prime_params = initialize_S_prime_params(self)
-
-        self.descent_info = self.descent_info.expand(gamma = MyNamespace(_local=self.local_gamma, _global=self.global_gamma), 
-                                                     no_steps_descent = self.no_steps_descent, 
-                                                     conjugate_gradients = self.conjugate_gradients,
-                                                     linesearch_params = linesearch_params, 
-                                                     s_prime_params = s_prime_params, 
-                                                     newton = newton, 
-                                                     xi = self.xi, 
-                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling))
-    
+        self.descent_info = initialize_descent_info(self).expand(no_steps_descent = self.no_steps_descent)
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population = population)
@@ -541,11 +548,12 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
             local_or_global_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), local_or_global_state, cg)
 
 
-        order = getattr(descent_info.adaptive_scaling, local_or_global)
-        if order!=False:
-            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(pie_error, grad_sum, descent_direction, 
-                                                                                                                            local_or_global_state, descent_info.xi,
-                                                                                                                            order,
+        adaptive_scaling_info = getattr(descent_info.adaptive_scaling, local_or_global)
+        if adaptive_scaling_info.order!=False:
+            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,0,None,None,None))(pie_error, grad_sum, descent_direction, 
+                                                                                                                      descent_info.xi,
+                                                                                                                            local_or_global_state, 
+                                                                                                                            adaptive_scaling_info,
                                                                                                                             pulse_or_gate, local_or_global)
 
 
@@ -711,22 +719,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        linesearch_params = initialize_linesearch_info(self)
-        newton = initialize_newton_info(self)
-        s_prime_params = initialize_S_prime_params(self)
-        
-        self.descent_info = self.descent_info.expand(alpha = self.alpha, 
-                                                     gamma = MyNamespace(_local=self.local_gamma, _global=self.global_gamma), 
-                                                     pie_method = self.pie_method,
-
-                                                     conjugate_gradients = self.conjugate_gradients,
-                                                     newton = newton,
-                                                     linesearch_params = linesearch_params,
-                                                     s_prime_params = s_prime_params,
-
-                                                     xi = self.xi,
-                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling))
-        
+        self.descent_info = initialize_descent_info(self).expand(alpha = self.alpha,
+                                                                 pie_method = self.pie_method)
         descent_info = self.descent_info
 
         shape = jnp.shape(population.pulse)
@@ -900,11 +894,12 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
-        order = getattr(descent_info.adaptive_scaling, local_or_global)
-        if order!=False:
-            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,0,None,None,None,None))(Z_error, grad_sum, descent_direction, 
-                                                                                                                            local_or_global_state, descent_info.xi,
-                                                                                                                            order,
+        adaptive_scaling_info = getattr(descent_info.adaptive_scaling, local_or_global)
+        if adaptive_scaling_info.order!=False:
+            descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,0,None,None,None))(Z_error, grad_sum, descent_direction,
+                                                                                                                      descent_info.xi, 
+                                                                                                                            local_or_global_state, 
+                                                                                                                            adaptive_scaling_info,
                                                                                                                             pulse_or_gate, local_or_global)
             
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
@@ -1068,17 +1063,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        linesearch_params = initialize_linesearch_info(self)
-        newton = initialize_newton_info(self)
-        s_prime_params = initialize_S_prime_params(self)
-        
-        self.descent_info = self.descent_info.expand(gamma = MyNamespace(_local=self.local_gamma, _global=self.global_gamma),  
-                                                     xi = self.xi, 
-                                                     linesearch_params = linesearch_params,
-                                                     newton = newton,
-                                                     s_prime_params = s_prime_params,
-                                                     adaptive_scaling = MyNamespace(_local=self.local_adaptive_scaling, _global=self.global_adaptive_scaling),
-                                                     conjugate_gradients = self.conjugate_gradients)
+        self.descent_info = initialize_descent_info(self)
         descent_info = self.descent_info
 
         shape = jnp.shape(population.pulse)

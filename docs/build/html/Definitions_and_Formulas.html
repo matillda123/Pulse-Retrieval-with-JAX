@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
@@ -27,7 +28,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="utilities" href="utilities.html" /> 
+    <link rel="next" title="frog" href="frog.html" />
+    <link rel="prev" title="Advanced Usage" href="example_advanced_things.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,17 +51,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_twodsi.html">2D-SI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -81,16 +91,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -1236,13 +1236,15 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <p>PIE ultimately assumes independent Object and Probe. This is respected in these derivatives.</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dx_k^*} = -2 \cdot \sum_n (\sqrt{T_{mn}^{\mathrm{exp}}}- |S_{mn}|) \cdot \frac{S_{mn}}{2|S_{mn}|}\cdot D_{kn} \left(\frac{dS_{mk}}{dx_k}\right)^* = -1 \cdot \Delta S_{mk} \cdot \left(\frac{dS_{mk}}{dx_k}\right)^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(P_{mk} = G(A_{mk})\)</span></p>
-<section id="with-respect-to-object-frog">
-<h2>With respect to Object (Frog)<a class="headerlink" href="#with-respect-to-object-frog" title="Link to this heading"></a></h2>
+<section id="with-respect-to-object">
+<h2>With respect to Object<a class="headerlink" href="#with-respect-to-object" title="Link to this heading"></a></h2>
 <p>Same for all nonlinear methods</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dE_k^*} = -1\cdot P_{mk}^*\cdot \Delta S_{mk}\)</span></p>
 </section>
-<section id="with-respect-to-probe-pulse-x-frog">
-<h2>With respect to Probe-Pulse (X-Frog)<a class="headerlink" href="#with-respect-to-probe-pulse-x-frog" title="Link to this heading"></a></h2>
+<section id="with-respect-to-probe-pulse-cross-correlation">
+<h2>With respect to Probe-Pulse (Cross-Correlation)<a class="headerlink" href="#with-respect-to-probe-pulse-cross-correlation" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_k^*} = \sum_{nj}D_{kn}D_{nj}\frac{dL_m}{dA_{mj}^*}\cdot e^{-1j\phi_{mn}}\qquad\)</span> (in the exponent <span class="math notranslate nohighlight">\(j\)</span> refers to the imaginary unit)</p>
+<br>
 <ol class="arabic">
 <li><p>SHG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot \Delta S_{mk}\)</span></p>
@@ -1267,16 +1269,11 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 </li>
 </ol>
 <br>
-<ol class="arabic" start="2">
+<ol class="arabic" start="5">
 <li><p>nth-HG</p>
 <p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -2\cdot E_k^*\cdot \left((n-1)A_{mk}^*\right)^{n-2}\cdot \Delta S_{mk}\)</span></p>
 </li>
 </ol>
-</section>
-<section id="with-respect-to-object-dscan">
-<h2>With respect to Object (DScan)<a class="headerlink" href="#with-respect-to-object-dscan" title="Link to this heading"></a></h2>
-<p>Same for all nonlinear methods</p>
-<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot P_{mk}^*\cdot \Delta S_{mk}\)</span></p>
 </section>
 </section>
 <section id="pie-pseudo-hessian">
@@ -1291,8 +1288,8 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_j}\left(\frac{d|S_{mn}|}{dE_k}\right)^* = \frac{1}{4}D_{kn}D_{nj} P_{mk}^*P_{mj}\cdot\frac{1}{|S_{mn}|}\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d}{dE_j^*}\left(\frac{d|S_{mn}|}{dE_k^*}\right)^* = \frac{1}{4}D_{jn}D_{nk} P_{mk}P_{mj}^*\cdot\frac{1}{|S_{mn}|}\)</span></p>
 </section>
-<section id="cross-correlation-with-respect-to-gate-pulse">
-<h2>Cross-Correlation: with respect to Gate-Pulse<a class="headerlink" href="#cross-correlation-with-respect-to-gate-pulse" title="Link to this heading"></a></h2>
+<section id="cross-correlation-with-respect-to-probe-pulse">
+<h2>Cross-Correlation: with respect to Probe-Pulse<a class="headerlink" href="#cross-correlation-with-respect-to-probe-pulse" title="Link to this heading"></a></h2>
 <p>Not the same for all nonlinear methods.</p>
 <p><span class="math notranslate nohighlight">\(\frac{d|S_{mn}|}{dA_{mk}^*} = \frac{S_{mn}}{2|S_{mn}|} \cdot \left(\frac{dS_{mn}}{dA_{mk}}\right)^* = \frac{S_{mn}}{2|S_{mn}|} \cdot D_{kn} E_k^* \cdot \left(\frac{dP_{mk}}{dA_{mk}}\right)^*\)</span></p>
 <br>
@@ -1324,9 +1321,7 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj} (2\mu T_{mn} - T_{mn}^{\mathrm{exp}})\)</span></p>
 <br>
 <br>
-</section>
-<section id="alternative-definition-of-r-error">
-<h2>3. Alternative definition of r-error<a class="headerlink" href="#alternative-definition-of-r-error" title="Link to this heading"></a></h2>
+<p>Alternative definition of r-error</p>
 <p><span class="math notranslate nohighlight">\(r=\sum_n(\sqrt{T_{mn}^{\mathrm{exp}}} - \mu |S_{mn}|)^2\)</span></p>
 <br>
 <p><span class="math notranslate nohighlight">\(\frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{|S_mn|} - S_{mn})\)</span>  -&gt; is essentially the projection but averaged/damped if stepsize is not 1</p>
@@ -1379,13 +1374,14 @@ For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="utilities.html" class="btn btn-neutral float-left" title="utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_advanced_things.html" class="btn btn-neutral float-left" title="Advanced Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="frog.html" class="btn btn-neutral float-right" title="frog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Till Stehling.</p>
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

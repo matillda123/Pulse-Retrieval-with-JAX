@@ -11,6 +11,7 @@
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
@@ -25,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Adding new Methods" href="example_advanced_things.html" />
-    <link rel="prev" title="VAMPIRE" href="example_vampire.html" /> 
+    <link rel="next" title="Advanced Usage" href="example_advanced_things.html" />
+    <link rel="prev" title="Method-Specific Algorithms" href="example_method_specific_algorithms.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,17 +49,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_twodsi.html">2D-SI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Nonlinear Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -80,16 +89,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -118,20 +117,32 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="nonlinear-optimization">
 <h1>Nonlinear Optimization<a class="headerlink" href="#nonlinear-optimization" title="Link to this heading"></a></h1>
+<section id="linesearch-and-adaptive-stepsize">
+<h2>Linesearch and Adaptive-Stepsize<a class="headerlink" href="#linesearch-and-adaptive-stepsize" title="Link to this heading"></a></h2>
+</section>
+<section id="nonlinear-conjugate-gradients">
+<h2>Nonlinear Conjugate-Gradients<a class="headerlink" href="#nonlinear-conjugate-gradients" title="Link to this heading"></a></h2>
+</section>
+<section id="quasi-newton-methods">
+<h2>(Quasi)-Newton Methods<a class="headerlink" href="#quasi-newton-methods" title="Link to this heading"></a></h2>
+</section>
+<section id="updating-s-prime">
+<h2>Updating S_prime<a class="headerlink" href="#updating-s-prime" title="Link to this heading"></a></h2>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_vampire.html" class="btn btn-neutral float-left" title="VAMPIRE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_advanced_things.html" class="btn btn-neutral float-right" title="Adding new Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_method_specific_algorithms.html" class="btn btn-neutral float-left" title="Method-Specific Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_advanced_things.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Till Stehling.</p>
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

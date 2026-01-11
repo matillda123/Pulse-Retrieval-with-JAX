@@ -2,10 +2,42 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "33a02a13",
+   "id": "8626ed24",
    "metadata": {},
    "source": [
     "# Nonlinear Optimization"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9583e74e",
+   "metadata": {},
+   "source": [
+    "## Linesearch and Adaptive-Stepsize"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a91e421b",
+   "metadata": {},
+   "source": [
+    "## Nonlinear Conjugate-Gradients"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "42b744ca",
+   "metadata": {},
+   "source": [
+    "## (Quasi)-Newton Methods"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c62ee61",
+   "metadata": {},
+   "source": [
+    "## Updating S_prime"
    ]
   }
  ],

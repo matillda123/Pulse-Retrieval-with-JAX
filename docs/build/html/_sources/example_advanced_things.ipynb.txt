@@ -2,10 +2,34 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "id": "e4c71a09",
+   "id": "22662945",
    "metadata": {},
    "source": [
-    "# Adding new Methods"
+    "# Advanced Usage"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0998588f",
+   "metadata": {},
+   "source": [
+    "## Mixing Algorithms"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5e98601d",
+   "metadata": {},
+   "source": [
+    "## Adding new Methods"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43c67e18",
+   "metadata": {},
+   "source": [
+    "## Adding new Algorithms"
    ]
   }
  ],

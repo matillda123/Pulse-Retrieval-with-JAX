@@ -145,9 +145,9 @@ class AlgorithmsBASE:
             value = mydict[key]
 
             if isinstance(value, MyNamespace):
-                myoutput[key] = value.__repr__()
+                myoutput[key] = "MyNamespace( ... )" #value.__repr__()
             else:
-                if isinstance(value, (jax.Array,tuple,list,np.ndarray)):
+                if isinstance(value, (jax.Array, tuple, list, np.ndarray)):
                     #myoutput.append([key, jnp.shape(jnp.asarray(value)), value.dtype])
                     myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
                 else:
@@ -220,7 +220,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.global_gamma = 1
 
         self.linesearch = False
-        self.max_steps_linesearch = 15
+        self.max_steps_linesearch = 10
         self.c1 = 1e-4
         self.c2 = 0.9
         self.delta_gamma = 0.5
@@ -239,25 +239,129 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_newton = False
         self.r_weights = 1.0
         self.r_no_iterations = 1
-        self.r_step_scaling = "linear"
+        self.r_step_scaling = "linear" # i think im not using this some things are hardcoded in construct_s_prime
 
         self.local_adaptive_scaling = False
         self.global_adaptive_scaling = False
+        self.local_adaptive_scaling_factor = -1 # this is the definition in copra paper, seems aggressive
+        self.global_adaptive_scaling_factor = -1
         self.xi = 1e-12
 
         self.momentum_is_being_used = False
 
 
-    def create_initial_population(self, population_size=1, guess_type="random"):
+    def set_nonlinear_optimization(self, local_method=False, global_method=False, damping=1e-3, memory=10, solver="lineax"):
         """ 
-        Creates an initial population.
+        A helper to set attributes. Sets all attributes which are related to (Quasi)-Newton methods. 
+        Will overwrite all attributes and may thus cause some unwanted changes.
 
         Args:
-            population_size (int):
-            guess_type (str): can be one of random, random_phase, constant or constant_phase
+            local_method (bool, str): can be one of False, "diagonal", "full" or "lbfgs"
+            global_method (bool, str): can be one of False, "diagonal", "full" or "lbfgs"
+            damping (float): a Levenberg-Marquardt style damping factor
+            memory (int): the memory used in LBFGS
+            solver (str, lineax-solver): the solver used if method=="full", can be one of "lineax", "scipy" or an instance of a lineax-solver
 
         Returns:
-            tuple[jnp.array, jnp.array, jnp.array or None, jnp.array or None], initial populations for the pulse and possibly the gate-pulse in time and frequency domain
+            self
+        
+        """
+        self.local_newton = local_method
+        self.global_newton = global_method
+        self.lambda_lm = damping
+        self.lbfgs_memory = memory
+        self.linalg_solver = solver
+        return self
+
+    def set_linesearch(self, method=False, max_steps=10, c1=1e-4, c2=0.9, delta_gamma=0.5):
+        """ 
+        A helper to set attributes. Sets all attributes which are related to linesearches. 
+        Will overwrite all attributes and may thus cause some unwanted changes.
+
+        Args:
+           method (bool, str): the linesearch method, can be one of False, "backtracking" or "zoom"
+           max_steps (int): the max number of steps per linesearch
+           c1 (float): the constant of the armijo-condition
+           c2 (float): the constant of the wolfe-condition
+           delta_gamma (float): a factor that scales the stepsize, for backtracking delta_gamma<1, for zoom delta_gamma>1
+
+        Returns:
+            self
+        
+        """
+        self.linesearch = method
+        self.max_steps_linesearch = max_steps
+        self.c1 = c1
+        self.c2 = c2
+        self.delta_gamma = delta_gamma
+        return self
+
+
+    def set_adaptive_stepsize(self, local_method=False, global_method=False, local_factor=-1, global_factor=-1, damping=1e-12):
+        """ 
+        A helper to set attributes. Sets all attributes which are related to the adaptive stepsize. 
+        Will overwrite all attributes and may thus cause some unwanted changes.
+
+        Args:
+            local_method (bool, str): has to be one of False, pade_10, pade_20, pade_11, pade_01, pade_02
+            global_method (bool, str): has to be one of False, pade_10, pade_20, pade_11, pade_01, pade_02
+            local_factor (float): sets the target error reduction
+            global_factor (float): sets the target error reduction
+            damping (float): a damping factor
+
+        Returns:
+            self
+        
+        """
+        
+        self.local_adaptive_scaling = local_method
+        self.global_adaptive_scaling = global_method
+        self.local_adaptive_scaling_factor = local_factor
+        self.global_adaptive_scaling_factor = global_factor
+        self.xi = damping
+        return self
+
+    def set_S_prime_params(self, local_method="projection", global_method="projection", gradient="intensity", newton=False, weights=1.0, no_iterations=1):
+        """ 
+        A helper to set attributes. Sets all attributes which are related to the updating of the signal field (signal_t -> signal_t_new). 
+        Will overwrite all attributes and may thus cause some unwanted changes. 
+
+        (e.g. in the case of COPRA this may unintentionally overwrite the default of global_method="iteration")
+
+        Args:
+            local_method (str): has to be projection or iteration
+            global_method (str): has to be projection or iteration
+            gradient (str): has to be intensity or amplitude, defines which error function is used in iteration
+            newton (bool): if enabled a newton-style optimization is performed if method==iteration
+            weights (float, jnp.array): optional weights applied to the error function
+            no_iterations (int): the number of iterations if method==iteration
+
+        Returns:
+            self
+        
+        """
+        
+        self.r_local_method = local_method
+        self.r_global_method = global_method
+        self.r_gradient = gradient
+        self.r_newton = newton
+        self.r_weights = weights
+        self.r_no_iterations = no_iterations
+        # self.r_step_scaling = "linear"
+        return self
+
+
+
+    def create_initial_population(self, population_size=1, guess_type="random"):
+        """ 
+        Creates an initial population of pulses, parametrized as complex values on a grid.
+
+        Args:
+            population_size (int): the number of guesses to be optimized
+            guess_type (str): Has to be one of random, random_phase, constant or constant_phase.
+        
+        Returns:
+            tuple[jnp.array, jnp.array, jnp.array or None, jnp.array or None], initial populations for the pulse and possibly the gate-pulse in time domain or frequency domain for ChirpScans
 
         """
         self.key, subkey = jax.random.split(self.key, 2)
@@ -335,7 +439,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         Needs to be called if momentum is meant to be used in the reconstruction. 
 
         Args:
-            population_size: int, is needed for some initialization 
+            population_size (int): is needed for some initialization 
             eta (float): parameter that controls the momentum strength
 
         Returns:
@@ -421,14 +525,15 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         """ 
-        Creates an initial guess either explicit or parametrized. 
+        Creates an initial guess either explicit or parametrized.
+        For bsplines one has to provide the B-Spline order k via bsplines_k
 
         Args:
-            population_size: int, the number of individuals
-            amp_type (str): the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines or discrete
-            phase_type (str): the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines or discrete
-            no_funcs_amp: int, the number of basis functions for the spectral amplitude (if parametrized)
-            no_funcs_phase: int, the number of basis functions for the spectral phase (if parametrized)
+            population_size (int): the number of individuals
+            amp_type (str): the representation of the spectral amplitude, can be one of gaussian, lorentzian, bsplines, continuous or an input for Classical Algorithms
+            phase_type (str): the representation of the spectral phase, can be one of polynomial, sinusoidal, sigmoidal, bsplines, continuous or an input for Classical Algorithms
+            no_funcs_amp (int): the number of basis functions for the spectral amplitude (only used if not on a grid)
+            no_funcs_phase (int): the number of basis functions for the spectral phase (only used if not on grid)
 
         Returns:
             Pytree, the initial guess population
@@ -701,6 +806,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         error_metric = descent_info.error_metric
 
         x_arr, y_arr, trace = self.construct_trace(individual, measurement_info, descent_info)
+
         trace, measured_trace = loss_function_modifications(trace, measured_trace, x_arr, y_arr, amplitude_or_intensity, fd_grad)
 
         if fd_grad!=False:

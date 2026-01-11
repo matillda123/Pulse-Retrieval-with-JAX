@@ -1,0 +1,426 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "f0db8c16",
+   "metadata": {},
+   "source": [
+    "# Overview Algorithms  \n",
+    "\n",
+    "Internally one can divide the implemented algorithms into two general types. Classical-Algorithms and General-Algorithms, where the former refers to algorithms that have been specifically introduced to solve the phase-retrieval problem in ultrafast optics, while the latter refers to generic optimization algorithms.  \n",
+    "The algorithms described here belong to either type. In addition several method-specific algorithms have been published and are discussed in [Method-Specific Algorithms](example_method_specific_algorithms.ipynb)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "15820161",
+   "metadata": {},
+   "source": [
+    "## Classical Algorithms  \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f4eeb389",
+   "metadata": {},
+   "source": [
+    "### Generalized Projection  \n",
+    "\n",
+    "Starting from an initial guess the algorithm works by constructing the nonlinear signal field $S(\\theta, \\omega)$ ($\\theta$ refers to an arbitrary scanning parameter). The amplitude of this guessed signal field is replaced by the measured amplitude of the trace to yield $S'(\\theta, \\omega)$. Thus the signal field is projected into the space of signal fields that could produce the measured trace. The updated guess of the pulse is obtained through an iterative optimization of the Z-error.  \n",
+    "<br>\n",
+    "Below is a small working example of the Generalized Projection Algorithm to an SHG-FROG. Apart from the nonlinear optimization methods described in the [Nonlinear Optimization](example_nonlinear_optimization.ipynb) section, the main tunable parameters are the number of gradient descent steps (no_steps_descent) and the step size (global_gamma). "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3d97358",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import GeneralizedProjection\n",
+    "\n",
+    "gp = GeneralizedProjection(delay, frequency, trace, \"shg\")\n",
+    "\n",
+    "population = gp.create_initial_population(5, \"random\")\n",
+    "\n",
+    "gp.global_gamma = 1\n",
+    "gp.no_steps_descent = 15\n",
+    "\n",
+    "final_result = gp.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "390072a0",
+   "metadata": {},
+   "source": [
+    "### Ptychographic Iterative Engine  \n",
+    "\n",
+    "The general idea of Ptychography is to move a probe $P(\\theta)$ over an object $O$. The resulting signal is simply the product of the two. Thus the Ptychographic Iterative Engine (PIE) demands the nonlinear signal to be of the form $S(\\theta, t) = O(t)\\cdot P(\\theta,t)$. This makes it suitable for most pulse characterization methods, with the exception inteferometry based methods such as i-FROG and doubleblind retrieval of 2D-SI and VAMPIRE.\n",
+    "\n",
+    "The PIE can be described in two equivalent ways. Either as an iterative optimization of the regularized Z-error:  \n",
+    "\n",
+    "$Z = \\sum |S'(\\theta, t) - O'(t)\\cdot P(\\theta, t)|^2 + \\sum U(t) |O'(t) -  O(t)|^2$  \n",
+    "\n",
+    "with the heuristic weighting $U(t)$.  \n",
+    "Alternatively it can be described by the weighted iterative optimization of:  \n",
+    "\n",
+    "$L = \\sum |\\sqrt{T(\\theta, \\omega)} - |S(\\theta, \\omega)||^2$  \n",
+    "\n",
+    "via  \n",
+    "\n",
+    "$O'(t) = O(t) - U'(t)\\cdot \\frac{dL(\\theta)}{dO(t)^*}$  \n",
+    "\n",
+    "where $U'\\neq U$ and determines the subtype of the PIE.  \n",
+    "Usually the PIE works in local iterations, where optimization steps are taken subsequently over random permutations of the measured trace along $\\theta$. In this implementation an additional version performs global steps by optimizing for all measured data along $theta$ simultaneously.  \n",
+    "<br>\n",
+    "Below is a small working example of the PIE to an SHG-FROG. Apart from the nonlinear optimization methods described in the [Nonlinear Optimization](example_nonlinear_optimization.ipynb) section, the main tunable parameters are the PIE version, the weighting parameter $\\alpha$, as well as the local and global stepsizes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3fc66fc7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import PtychographicIterativeEngine\n",
+    "\n",
+    "pie = PtychographicIterativeEngine(delay, frequency, trace, \"shg\", pie_method=\"PIE\")\n",
+    "\n",
+    "population = pie.create_initial_population(5, \"random\")\n",
+    "\n",
+    "pie.alpha = 0.15\n",
+    "pie.local_gamma = 1e-1\n",
+    "pie.global_gamma = 1e-3\n",
+    "\n",
+    "final_result = pie.run(population, 50, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ad9f055e",
+   "metadata": {},
+   "source": [
+    "### COPRA  \n",
+    "\n",
+    "The original implementation of the Common-Pulse-Retrieval-Algorithm (COPRA) is [pypret](https://github.com/ncgeib/pypret).  \n",
+    "\n",
+    "Roughly speaking, COPRA is a combination of the Generalized-Projection (GP) and the PIE. The algorithm works in two phases. In the first phase, similar to the PIE, local iterations are performed on random permutations along $\\theta$. However instead of using an PIE update, COPRA performs single steps to optimize the Z-error. After a sufficient number of local iterations COPRA switches to global iterations. A global iteration optimizes two different error quantities in an alternating fashion. These are the r-error:  \n",
+    "\n",
+    "$r = \\sum |T(\\theta,\\omega) - \\mu\\cdot |S(\\theta,\\omega)|^2|^2$\n",
+    "\n",
+    "and the Z-error. Using single gradient-descent iterations the minimization of r-error is used to obtain updated signal fields $S'(\\theta,t)$ which are subsequently used to update the pulse guess via the minimization of the Z-error using single gradient-descent iterations. Thus in a global iteration smooth and gradual transitions are employed over plain projections.  \n",
+    "In addition for all gradient-descent iterations COPRA estimates an optimal step size via the Polyak-Stepsize.  \n",
+    "<br>\n",
+    "Below is a small working example of the COPRA to an SHG-FROG. Apart from the nonlinear optimization methods described in the [Nonlinear Optimization](example_nonlinear_optimization.ipynb) section, the main tunable parameters are the local and global stepsizes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "166c4d30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import COPRA\n",
+    "\n",
+    "copra = COPRA(delay, frequency, trace, \"shg\")\n",
+    "\n",
+    "population = copra.create_initial_population(5, \"random\")\n",
+    "\n",
+    "copra.local_gamma = 1\n",
+    "copra.global_gamma = 0.25\n",
+    "\n",
+    "final_result = copra.run(population, 50, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a06987b5",
+   "metadata": {},
+   "source": [
+    "### Additional Constraint and Momentum  \n",
+    "\n",
+    "All of the Classical Algorithms, are able to incorporate the pulse-spectrum as an additional constraint. This may improve the retrieval result, but it also may cause issues if the provided spectrum and measured trace are somehow inconsistent. For doubleblind retrievals the provision of spectra for pulse and gate-pulse is necessary to avoid retrieval ambiguities.  \n",
+    "A spectrum can be incorporated in any algorithm as shown below. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "efb33040",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import GeneralizedProjection\n",
+    "\n",
+    "gp = GeneralizedProjection(delay, frequency, trace, \"shg\")\n",
+    "\n",
+    "gp.use_measured_spectrum(frequency_spectrum, pulse_spectrum, pulse_or_gate=\"pulse\")\n",
+    "\n",
+    "population = gp.create_initial_population(5, \"random\")\n",
+    "gp.global_gamma = 1\n",
+    "gp.no_steps_descent = 15\n",
+    "final_result = gp.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "10b0b809",
+   "metadata": {},
+   "source": [
+    "Additionally the gradient-descent like optimizations can be accelerated via the incroporation of momentum. This means that a velocity-map of the pulses is updated each iteration and used to additionally update the current guess. This can be used with any Classical Algorithm as shown below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f9ea3cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import GeneralizedProjection\n",
+    "\n",
+    "gp = GeneralizedProjection(delay, frequency, trace, \"shg\")\n",
+    "\n",
+    "population_size = 5\n",
+    "gp.momentum(population_size, eta=0.9) # requires population size to initialize arrays in the correct shape.\n",
+    "\n",
+    "population = gp.create_initial_population(population_size, \"random\")\n",
+    "gp.global_gamma = 1\n",
+    "gp.no_steps_descent = 15\n",
+    "final_result = gp.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c03dd6eb",
+   "metadata": {},
+   "source": [
+    "## General Algorithms  \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "407d2101",
+   "metadata": {},
+   "source": [
+    "### Differential Evolution  \n",
+    "\n",
+    "This implementation of the Differential Evolution algorithm (DE), follows the same paper as the scipy-implementation. It works by taking a parent population and creating a child population through mutations and crossover operations. A fitness evaluation then returns the population back to its original size.  \n",
+    "In addition to the standard implementation an additional crossover strategy (smooth) and an additional selection mechanism (global) have been implemented. The smooth-crossover is motivated by the fact that the population can be parametrized on a grid. Conventional crossovers (bin, exp) will introduce sharp jumps and cutoffs into the population. The smooth crossover works similar to the exp-crossover but introduces a smooth transition via a tanh() function.  \n",
+    "The additional selection mechanism is motivated by the fact that the greedy-selection performs a pair-based comparison of parent and child population. The global-selection performs a global comparison of all individuals and randomly selects the fittest individuals. This selection can be tuned via a temperature of a Fermi-Dirac-like probability distribution.  \n",
+    "<br>\n",
+    "Below is a small working example of the DE to an SHG-FROG. The main tunable parameters are the strategy, selection mechanism, the mutation rate, the crossover rate and in the temperature in case of a global selection."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4a3c3fc0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import DifferentialEvolution\n",
+    "\n",
+    "de = DifferentialEvolution(delay, frequency, trace, \"shg\", \n",
+    "                           strategy=\"best1_bin\", selection_mechanism=\"greedy\", \n",
+    "                           mutation_rate=0.5, crossover_rate=0.7)\n",
+    "\n",
+    "population = de.create_initial_population(100, \n",
+    "                                          amp_type=\"bsplines_5\", phase_type=\"bsplines_5\", \n",
+    "                                          no_funcs_amp=20, no_funcs_phase=20)\n",
+    "\n",
+    "final_result = de.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12fd65cc",
+   "metadata": {},
+   "source": [
+    "### LSF\n",
+    "\n",
+    "The Linesearch-Frog-Algorithm (LSF) is a general optimization algorithm. Despite its name. Simply speaking the algorithm performs a high-dimensional randomized bisection search. This works by selecting a random complex-valued direction. By setting the maximum pulse magnitude to one, a lower and an upper boundry can be defined. Be performing bisection search along the random direction inside the boundary, a slightly improoved pulse guess can be found.  \n",
+    "On top of the fully randomized version, in this implementation one can restrict the random directions to exhibit some degree of smoothness. However, this may not necesserily improve the algorithm performance.  \n",
+    "<br>\n",
+    "In addition the algorithm is not able to fully converge if one applies an additional constraint by projection onto the pulse spectrum. This is because the bisection search does not know about the spectrum. The projection and the bisection search may thus counteract each other. A possible but not implemented solution would be to seperate the pulse into a magnitude and a complex oscillatory part $\\Psi$ with constant magnitude one and only optimize the latter. $\\left(E(\\omega,\\phi(\\omega)) = E(\\omega)\\cdot \\Psi(\\phi(\\omega))\\right)$  \n",
+    "<br>\n",
+    "Below is a small working example of the LSF to an SHG-FROG. The main tunable parameters are the number of iterations per bisection-search as well as a tuning parameter for the smoothness in case of a continuous direction search."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2803c05b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import LSF\n",
+    "\n",
+    "lsf = LSF(delay, frequency, trace, \"shg\")\n",
+    "\n",
+    "population = lsf.create_initial_population(10, amp_type=\"random\", phase_type=\"random\")\n",
+    "\n",
+    "lsf.number_of_bisection_iterations = 12\n",
+    "lsf.random_direction_mode = \"random\"\n",
+    "# lsf.ratio_points_for_continuous = 0.25    # only used when random_direction_mode=\"continuous\"\n",
+    "\n",
+    "final_result = lsf.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9586c492",
+   "metadata": {},
+   "source": [
+    "### Evosax  \n",
+    "\n",
+    "This \"Algorithm\" uses the python/jax package [evosax](https://github.com/RobertTLange/evosax) to employ advanced evolutionary solvers for pulse retrieval. The availablilty of a multitude of such solvers comes at a drawback. Evosax does not respect the shape of pytrees. Internally all pytrees are flattened before being subjected to an evolutionary algorithm. This causes mixing of variables that do not necessarily should be mixed. For example the position and the magnitude of a gaussian. In this implementation precautions have been take to prevent the mixing of amplitude and phase variables. But within the phases and amplitudes evosax will happily mixing variables arbitrarily. Essentially this heavily promotes exploration over exploitation.  \n",
+    "<br>\n",
+    "Below is a small working example of Evosax with an SHG-FROG. One should be able to choose any evosax solver. These solvers can be tuned via their input parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6f2a825e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import Evosax\n",
+    "from evosax.algorithms import DifferentialEvolution as DifferentialEvolutionEvosax\n",
+    "\n",
+    "# the evosax-solver should not be initialized\n",
+    "evo = Evosax(delay, frequency, trace, \"shg\", solver=DifferentialEvolutionEvosax)\n",
+    "\n",
+    "population = evo.create_initial_population(100, \n",
+    "                                           amp_type=\"gaussian\", phase_type=\"sigmoidal\", \n",
+    "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
+    "\n",
+    "evo.solver_params = None    # None, causes the default params to be used.\n",
+    "\n",
+    "final_result = evo.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "57258b0c",
+   "metadata": {},
+   "source": [
+    "### AutoDiff  \n",
+    "\n",
+    "This \"Algorithm\" uses the python/jax packages [optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix) to employ their implemented optimization algorithms.  \n",
+    "<br>\n",
+    "Below is a small working example of AutoDiff with an SHG-FROG. One should be able to choose any optax/optimistix solver. These solvers can be tuned via their input parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f1a4d9e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import AutoDiff\n",
+    "import optimistix\n",
+    "import optax\n",
+    "\n",
+    "\n",
+    "solver = optax.adam(learning_rate=1e-1)\n",
+    "# solver = optimistix.LBFGS(1, 1) # the tolerances dont matter, since a fixed number of iterations is done\n",
+    "\n",
+    "ad = AutoDiff(delay, frequency, trace, \"shg\", solver=solver)\n",
+    "\n",
+    "population = ad.create_initial_population(5, \n",
+    "                                           amp_type=\"gaussian\", phase_type=\"sigmoidal\", \n",
+    "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
+    "\n",
+    "final_result = ad.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "549df2c1",
+   "metadata": {},
+   "source": [
+    "### Additional Constraint and Loss-Function \n",
+    "\n",
+    "As in the Classical Algorithms, the General Algorithms are able to incorporate the pulse-spectrum as an additional constraint. However, with the exception of LSF all implementations incorporate this constraint as a true constraint optimization. Meaning that if a spectrum is provided only the phase will be optimized. For doubleblind retrievals the provision of spectra for pulse and gate-pulse is necessary to avoid retrieval ambiguities.  \n",
+    "A spectrum can be incorporated in any algorithm as shown below. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1504c4ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import AutoDiff\n",
+    "import optimistix\n",
+    "import optax\n",
+    "\n",
+    "\n",
+    "solver = optax.adam(learning_rate=1e-1)\n",
+    "# solver = optimistix.LBFGS(1, 1) # the tolerances dont matter, since a fixed number of iterations is done\n",
+    "\n",
+    "ad = AutoDiff(delay, frequency, trace, \"shg\", solver=solver)\n",
+    "\n",
+    "ad.use_measured_spectrum(frequency_spectrum, pulse_spectrum, pulse_or_gate=\"pulse\")\n",
+    "population = ad.create_initial_population(5, \n",
+    "                                           amp_type=\"gaussian\", phase_type=\"sigmoidal\", \n",
+    "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
+    "\n",
+    "final_result = ad.run(population, 50)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2a5c4a4d",
+   "metadata": {},
+   "source": [
+    "Since the General Algorithms dont rely on analytic derivatives one is not restricted to a specific Error/Loss-function. By default the G-error is used:  \n",
+    "\n",
+    "$G = \\frac{1}{N_\\theta\\cdot N_\\omega}\\sum |T(\\theta, \\omega) -  |S(\\theta,\\omega)|^2|^2$  \n",
+    "\n",
+    "However one can specify an arbitrary user-defined loss-function. This can be done as shown below, where an L1-Norm isused."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3875e078",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pulsedjax.frog import AutoDiff\n",
+    "import optax\n",
+    "import jax.numpy as jnp\n",
+    "\n",
+    "\n",
+    "def my_loss(trace, measured_trace):\n",
+    "    return jnp.mean(jnp.abs(trace - measured_trace))\n",
+    "    \n",
+    "\n",
+    "solver = optax.adam(learning_rate=1e-1)\n",
+    "ad = AutoDiff(delay, frequency, trace, \"shg\", solver=solver)\n",
+    "\n",
+    "population = ad.create_initial_population(5, \n",
+    "                                           amp_type=\"gaussian\", phase_type=\"sigmoidal\", \n",
+    "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
+    "ad.error_metric = my_loss\n",
+    "final_result = ad.run(population, 50)"
+   ]
+  }
+ ],
+ "metadata": {
+  "language_info": {
+   "name": "python"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

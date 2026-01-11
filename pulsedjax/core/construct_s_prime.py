@@ -158,7 +158,7 @@ def calculate_S_prime_iterative_step(signal_t, signal_f, measured_trace, mu, sk,
     descent_direction, gradient = calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_info)
     r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
 
-    descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, MyNamespace(), descent_info.xi, "pade_10", None, "_global")
+    descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, descent_info.xi, MyNamespace(), MyNamespace(order="pade_10", factor=-1), None, "_global")
 
     # Is removed because it makes usage more complicated. 
     # if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":

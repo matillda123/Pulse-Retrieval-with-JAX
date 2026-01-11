@@ -8,7 +8,7 @@ from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 
 
-from pulsedjax.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d
+from pulsedjax.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
 from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.gradients.chirpscan_z_error_gradients import calculate_Z_gradient
@@ -270,6 +270,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         return signal
 
 
+
+
     # def reverse_transform_full_hessian(self, hessian_all_m, phase_matrix, measurement_info):
     #     # time, frequency = measurement_info.time, measurement_info.frequency
     
@@ -281,25 +283,29 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
     #     # time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
     #     # sk, rn = get_sk_rn(time, frequency)
 
-    #     # # convert hessian to (m, n, n) -> frequency domain 
-    #     # hessian_all_m = self.fft(hessian_all_m, sk, rn, axis=-1)
-    #     # hessian_all_m = self.fft(hessian_all_m, sk, rn, axis=-2) 
+    #     sk, rn = measurement_info.sk, measurement_info.rn
 
-    #     # phi_mn = -1*phase_matrix
-    #     # phi = phi_mn[:,:,jnp.newaxis] - phi_mn[:,jnp.newaxis,:]
-    #     # exp_arr = jnp.exp(1j*phi)
-    #     # hessian_all_m = hessian_all_m * exp_arr
+    #     # convert hessian to (m, n, n) -> frequency domain 
+    #     hessian_all_m = self.fft(hessian_all_m, sk, rn, axis=-1)
+    #     hessian_all_m = self.fft(hessian_all_m, sk, rn, axis=-2) 
 
-    #     # # convert hessian to (N, m, k, k) -> time domain 
-    #     # hessian_all_m = self.ifft(hessian_all_m, sk, rn, axis=-1)
-    #     # hessian_all_m = self.ifft(hessian_all_m, sk, rn, axis=-2) 
+    #     #phi_mn = -1*phase_matrix
+    #     phi_mn = phase_matrix
+    #     phi = phi_mn[:,:,jnp.newaxis] - phi_mn[:,jnp.newaxis,:]
+    #     exp_arr = jnp.exp(1j*phi)
+    #     hessian_all_m = hessian_all_m * exp_arr
+
+    #     # convert hessian to (N, m, k, k) -> time domain 
+    #     hessian_all_m = self.ifft(hessian_all_m, sk, rn, axis=-1)
+    #     hessian_all_m = self.ifft(hessian_all_m, sk, rn, axis=-2) 
     #     return hessian_all_m#[:, :N, :N]
     
-
 
     # def reverse_transform_diagonal_hessian(self, hessian_all_m, phase_matrix, measurement_info):
     #     # # i think a backtransform is not needed since the transform matrix phi is zero for these entries
     #     return hessian_all_m
+
+
 
 
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
@@ -343,7 +349,6 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         # reverse_transform = Partial(reverse_transform_hessian[getattr(descent_info.newton, local_or_global)], measurement_info=measurement_info)
         reverse_transform = None
 
-        #signal_f = self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
         descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, signal_t.gate_disp, signal_t.signal_f, phase_matrix, measured_trace, reverse_transform, 
                                                                      newton_direction_prev, measurement_info, descent_info, "gate", local_or_global)
         return descent_direction, newton_state

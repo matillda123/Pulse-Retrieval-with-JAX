@@ -1,6 +1,6 @@
 project = 'PulsedJAX: Pulse-Retrieval-with-JAX'
-copyright = '2025, Till Stehling'
-author = 'Till Stehling'
+copyright = '2025, Till-Jakob Stehling'
+author = 'Till-Jakob Stehling'
 release = '2025'
 
 import os
@@ -15,7 +15,9 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.mathjax',
     'myst_nb',
-    'sphinx_copybutton'
+    'sphinx_copybutton',
+    'sphinx.ext.graphviz',
+    #'sphinx.ext.inheritance_diagram'
 ]
 
 myst_enable_extensions = [
@@ -23,6 +25,7 @@ myst_enable_extensions = [
     "amsmath",     # Enable advanced math environments
 ]
 
+nbsphinx_execute = 'never'
 
 autosummary_generate = True
 

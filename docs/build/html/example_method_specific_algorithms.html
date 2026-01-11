@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Method-Specific Algorithms &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Nonlinear Optimization" href="example_nonlinear_optimization.html" />
+    <link rel="prev" title="Overview Algorithms" href="example_overview_algorithms.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Method-Specific Algorithms</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/example_method_specific_algorithms.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="method-specific-algorithms">
+<h1>Method-Specific Algorithms<a class="headerlink" href="#method-specific-algorithms" title="Link to this heading"></a></h1>
+<p>All of the algorithms below are Classical Algorithms. As such they can be augmented via the pulse-spectrum as an additional constraint as well as momentum to accelerated convergence. More details can be found in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a>.</p>
+<section id="frog">
+<h2>FROG<a class="headerlink" href="#frog" title="Link to this heading"></a></h2>
+<section id="vanilla">
+<h3>Vanilla<a class="headerlink" href="#vanilla" title="Link to this heading"></a></h3>
+<p>The first published FROG algorithms. It is similar to the Generalized Projection Algorithm. However instaed of an iterative optimization of the Z-error, a simple integration along <span class="math notranslate nohighlight">\(\tau\)</span> is used to generate an updated guess.</p>
+<p><span class="math notranslate nohighlight">\(E'(t) = \int S'(\tau, t)\, d\tau\)</span></p>
+<p>Below is a minimal working example applied to SHG-FROG. There are no tunable parameters.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vanilla</span>
+
+<span class="n">vanilla</span> <span class="o">=</span> <span class="n">Vanilla</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
+
+<span class="n">population</span> <span class="o">=</span> <span class="n">vanilla</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+
+<span class="n">final_result</span> <span class="o">=</span> <span class="n">vanilla</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vanilla</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">vanilla</span> <span class="o">=</span> <span class="n">Vanilla</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">population</span> <span class="o">=</span> <span class="n">vanilla</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;pulsedjax&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="lsgpa">
+<h3>LSGPA<a class="headerlink" href="#lsgpa" title="Link to this heading"></a></h3>
+<p>The Least-Squares Generalized-Projection Algorithm is quite similar to the Vanilla- and Generalized Projection Algorithms. However it works by applying a linear least-squares approach to the Z-error in order to generate a new update. This works since the signal field <span class="math notranslate nohighlight">\(S(\tau, t) = E(t)\cdot G(\tau, t)\)</span> depends on the pulse only in a linear fashion. (If implicit dependencies are ignored.) Thus an update formula for the pulse can be derived:</p>
+<p><span class="math notranslate nohighlight">\(E'(t) = \frac{\int S'(\tau, t)\cdot G^*(\tau, t)\, d\tau}{\int |G(\tau, t)|^2\, d\tau}\)</span></p>
+<p>Below is a minimal working example applied to SHG-FROG. There are no tunable parameters.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSGPA</span>
+
+<span class="n">lsgpa</span> <span class="o">=</span> <span class="n">LSGPA</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
+
+<span class="n">population</span> <span class="o">=</span> <span class="n">lsgpa</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+
+<span class="n">final_result</span> <span class="o">=</span> <span class="n">lsgpa</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="c-pcgpa">
+<h3>C-PCGPA<a class="headerlink" href="#c-pcgpa" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="chirp-scan">
+<h2>Chirp-Scan<a class="headerlink" href="#chirp-scan" title="Link to this heading"></a></h2>
+<section id="basic">
+<h3>Basic<a class="headerlink" href="#basic" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="d-si">
+<h2>2D-SI<a class="headerlink" href="#d-si" title="Link to this heading"></a></h2>
+<section id="direct-reconstruction">
+<h3>Direct-Reconstruction<a class="headerlink" href="#direct-reconstruction" title="Link to this heading"></a></h3>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="example_overview_algorithms.html" class="btn btn-neutral float-left" title="Overview Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_nonlinear_optimization.html" class="btn btn-neutral float-right" title="Nonlinear Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

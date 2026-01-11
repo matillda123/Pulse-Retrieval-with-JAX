@@ -10,6 +10,7 @@
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
 
   
@@ -45,17 +46,25 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_frog.html">FROG</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_chirp_scan.html">Chirp-Scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_twodsi.html">2D-SI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Adding new Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
@@ -77,16 +86,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
 
         </div>
@@ -1644,6 +1643,8 @@
 </li>
       <li><a href="core.html#core.base_classic_algorithms.initialize_CG_state">initialize_CG_state() (in module core.base_classic_algorithms)</a>
 </li>
+      <li><a href="core.html#core.base_classic_algorithms.initialize_descent_info">initialize_descent_info() (in module core.base_classic_algorithms)</a>
+</li>
       <li><a href="core.html#core.base_general_optimization.EvosaxBASE.initialize_evosax_solver">initialize_evosax_solver() (core.base_general_optimization.EvosaxBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.initialize_general_optimizer">initialize_general_optimizer() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
@@ -2407,8 +2408,6 @@
         <li><a href="real_fields.frog.html#module-real_fields.frog">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     real_fields.frog.classical_algorithms_frog_real_fields
 
@@ -2416,6 +2415,8 @@
         <li><a href="real_fields.frog.html#module-real_fields.frog.classical_algorithms_frog_real_fields">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     real_fields.frog.general_algorithms_frog_real_fields
 
@@ -2529,6 +2530,8 @@
 </li>
         <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.reverse_transform_grad">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine method)</a>
 </li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.reverse_transform_grad">(real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine method)</a>
+</li>
       </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.rn">rn (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
 
@@ -2586,6 +2589,14 @@
         <li><a href="vampire.html#vampire.general_algorithms_vampire.DifferentialEvolution.selection_mechanism">(vampire.general_algorithms_vampire.DifferentialEvolution attribute)</a>
 </li>
       </ul></li>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.set_adaptive_stepsize">set_adaptive_stepsize() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.set_linesearch">set_linesearch() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.set_nonlinear_optimization">set_nonlinear_optimization() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.set_S_prime_params">set_S_prime_params() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
+</li>
       <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA.shift_rows">shift_rows() (frog.classic_algorithms_frog.CPCGPA method)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.shift_signal_in_time">shift_signal_in_time() (core.base_classes_methods.RetrievePulsesFROG method)</a>
@@ -3149,7 +3160,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Till Stehling.</p>
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

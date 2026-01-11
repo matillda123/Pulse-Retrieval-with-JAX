@@ -1,1 +1,1 @@
-from pulsedjax.core import phase_matrix_funcs, spectral_filter_funcs
+from .core import phase_matrix_funcs, get_filter as get_spectral_filter

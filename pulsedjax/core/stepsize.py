@@ -258,7 +258,7 @@ def get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or
 
 
 
-def adaptive_step_size(error, gradient, descent_direction, local_or_global_state, xi, order, pulse_or_gate, local_or_global):
+def adaptive_step_size(error, gradient, descent_direction, xi, local_or_global_state, adaptive_scaling_info, pulse_or_gate, local_or_global):
     """
     Calculate an improved step size based through a pade approximation of the error function at the current position.
 
@@ -275,10 +275,10 @@ def adaptive_step_size(error, gradient, descent_direction, local_or_global_state
     Returns:
         tuple[jnp.array, Pytree], the scaled descent direction and the local_or_global_state
     """
-
+    order = adaptive_scaling_info.order
     scaling, local_or_global_state = get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or_gate, local_or_global)
 
-    L_prime = -1*error # this is the definition in copra paper, seems aggressive
+    L_prime = adaptive_scaling_info.factor*error
 
     if order=="linear" or order=="pade_10":
         eta = (L_prime-error)/(2*scaling)

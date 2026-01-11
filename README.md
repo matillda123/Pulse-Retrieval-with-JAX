@@ -1,6 +1,8 @@
 # PulsedJAX: Pulse-Retrieval with JAX
 
 Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.  
+This does not mean that the implemented algorithms are differentiable. (They are probably not.) The point is to take advantage of jax.jit and other Jax-transformations.
+
 
 ## Installation  
 To install (create a new environment and) run:

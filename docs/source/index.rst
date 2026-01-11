@@ -7,22 +7,30 @@
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Examples
+   :maxdepth: 2
+   :caption: Content
 
-   example_frog
-   example_chirp_scan
-   example_tdp
-   example_twodsi
-   example_vampire
+   example_overview_methods
+   example_overview_algorithms
+   example_method_specific_algorithms
 
    example_nonlinear_optimization
    example_advanced_things
 
 
+
+.. toctree::
+   :maxdepth: 1 
+   :caption: Equations
+
+   Definitions_and_Formulas
+
+
+
+
 .. toctree::
    :maxdepth: 1
-   :caption: Content
+   :caption: API
 
    frog
    chirp_scan
@@ -33,11 +41,4 @@
    real_fields
    core
    utilities
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Equations
-
-   Definitions_and_Formulas
 

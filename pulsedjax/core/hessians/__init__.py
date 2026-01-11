@@ -1,0 +1,1 @@
+# i think a lot of the hessians could be computed via jnp.einsum ?
