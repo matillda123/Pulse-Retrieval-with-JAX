@@ -9,7 +9,7 @@
   <title>Overview Methods &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -23,6 +23,8 @@
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -117,20 +119,77 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="overview-methods">
 <h1>Overview Methods<a class="headerlink" href="#overview-methods" title="Link to this heading"></a></h1>
+<p>In this section a brief overview over the background and assumptions of all implemented methods is given.</p>
+<section id="general-remarks">
+<h2>General Remarks<a class="headerlink" href="#general-remarks" title="Link to this heading"></a></h2>
+<p>Each method is implemented as a <code class="docutils literal notranslate"><span class="pre">RetrievePulsesMETHOD</span></code> class in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.base_classes_methods.py</span></code>. These classes define how input data is processed and prepared for the retrieval process. Most importantly they define how the nonlinear signal field is calculated.<br />
+The final useable retrieval algorithms are implemented as child-classes using multiple inheritence <code class="docutils literal notranslate"><span class="pre">Algorithm(AlgorithmBASE,</span> <span class="pre">RetrievePulsesMETHOD)</span></code>.<br />
+The retrieval takes place on the provided frequency axis (not angular frequency) of the measured trace. This axis needs to be broad enough to avoid interference of fundamental and SHG/THG signals as well as to include the range of the pulse and gate-pulse spetra if those are provided.</p>
+</section>
 <section id="frog">
 <h2>FROG<a class="headerlink" href="#frog" title="Link to this heading"></a></h2>
+<p>Frequency-Resolved-Optical-Gating (FROG) can be understood as a spectrally resolved auto- or cross-correlation measurement. Its nonlinear signal is defined as:</p>
+<p><span class="math notranslate nohighlight">\(S(\tau, t) = E(t)\cdot G(A(\tau, t))\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(E(t)=A(t)\)</span> in the case of an autocorrelation setup and G() refers to the nonlinear effect dependent gate-function. Thus a measurement consists of a pulse <span class="math notranslate nohighlight">\(A(t)\)</span> which is shifted over <span class="math notranslate nohighlight">\(E(t)\)</span> in the time domain. The spectrum of a nonlinear signal at each delay yields the measurement trace <span class="math notranslate nohighlight">\(T(\tau,\omega) = |S(\tau, t)|^2\)</span>.<br />
+The above description assumes a non-collinear setup. However FROG can be performed collinearly, which yields an interferometric setup. Thus the name i-FROG. In this case te nonlinear signal is defined as:</p>
+<p><span class="math notranslate nohighlight">\(S(\tau, t) = (E(t) + A(\tau, t))\cdot G(E(t) + A(\tau, t))\)</span></p>
+<p>In the case of cross-correlation setup <span class="math notranslate nohighlight">\(\left(E(t)\neq A(t)\right)\)</span>, the pulse <span class="math notranslate nohighlight">\(A(t)\)</span> is not necessarily known. If it is known it can be provided via <code class="docutils literal notranslate"><span class="pre">algorithm.get_gate_pulse()</span></code>. In addition<code class="docutils literal notranslate"><span class="pre">cross_correlation=True</span></code> has to be specified.<br />
+If <span class="math notranslate nohighlight">\(A(t)\)</span> is unknown a <code class="docutils literal notranslate"><span class="pre">cross_correlation=&quot;doubleblind&quot;</span></code> retrieval can be performed. However in such a case serious ambiguities exist, such that the provision of additional constraints is necessary for most algorithms. The spectra of <span class="math notranslate nohighlight">\(E(t)\)</span> and <span class="math notranslate nohighlight">\(A(t)\)</span> can be provided as such constraints via <code class="docutils literal notranslate"><span class="pre">algorithm.use_measured_spectrum()</span></code>.<br />
+The available algorithms for FROG-retrieval are described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a> and <a class="reference internal" href="example_method_specific_algorithms.html"><span class="std std-doc">Method Specific Algorithms</span></a>.<br />
+For i-FROG the algorithms Vanilla, LSGPA, CPCGPA and PIE are not available, due to the requirements of these algorithms.</p>
 </section>
 <section id="chirp-scan">
 <h2>Chirp-Scan<a class="headerlink" href="#chirp-scan" title="Link to this heading"></a></h2>
+<p>Contrary to FROG a Chirp-Scan is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form <span class="math notranslate nohighlight">\(T(\theta, \omega) = |S(\theta, \omega)|^2\)</span>. The signal field is defined as:</p>
+<p><span class="math notranslate nohighlight">\(S(\theta, t) = E(\theta, t) \cdot G(E(\theta, t))\)</span></p>
+<p>Most commonly the spectral phase is applied via material dispersion. However any known spectral phase (e.g. from a pulse shaper) can be used. In a retrieval the <code class="docutils literal notranslate"><span class="pre">phase_type</span></code> has to be specified, either as <code class="docutils literal notranslate"><span class="pre">&quot;material&quot;</span></code> or one of the predefined functions in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.phase_matrix_funcs.py</span></code>. Alternatively a custom function can be function provided <code class="docutils literal notranslate"><span class="pre">phase_type</span> <span class="pre">=</span> <span class="pre">myfunction</span></code> as outlined below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">myfunction</span><span class="p">(</span><span class="n">measurement_info</span><span class="p">,</span> <span class="n">chirp_parameters</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Calculates a phase matrix.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        measurement_info (Pytree): holds measurement data and parameters, needs to contain the shift-values in appropriate units</span>
+<span class="sd">        chirp_parameters (tuple): the parameters which are expected by phase_func</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        jnp.array, the calculated phase matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">z_arr</span><span class="p">,</span> <span class="n">omega</span> <span class="o">=</span> <span class="n">measurement_info</span><span class="o">.</span><span class="n">z_arr</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">jnp</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">measurement_info</span><span class="o">.</span><span class="n">frequency</span>
+    <span class="n">phase_matrix</span> <span class="o">=</span> <span class="n">phase_func</span><span class="p">(</span><span class="n">omega</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span> <span class="n">z_arr</span><span class="p">[:,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">chirp_parameters</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phase_matrix</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In addition to <code class="docutils literal notranslate"><span class="pre">phase_type</span></code> the <code class="docutils literal notranslate"><span class="pre">chirp_parameters</span></code> have to provided. These contain any static input parameter which may be used to calculate the spectral phase. For example in the case of <code class="docutils literal notranslate"><span class="pre">phase_type=&quot;material&quot;</span></code>, the <code class="docutils literal notranslate"><span class="pre">chirp_parameters</span></code> need to be an instance of <code class="docutils literal notranslate"><span class="pre">refractiveindex.RefractiveIndexMaterial</span></code>.<br />
+The available algorithms for Chirp-Scan-retrieval are described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a> and <a class="reference internal" href="example_method_specific_algorithms.html"><span class="std std-doc">Method Specific Algorithms</span></a>.</p>
 </section>
 <section id="time-domain-ptchography">
 <h2>Time-Domain-Ptchography<a class="headerlink" href="#time-domain-ptchography" title="Link to this heading"></a></h2>
-</section>
+<p>Time-Domain-Ptychography can be understood as a FROG variant. The only difference is that <span class="math notranslate nohighlight">\(A(t)\)</span> is spectrally filtered. The transfer-function of this filter has to be provided. In <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.spectral_filter_funcs.py</span></code> exemplary functions to generate/evaluate a filter are available.<br />
+The filter is provided via <code class="docutils literal notranslate"><span class="pre">spectral_filter</span></code>. It needs to have the same frequency axis as the measured trace.<br />
+The available algorithms for FROG-retrieval are described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a>.</p>
+<br>
+Currently there may be an issue with regards to the delays between pulse and gate.
+What about materialdispersion of an arbitrary filter?
+what about a delay mismatch since time zero is arbitrary, but not considered here?</section>
 <section id="d-si">
 <h2>2D-SI<a class="headerlink" href="#d-si" title="Link to this heading"></a></h2>
+<p>Two-Dimensional-Spectral-Shearing-Interferometry (2D-SI) can be understood as inspired by both FROG and SPIDER. It can be performed in an auto- or cross-correlation setup. The nonlinear signal is defined as:</p>
+<p><span class="math notranslate nohighlight">\(S(\tau, t) = E(t)\cdot G(A'(t) + A''(\tau, t))\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(A'\)</span> and <span class="math notranslate nohighlight">\(A''\)</span> are spectrally filtered pulses with different central frequencies. These are overlayed interferometrically. The final nonlinear signal is obtained in a non-collinear setup. The transfer-functions of the spectral filters have to be provided via <code class="docutils literal notranslate"><span class="pre">spectral_filter1</span></code> and <code class="docutils literal notranslate"><span class="pre">spectral_filter2</span></code>. As in TDP their spectral axis must match that of the measured trace.<br />
+Usually 2D-SI is performed via Sum-Frequency Generation. In this case Direct-Reconstruction as described in <a class="reference internal" href="example_method_specific_algorithms.html"><span class="std std-doc">Method-Specific Algorithms</span></a> can be used to perform the retrieval. If the prelimiaries for this approach are not fullfilled the algorithms described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a> can be used instead.</p>
 </section>
 <section id="vampire">
 <h2>VAMPIRE<a class="headerlink" href="#vampire" title="Link to this heading"></a></h2>
+<p>Very advanced method for phase and intensity retrieval of E-fields (VAMPIRE) has a setup similar to 2D-SI but functions like a FROG. The nonlinear signal is defined as:</p>
+<p><span class="math notranslate nohighlight">\(S(\tau, t) = E(\tau, t) \cdot G(A(t) + A'(t))\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(A'\)</span> is a modified and delayed version of <span class="math notranslate nohighlight">\(A\)</span>. Usually the “modification” is achieved via material dispersion. In contrast to 2D-SI no spectral filtering is introduced.<br />
+The working idea is to create a duplicate but modified pulse in the interferometer at a fixed delay. The pulse <span class="math notranslate nohighlight">\(E\)</span> is shifted in time over these in order to create a FROG-like trace. This approach resolves any ambiguities which may be present in an analog FROG measurement.<br />
+In order for the retrieval to work the interferometer delay has to be set using <code class="docutils literal notranslate"><span class="pre">tau_interferometer</span></code>, the material has to be provided via <code class="docutils literal notranslate"><span class="pre">refractive_index=refractiveindex.RefractiveIndexMaterial</span></code> and its thickness needs to be specified in millimeters with <code class="docutils literal notranslate"><span class="pre">material_thickness</span></code>.
+The available algorithms for VAMPIRE-retrieval are described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Overview Algorithms</span></a>.</p>
 </section>
 </section>
 

@@ -17,6 +17,8 @@
    example_nonlinear_optimization
    example_advanced_things
 
+   examples
+
 
 
 .. toctree::

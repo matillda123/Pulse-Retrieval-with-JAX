@@ -43,8 +43,6 @@ class AlgorithmsBASE:
 
         carry, do_scan = self.initialize_run(init_vals)
         carry, error_arr = run_scan(do_scan, carry, no_iterations, self.jit)
-
-        error_arr = jnp.squeeze(error_arr)
         final_result = self.post_process(carry, error_arr)
         return final_result
     
@@ -522,6 +520,9 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         self.amplitude_or_intensity = "intensity"
         self.error_metric = self.trace_error
 
+        self.make_bsplines_amp = None
+        self.make_bsplines_phase =None
+
 
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         """ 
@@ -644,7 +645,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def tanh_phase(self, coefficients, central_f, measurement_info):
         a, c, k = coefficients.a, coefficients.c, coefficients.k
-        phase_arr=jax.vmap(self.tanh_term, in_axes=(0, 0, None))(c, k, measurement_info.frequency)
+        phase_arr = jax.vmap(self.tanh_term, in_axes=(0, 0, None))(c, k, measurement_info.frequency)
         phase = jnp.sum(a[:, jnp.newaxis]*phase_arr, axis=0)
         return phase
     
@@ -679,8 +680,6 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         amp_f = jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
         amp_f = jnp.sum(amp_f, axis=0)
         return amp_f
-    
-
     
 
     def discrete_amplitude(self, coefficients, measurement_info):
@@ -869,12 +868,13 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             idx = self.get_idx_best_individual(descent_state)
         individual = self.get_individual_from_idx(idx, descent_state.population)
 
-        pulse_t = self.make_pulse_t_from_individual(individual, measurement_info, descent_info, "pulse")
-        pulse_f = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "pulse")
+        pulse_t = jax.vmap(self.make_pulse_t_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "pulse")
+        pulse_f = jax.vmap(self.make_pulse_f_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "pulse")
+        pulse_t, pulse_f = pulse_t[0], pulse_f[0]
 
         if measurement_info.doubleblind==True:
-            gate_t = self.make_pulse_t_from_individual(individual, measurement_info, descent_info, "gate")
-            gate_f = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "gate")
+            gate_t = jax.vmap(self.make_pulse_t_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
+            gate_f = jax.vmap(self.make_pulse_f_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
         else:
             gate_t, gate_f = pulse_t, pulse_f
 

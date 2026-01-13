@@ -135,13 +135,8 @@ class RetrievePulses:
     
 
     def get_individual_from_idx(self, idx, population):
-        # idx can also be an array (i think, didnt test)
-        leaves, treedef = jax.tree.flatten(population)
-        leaves_individual = [leaves[i][idx] for i in range(len(leaves))]
-        individual = jax.tree.unflatten(treedef, leaves_individual)
+        individual = jax.tree.map(lambda x: x[jnp.newaxis, idx], population)
         return individual
-    
-
     
 
 
@@ -269,6 +264,7 @@ class RetrievePulses:
 
     def post_process(self, descent_state, error_arr):
         """ Creates the final_result object from the final descent_state. """
+        error_arr = jnp.squeeze(error_arr)
         self.descent_state = descent_state
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
@@ -462,7 +458,7 @@ class RetrievePulsesFROG(RetrievePulses):
     def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
         """ The Fourier-Shift theorem applied to a list of signals. """
 
-        # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary?
+        # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary(?)
         # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
         frequency = frequency - (frequency[-1] + frequency[0])/2
 

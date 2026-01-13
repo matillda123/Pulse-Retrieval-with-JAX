@@ -9,7 +9,7 @@
   <title>Advanced Usage &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -117,14 +117,219 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="advanced-usage">
 <h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h1>
+<p>As the title suggests in this section a series of rarely required but available use-cases are described.</p>
+<section id="real-fields">
+<h2>Real-Fields<a class="headerlink" href="#real-fields" title="Link to this heading"></a></h2>
+<p>Generally in ultrafast pulse retrieval it is sufficient (and convenient) to describe the pulses as complex fields. However this comes at the drawback. Complex-valued fields are not hermitian. Thus the pulses they describe do not possess negative frequencies and are thus not able to describe nonlinear processes involving difference-frequency generation. This includes explicit DFG-Traces or measurement techniques like <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/blob/main/examples/simulate_and_retrieve_TREX.py">TREX</a>, which simultaneous measure multiple nonlinear signals.<br />
+In order to solve this the <code class="docutils literal notranslate"><span class="pre">pulsedjax.real_fields</span></code> module explicitely uses real-valued fields to calculate nonlinear signals. This comes with a series of drawbacks. Most Classical Algorithms are not setup to be used with real fields (this would involve recalculations of analytic gradients, although an algorithms like C-PCGPA might work. But that isn’t tested.). Thus only the PIE and General Algorithms are available with <code class="docutils literal notranslate"><span class="pre">real_fields</span></code>. Additionally the presence of negative frequencies requires the usage of a large frequency axis, which increases computational demand. In order to avoid convergence issues, the pulses are only defined on a user-specified frequency range. However the continuous interpolation between different frequency axis requires additional computational ressources.</p>
+<p>Below is a usage example of an SHG-FROG with real fields and the AutoDiff-Solver. The only actual difference is the user-specified input <code class="docutils literal notranslate"><span class="pre">f_range_fields</span> <span class="pre">=</span> <span class="pre">(fmin,</span> <span class="pre">fmax)</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.real_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">frog</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+
+<span class="n">ad</span> <span class="o">=</span> <span class="n">frog</span><span class="o">.</span><span class="n">AutoDiff</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> <span class="n">f_range_fields</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">solver</span><span class="o">=</span><span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+<span class="n">population</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">)</span>
+<span class="n">final_result</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="mixing-algorithms">
 <h2>Mixing Algorithms<a class="headerlink" href="#mixing-algorithms" title="Link to this heading"></a></h2>
+<p>All algorithms work based on an <code class="docutils literal notranslate"><span class="pre">algorithm.step(descent_state,</span> <span class="pre">measurement_info,</span> <span class="pre">descent_info)</span></code> function, which always takes the stated inputs. Thus in principle composite algorithms can easily be created by chaining step functions of different algorithms. However <code class="docutils literal notranslate"><span class="pre">descent_state</span></code> and <code class="docutils literal notranslate"><span class="pre">descent_info</span></code> have different structures and contents between different algorithms. In a composite algorithm these algorithm dependent containers need to be accounted for. In the case of <code class="docutils literal notranslate"><span class="pre">descent_info</span></code> this is not an issue since it is static. For <code class="docutils literal notranslate"><span class="pre">descent_state</span></code> the user has to specify how the population or population individuals are transfered between different variants.<br />
+Below is an example of an algorithm composed of <code class="docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code> and <code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code>. The goal is to refine the fittest individual at each iteration of the <code class="docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">DifferentialEvolution</span><span class="p">,</span> <span class="n">AutoDiff</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">scan_helper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">equinox</span><span class="w"> </span><span class="kn">import</span> <span class="n">tree_at</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax.tree_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">Partial</span>
+
+
+<span class="n">de</span> <span class="o">=</span> <span class="n">DifferentialEvolution</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency_trace</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;best1_exp&quot;</span><span class="p">)</span>
+<span class="n">ad</span> <span class="o">=</span> <span class="n">AutoDiff</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency_trace</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+<span class="c1"># types and number of basis funcs must be the same</span>
+<span class="c1"># otherwise transfering the population between descent_states becomes difficult</span>
+<span class="n">population_de</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> 
+                                             <span class="n">amp_type</span><span class="o">=</span><span class="s2">&quot;bsplines_5&quot;</span><span class="p">,</span> <span class="n">phase_type</span><span class="o">=</span><span class="s2">&quot;bsplines_5&quot;</span><span class="p">,</span> 
+                                             <span class="n">no_funcs_amp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="n">population_ad</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> 
+                                             <span class="n">amp_type</span><span class="o">=</span><span class="s2">&quot;bsplines_5&quot;</span><span class="p">,</span> <span class="n">phase_type</span><span class="o">=</span><span class="s2">&quot;bsplines_5&quot;</span><span class="p">,</span> 
+                                             <span class="n">no_funcs_amp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+
+<span class="n">descent_state_de</span><span class="p">,</span> <span class="n">step_de</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">initialize_run</span><span class="p">(</span><span class="n">population_de</span><span class="p">)</span>
+<span class="n">descent_state_ad</span><span class="p">,</span> <span class="n">step_ad</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">initialize_run</span><span class="p">(</span><span class="n">population_ad</span><span class="p">)</span>
+<span class="c1"># descent_state_ad is closed over, in order to avoid cross-talk between optimization runs of different individuals</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_step_composite</span><span class="p">(</span><span class="n">descent_state_de</span><span class="p">):</span>
+
+    <span class="c1"># make one DifferentialEvolution-Step</span>
+    <span class="n">descent_state_de</span><span class="p">,</span> <span class="n">error_de</span> <span class="o">=</span> <span class="n">step_de</span><span class="p">(</span><span class="n">descent_state_de</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Extract the fittest individual</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">get_idx_best_individual</span><span class="p">(</span><span class="n">descent_state_de</span><span class="p">)</span>
+    <span class="n">fittest_individual</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">get_individual_from_idx</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">descent_state_de</span><span class="o">.</span><span class="n">population</span><span class="p">)</span>
+
+    <span class="c1"># insert this individual into the AutoDiff descent_state</span>
+    <span class="n">descent_state_ad_new</span> <span class="o">=</span> <span class="n">tree_at</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">population</span><span class="p">,</span> <span class="n">descent_state_ad</span><span class="p">,</span> <span class="n">fittest_individual</span><span class="p">)</span>
+
+    <span class="c1"># run an AutoDiff optimization of that individual with 50 iterations</span>
+    <span class="n">descent_state_ad_new</span><span class="p">,</span> <span class="n">error_ad</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">step_ad</span><span class="p">,</span> <span class="n">descent_state_ad_new</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="c1"># return this individual into the population of DifferentialEvolution</span>
+    <span class="n">population_de</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">descent_state_de</span><span class="o">.</span><span class="n">population</span><span class="p">,</span> <span class="n">descent_state_ad_new</span><span class="o">.</span><span class="n">population</span><span class="p">)</span>
+    <span class="n">descent_state_de</span> <span class="o">=</span> <span class="n">tree_at</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">population</span><span class="p">,</span> <span class="n">descent_state_de</span><span class="p">,</span> <span class="n">population_de</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">descent_state_de</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">error_de</span><span class="p">,</span> <span class="n">error_ad</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+
+<span class="c1"># convert _composite_step into a lax.scan compatible form</span>
+<span class="n">step_composite</span> <span class="o">=</span> <span class="n">Partial</span><span class="p">(</span><span class="n">scan_helper</span><span class="p">,</span> <span class="n">actual_function</span><span class="o">=</span><span class="n">_step_composite</span><span class="p">,</span> <span class="n">number_of_args</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_xs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># run</span>
+<span class="n">descent_state_de</span><span class="p">,</span> <span class="n">error_arr</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">step_composite</span><span class="p">,</span> <span class="n">descent_state_de</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">final_result</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">post_process</span><span class="p">(</span><span class="n">descent_state_de</span><span class="p">,</span> <span class="n">error_arr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="adding-new-methods">
 <h2>Adding new Methods<a class="headerlink" href="#adding-new-methods" title="Link to this heading"></a></h2>
+<p>One idea behind <code class="docutils literal notranslate"><span class="pre">pulsedjax</span></code> is modularity. This should make it relatively easy to add new methods as well as new algorithms. All methods are implemented as <code class="docutils literal notranslate"><span class="pre">RetrievePulsesMETHOD(RetrievePulses)</span></code> in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.base_classes_methods.py</span></code>. Methods define how data is preprocessed and added into <code class="docutils literal notranslate"><span class="pre">measurement_info</span></code>. In some cases specific post-processing is needd as well. Most importantly a method-class needs to define how the nonlinear signal is calculated via the class-method <code class="docutils literal notranslate"><span class="pre">RetrievePulsesMETHOD.calculate_signal_t(self,</span> <span class="pre">individual,</span> <span class="pre">transform_arr,</span> <span class="pre">measurement_info)</span></code> and <code class="docutils literal notranslate"><span class="pre">RetrievePulsesMETHOD.generate_signal_t(self,</span> <span class="pre">descent_state,</span> <span class="pre">measurement_info,</span> <span class="pre">descent_info)</span></code>, where the latter essentially just applies the to whole population.<br />
+Below is a bare-bone implementation of a <code class="docutils literal notranslate"><span class="pre">RetrievePulsesMETHOD</span></code> class.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">RetrievePulsesMETHOD</span><span class="p">(</span><span class="n">RetrievePulses</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">measured_trace</span><span class="p">,</span> <span class="n">nonlinear_method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">nonlinear_method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">measured_trace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">measured_trace</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rn</span> <span class="o">=</span> <span class="n">get_sk_rn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_info</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span>
+                                                             <span class="n">frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+                                                             <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+                                                             <span class="n">measured_trace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measured_trace</span><span class="p">,</span>
+                                                             <span class="n">cross_correlation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_correlation</span><span class="p">,</span>
+                                                             <span class="n">doubleblind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doubleblind</span><span class="p">,</span>
+                                                             <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+                                                             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+                                                             <span class="n">sk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sk</span><span class="p">,</span>
+                                                             <span class="n">rn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rn</span><span class="p">,</span>
+                                                             <span class="n">x_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_arr</span><span class="p">,</span>
+                                                             <span class="n">central_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_frequency</span><span class="p">)</span>
+        
+        <span class="c1"># for delay based methods transform_arr is the same as tau_arr or delay</span>
+        <span class="c1"># for chirp_scans its the same as phase_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_info</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">transform_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_arr</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_signal_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">,</span> <span class="n">transform_arr</span><span class="p">,</span> <span class="n">measurement_info</span><span class="p">):</span>
+        <span class="n">signal_t</span> <span class="o">=</span> <span class="o">...</span> 
+
+        <span class="n">signal_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">signal_t</span><span class="p">,</span> <span class="n">measurement_info</span><span class="o">.</span><span class="n">sk</span><span class="p">,</span> <span class="n">measurement_info</span><span class="o">.</span><span class="n">rn</span><span class="p">)</span>
+        <span class="n">signal_t</span> <span class="o">=</span> <span class="n">MyNamespace</span><span class="p">(</span><span class="n">signal_t</span><span class="o">=</span><span class="n">signal_t</span><span class="p">,</span> <span class="n">signal_f</span><span class="o">=</span><span class="n">signal_f</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">signal_t</span>
+    
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_signal_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">descent_state</span><span class="p">,</span> <span class="n">measurement_info</span><span class="p">,</span> <span class="n">descent_info</span><span class="p">):</span>
+        <span class="n">transform_arr</span> <span class="o">=</span> <span class="n">measurement_info</span><span class="o">.</span><span class="n">transform_arr</span>
+        <span class="n">population</span> <span class="o">=</span> <span class="n">descent_state</span><span class="o">.</span><span class="n">population</span>
+        <span class="n">signal_t</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_signal_t</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">population</span><span class="p">,</span> <span class="n">transform_arr</span><span class="p">,</span> <span class="n">measurement_info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">signal_t</span>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_process_get_pulse_and_gate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">descent_state</span><span class="p">,</span> <span class="n">measurement_info</span><span class="p">,</span> <span class="n">descent_info</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="n">pulse_t</span><span class="p">,</span> <span class="n">gate_t</span><span class="p">,</span> <span class="n">pulse_f</span><span class="p">,</span> <span class="n">gate_f</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In order to create a new final algorithm multiple inheritance is used via <code class="docutils literal notranslate"><span class="pre">Algorithm(AlgorithmBASE,</span> <span class="pre">RetrievePulsesMETHOD)</span></code>. Usually some final method specific class-methods have to be defined.</p>
 </section>
 <section id="adding-new-algorithms">
 <h2>Adding new Algorithms<a class="headerlink" href="#adding-new-algorithms" title="Link to this heading"></a></h2>
+<p>As stated above it should be relatively easy to add new algorithms. Usually all algorithms inherit from <code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASE</span></code> or <code class="docutils literal notranslate"><span class="pre">GeneralAlgorithmsBASE</span></code> and are either defined in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.base_classic_algorithms.py</span></code> or <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.base_general_optimization.py</span></code>.<br />
+All algorithm classes need to possess an <code class="docutils literal notranslate"><span class="pre">algorithm.step(self,</span> <span class="pre">descent_state,</span> <span class="pre">measurement_info,</span> <span class="pre">descent_info)</span></code> function as well as an <code class="docutils literal notranslate"><span class="pre">algorithm.initialize_run(self,</span> <span class="pre">population)</span></code> function, where <code class="docutils literal notranslate"><span class="pre">step()</span></code> performs one iteration of the algorithm and <code class="docutils literal notranslate"><span class="pre">initialize_run()</span></code> prepares all provided data for the retrieval.<br />
+Below is a bare-bone implementation of an <code class="docutils literal notranslate"><span class="pre">AlgorithmBASE</span></code> class.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyAlgorithmBASE</span><span class="p">(</span><span class="n">Classic_or_GeneralAlgorithmsBASE</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;MyAlgorithm&quot;</span>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">descent_state</span><span class="p">,</span> <span class="n">measurement_info</span><span class="p">,</span> <span class="n">descent_info</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs one iteration of the Generalized Projection Algorithm.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            descent_state (Pytree):</span>
+<span class="sd">            measurement_info (Pytree):</span>
+<span class="sd">            descent_info (Pytree):</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="o">...</span> 
+
+        <span class="k">return</span> <span class="n">descent_state</span><span class="p">,</span> <span class="n">trace_error</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares all provided data and parameters for the reconstruction. </span>
+<span class="sd">        Here the final shape/structure of descent_state, measurement_info and descent_info are determined. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            population (Pytree): the initial guess as created by self.create_initial_population()</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># usually the final structure of measurement info is defined through RetrievePulsesMETHOD</span>
+        <span class="n">measurement_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_info</span>
+
+        <span class="c1"># add the setting attributes into descent_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descent_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descent_info</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span> <span class="o">...</span> <span class="p">)</span>
+        <span class="n">descent_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descent_info</span>
+
+        <span class="c1"># add the initial guess and other changing variables like prng keys into descent_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descent_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descent_state</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">population</span> <span class="o">=</span> <span class="n">population</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span>
+        <span class="n">descent_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">descent_state</span>
+
+        <span class="n">do_step</span> <span class="o">=</span> <span class="n">Partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">,</span> <span class="n">measurement_info</span><span class="o">=</span><span class="n">measurement_info</span><span class="p">,</span> <span class="n">descent_info</span><span class="o">=</span><span class="n">descent_info</span><span class="p">)</span>
+        <span class="n">do_step</span> <span class="o">=</span> <span class="n">Partial</span><span class="p">(</span><span class="n">scan_helper</span><span class="p">,</span> <span class="n">actual_function</span><span class="o">=</span><span class="n">do_step</span><span class="p">,</span> <span class="n">number_of_args</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_xs</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">descent_state</span><span class="p">,</span> <span class="n">do_step</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 

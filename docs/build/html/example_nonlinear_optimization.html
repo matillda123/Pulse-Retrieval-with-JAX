@@ -9,7 +9,7 @@
   <title>Nonlinear Optimization &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -23,6 +23,8 @@
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -56,6 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Equations</span></p>
 <ul>
@@ -117,17 +120,97 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="nonlinear-optimization">
 <h1>Nonlinear Optimization<a class="headerlink" href="#nonlinear-optimization" title="Link to this heading"></a></h1>
+<p>Generalized Projection, PIE and COPRA have been implemented to support various forms of nonlinear optimization techniques. The scope and usage of these are explained in this section.</p>
 <section id="linesearch-and-adaptive-stepsize">
 <h2>Linesearch and Adaptive-Stepsize<a class="headerlink" href="#linesearch-and-adaptive-stepsize" title="Link to this heading"></a></h2>
+<p>In order to accelerate convergence a <code class="docutils literal notranslate"><span class="pre">&quot;backtracking&quot;</span></code> and a <code class="docutils literal notranslate"><span class="pre">&quot;zoom&quot;</span></code> linesearch are implemented. In addition a generalization of the Polyak-Stepsize is available. The implementations are located in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.stepsize.py</span></code>.<br />
+The backtracking linesearch works by reducing the stepsize by a factor until the Armijo-condition is fullfilled or the maximum number of steps is reached. The stepsize is updated via <span class="math notranslate nohighlight">\(\gamma' = \gamma\cdot\Delta\gamma\)</span>. The Armijo-Condition reads:</p>
+<p><span class="math notranslate nohighlight">\( \Delta L \leq c_1\gamma\cdot p\top\cdot\nabla L\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\Delta L\)</span> is the change in the error, <span class="math notranslate nohighlight">\(p\)</span> is the descent direction and <span class="math notranslate nohighlight">\(c_1\)</span> is a constant that tunes the condition. In short, the condition checks if the error has decreased beyond a linear approximation whose slope is set by <span class="math notranslate nohighlight">\(c_1\)</span>. As long as <span class="math notranslate nohighlight">\(0&lt;c_1&lt;1\)</span> a stepsize that fulfills the condition should exist.<br />
+The zoom-linesearch expands on this by requiring the Strong-Wolfe Condition on top of the Armijo-Condition. This condition reads:</p>
+<p><span class="math notranslate nohighlight">\(|p\top\cdot\nabla L'|\leq c_2 |p\top\cdot\nabla L|\)</span></p>
+<p>This condition requires that not only the error has to decrease sufficiently but that also the slope of the error should decrease. This condition enforces a stepsize that lies close to a minimum along the current descent direction. The amount of reduction in the slope is controlled via <span class="math notranslate nohighlight">\(c_2\)</span>. In order for a solution to exist <span class="math notranslate nohighlight">\(0&lt;c_1&lt;c_2&lt;1\)</span> is required.<br />
+The zoom linesearch works in to phases. A finding-phase and a zoom-phase. In the finding-phase the step size is increased using <span class="math notranslate nohighlight">\(\gamma' = \gamma\cdot\Delta\gamma\)</span>. If the stepsize is increased beyond a minimum along the descent direction the zoom phase begins. In this phase the local minimum is obtained through successive cubic interpolation along the descent direction. In cases where the cubic interpolation fails the algorithm falls back onto a bisection search.</p>
+<p>The lineserch parameters can be either set directly as class attributes, or for simplicty via a setter-function as shown below.<br />
+It is hardcoded that linesearches will only be performed during global iterations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">.</span><span class="n">set_linesearch</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                         <span class="n">max_steps</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+                         <span class="n">c1</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">c2</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> 
+                         <span class="n">delta_gamma</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>An alternative to a relative expensive linesearch is presented via an adaptive stepsize, such as the Polyak-Stepsize. The idea is to expand the error function along the descent direction in a Taylor- or Padé-Series. Subsequently a target error <span class="math notranslate nohighlight">\(L'\)</span> can be defined and a stepsize to achieve this error can be obtained. This can be done using a linear or quadratic Taylor expansion or a Padé approximant of order [0/1], [1/1] or [0/2]. In addition a damping factor can be defined which avoids division by zero.<br />
+The method and target error reduction can be defined via class attributes or via a setter-function as shown below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">.</span><span class="n">set_adaptive_stepsize</span><span class="p">(</span><span class="n">local_method</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">global_method</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># can be any of &quot;pade_nm&quot;</span>
+                                <span class="n">local_factor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">global_factor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># -1 is the default for COPRA.</span>
+                                <span class="n">damping</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">)</span>
+        
+</pre></div>
+</div>
+</div>
+</div>
 </section>
-<section id="nonlinear-conjugate-gradients">
-<h2>Nonlinear Conjugate-Gradients<a class="headerlink" href="#nonlinear-conjugate-gradients" title="Link to this heading"></a></h2>
+<section id="nonlinear-conjugate-gradient">
+<h2>Nonlinear Conjugate-Gradient<a class="headerlink" href="#nonlinear-conjugate-gradient" title="Link to this heading"></a></h2>
+<p>The Conjugate Gradient method is used to iteratively solve linear equations. The Nonlinear Conjugate-Gradient Method (NCG) extends heuristically expands this approach to minimize nonlinear equations. The descent direction <span class="math notranslate nohighlight">\(p\)</span> is defined as:</p>
+<p><span class="math notranslate nohighlight">\(p_n = -\nabla L + \beta p_{n-1}\)</span></p>
+<p>Essentially, if a linesearch is used the error will be minimized along the previous descent direction <span class="math notranslate nohighlight">\(p_{n-1}\)</span>. Thus the steepest descent direction at the new position is perpendicular to <span class="math notranslate nohighlight">\(p_{n-1}\)</span>. Preserving the previous descent direction inhibits a zig-zag motion in the descent and improoves convergence behaviour.<br />
+The parameter <span class="math notranslate nohighlight">\(\beta\)</span> can be computed through various formulas which are based on the (linear) Conjugate Gradient method. The available methods to calculate <span class="math notranslate nohighlight">\(\beta\)</span> are <code class="docutils literal notranslate"><span class="pre">&quot;fletcher_reeves&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;polak_ribiere&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hestenes_stiefel&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;dai_yuan&quot;</span></code>. The implementation of NCG can be found in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.nonlinear_cg.py</span></code>.<br />
+NCG can be enabled as shown below. It does not differentiate between local or global iterations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">.</span><span class="n">nonlinear_conjugate_gradient</span> <span class="o">=</span> <span class="s2">&quot;fletcher_reeves&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="quasi-newton-methods">
 <h2>(Quasi)-Newton Methods<a class="headerlink" href="#quasi-newton-methods" title="Link to this heading"></a></h2>
+<p>All mentioned algorithms support three Newton-like optimization approaches. One of them is L-BFGS. It is implemented in <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.lbfgs.py</span></code>.<br />
+The core idea of BFGS is to avoid an explicit calculation and inversion of the Hessian. Instead the Hessian inverse can be approximated via past gradients. L-BFGS limits the memory of this process to a fixed number of past iterations.</p>
+<p>The remaining two are based on the Pseudo-Hessian. Since the search space is complex valued the true hessian is a block matrix of the form:</p>
+<p><span class="math notranslate nohighlight">\(H = \begin{bmatrix} \partial_{zz} &amp; \partial_{z\bar{z}} \\\ \partial_{\bar{z}z} &amp; \partial_{\bar{z}\bar{z}} \end{bmatrix}\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\partial_z\)</span> and <span class="math notranslate nohighlight">\(\partial_{\bar{z}}\)</span> refer to the Wirtinger derivatives. In order to relief some numerical burden the Pseudo-Hessian approximates the cross-derivatives as zero.</p>
+<p><span class="math notranslate nohighlight">\(H \approx H_{pseudo} = \begin{bmatrix} \partial_{zz} &amp; 0 \\\ 0 &amp; \partial_{\bar{z}\bar{z}} \end{bmatrix}\)</span></p>
+<p>Based on this a damped Newton method is implemented. However, since a matrix inverse at each iteration is still quite expensive the Pseudo-Hessian may be approximated via its diagonal.<br />
+Thus the available options are <code class="docutils literal notranslate"><span class="pre">&quot;lbfgs&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;diagonal&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>. In the case of L-BFGS the memory can be tuned. If the full Pseudo-Hessian is used different solver options to calculate the matrix inverse are available. These are <code class="docutils literal notranslate"><span class="pre">&quot;scipy&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;lineax&quot;</span></code> Alternatively a specific lineax-solver can be provided. This includes iterative solvers, which will use a diagonal preconditioner and the previous solution as an initial guess.<br />
+The parameters can be controlled as class attributes or via a setter-function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lineax</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMRES</span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">set_nonlinear_optimization</span><span class="p">(</span><span class="n">local_method</span> <span class="o">=</span> <span class="s2">&quot;lbfgs&quot;</span><span class="p">,</span> <span class="n">global_method</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span> 
+                                     <span class="n">damping</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> 
+                                     <span class="n">memory</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
+                                     <span class="n">solver</span> <span class="o">=</span> <span class="n">GMRES</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">))</span>
+        
+</pre></div>
+</div>
+</div>
+</div>
 </section>
-<section id="updating-s-prime">
-<h2>Updating S_prime<a class="headerlink" href="#updating-s-prime" title="Link to this heading"></a></h2>
+<section id="updating-the-nonlinear-signal-field">
+<h2>Updating the nonlinear Signal-Field<a class="headerlink" href="#updating-the-nonlinear-signal-field" title="Link to this heading"></a></h2>
+<p>The COPRA has shown that updating of the nonlinear signal field does not need to be a complete projection in order to perform a successful phase retrieval. Instead an approximate iterative updating is sufficient. In <code class="docutils literal notranslate"><span class="pre">pulsedjax.core.construct_s_prime.py</span></code> the projection as well as the iterative update is implemented such that all algorithms may make use of either one.<br />
+In addition an alternative definition to the r-error based on the trace magnitude instead of the intensity as well as an diagonal Newton approximation have been implemented.<br />
+The parameters can be controlled as class attributes or via a setter-function. In the case of the latter all attributes are overwritten such that algorithms like COPRA may use <code class="docutils literal notranslate"><span class="pre">&quot;projection&quot;</span></code> by accident.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algorithm</span><span class="o">.</span><span class="n">set_S_prime_params</span><span class="p">(</span><span class="n">local_method</span> <span class="o">=</span> <span class="s2">&quot;projection&quot;</span><span class="p">,</span> <span class="n">global_method</span> <span class="o">=</span> <span class="s2">&quot;iteration&quot;</span><span class="p">,</span> 
+                             <span class="n">gradient</span> <span class="o">=</span> <span class="s2">&quot;intensity&quot;</span><span class="p">,</span> <span class="c1"># &quot;amplitude&quot;</span>
+                             <span class="n">newton</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># True for a diagonal Newton step</span>
+                             <span class="n">weights</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="c1"># can be an array of the same shape as trace, weights the r-error</span>
+                             <span class="n">no_iterations</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># the number of iterations to perform, 1 should be sufficient.</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 

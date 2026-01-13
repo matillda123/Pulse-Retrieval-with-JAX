@@ -125,12 +125,14 @@ The algorithms described here belong to either type. In addition several method-
 <h2>Classical Algorithms<a class="headerlink" href="#classical-algorithms" title="Link to this heading"></a></h2>
 <section id="generalized-projection">
 <h3>Generalized Projection<a class="headerlink" href="#generalized-projection" title="Link to this heading"></a></h3>
-<p>Starting from an initial guess the algorithm works by constructing the nonlinear signal field <span class="math notranslate nohighlight">\(S(\theta, \omega)\)</span> (<span class="math notranslate nohighlight">\(\theta\)</span> refers to an arbitrary scanning parameter). The amplitude of this guessed signal field is replaced by the measured amplitude of the trace to yield <span class="math notranslate nohighlight">\(S'(\theta, \omega)\)</span>. Thus the signal field is projected into the space of signal fields that could produce the measured trace. The updated guess of the pulse is obtained through an iterative optimization of the Z-error.<br />
+<p>Starting from an initial guess the algorithm works by constructing the nonlinear signal field <span class="math notranslate nohighlight">\(S(\theta, \omega)\)</span> (<span class="math notranslate nohighlight">\(\theta\)</span> refers to an arbitrary scanning parameter). The amplitude of this guessed signal field is replaced by the measured amplitude of the trace to yield <span class="math notranslate nohighlight">\(S'(\theta, \omega)\)</span>. Thus the signal field is projected into the space of signal fields that could produce the measured trace. The updated guess of the pulse is obtained through an iterative optimization of the Z-error.</p>
+<p><span class="math notranslate nohighlight">\(Z = \sum |S'(\theta, t) - S(\theta, t)|^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(E'(\omega) = E(\omega) - \frac{dZ}{dE^*(\omega)}\)</span><br />
 <br>
 Below is a small working example of the Generalized Projection Algorithm to an SHG-FROG. Apart from the nonlinear optimization methods described in the <a class="reference internal" href="example_nonlinear_optimization.html"><span class="std std-doc">Nonlinear Optimization</span></a> section, the main tunable parameters are the number of gradient descent steps (no_steps_descent) and the step size (global_gamma).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
 
 <span class="n">gp</span> <span class="o">=</span> <span class="n">GeneralizedProjection</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
 
@@ -143,37 +145,25 @@ Below is a small working example of the Generalized Projection Algorithm to an S
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">gp</span> <span class="o">=</span> <span class="n">GeneralizedProjection</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">population</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;pulsedjax&#39;
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 <section id="ptychographic-iterative-engine">
 <h3>Ptychographic Iterative Engine<a class="headerlink" href="#ptychographic-iterative-engine" title="Link to this heading"></a></h3>
 <p>The general idea of Ptychography is to move a probe <span class="math notranslate nohighlight">\(P(\theta)\)</span> over an object <span class="math notranslate nohighlight">\(O\)</span>. The resulting signal is simply the product of the two. Thus the Ptychographic Iterative Engine (PIE) demands the nonlinear signal to be of the form <span class="math notranslate nohighlight">\(S(\theta, t) = O(t)\cdot P(\theta,t)\)</span>. This makes it suitable for most pulse characterization methods, with the exception inteferometry based methods such as i-FROG and doubleblind retrieval of 2D-SI and VAMPIRE.</p>
 <p>The PIE can be described in two equivalent ways. Either as an iterative optimization of the regularized Z-error:</p>
-<p><span class="math notranslate nohighlight">\(Z = \sum |S'(\theta, t) - O'(t)\cdot P(\theta, t)|^2 + \sum U(t) |O'(t) -  O(t)|^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(Z = \sum |S'(\theta, t) - O'(t)\cdot P(\theta, t)|^2 + \sum U(t)\cdot |O'(t) -  O(t)|^2\)</span></p>
 <p>with the heuristic weighting <span class="math notranslate nohighlight">\(U(t)\)</span>.<br />
 Alternatively it can be described by the weighted iterative optimization of:</p>
 <p><span class="math notranslate nohighlight">\(L = \sum |\sqrt{T(\theta, \omega)} - |S(\theta, \omega)||^2\)</span></p>
 <p>via</p>
-<p><span class="math notranslate nohighlight">\(O'(t) = O(t) - U'(t)\cdot \frac{dL(\theta)}{dO(t)^*}\)</span></p>
+<p><span class="math notranslate nohighlight">\(O'(t) = O(t) - U'(t)\cdot \frac{dL(\theta)}{dO^*(t)}\)</span></p>
 <p>where <span class="math notranslate nohighlight">\(U'\neq U\)</span> and determines the subtype of the PIE.<br />
 Usually the PIE works in local iterations, where optimization steps are taken subsequently over random permutations of the measured trace along <span class="math notranslate nohighlight">\(\theta\)</span>. In this implementation an additional version performs global steps by optimizing for all measured data along <span class="math notranslate nohighlight">\(theta\)</span> simultaneously.<br />
 <br>
 Below is a small working example of the PIE to an SHG-FROG. Apart from the nonlinear optimization methods described in the <a class="reference internal" href="example_nonlinear_optimization.html"><span class="std std-doc">Nonlinear Optimization</span></a> section, the main tunable parameters are the PIE version, the weighting parameter <span class="math notranslate nohighlight">\(\alpha\)</span>, as well as the local and global stepsizes.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">PtychographicIterativeEngine</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">PtychographicIterativeEngine</span>
 
 <span class="n">pie</span> <span class="o">=</span> <span class="n">PtychographicIterativeEngine</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> <span class="n">pie_method</span><span class="o">=</span><span class="s2">&quot;PIE&quot;</span><span class="p">)</span>
 
@@ -194,13 +184,15 @@ Below is a small working example of the PIE to an SHG-FROG. Apart from the nonli
 <p>The original implementation of the Common-Pulse-Retrieval-Algorithm (COPRA) is <a class="reference external" href="https://github.com/ncgeib/pypret">pypret</a>.</p>
 <p>Roughly speaking, COPRA is a combination of the Generalized-Projection (GP) and the PIE. The algorithm works in two phases. In the first phase, similar to the PIE, local iterations are performed on random permutations along <span class="math notranslate nohighlight">\(\theta\)</span>. However instead of using an PIE update, COPRA performs single steps to optimize the Z-error. After a sufficient number of local iterations COPRA switches to global iterations. A global iteration optimizes two different error quantities in an alternating fashion. These are the r-error:</p>
 <p><span class="math notranslate nohighlight">\(r = \sum |T(\theta,\omega) - \mu\cdot |S(\theta,\omega)|^2|^2\)</span></p>
-<p>and the Z-error. Using single gradient-descent iterations the minimization of r-error is used to obtain updated signal fields <span class="math notranslate nohighlight">\(S'(\theta,t)\)</span> which are subsequently used to update the pulse guess via the minimization of the Z-error using single gradient-descent iterations. Thus in a global iteration smooth and gradual transitions are employed over plain projections.<br />
-In addition for all gradient-descent iterations COPRA estimates an optimal step size via the Polyak-Stepsize.<br />
+<p>and the Z-error. Using single gradient-descent iterations the minimization of r-error is used to obtain updated signal fields <span class="math notranslate nohighlight">\(S'(\theta,t)\)</span> which are subsequently used to update the pulse guess via the minimization of the Z-error using single gradient-descent iterations. Thus in a global iteration smooth and gradual transitions are employed over plain projections.</p>
+<p><span class="math notranslate nohighlight">\(S'(\theta, \omega) = S(\theta, \omega) - \frac{dr}{dS^*(\theta,\omega)}\)</span></p>
+<p><span class="math notranslate nohighlight">\(E'(\omega) = E(\omega) - \frac{dZ}{dE^*(\omega)}\)</span></p>
+<p>In addition for all gradient-descent iterations COPRA estimates an optimal step size via the Polyak-Stepsize.<br />
 <br>
 Below is a small working example of the COPRA to an SHG-FROG. Apart from the nonlinear optimization methods described in the <a class="reference internal" href="example_nonlinear_optimization.html"><span class="std std-doc">Nonlinear Optimization</span></a> section, the main tunable parameters are the local and global stepsizes.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPRA</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPRA</span>
 
 <span class="n">copra</span> <span class="o">=</span> <span class="n">COPRA</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
 
@@ -221,7 +213,7 @@ Below is a small working example of the COPRA to an SHG-FROG. Apart from the non
 A spectrum can be incorporated in any algorithm as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
 
 <span class="n">gp</span> <span class="o">=</span> <span class="n">GeneralizedProjection</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
 
@@ -238,7 +230,7 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 <p>Additionally the gradient-descent like optimizations can be accelerated via the incroporation of momentum. This means that a velocity-map of the pulses is updated each iteration and used to additionally update the current guess. This can be used with any Classical Algorithm as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralizedProjection</span>
 
 <span class="n">gp</span> <span class="o">=</span> <span class="n">GeneralizedProjection</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
 
@@ -266,7 +258,7 @@ The additional selection mechanism is motivated by the fact that the greedy-sele
 Below is a small working example of the DE to an SHG-FROG. The main tunable parameters are the strategy, selection mechanism, the mutation rate, the crossover rate and in the temperature in case of a global selection.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">DifferentialEvolution</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">DifferentialEvolution</span>
 
 <span class="n">de</span> <span class="o">=</span> <span class="n">DifferentialEvolution</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> 
                            <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;best1_bin&quot;</span><span class="p">,</span> <span class="n">selection_mechanism</span><span class="o">=</span><span class="s2">&quot;greedy&quot;</span><span class="p">,</span> 
@@ -292,7 +284,7 @@ In addition the algorithm is not able to fully converge if one applies an additi
 Below is a small working example of the LSF to an SHG-FROG. The main tunable parameters are the number of iterations per bisection-search as well as a tuning parameter for the smoothness in case of a continuous direction search.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSF</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSF</span>
 
 <span class="n">lsf</span> <span class="o">=</span> <span class="n">LSF</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
 
@@ -310,12 +302,12 @@ Below is a small working example of the LSF to an SHG-FROG. The main tunable par
 </section>
 <section id="evosax">
 <h3>Evosax<a class="headerlink" href="#evosax" title="Link to this heading"></a></h3>
-<p>This “Algorithm” uses the python/jax package <a class="reference external" href="https://github.com/RobertTLange/evosax">evosax</a> to employ advanced evolutionary solvers for pulse retrieval. The availablilty of a multitude of such solvers comes at a drawback. Evosax does not respect the shape of pytrees. Internally all pytrees are flattened before being subjected to an evolutionary algorithm. This causes mixing of variables that do not necessarily should be mixed. For example the position and the magnitude of a gaussian. In this implementation precautions have been take to prevent the mixing of amplitude and phase variables. But within the phases and amplitudes evosax will happily mixing variables arbitrarily. Essentially this heavily promotes exploration over exploitation.<br />
+<p>This “Algorithm” uses the python/jax package <a class="reference external" href="https://github.com/RobertTLange/evosax">evosax</a> to employ advanced evolutionary solvers for pulse retrieval. The availablilty of a multitude of such solvers comes at a drawback. Evosax does not respect the shape of pytrees. Internally all pytrees are flattened before being subjected to an evolutionary algorithm. This causes mixing of variables that should not necessarily be mixed. For example the position and the magnitude of a gaussian. In this implementation precautions have been taken to prevent the mixing of amplitude and phase variables. But within the phases and amplitudes evosax will happily mixing variables arbitrarily. Essentially this heavily promotes exploration over exploitation.<br />
 <br>
 Below is a small working example of Evosax with an SHG-FROG. One should be able to choose any evosax solver. These solvers can be tuned via their input parameters.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evosax</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evosax</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">evosax.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">DifferentialEvolution</span> <span class="k">as</span> <span class="n">DifferentialEvolutionEvosax</span>
 
 <span class="c1"># the evosax-solver should not be initialized</span>
@@ -340,7 +332,7 @@ Below is a small working example of Evosax with an SHG-FROG. One should be able 
 Below is a small working example of AutoDiff with an SHG-FROG. One should be able to choose any optax/optimistix solver. These solvers can be tuned via their input parameters.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optimistix</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
 
@@ -366,7 +358,7 @@ Below is a small working example of AutoDiff with an SHG-FROG. One should be abl
 A spectrum can be incorporated in any algorithm as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optimistix</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
 
@@ -391,7 +383,7 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 <p>However one can specify an arbitrary user-defined loss-function. This can be done as shown below, where an L1-Norm isused.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 
@@ -406,7 +398,9 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 <span class="n">population</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> 
                                            <span class="n">amp_type</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="n">phase_type</span><span class="o">=</span><span class="s2">&quot;sigmoidal&quot;</span><span class="p">,</span> 
                                            <span class="n">no_funcs_amp</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
 <span class="n">ad</span><span class="o">.</span><span class="n">error_metric</span> <span class="o">=</span> <span class="n">my_loss</span>
+
 <span class="n">final_result</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </pre></div>
 </div>

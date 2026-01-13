@@ -5,7 +5,14 @@
    "id": "d238877a",
    "metadata": {},
    "source": [
-    "# Overview Methods"
+    "# Overview Methods  \n",
+    "\n",
+    "In this section a brief overview over the background and assumptions of all implemented methods is given.  \n",
+    "\n",
+    "### General Remarks  \n",
+    "Each method is implemented as a `RetrievePulsesMETHOD` class in `pulsedjax.core.base_classes_methods.py`. These classes define how input data is processed and prepared for the retrieval process. Most importantly they define how the nonlinear signal field is calculated.  \n",
+    "The final useable retrieval algorithms are implemented as child-classes using multiple inheritence `Algorithm(AlgorithmBASE, RetrievePulsesMETHOD)`.  \n",
+    "The retrieval takes place on the provided frequency axis (not angular frequency) of the measured trace. This axis needs to be broad enough to avoid interference of fundamental and SHG/THG signals as well as to include the range of the pulse and gate-pulse spetra if those are provided.  "
    ]
   },
   {
@@ -13,7 +20,21 @@
    "id": "3e3caca9",
    "metadata": {},
    "source": [
-    "## FROG"
+    "## FROG  \n",
+    "\n",
+    "Frequency-Resolved-Optical-Gating (FROG) can be understood as a spectrally resolved auto- or cross-correlation measurement. Its nonlinear signal is defined as:  \n",
+    "\n",
+    "$S(\\tau, t) = E(t)\\cdot G(A(\\tau, t))$  \n",
+    "\n",
+    "where $E(t)=A(t)$ in the case of an autocorrelation setup and G() refers to the nonlinear effect dependent gate-function. Thus a measurement consists of a pulse $A(t)$ which is shifted over $E(t)$ in the time domain. The spectrum of a nonlinear signal at each delay yields the measurement trace $T(\\tau,\\omega) = |S(\\tau, t)|^2$.  \n",
+    "The above description assumes a non-collinear setup. However FROG can be performed collinearly, which yields an interferometric setup. Thus the name i-FROG. In this case te nonlinear signal is defined as:  \n",
+    "\n",
+    "$S(\\tau, t) = (E(t) + A(\\tau, t))\\cdot G(E(t) + A(\\tau, t))$  \n",
+    "\n",
+    "In the case of cross-correlation setup $\\left(E(t)\\neq A(t)\\right)$, the pulse $A(t)$ is not necessarily known. If it is known it can be provided via `algorithm.get_gate_pulse()`. In addition`cross_correlation=True` has to be specified.  \n",
+    "If $A(t)$ is unknown a `cross_correlation=\"doubleblind\"` retrieval can be performed. However in such a case serious ambiguities exist, such that the provision of additional constraints is necessary for most algorithms. The spectra of $E(t)$ and $A(t)$ can be provided as such constraints via `algorithm.use_measured_spectrum()`.  \n",
+    "The available algorithms for FROG-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  \n",
+    "For i-FROG the algorithms Vanilla, LSGPA, CPCGPA and PIE are not available, due to the requirements of these algorithms."
    ]
   },
   {
@@ -21,7 +42,45 @@
    "id": "b7eb6b6c",
    "metadata": {},
    "source": [
-    "## Chirp-Scan"
+    "## Chirp-Scan  \n",
+    "\n",
+    "Contrary to FROG a Chirp-Scan is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form $T(\\theta, \\omega) = |S(\\theta, \\omega)|^2$. The signal field is defined as:  \n",
+    "\n",
+    "$S(\\theta, t) = E(\\theta, t) \\cdot G(E(\\theta, t))$  \n",
+    "\n",
+    "Most commonly the spectral phase is applied via material dispersion. However any known spectral phase (e.g. from a pulse shaper) can be used. In a retrieval the `phase_type` has to be specified, either as `\"material\"` or one of the predefined functions in `pulsedjax.core.phase_matrix_funcs.py`. Alternatively a custom function can be function provided `phase_type = myfunction` as outlined below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e3cc60b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def myfunction(measurement_info, chirp_parameters):\n",
+    "    \"\"\" \n",
+    "    Calculates a phase matrix.\n",
+    "    Args:\n",
+    "        measurement_info (Pytree): holds measurement data and parameters, needs to contain the shift-values in appropriate units\n",
+    "        chirp_parameters (tuple): the parameters which are expected by phase_func\n",
+    "\n",
+    "    Returns:\n",
+    "        jnp.array, the calculated phase matrix\n",
+    "    \"\"\"\n",
+    "    \n",
+    "    z_arr, omega = measurement_info.z_arr, 2*jnp.pi*measurement_info.frequency\n",
+    "    phase_matrix = phase_func(omega[jnp.newaxis,:], z_arr[:, jnp.newaxis], chirp_parameters)\n",
+    "    return phase_matrix"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "656be5e0",
+   "metadata": {},
+   "source": [
+    "In addition to `phase_type` the `chirp_parameters` have to provided. These contain any static input parameter which may be used to calculate the spectral phase. For example in the case of `phase_type=\"material\"`, the `chirp_parameters` need to be an instance of `refractiveindex.RefractiveIndexMaterial`.  \n",
+    "The available algorithms for Chirp-Scan-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
    ]
   },
   {
@@ -29,7 +88,16 @@
    "id": "002d414b",
    "metadata": {},
    "source": [
-    "## Time-Domain-Ptchography"
+    "## Time-Domain-Ptchography  \n",
+    "\n",
+    "Time-Domain-Ptychography can be understood as a FROG variant. The only difference is that $A(t)$ is spectrally filtered. The transfer-function of this filter has to be provided. In `pulsedjax.core.spectral_filter_funcs.py` exemplary functions to generate/evaluate a filter are available.  \n",
+    "The filter is provided via `spectral_filter`. It needs to have the same frequency axis as the measured trace.  \n",
+    "The available algorithms for FROG-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb).\n",
+    "\n",
+    "<br>\n",
+    "Currently there may be an issue with regards to the delays between pulse and gate.\n",
+    "What about materialdispersion of an arbitrary filter?\n",
+    "what about a delay mismatch since time zero is arbitrary, but not considered here?"
    ]
   },
   {
@@ -37,7 +105,14 @@
    "id": "86751e33",
    "metadata": {},
    "source": [
-    "## 2D-SI"
+    "## 2D-SI  \n",
+    "\n",
+    "Two-Dimensional-Spectral-Shearing-Interferometry (2D-SI) can be understood as inspired by both FROG and SPIDER. It can be performed in an auto- or cross-correlation setup. The nonlinear signal is defined as:  \n",
+    "\n",
+    "$S(\\tau, t) = E(t)\\cdot G(A'(t) + A''(\\tau, t))$  \n",
+    "\n",
+    "where $A'$ and $A''$ are spectrally filtered pulses with different central frequencies. These are overlayed interferometrically. The final nonlinear signal is obtained in a non-collinear setup. The transfer-functions of the spectral filters have to be provided via `spectral_filter1` and `spectral_filter2`. As in TDP their spectral axis must match that of the measured trace.  \n",
+    "Usually 2D-SI is performed via Sum-Frequency Generation. In this case Direct-Reconstruction as described in [Method-Specific Algorithms](example_method_specific_algorithms.ipynb) can be used to perform the retrieval. If the prelimiaries for this approach are not fullfilled the algorithms described in [Overview Algorithms](example_overview_algorithms.ipynb) can be used instead."
    ]
   },
   {
@@ -45,7 +120,16 @@
    "id": "ed8d5f0d",
    "metadata": {},
    "source": [
-    "## VAMPIRE"
+    "## VAMPIRE  \n",
+    "\n",
+    "Very advanced method for phase and intensity retrieval of E-fields (VAMPIRE) has a setup similar to 2D-SI but functions like a FROG. The nonlinear signal is defined as:  \n",
+    "\n",
+    "$S(\\tau, t) = E(\\tau, t) \\cdot G(A(t) + A'(t))$\n",
+    "\n",
+    "where $A'$ is a modified and delayed version of $A$. Usually the \"modification\" is achieved via material dispersion. In contrast to 2D-SI no spectral filtering is introduced.  \n",
+    "The working idea is to create a duplicate but modified pulse in the interferometer at a fixed delay. The pulse $E$ is shifted in time over these in order to create a FROG-like trace. This approach resolves any ambiguities which may be present in an analog FROG measurement.  \n",
+    "In order for the retrieval to work the interferometer delay has to be set using `tau_interferometer`, the material has to be provided via `refractive_index=refractiveindex.RefractiveIndexMaterial` and its thickness needs to be specified in millimeters with `material_thickness`.\n",
+    "The available algorithms for VAMPIRE-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb)."
    ]
   }
  ],

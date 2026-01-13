@@ -25,7 +25,7 @@ myst_enable_extensions = [
     "amsmath",     # Enable advanced math environments
 ]
 
-nbsphinx_execute = 'never'
+nb_execution_mode = "off"
 
 autosummary_generate = True
 

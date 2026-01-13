@@ -27,6 +27,10 @@
     "### Generalized Projection  \n",
     "\n",
     "Starting from an initial guess the algorithm works by constructing the nonlinear signal field $S(\\theta, \\omega)$ ($\\theta$ refers to an arbitrary scanning parameter). The amplitude of this guessed signal field is replaced by the measured amplitude of the trace to yield $S'(\\theta, \\omega)$. Thus the signal field is projected into the space of signal fields that could produce the measured trace. The updated guess of the pulse is obtained through an iterative optimization of the Z-error.  \n",
+    "\n",
+    "$Z = \\sum |S'(\\theta, t) - S(\\theta, t)|^2$  \n",
+    "\n",
+    "$E'(\\omega) = E(\\omega) - \\frac{dZ}{dE^*(\\omega)}$  \n",
     "<br>\n",
     "Below is a small working example of the Generalized Projection Algorithm to an SHG-FROG. Apart from the nonlinear optimization methods described in the [Nonlinear Optimization](example_nonlinear_optimization.ipynb) section, the main tunable parameters are the number of gradient descent steps (no_steps_descent) and the step size (global_gamma). "
    ]
@@ -61,7 +65,7 @@
     "\n",
     "The PIE can be described in two equivalent ways. Either as an iterative optimization of the regularized Z-error:  \n",
     "\n",
-    "$Z = \\sum |S'(\\theta, t) - O'(t)\\cdot P(\\theta, t)|^2 + \\sum U(t) |O'(t) -  O(t)|^2$  \n",
+    "$Z = \\sum |S'(\\theta, t) - O'(t)\\cdot P(\\theta, t)|^2 + \\sum U(t)\\cdot |O'(t) -  O(t)|^2$  \n",
     "\n",
     "with the heuristic weighting $U(t)$.  \n",
     "Alternatively it can be described by the weighted iterative optimization of:  \n",
@@ -70,7 +74,7 @@
     "\n",
     "via  \n",
     "\n",
-    "$O'(t) = O(t) - U'(t)\\cdot \\frac{dL(\\theta)}{dO(t)^*}$  \n",
+    "$O'(t) = O(t) - U'(t)\\cdot \\frac{dL(\\theta)}{dO^*(t)}$  \n",
     "\n",
     "where $U'\\neq U$ and determines the subtype of the PIE.  \n",
     "Usually the PIE works in local iterations, where optimization steps are taken subsequently over random permutations of the measured trace along $\\theta$. In this implementation an additional version performs global steps by optimizing for all measured data along $theta$ simultaneously.  \n",
@@ -112,6 +116,11 @@
     "$r = \\sum |T(\\theta,\\omega) - \\mu\\cdot |S(\\theta,\\omega)|^2|^2$\n",
     "\n",
     "and the Z-error. Using single gradient-descent iterations the minimization of r-error is used to obtain updated signal fields $S'(\\theta,t)$ which are subsequently used to update the pulse guess via the minimization of the Z-error using single gradient-descent iterations. Thus in a global iteration smooth and gradual transitions are employed over plain projections.  \n",
+    "\n",
+    "$S'(\\theta, \\omega) = S(\\theta, \\omega) - \\frac{dr}{dS^*(\\theta,\\omega)}$  \n",
+    "\n",
+    "$E'(\\omega) = E(\\omega) - \\frac{dZ}{dE^*(\\omega)}$\n",
+    "\n",
     "In addition for all gradient-descent iterations COPRA estimates an optimal step size via the Polyak-Stepsize.  \n",
     "<br>\n",
     "Below is a small working example of the COPRA to an SHG-FROG. Apart from the nonlinear optimization methods described in the [Nonlinear Optimization](example_nonlinear_optimization.ipynb) section, the main tunable parameters are the local and global stepsizes."
@@ -278,7 +287,7 @@
    "source": [
     "### Evosax  \n",
     "\n",
-    "This \"Algorithm\" uses the python/jax package [evosax](https://github.com/RobertTLange/evosax) to employ advanced evolutionary solvers for pulse retrieval. The availablilty of a multitude of such solvers comes at a drawback. Evosax does not respect the shape of pytrees. Internally all pytrees are flattened before being subjected to an evolutionary algorithm. This causes mixing of variables that do not necessarily should be mixed. For example the position and the magnitude of a gaussian. In this implementation precautions have been take to prevent the mixing of amplitude and phase variables. But within the phases and amplitudes evosax will happily mixing variables arbitrarily. Essentially this heavily promotes exploration over exploitation.  \n",
+    "This \"Algorithm\" uses the python/jax package [evosax](https://github.com/RobertTLange/evosax) to employ advanced evolutionary solvers for pulse retrieval. The availablilty of a multitude of such solvers comes at a drawback. Evosax does not respect the shape of pytrees. Internally all pytrees are flattened before being subjected to an evolutionary algorithm. This causes mixing of variables that should not necessarily be mixed. For example the position and the magnitude of a gaussian. In this implementation precautions have been taken to prevent the mixing of amplitude and phase variables. But within the phases and amplitudes evosax will happily mixing variables arbitrarily. Essentially this heavily promotes exploration over exploitation.  \n",
     "<br>\n",
     "Below is a small working example of Evosax with an SHG-FROG. One should be able to choose any evosax solver. These solvers can be tuned via their input parameters."
    ]
@@ -411,7 +420,9 @@
     "population = ad.create_initial_population(5, \n",
     "                                           amp_type=\"gaussian\", phase_type=\"sigmoidal\", \n",
     "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
+    "\n",
     "ad.error_metric = my_loss\n",
+    "\n",
     "final_result = ad.run(population, 50)"
    ]
   }
