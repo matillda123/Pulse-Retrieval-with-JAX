@@ -9,7 +9,7 @@
   <title>core &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -51,21 +51,28 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -1484,14 +1491,14 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulses" title="core.base_classes_methods.RetrievePulses"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a></p>
 <p>The reconstruction class for Chirp-Scan methods.</p>
 <p>[1] V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
 [2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr">
-<span class="sig-name descname"><span class="pre">z_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta">
+<span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta" title="Link to this definition"></a></dt>
 <dd><p>the shifts</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1578,7 +1585,7 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr">
 <span class="sig-name descname"><span class="pre">idx_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr" title="Link to this definition"></a></dt>
-<dd><p>indices for z_arr</p>
+<dd><p>indices for theta</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>jnp.array</p>
@@ -1632,7 +1639,7 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulses2DSI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter1=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter2=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_pulse_anc1=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulses2DSI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_pulse_anc1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulsesFROG" title="core.base_classes_methods.RetrievePulsesFROG"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a></p>
 <p>The reconstruction class for 2DSI.</p>
 <p>[1] J. R. Birge et al., Opt. Lett. 31, 2063-2065 (2006)</p>
@@ -1725,21 +1732,8 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.get_phase_matrix">
-<span class="sig-name descname"><span class="pre">get_phase_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refractive_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.get_phase_matrix" title="Link to this definition"></a></dt>
-<dd><p>Calculates the phase matrix that is applied of a pulse passes through a material.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.apply_phase">
-<span class="sig-name descname"><span class="pre">apply_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.apply_phase" title="Link to this definition"></a></dt>
-<dd><p>For a 2DSI reconstruction one may need to consider effects of material dispersion in the interferometer.
-This applies a dispersion based on phase_matrix in order to achieve this.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulses2DSI.apply_spectral_filter">
-<span class="sig-name descname"><span class="pre">apply_spectral_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.apply_spectral_filter" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_spectral_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulses2DSI.apply_spectral_filter" title="Link to this definition"></a></dt>
 <dd><p>Apply a spectral filter to a signal.</p>
 </dd></dl>
 
@@ -3298,7 +3292,7 @@ returns the linearized group delay per mm at that wavelength.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – holds measurement data and parameters, needs to contain the material thickness z_arr in mm.</p></li>
+<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – holds measurement data and parameters, needs to contain the material thickness theta in mm.</p></li>
 <li><p><strong>parameters</strong> (<em>refractiveindex.RefractiveIndexMaterial</em>) – an object providing the refractive index, the speed of light in m/s</p></li>
 </ul>
 </dd>
@@ -3382,7 +3376,7 @@ returns the linearized group delay per mm at that wavelength.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.spectral_filter_funcs.get_filter">
-<span class="sig-prename descclassname"><span class="pre">core.spectral_filter_funcs.</span></span><span class="sig-name descname"><span class="pre">get_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.spectral_filter_funcs.get_filter" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.spectral_filter_funcs.</span></span><span class="sig-name descname"><span class="pre">get_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_func=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.spectral_filter_funcs.get_filter" title="Link to this definition"></a></dt>
 <dd><p>Generate a spectral filter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3392,12 +3386,20 @@ For multi, parameters needs to specify the repsective filetr function</p></li>
 <li><p><strong>frequency</strong> (<em>jnp.array</em>) – the frequency axis</p></li>
 <li><p><strong>parameters</strong> (<em>tuple</em>) – the parameters required by the filter function</p></li>
 <li><p><strong>custom_func</strong> (<em>Callable</em><em>, </em><em>None</em>) – in case of filter_func=”custom” the custom filter function needs to be provided here.</p></li>
+<li><p><strong>refractive_index</strong> (<em>refractiveindex.RefractiveIndexMaterial</em>) – provides the refractive index</p></li>
+<li><p><strong>material_thickness</strong> (<em>float</em><em>, </em><em>int</em>) – the material thickness in millimeters</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>jnp.array, the spectral filter on the frequency axis</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.spectral_filter_funcs.get_phase_matrix">
+<span class="sig-prename descclassname"><span class="pre">core.spectral_filter_funcs.</span></span><span class="sig-name descname"><span class="pre">get_phase_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refractive_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_frequency</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.spectral_filter_funcs.get_phase_matrix" title="Link to this definition"></a></dt>
+<dd><p>Calculates the phase matrix that is applied of a pulse passes through a material.</p>
 </dd></dl>
 
 </section>

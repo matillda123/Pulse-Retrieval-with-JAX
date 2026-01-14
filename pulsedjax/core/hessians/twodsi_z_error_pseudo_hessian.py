@@ -211,7 +211,7 @@ def calc_Z_error_pseudo_hessian_one_m(dummy, exp_arr_m, gate_pulses_m, gate_m, d
 
 
 
-def calc_Z_error_pseudo_hessian_all_m(pulse_t, gate_pulses, gate, deltaS, tau_arr, gd_correction, measurement_info, full_or_diagonal, pulse_or_gate, is_vampire):
+def calc_Z_error_pseudo_hessian_all_m(pulse_t, gate_pulses, gate, deltaS, tau_arr, measurement_info, full_or_diagonal, pulse_or_gate, is_vampire):
     """ Loop over shifts to get hessian for each. Does not use jax.vmap because of memory limits. """
     time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
     nonlinear_method = measurement_info.nonlinear_method
@@ -223,11 +223,11 @@ def calc_Z_error_pseudo_hessian_all_m(pulse_t, gate_pulses, gate, deltaS, tau_ar
 
     if is_vampire==True:
         tau, phase_matrix = measurement_info.tau_interferometer, measurement_info.phase_matrix
-        exp_arr = jnp.exp(-1j*jnp.outer(tau_arr, omega))*(jnp.exp(-1j*omega*tau) + jnp.exp(1j*(phase_matrix-omega*gd_correction)))
+        exp_arr = jnp.exp(-1j*jnp.outer(tau_arr, omega))*(jnp.exp(-1j*omega*tau) + jnp.exp(1j*phase_matrix))
     else:
         spectral_filter1, spectral_filter2 = measurement_info.spectral_filter1, measurement_info.spectral_filter2
-        tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
-        exp_arr = (spectral_filter1*jnp.exp(-1j*omega*tau) + spectral_filter2*jnp.exp(-1j*jnp.outer(tau_arr, omega)))*jnp.exp(1j*(phase_matrix-omega*gd_correction))
+        tau = measurement_info.tau_pulse_anc1
+        exp_arr = (spectral_filter1*jnp.exp(-1j*omega*tau) + spectral_filter2*jnp.exp(-1j*jnp.outer(tau_arr, omega)))
 
 
     hessian_all_m=Partial(calc_Z_error_pseudo_hessian_one_m, pulse_t=pulse_t, time=time, omega=omega, nonlinear_method=nonlinear_method, 
@@ -244,7 +244,7 @@ def calc_Z_error_pseudo_hessian_all_m(pulse_t, gate_pulses, gate, deltaS, tau_ar
 
 
 
-def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, signal_t, signal_t_new, tau_arr, gd_correction, measurement_info, 
+def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, signal_t, signal_t_new, tau_arr, measurement_info, 
                                         newton_state, newton_info, full_or_diagonal, pulse_or_gate):
     
     """
@@ -279,8 +279,8 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, gate_pulses, gate, sign
 
     # vmap over population here -> only for small populations since memory will explode. 
     calc_hessian = Partial(calc_Z_error_pseudo_hessian_all_m, is_vampire=False)
-    hessian_m=jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,0,None,None,None))(pulse_t, gate_pulses, gate, deltaS, 
-                                                                                                tau_arr, gd_correction, measurement_info, full_or_diagonal, pulse_or_gate)
+    hessian_m=jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,None,None,None))(pulse_t, gate_pulses, gate, deltaS, 
+                                                                                                tau_arr, measurement_info, full_or_diagonal, pulse_or_gate)
 
     return calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)
         

@@ -95,8 +95,8 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gat
         exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*phase_matrix))
     else:
         spectral_filter1, spectral_filter2 = jnp.conjugate(measurement_info.spectral_filter1), jnp.conjugate(measurement_info.spectral_filter2)
-        tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
-        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*phase_matrix)
+        tau = measurement_info.tau_pulse_anc1
+        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))
 
     deltaS = signal_t_new - signal_t
 
@@ -138,8 +138,8 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate
         exp_arr = jnp.exp(1j*jnp.outer(tau_arr, omega_arr))*(jnp.exp(1j*omega_arr*tau) + jnp.exp(-1j*phase_matrix))
     else:
         spectral_filter1, spectral_filter2 = jnp.conjugate(measurement_info.spectral_filter1), jnp.conjugate(measurement_info.spectral_filter2)
-        tau, phase_matrix = measurement_info.tau_pulse_anc1, measurement_info.phase_matrix
-        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))*jnp.exp(-1j*phase_matrix)
+        tau = measurement_info.tau_pulse_anc1
+        exp_arr = (spectral_filter1*jnp.exp(1j*omega_arr*tau) + spectral_filter2*jnp.exp(1j*jnp.outer(tau_arr, omega_arr)))
 
     if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
         n = int(nonlinear_method[0])

@@ -54,8 +54,8 @@ class MakeTrace(MakePulseBase):
         maketrace (MakeTraceFROG, MakeTraceCHIRPSCAN, MakeTrace2DSI, MakeTraceTDP, or MakeTraceVAMPIRE): default is None, defined via respective method
 
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, N=256, f_max=1):
+        super().__init__(N=N, f_max=f_max)
         self.maketrace = None
 
     
@@ -162,7 +162,7 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_chirpscan(self, time, frequency, pulse_t, pulse_f, nonlinear_method, z_arr, phase_type, parameters, real_fields=False, 
+    def generate_chirpscan(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, real_fields=False, 
                            frequency_range=None, N=256, cut_off_val=0.001, plot_stuff=True):
         
         """
@@ -174,7 +174,7 @@ class MakeTrace(MakePulseBase):
             pulse_t (jnp.array): the input pulse in the time domain
             pulse_f (jnp.array): the input pulse in the frequency domain
             nonlinear_method (str): the nonlinear method
-            z_arr (jnp.array): defines the shift arr of the chirp scan. (e.g. material thickness, phase_shift in MIIPS, ...)
+            theta (jnp.array): defines the shift arr of the chirp scan. (e.g. material thickness, phase_shift in MIIPS, ...)
             phase_type (str, Callable): defines how the applied phase is created, (e.g. material, MIIPS, ... )
             parameters (tuple): defines further necessary input parameters to the function that calculates phase_matrix
             real_fields (bool): whether the nonlinear signal should be generated using real fields
@@ -193,16 +193,16 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceCHIRPSCAN
 
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, z_arr, phase_type, parameters, 
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, 
                                 frequency_range, N, cut_off_val)
         
         
         time_trace, frequency_trace, trace, spectra = self.maketrace.generate_trace()
             
         if plot_stuff==True:
-            self.maketrace.plot_trace(time, pulse_t, frequency, pulse_f, z_arr, frequency_trace, trace, spectra)
+            self.maketrace.plot_trace(time, pulse_t, frequency, pulse_f, theta, frequency_trace, trace, spectra)
 
-        return z_arr, frequency_trace, trace, spectra
+        return theta, frequency_trace, trace, spectra
     
 
 
@@ -598,10 +598,10 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
 
 
 class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, z_arr, phase_type, parameters, frequency_range, N, cut_off_val):
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, frequency_range, N, cut_off_val):
         super().__init__()
 
-        self.z_arr = z_arr
+        self.theta = theta
         self.time = time
         self.frequency = frequency
         self.pulse_t = pulse_t
@@ -611,7 +611,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
         self.cut_off_val = cut_off_val
         self.frequency_range = frequency_range
 
-        self.x_arr = z_arr
+        self.x_arr = theta
 
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
@@ -622,7 +622,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
 
 
     def get_parameters_to_make_signal_t(self):
-        self.measurement_info = MyNamespace(z_arr=self.z_arr, frequency=self.frequency, 
+        self.measurement_info = MyNamespace(theta=self.theta, frequency=self.frequency, 
                                             frequency_exp=self.frequency, time_big=self.time, frequency_big=self.frequency, 
                                             sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn, sk_exp=self.sk, rn_exp=self.rn, 
                                             nonlinear_method=self.nonlinear_method, doubleblind=False, central_frequency = self.central_frequency)

@@ -1,4 +1,7 @@
 import jax.numpy as jnp
+from .phase_matrix_funcs import calc_group_delay_phase
+from scipy.constants import c as c0
+import refractiveindex
 
 
 def gaussian_filter(frequency, parameters, filter_dict):
@@ -34,7 +37,9 @@ def multi_filter(frequency, parameters, filter_dict):
     return y
 
 
-def get_filter(filter_func, frequency, parameters, custom_func=None):
+def get_filter(filter_func, frequency, parameters, custom_func=None, 
+               refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+               material_thickness=0):
     """ 
     Generate a spectral filter.
 
@@ -44,6 +49,8 @@ def get_filter(filter_func, frequency, parameters, custom_func=None):
         frequency (jnp.array): the frequency axis
         parameters (tuple): the parameters required by the filter function
         custom_func (Callable, None): in case of filter_func="custom" the custom filter function needs to be provided here.
+        refractive_index (refractiveindex.RefractiveIndexMaterial): provides the refractive index
+        material_thickness (float, int): the material thickness in millimeters
     
     Returns:
         jnp.array, the spectral filter on the frequency axis
@@ -54,4 +61,32 @@ def get_filter(filter_func, frequency, parameters, custom_func=None):
                        multi=multi_filter,
                        custom=custom_func)
     y = filter_dict[filter_func](frequency, parameters, filter_dict)
-    return y/jnp.abs(jnp.max(y))
+    y = y/jnp.abs(jnp.max(y))
+
+    if material_thickness>0:
+        f0 = jnp.sum(frequency*y)/jnp.sum(y)
+        phase_matrix = get_phase_matrix(refractive_index, material_thickness, frequency, f0)
+        y = y*jnp.exp(1j*phase_matrix)
+
+    return y
+
+
+
+
+
+
+
+def get_phase_matrix(refractive_index, material_thickness, frequency, central_frequency):
+    """ 
+    Calculates the phase matrix that is applied of a pulse passes through a material.
+    """
+    wavelength = c0/frequency*1e-6 # wavelength in nm
+    n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
+    n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
+    k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
+    k_arr = k0_arr*n_arr
+
+    wavelength_0 = c0/(central_frequency + 1e-9)*1e-6 
+    Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
+    phase_matrix = material_thickness*(k_arr-Tg_phase)
+    return phase_matrix

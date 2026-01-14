@@ -51,21 +51,28 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -513,13 +520,13 @@ The direction is calculated in the frequency domain.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.twodsi_z_error_pseudo_hessian.calc_Z_error_pseudo_hessian_all_m">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">calc_Z_error_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.calc_Z_error_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">calc_Z_error_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vampire</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.calc_Z_error_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
 <dd><p>Loop over shifts to get hessian for each. Does not use jax.vmap because of memory limits.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gd_correction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a 2DSI measurement.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">

@@ -31,8 +31,8 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         global_gamma (float): the step size
     
     """
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
         self.name = "MIIPS"
 
@@ -43,12 +43,12 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
 
     def calc_approximate_phase_individual(self, trace, measurement_info, descent_info):
-        z_arr, omega, parameters, phase_type = measurement_info.z_arr, measurement_info.omega, measurement_info.chirp_paramaters, measurement_info.phase_type
+        theta, omega, parameters, phase_type = measurement_info.theta, measurement_info.omega, measurement_info.chirp_paramaters, measurement_info.phase_type
         factor = measurement_info.factor
         integration_method, integration_order = descent_info.integration_method, descent_info.integration_order
 
         idx = jnp.argmax(trace, axis=0)
-        delta_m = jnp.take(z_arr, idx)
+        delta_m = jnp.take(theta, idx)
         gdd = calc_GDD(omega, delta_m, parameters, phase_func_dict[phase_type])
         gd = integrate_signal_1D(gdd, omega, integration_method, integration_order)
         phase = integrate_signal_1D(gd, omega, integration_method, integration_order)
@@ -134,8 +134,8 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
     """
 
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
         self.name = "Basic"
 
@@ -223,8 +223,8 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = GeneralizedProjectionBASE.__doc__
 
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
@@ -257,8 +257,8 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
 class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = PtychographicIterativeEngineBASE.__doc__
 
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
@@ -371,8 +371,8 @@ class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
     __doc__ = COPRABASE.__doc__
 
     
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(z_arr, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):

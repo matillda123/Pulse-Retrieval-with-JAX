@@ -665,7 +665,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
     [2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012) 
 
     Attributes:
-        z_arr (jnp.array): the shifts
+        theta (jnp.array): the shifts
         dt (float):
         df (float):
         sk (jnp.array): correction values for FFT->DFT
@@ -673,20 +673,20 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         phase_matrix (jnp.array): a 2D-array with the phase values applied to pulse
         parameters (tuple): parameters for the chirp function
         transform_arr (jnp.array): an alias for phase_matrix
-        idx_arr (jnp.array): indices for z_arr
+        idx_arr (jnp.array): indices for theta
 
     """
     
-    def __init__(self, z_arr, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(nonlinear_method, **kwargs)
 
-        self.z_arr, self.time, self.frequency, self.measured_trace, self.central_frequency = self.get_data(z_arr, frequency, measured_trace)
+        self.theta, self.time, self.frequency, self.measured_trace, self.central_frequency = self.get_data(theta, frequency, measured_trace)
 
         self.dt = jnp.mean(jnp.diff(self.time))
         self.df = jnp.mean(jnp.diff(self.frequency))
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        self.measurement_info = self.measurement_info.expand(z_arr = self.z_arr,
+        self.measurement_info = self.measurement_info.expand(theta = self.theta,
                                                              frequency = self.frequency,
                                                              time = self.time,
                                                              measured_trace = self.measured_trace,
@@ -826,13 +826,11 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
     """
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0,
-                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), **kwargs):
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, 
+                 spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=False, **kwargs)
 
         self.tau_pulse_anc1 = tau_pulse_anc1
-        self.c0 = c0
-        self.refractive_index = refractive_index
 
         if spectral_filter1==None:
             self.spectral_filter1 = jnp.ones(jnp.size(self.frequency))
@@ -846,52 +844,21 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         self.anc1_frequency = self.frequency[jnp.argmax(self.spectral_filter1)]
         self.anc2_frequency = self.frequency[jnp.argmax(self.spectral_filter2)]
 
-        self.measurement_info = self.measurement_info.expand(c0=self.c0)
-        self.phase_matrix = self.get_phase_matrix(self.refractive_index, material_thickness, self.measurement_info)
         self.measurement_info = self.measurement_info.expand(anc1_frequency=self.anc1_frequency, anc2_frequency=self.anc2_frequency, 
-                                                             phase_matrix=self.phase_matrix,
                                                              spectral_filter1=self.spectral_filter1,
                                                              spectral_filter2=self.spectral_filter2,
                                                              tau_pulse_anc1 = self.tau_pulse_anc1)
     
 
 
-    def get_phase_matrix(self, refractive_index, material_thickness, measurement_info):
-        """ 
-        Calculates the phase matrix that is applied of a pulse passes through a material.
-        """
-        frequency, c0 = measurement_info.frequency, measurement_info.c0
-        wavelength = c0/frequency*1e-6 # wavelength in nm
-        n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
-        n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
-        k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
-        k_arr = k0_arr*n_arr
-
-        wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
-        Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
-        phase_matrix = material_thickness*(k_arr-Tg_phase)
-        return phase_matrix
-
-
-
-    def apply_phase(self, pulse_t, measurement_info, sk, rn):
-        """
-        For a 2DSI reconstruction one may need to consider effects of material dispersion in the interferometer.
-        This applies a dispersion based on phase_matrix in order to achieve this. 
-        """
-        pulse_f = self.fft(pulse_t, sk, rn)
-        pulse_f = pulse_f*jnp.exp(1j*measurement_info.phase_matrix)
-        pulse_t_disp = self.ifft(pulse_f, sk, rn)
-
-        return pulse_t_disp
-
-
-    def apply_spectral_filter(self, signal, spectral_filter, sk, rn):
+    def apply_spectral_filter(self, signal, spectral_filter1, spectral_filter2, sk, rn):
         """ Apply a spectral filter to a signal. """
         signal_f = self.fft(signal, sk, rn)
-        signal_f = signal_f*spectral_filter
-        signal = self.ifft(signal_f, sk, rn)
-        return signal
+        signal_f1 = signal_f*spectral_filter1
+        signal_f2 = signal_f*spectral_filter2
+        signal1 = self.ifft(signal_f1, sk, rn)
+        signal2 = self.ifft(signal_f2, sk, rn)
+        return signal1, signal2
 
 
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
@@ -919,11 +886,9 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         else:
             gate = pulse_t
         
-        gate = self.apply_phase(gate, measurement_info, sk, rn) 
-
-        gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk, rn)
-        gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk, rn)
-
+        gate1, gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, 
+                                                  measurement_info.spectral_filter2, sk, rn)
+        
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
         tau = measurement_info.tau_pulse_anc1
         gate1 = self.calculate_shifted_signal(gate1, frequency, jnp.asarray([tau]), time)

@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FROG &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Chirp-Scan" href="eqs_chirpscan.html" />
+    <link rel="prev" title="General Definitions" href="eqs_general_definitions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="definitions_and_formulas.html">Definitions and Formulas</a></li>
+      <li class="breadcrumb-item active">FROG</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eqs_frog.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="frog">
+<h1>FROG<a class="headerlink" href="#frog" title="Link to this heading"></a></h1>
+<section id="auto-correlation">
+<h2>Auto-Correlation<a class="headerlink" href="#auto-correlation" title="Link to this heading"></a></h2>
+<section id="z-gradient">
+<h3>Z-Gradient<a class="headerlink" href="#z-gradient" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk} + e^{-i\tau_m\omega_n} E_k)\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}^2 + 2e^{-i\tau_m\omega_n} E_k A_{mk})\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot e^{i\tau_m\omega_n} E_k A_{mk}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} A_{mk}^* \cdot (A_{mk} + e^{-i\tau_m\omega_n} E_k)\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2 D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} (A_{mk}^*)^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\cdot(A_{mk}^{n-1} + (n-1)e^{-i\tau_m\omega_n} E_k A_{mk}^{n-2})\)</span></p>
+</li>
+</ol>
+</section>
+<section id="z-pseudo-hessian">
+<h3>Z-Pseudo-Hessian<a class="headerlink" href="#z-pseudo-hessian" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{pk} D_{kn}\cdot \left( A_{mk}^* e^{-i\tau_m\omega_p} + E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p} \right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{nk} D_{kp} \cdot \left( A_{mk}^* e^{-i\tau_m\omega_n} + E_k^* e^{i\tau_m\omega_p} e^{-i\tau_m\omega_n} \right)\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2\cdot D_{pk}D_{kn} \cdot A_{mk} e^{-i\tau_m\omega_p}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2\cdot D_{nk}D_{kp} \cdot A_{mk} e^{-i\tau_m\omega_n}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+</section>
+</section>
+<section id="cross-correlation">
+<h2>Cross-Correlation<a class="headerlink" href="#cross-correlation" title="Link to this heading"></a></h2>
+<section id="z-gradient-with-respect-to-pulse">
+<h3>Z-Gradient (with respect to pulse)<a class="headerlink" href="#z-gradient-with-respect-to-pulse" title="Link to this heading"></a></h3>
+<p>Same for all nonlinear methods</p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} G(A_{mk})\)</span></p>
+</section>
+<section id="z-gradient-with-respect-to-gate-pulse">
+<h3>Z-Gradient (with respect to gate-pulse)<a class="headerlink" href="#z-gradient-with-respect-to-gate-pulse" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = \frac{dS_{mk}}{dA_{mk}}\frac{dA_{mk}}{dE_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = \frac{dS_{mk}}{dA_{mk}^*}\left(\frac{dA_{mk}}{dE_n}\right)^*\)</span></p>
+<br>
+<ol class="arabic">
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} E_k e^{-i\tau_m\omega_n}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2 \cdot D_{kn} E_k A_{mk} e^{-i\tau_m\omega_n}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk} \cdot E_k A_{mk} e^{i\tau_m\omega_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn} \cdot E_k A_{mk}^* e^{-i\tau_m\omega_n}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2\cdot D_{nk} E_k A_{mk}^* e^{i\tau_m\omega_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1) \cdot D_{kn} E_k A_{mk}^{n-2} e^{-i\tau_m\omega_n}\)</span></p>
+</li>
+</ol>
+</section>
+<section id="z-pseudo-hessian-with-respect-to-pulse">
+<h3>Z-Pseudo-Hessian (with respect to pulse)<a class="headerlink" href="#z-pseudo-hessian-with-respect-to-pulse" title="Link to this heading"></a></h3>
+<p>Same for all nonlinear methods.</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</section>
+<section id="z-pseudo-hessian-with-respect-to-gate-pulse">
+<h3>Z-Pseudo-Hessian (with respect to gate-pulse)<a class="headerlink" href="#z-pseudo-hessian-with-respect-to-gate-pulse" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp} E_k^* e^{i\tau_m\omega_n} e^{-i\tau_m\omega_p}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{kn}D_{pk} E_k^* e^{-i\tau_m\omega_n} e^{i\tau_m\omega_p}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+</section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="interferometric-frog">
+<h1>Interferometric FROG<a class="headerlink" href="#interferometric-frog" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>Auto-Correlation<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>Z-Gradient<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(1+e^{i\tau_m\omega_n})\cdot (E_k + A_{mk})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(1+e^{-i\tau_m\omega_n})\cdot |E_k + A_{mk}|^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}(1+e^{-i\tau_m\omega_n})\cdot (E_k + A_{mk})^{n-1}\)</span></p>
+</li>
+</ol>
+</section>
+<section id="id3">
+<h3>Z-Pseudo-Hessian<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* (1+e^{i\tau_m\omega_n}) (1+e^{-i\tau_m\omega_p})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^* (1+e^{-i\tau_m\omega_n}) (1+e^{i\tau_m\omega_p})\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+</section>
+</section>
+<section id="id4">
+<h2>Cross-Correlation<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>Z-Gradient (with respect to pulse)<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}(E_k + A_{mk})\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn} (E_k + A_{mk})^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}(E_k + A_{mk})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}|E_k + A_{mk}|^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn} (E_k + A_{mk})^{n-1}\)</span></p>
+</li>
+</ol>
+</section>
+<section id="id6">
+<h3>Z-Gradient (with respect to gate-pulse)<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}e^{-i\tau_m\omega_n}(E_k + A_{mk})\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 3D_{kn}e^{-i\tau_m\omega_n}(E_k + A_{mk})^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}e^{i\tau_m\omega_n}(E_k + A_{mk})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = 2D_{kn}e^{-i\tau_m\omega_n}|E_k + A_{mk}|^2\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG<br />
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = n\cdot D_{kn}e^{-i\tau_m\omega_n}  (E_k + A_{mk})^{n-1}\)</span></p>
+</li>
+</ol>
+</section>
+<section id="id7">
+<h3>Z-Pseudo-Hessian (with respect to pulse)<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^*\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+</section>
+<section id="id8">
+<h3>Z-Pseudo-Hessian (with respect to gate-pulse)<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG/SD<br />
+<span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = 2D_{nk}D_{kp} (E_k+A_{mk})^* e^{i\tau_m\omega_n}e^{-i\tau_m\omega_p}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = 2D_{kn}D_{pk} (E_k+A_{mk})^*e^{-i\tau_m\omega_n}e^{i\tau_m\omega_p}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(V_{zz} = 0\)</span></p>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eqs_general_definitions.html" class="btn btn-neutral float-left" title="General Definitions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eqs_chirpscan.html" class="btn btn-neutral float-right" title="Chirp-Scan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

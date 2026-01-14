@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PIE - Gradient &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Update nonlinear Signal" href="eqs_s_prime_and_polyak.html" />
+    <link rel="prev" title="VAMPIRE" href="eqs_vampire.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="definitions_and_formulas.html">Definitions and Formulas</a></li>
+      <li class="breadcrumb-item active">PIE - Gradient</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eqs_pie_grad_hessian.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="pie-gradient">
+<h1>PIE - Gradient<a class="headerlink" href="#pie-gradient" title="Link to this heading"></a></h1>
+<p>PIE ultimately assumes independent Object and Probe. This is respected in these derivatives.</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dx_k^*} = -2 \cdot \sum_n (\sqrt{T_{mn}^{\mathrm{exp}}}- |S_{mn}|) \cdot \frac{S_{mn}}{2|S_{mn}|}\cdot D_{kn} \left(\frac{dS_{mk}}{dx_k}\right)^* = -1 \cdot \Delta S_{mk} \cdot \left(\frac{dS_{mk}}{dx_k}\right)^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(P_{mk} = G(A_{mk})\)</span></p>
+<section id="with-respect-to-object">
+<h2>With respect to Object<a class="headerlink" href="#with-respect-to-object" title="Link to this heading"></a></h2>
+<p>Same for all nonlinear methods</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dE_k^*} = -1\cdot P_{mk}^*\cdot \Delta S_{mk}\)</span></p>
+</section>
+<section id="with-respect-to-probe-pulse">
+<h2>With respect to Probe-Pulse<a class="headerlink" href="#with-respect-to-probe-pulse" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_k^*} = \sum_{nj}D_{kn}D_{nj}\frac{dL_m}{dA_{mj}^*}\cdot e^{-1j\phi_{mn}}\qquad\)</span> (in the exponent <span class="math notranslate nohighlight">\(j\)</span> refers to the imaginary unit)</p>
+<ol class="arabic">
+<li><p>SHG</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot \Delta S_{mk}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="2">
+<li><p>THG</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot 2A_{mk}^*\cdot \Delta S_{mk}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="3">
+<li><p>PG</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_k^*\cdot A_{mk} \cdot \Delta S_{mk}\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="4">
+<li><p>SD</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -1\cdot E_{k}\cdot 2 A_{mk}^* \cdot \Delta S_{mk}^* = \left(-1\cdot E_{k}^*\cdot 2 A_{mk} \cdot \Delta S_{mk}\right)^*\)</span></p>
+</li>
+</ol>
+<br>
+<ol class="arabic" start="5">
+<li><p>nth-HG</p>
+<p><span class="math notranslate nohighlight">\(\frac{dL_m}{dA_{mk}^*} = -2\cdot E_k^*\cdot \left((n-1)A_{mk}^*\right)^{n-2}\cdot \Delta S_{mk}\)</span></p>
+</li>
+</ol>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="pie-pseudo-hessian">
+<h1>PIE - Pseudo Hessian<a class="headerlink" href="#pie-pseudo-hessian" title="Link to this heading"></a></h1>
+<section id="with-respect-to-pulse">
+<h2>With respect to Pulse<a class="headerlink" href="#with-respect-to-pulse" title="Link to this heading"></a></h2>
+<p>Same for all nonlinear methods</p>
+<p><span class="math notranslate nohighlight">\(\frac{d|S_{mn}|}{dE_k^*} = \frac{S_{mn}}{2|S_{mn}|} \cdot D_{kn} P_{mk}^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_j}\left(\frac{d|S_{mn}|}{dE_k}\right)^* = \frac{1}{4}D_{kn}D_{nj} P_{mk}^*P_{mj}\cdot\frac{1}{|S_{mn}|}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_j^*}\left(\frac{d|S_{mn}|}{dE_k^*}\right)^* = \frac{1}{4}D_{jn}D_{nk} P_{mk}P_{mj}^*\cdot\frac{1}{|S_{mn}|}\)</span></p>
+</section>
+<section id="id1">
+<h2>With respect to Probe-Pulse<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>Not the same for all nonlinear methods.</p>
+<p><span class="math notranslate nohighlight">\(\frac{d|S_{mn}|}{dA_{mk}^*} = \frac{S_{mn}}{2|S_{mn}|} \cdot \left(\frac{dS_{mn}}{dA_{mk}}\right)^* = \frac{S_{mn}}{2|S_{mn}|} \cdot D_{kn} E_k^* \cdot \left(\frac{dP_{mk}}{dA_{mk}}\right)^*\)</span></p>
+<br>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dA_{mj}}\left(\frac{d|S_{mn}|}{dA_{mk}}\right)^* = \frac{1}{4}D_{kn}D_{nj} E_{k}^*E_{j}\cdot\frac{1}{|S_{mn}|} \cdot \left(\frac{dP_{mk}}{dA_{mk}}\right)^* \frac{dP_{mj}}{dA_{mj}}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dA_{mj}^*}\left(\frac{d|S_{mn}|}{dA_{mk}^*}\right)^* = \frac{1}{4}D_{jn}D_{nk} E_{k}E_{j}^*\cdot\frac{1}{|S_{mn}|}\cdot \frac{dP_{mk}}{dA_{mk}} \left(\frac{dP_{mj}}{dA_{mj}}\right)^*\)</span></p>
+<br>
+<ol class="arabic simple">
+<li><p>SHG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = 1\)</span></p></li>
+<li><p>THG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = 2A_{mk}\)</span></p></li>
+<li><p>PG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = A_{mk}^*\)</span></p></li>
+<li><p>SD: <span class="math notranslate nohighlight">\(\frac{dP_{mk}^*}{dA_{mk}} = 2A_{mk}\)</span>  (the conjugate is no mistake, the other wirtinger derivative is zero.)</p></li>
+<li><p>nth-HG: <span class="math notranslate nohighlight">\(\frac{dP_{mk}}{dA_{mk}} = (n-1)A_{mk}^{n-2}\)</span></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eqs_vampire.html" class="btn btn-neutral float-left" title="VAMPIRE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eqs_s_prime_and_polyak.html" class="btn btn-neutral float-right" title="Update nonlinear Signal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

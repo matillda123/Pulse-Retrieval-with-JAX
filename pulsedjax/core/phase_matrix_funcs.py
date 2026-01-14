@@ -31,15 +31,15 @@ def calculate_phase_matrix_material(measurement_info, parameters):
     Calculates a phase matrix via material dispersion. Not differentiable due to usage of refractiveindex.
 
     Args:
-        measurement_info (Pytree): holds measurement data and parameters, needs to contain the material thickness z_arr in mm.
+        measurement_info (Pytree): holds measurement data and parameters, needs to contain the material thickness theta in mm.
         parameters (refractiveindex.RefractiveIndexMaterial): an object providing the refractive index, the speed of light in m/s
 
     Returns:
         jnp.array, the calculated phase matrix
     """
-    # z_arr needs to be in mm, is material thickness not translation
+    # theta needs to be in mm, is material thickness not translation
     refractive_index = parameters
-    z_arr, frequency = measurement_info.z_arr, measurement_info.frequency
+    theta, frequency = measurement_info.theta, measurement_info.frequency
 
     wavelength = c0/frequency*1e-6 # wavelength in nm
     n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
@@ -50,7 +50,7 @@ def calculate_phase_matrix_material(measurement_info, parameters):
     wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
     Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
 
-    phase_matrix = z_arr[:, jnp.newaxis]*(k_arr[jnp.newaxis, :] - Tg_phase[jnp.newaxis,:])
+    phase_matrix = theta[:, jnp.newaxis]*(k_arr[jnp.newaxis, :] - Tg_phase[jnp.newaxis,:])
     return phase_matrix
 
 
@@ -115,8 +115,8 @@ def calculate_phase_matrix(measurement_info, parameters, phase_func=calc_MIIPS_p
         jnp.array, the calculated phase matrix
     """
     
-    z_arr, omega = measurement_info.z_arr, 2*jnp.pi*measurement_info.frequency
-    phase_matrix = phase_func(omega[jnp.newaxis,:], z_arr[:, jnp.newaxis], parameters)
+    theta, omega = measurement_info.theta, 2*jnp.pi*measurement_info.frequency
+    phase_matrix = phase_func(omega[jnp.newaxis,:], theta[:, jnp.newaxis], parameters)
     return phase_matrix
 
 

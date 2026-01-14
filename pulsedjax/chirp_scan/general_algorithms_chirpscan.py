@@ -8,9 +8,9 @@ from pulsedjax.utilities import MyNamespace
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = DifferentialEvolutionBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, 
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, 
                  strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters,
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters,
                          strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
 
 
@@ -26,8 +26,8 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesCHIRPSCAN):
 class Evosax(EvosaxBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = EvosaxBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, solver=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, solver=solver, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, solver=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, solver=solver, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -42,8 +42,8 @@ class Evosax(EvosaxBASE, RetrievePulsesCHIRPSCAN):
 class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = LSFBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -88,8 +88,8 @@ class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
 class AutoDiff(AutoDiffBASE, RetrievePulsesCHIRPSCAN):
     __doc__ = AutoDiffBASE.__doc__
     
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, solver=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, solver=solver, **kwargs)
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, solver=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, solver=solver, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):

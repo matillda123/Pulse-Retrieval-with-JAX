@@ -10,6 +10,8 @@
    :maxdepth: 2
    :caption: Content
 
+   example_overview_usage
+
    example_overview_methods
    example_overview_algorithms
    example_method_specific_algorithms
@@ -17,17 +19,9 @@
    example_nonlinear_optimization
    example_advanced_things
 
-   examples
+   definitions_and_formulas
 
-
-
-.. toctree::
-   :maxdepth: 1 
-   :caption: Equations
-
-   Definitions_and_Formulas
-
-
+   literature
 
 
 .. toctree::

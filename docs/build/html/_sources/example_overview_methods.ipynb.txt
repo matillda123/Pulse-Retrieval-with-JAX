@@ -5,7 +5,7 @@
    "id": "d238877a",
    "metadata": {},
    "source": [
-    "# Overview Methods  \n",
+    "# Methods  \n",
     "\n",
     "In this section a brief overview over the background and assumptions of all implemented methods is given.  \n",
     "\n",
@@ -22,7 +22,7 @@
    "source": [
     "## FROG  \n",
     "\n",
-    "Frequency-Resolved-Optical-Gating (FROG) can be understood as a spectrally resolved auto- or cross-correlation measurement. Its nonlinear signal is defined as:  \n",
+    "Frequency-Resolved-Optical-Gating (FROG {cite}`trebino_book`) can be understood as a spectrally resolved auto- or cross-correlation measurement. Its nonlinear signal is defined as:  \n",
     "\n",
     "$S(\\tau, t) = E(t)\\cdot G(A(\\tau, t))$  \n",
     "\n",
@@ -33,7 +33,7 @@
     "\n",
     "In the case of cross-correlation setup $\\left(E(t)\\neq A(t)\\right)$, the pulse $A(t)$ is not necessarily known. If it is known it can be provided via `algorithm.get_gate_pulse()`. In addition`cross_correlation=True` has to be specified.  \n",
     "If $A(t)$ is unknown a `cross_correlation=\"doubleblind\"` retrieval can be performed. However in such a case serious ambiguities exist, such that the provision of additional constraints is necessary for most algorithms. The spectra of $E(t)$ and $A(t)$ can be provided as such constraints via `algorithm.use_measured_spectrum()`.  \n",
-    "The available algorithms for FROG-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  \n",
+    "The available algorithms for FROG-retrieval are described in [Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  \n",
     "For i-FROG the algorithms Vanilla, LSGPA, CPCGPA and PIE are not available, due to the requirements of these algorithms."
    ]
   },
@@ -44,7 +44,7 @@
    "source": [
     "## Chirp-Scan  \n",
     "\n",
-    "Contrary to FROG a Chirp-Scan is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form $T(\\theta, \\omega) = |S(\\theta, \\omega)|^2$. The signal field is defined as:  \n",
+    "Contrary to FROG a Chirp-Scan {cite}`dscan,miips` is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form $T(\\theta, \\omega) = |S(\\theta, \\omega)|^2$. The signal field is defined as:  \n",
     "\n",
     "$S(\\theta, t) = E(\\theta, t) \\cdot G(E(\\theta, t))$  \n",
     "\n",
@@ -80,7 +80,7 @@
    "metadata": {},
    "source": [
     "In addition to `phase_type` the `chirp_parameters` have to provided. These contain any static input parameter which may be used to calculate the spectral phase. For example in the case of `phase_type=\"material\"`, the `chirp_parameters` need to be an instance of `refractiveindex.RefractiveIndexMaterial`.  \n",
-    "The available algorithms for Chirp-Scan-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
+    "The available algorithms for Chirp-Scan-retrieval are described in [Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
    ]
   },
   {
@@ -90,9 +90,9 @@
    "source": [
     "## Time-Domain-Ptchography  \n",
     "\n",
-    "Time-Domain-Ptychography can be understood as a FROG variant. The only difference is that $A(t)$ is spectrally filtered. The transfer-function of this filter has to be provided. In `pulsedjax.core.spectral_filter_funcs.py` exemplary functions to generate/evaluate a filter are available.  \n",
+    "Time-Domain-Ptychography {cite}`tdp,tdp_thesis` can be understood as a FROG variant. The only difference is that $A(t)$ is spectrally filtered. The transfer-function of this filter has to be provided. In `pulsedjax.core.spectral_filter_funcs.py` exemplary functions to generate/evaluate a filter are available.  \n",
     "The filter is provided via `spectral_filter`. It needs to have the same frequency axis as the measured trace.  \n",
-    "The available algorithms for FROG-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb).\n",
+    "The available algorithms for FROG-retrieval are described in [Algorithms](example_overview_algorithms.ipynb).\n",
     "\n",
     "<br>\n",
     "Currently there may be an issue with regards to the delays between pulse and gate.\n",
@@ -107,12 +107,12 @@
    "source": [
     "## 2D-SI  \n",
     "\n",
-    "Two-Dimensional-Spectral-Shearing-Interferometry (2D-SI) can be understood as inspired by both FROG and SPIDER. It can be performed in an auto- or cross-correlation setup. The nonlinear signal is defined as:  \n",
+    "Two-Dimensional-Spectral-Shearing-Interferometry (2D-SI, {cite}`twodsi`) can be understood as inspired by both FROG and SPIDER. It can be performed in an auto- or cross-correlation setup. The nonlinear signal is defined as:  \n",
     "\n",
     "$S(\\tau, t) = E(t)\\cdot G(A'(t) + A''(\\tau, t))$  \n",
     "\n",
     "where $A'$ and $A''$ are spectrally filtered pulses with different central frequencies. These are overlayed interferometrically. The final nonlinear signal is obtained in a non-collinear setup. The transfer-functions of the spectral filters have to be provided via `spectral_filter1` and `spectral_filter2`. As in TDP their spectral axis must match that of the measured trace.  \n",
-    "Usually 2D-SI is performed via Sum-Frequency Generation. In this case Direct-Reconstruction as described in [Method-Specific Algorithms](example_method_specific_algorithms.ipynb) can be used to perform the retrieval. If the prelimiaries for this approach are not fullfilled the algorithms described in [Overview Algorithms](example_overview_algorithms.ipynb) can be used instead."
+    "Usually 2D-SI is performed via Sum-Frequency Generation. In this case Direct-Reconstruction as described in [Method-Specific Algorithms](example_method_specific_algorithms.ipynb) can be used to perform the retrieval. If the prelimiaries for this approach are not fullfilled the algorithms described in [Algorithms](example_overview_algorithms.ipynb) can be used instead."
    ]
   },
   {
@@ -122,14 +122,14 @@
    "source": [
     "## VAMPIRE  \n",
     "\n",
-    "Very advanced method for phase and intensity retrieval of E-fields (VAMPIRE) has a setup similar to 2D-SI but functions like a FROG. The nonlinear signal is defined as:  \n",
+    "Very advanced method for phase and intensity retrieval of E-fields (VAMPIRE, {cite}`vampire`) has a setup similar to 2D-SI but functions like a FROG. The nonlinear signal is defined as:  \n",
     "\n",
     "$S(\\tau, t) = E(\\tau, t) \\cdot G(A(t) + A'(t))$\n",
     "\n",
     "where $A'$ is a modified and delayed version of $A$. Usually the \"modification\" is achieved via material dispersion. In contrast to 2D-SI no spectral filtering is introduced.  \n",
     "The working idea is to create a duplicate but modified pulse in the interferometer at a fixed delay. The pulse $E$ is shifted in time over these in order to create a FROG-like trace. This approach resolves any ambiguities which may be present in an analog FROG measurement.  \n",
     "In order for the retrieval to work the interferometer delay has to be set using `tau_interferometer`, the material has to be provided via `refractive_index=refractiveindex.RefractiveIndexMaterial` and its thickness needs to be specified in millimeters with `material_thickness`.\n",
-    "The available algorithms for VAMPIRE-retrieval are described in [Overview Algorithms](example_overview_algorithms.ipynb)."
+    "The available algorithms for VAMPIRE-retrieval are described in [Algorithms](example_overview_algorithms.ipynb)."
    ]
   }
  ],

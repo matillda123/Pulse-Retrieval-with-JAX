@@ -17,7 +17,7 @@
    "source": [
     "## Linesearch and Adaptive-Stepsize  \n",
     "\n",
-    "In order to accelerate convergence a `\"backtracking\"` and a `\"zoom\"` linesearch are implemented. In addition a generalization of the Polyak-Stepsize is available. The implementations are located in `pulsedjax.core.stepsize.py`.  \n",
+    "In order to accelerate convergence a `\"backtracking\"` and a `\"zoom\"` linesearch are implemented  {cite}`optimizationbook`. In addition a generalization of the Polyak-Stepsize {cite}`polyak` is available. The implementations are located in `pulsedjax.core.stepsize.py`.  \n",
     "The backtracking linesearch works by reducing the stepsize by a factor until the Armijo-condition is fullfilled or the maximum number of steps is reached. The stepsize is updated via $\\gamma' = \\gamma\\cdot\\Delta\\gamma$. The Armijo-Condition reads:  \n",
     "\n",
     "$ \\Delta L \\leq c_1\\gamma\\cdot p\\top\\cdot\\nabla L$  \n",
@@ -76,7 +76,7 @@
    "source": [
     "## Nonlinear Conjugate-Gradient  \n",
     "\n",
-    "The Conjugate Gradient method is used to iteratively solve linear equations. The Nonlinear Conjugate-Gradient Method (NCG) extends heuristically expands this approach to minimize nonlinear equations. The descent direction $p$ is defined as:  \n",
+    "The Conjugate Gradient method is used to iteratively solve linear equations. The Nonlinear Conjugate-Gradient Method (NCG, {cite}`optimizationbook`) extends heuristically expands this approach to minimize nonlinear equations. The descent direction $p$ is defined as:  \n",
     "\n",
     "$p_n = -\\nabla L + \\beta p_{n-1}$  \n",
     "\n",
@@ -102,10 +102,10 @@
    "source": [
     "## (Quasi)-Newton Methods  \n",
     "\n",
-    "All mentioned algorithms support three Newton-like optimization approaches. One of them is L-BFGS. It is implemented in `pulsedjax.core.lbfgs.py`.  \n",
+    "All mentioned algorithms support three Newton-like optimization approaches. One of them is L-BFGS {cite}`optimizationbook`. It is implemented in `pulsedjax.core.lbfgs.py`.  \n",
     "The core idea of BFGS is to avoid an explicit calculation and inversion of the Hessian. Instead the Hessian inverse can be approximated via past gradients. L-BFGS limits the memory of this process to a fixed number of past iterations.  \n",
     "\n",
-    "The remaining two are based on the Pseudo-Hessian. Since the search space is complex valued the true hessian is a block matrix of the form:  \n",
+    "The remaining two are based on the Pseudo-Hessian {cite}`crcalculus`. Since the search space is complex valued the true hessian is a block matrix of the form:  \n",
     "\n",
     "$H = \\begin{bmatrix} \\partial_{zz} & \\partial_{z\\bar{z}} \\\\\\ \\partial_{\\bar{z}z} & \\partial_{\\bar{z}\\bar{z}} \\end{bmatrix}$\n",
     "\n",
@@ -140,7 +140,7 @@
    "source": [
     "## Updating the nonlinear Signal-Field  \n",
     "\n",
-    "The COPRA has shown that updating of the nonlinear signal field does not need to be a complete projection in order to perform a successful phase retrieval. Instead an approximate iterative updating is sufficient. In `pulsedjax.core.construct_s_prime.py` the projection as well as the iterative update is implemented such that all algorithms may make use of either one.  \n",
+    "The COPRA {cite}`copra` has shown that updating of the nonlinear signal field does not need to be a complete projection in order to perform a successful phase retrieval. Instead an approximate iterative updating is sufficient. In `pulsedjax.core.construct_s_prime.py` the projection as well as the iterative update is implemented such that all algorithms may make use of either one.  \n",
     "In addition an alternative definition to the r-error based on the trace magnitude instead of the intensity as well as an diagonal Newton approximation have been implemented.  \n",
     "The parameters can be controlled as class attributes or via a setter-function. In the case of the latter all attributes are overwritten such that algorithms like COPRA may use `\"projection\"` by accident."
    ]

@@ -1,0 +1,137 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7dda1a25",
+   "metadata": {},
+   "source": [
+    "# PIE - Gradient"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0ccdb3f",
+   "metadata": {},
+   "source": [
+    "PIE ultimately assumes independent Object and Probe. This is respected in these derivatives.  \n",
+    "\n",
+    "$\\frac{dL_m}{dx_k^*} = -2 \\cdot \\sum_n (\\sqrt{T_{mn}^{\\mathrm{exp}}}- |S_{mn}|) \\cdot \\frac{S_{mn}}{2|S_{mn}|}\\cdot D_{kn} \\left(\\frac{dS_{mk}}{dx_k}\\right)^* = -1 \\cdot \\Delta S_{mk} \\cdot \\left(\\frac{dS_{mk}}{dx_k}\\right)^*$    \n",
+    "\n",
+    "$P_{mk} = G(A_{mk})$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a429270f",
+   "metadata": {},
+   "source": [
+    "### With respect to Object\n",
+    "\n",
+    "Same for all nonlinear methods  \n",
+    "\n",
+    "$\\frac{dL_m}{dE_k^*} = -1\\cdot P_{mk}^*\\cdot \\Delta S_{mk}$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a90a63d",
+   "metadata": {},
+   "source": [
+    "### With respect to Probe-Pulse\n",
+    "\n",
+    "$\\frac{dL_m}{dA_k^*} = \\sum_{nj}D_{kn}D_{nj}\\frac{dL_m}{dA_{mj}^*}\\cdot e^{-1j\\phi_{mn}}\\qquad$ (in the exponent $j$ refers to the imaginary unit)  \n",
+    "\n",
+    "1. SHG  \n",
+    "\n",
+    "    $\\frac{dL_m}{dA_{mk}^*} = -1\\cdot E_k^*\\cdot \\Delta S_{mk}$\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "2. THG  \n",
+    "\n",
+    "    $\\frac{dL_m}{dA_{mk}^*} = -1\\cdot E_k^*\\cdot 2A_{mk}^*\\cdot \\Delta S_{mk}$\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "3. PG  \n",
+    "\n",
+    "    $\\frac{dL_m}{dA_{mk}^*} = -1\\cdot E_k^*\\cdot A_{mk} \\cdot \\Delta S_{mk}$\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "4. SD  \n",
+    "\n",
+    "    $\\frac{dL_m}{dA_{mk}^*} = -1\\cdot E_{k}\\cdot 2 A_{mk}^* \\cdot \\Delta S_{mk}^* = \\left(-1\\cdot E_{k}^*\\cdot 2 A_{mk} \\cdot \\Delta S_{mk}\\right)^*$\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "5. nth-HG  \n",
+    "\n",
+    "    $\\frac{dL_m}{dA_{mk}^*} = -2\\cdot E_k^*\\cdot \\left((n-1)A_{mk}^*\\right)^{n-2}\\cdot \\Delta S_{mk}$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ff7b2bc9",
+   "metadata": {},
+   "source": [
+    "# PIE - Pseudo Hessian"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9362e91d",
+   "metadata": {},
+   "source": [
+    "### With respect to Pulse\n",
+    "\n",
+    "Same for all nonlinear methods  \n",
+    "\n",
+    "$\\frac{d|S_{mn}|}{dE_k^*} = \\frac{S_{mn}}{2|S_{mn}|} \\cdot D_{kn} P_{mk}^*$  \n",
+    "\n",
+    "$\\frac{d}{dE_j}\\left(\\frac{d|S_{mn}|}{dE_k}\\right)^* = \\frac{1}{4}D_{kn}D_{nj} P_{mk}^*P_{mj}\\cdot\\frac{1}{|S_{mn}|}$  \n",
+    "\n",
+    "$\\frac{d}{dE_j^*}\\left(\\frac{d|S_{mn}|}{dE_k^*}\\right)^* = \\frac{1}{4}D_{jn}D_{nk} P_{mk}P_{mj}^*\\cdot\\frac{1}{|S_{mn}|}$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d4fd0d9",
+   "metadata": {},
+   "source": [
+    "### With respect to Probe-Pulse\n",
+    "\n",
+    "Not the same for all nonlinear methods.\n",
+    "\n",
+    "$\\frac{d|S_{mn}|}{dA_{mk}^*} = \\frac{S_{mn}}{2|S_{mn}|} \\cdot \\left(\\frac{dS_{mn}}{dA_{mk}}\\right)^* = \\frac{S_{mn}}{2|S_{mn}|} \\cdot D_{kn} E_k^* \\cdot \\left(\\frac{dP_{mk}}{dA_{mk}}\\right)^*$  \n",
+    "\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "$\\frac{d}{dA_{mj}}\\left(\\frac{d|S_{mn}|}{dA_{mk}}\\right)^* = \\frac{1}{4}D_{kn}D_{nj} E_{k}^*E_{j}\\cdot\\frac{1}{|S_{mn}|} \\cdot \\left(\\frac{dP_{mk}}{dA_{mk}}\\right)^* \\frac{dP_{mj}}{dA_{mj}}$  \n",
+    "\n",
+    "$\\frac{d}{dA_{mj}^*}\\left(\\frac{d|S_{mn}|}{dA_{mk}^*}\\right)^* = \\frac{1}{4}D_{jn}D_{nk} E_{k}E_{j}^*\\cdot\\frac{1}{|S_{mn}|}\\cdot \\frac{dP_{mk}}{dA_{mk}} \\left(\\frac{dP_{mj}}{dA_{mj}}\\right)^*$\n",
+    "\n",
+    "\n",
+    "<br>\n",
+    "\n",
+    "1. SHG: $\\frac{dP_{mk}}{dA_{mk}} = 1$  \n",
+    "\n",
+    "2. THG: $\\frac{dP_{mk}}{dA_{mk}} = 2A_{mk}$  \n",
+    "\n",
+    "3. PG: $\\frac{dP_{mk}}{dA_{mk}} = A_{mk}^*$  \n",
+    "\n",
+    "4. SD: $\\frac{dP_{mk}^*}{dA_{mk}} = 2A_{mk}$  (the conjugate is no mistake, the other wirtinger derivative is zero.)  \n",
+    "\n",
+    "5. nth-HG: $\\frac{dP_{mk}}{dA_{mk}} = (n-1)A_{mk}^{n-2}$  "
+   ]
+  }
+ ],
+ "metadata": {
+  "language_info": {
+   "name": "python"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

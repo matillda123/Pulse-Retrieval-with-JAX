@@ -10,21 +10,23 @@ sys.path.insert(0, os.path.abspath('../../pulsedjax'))
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',   # for Google/NumPy style docstrings
+    'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'nbsphinx',
     'sphinx.ext.mathjax',
     'myst_nb',
     'sphinx_copybutton',
     'sphinx.ext.graphviz',
-    #'sphinx.ext.inheritance_diagram'
+    'sphinxcontrib.bibtex'
 ]
+
+bibtex_bibfiles = ['pulsedjax_literature.bib']
+bibtex_default_style = "unsrt"
 
 myst_enable_extensions = [
     "dollarmath",  # Enable $...$ and $$...$$ for math
     "amsmath",     # Enable advanced math environments
 ]
-
 nb_execution_mode = "off"
 
 autosummary_generate = True

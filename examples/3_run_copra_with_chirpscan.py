@@ -13,9 +13,9 @@ time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp0,phase0))
 
 import refractiveindex
 parameters = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson")
-z_arr = jnp.linspace(-2,2,128*2)
-z_arr, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, pulse_t, pulse_f, "shg", 
-                                                               z_arr, "material", parameters, 
+theta = jnp.linspace(-2,2,128*2)
+theta, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, pulse_t, pulse_f, "shg", 
+                                                               theta, "material", parameters, 
                                                                
                                                                # shg/thg need to have the fundamental in the frequency axis
                                                                frequency_range=(0.1,0.75))
@@ -24,7 +24,7 @@ z_arr, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, 
 
 
 from pulsedjax.chirp_scan import COPRA
-copra = COPRA(z_arr, frequency_trace, trace, "shg", phase_type="material", chirp_parameters=parameters)
+copra = COPRA(theta, frequency_trace, trace, "shg", phase_type="material", chirp_parameters=parameters)
 
 # stepsizes
 copra.local_gamma = 1e4 # sometimes the local step size needs to be quite large

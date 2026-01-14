@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Methods" href="example_overview_methods.html" />
+    <link rel="prev" title="PulsedJAX: Pulse-Retrieval with JAX" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/example_overview_usage.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<p>Explicit example scripts can be found <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/examples">here</a>.</p>
+<section id="how-to-simulate-a-trace">
+<h2>How to simulate a trace?<a class="headerlink" href="#how-to-simulate-a-trace" title="Link to this heading"></a></h2>
+<p>Through the <code class="docutils literal notranslate"><span class="pre">pulsedjax.simulate_trace</span></code> module artificial pulses as well as traces can be generated. This is fasciliated via the <code class="docutils literal notranslate"><span class="pre">MakeTrace(MakePulse)</span></code> class. Pulses can be defined via the predefined dataclasses <code class="docutils literal notranslate"><span class="pre">GaussianAmplitude</span></code>, <code class="docutils literal notranslate"><span class="pre">LorentzianAmplitude</span></code>, <code class="docutils literal notranslate"><span class="pre">PolynomialPhase</span></code>, <code class="docutils literal notranslate"><span class="pre">SinusoidalPhase</span></code>, <code class="docutils literal notranslate"><span class="pre">RandomPhase</span></code> and <code class="docutils literal notranslate"><span class="pre">MultiPulse</span></code>. In addition the <code class="docutils literal notranslate"><span class="pre">CustomPulse</span></code> can be used to provide an externally defined pulse.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.simulate_trace</span><span class="w"> </span><span class="kn">import</span> <span class="n">MakeTrace</span><span class="p">,</span> <span class="n">GaussianAmplitude</span><span class="p">,</span> <span class="n">PolynomialPhase</span>
+
+<span class="n">amp</span> <span class="o">=</span> <span class="n">GaussianAmplitude</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">phase</span> <span class="o">=</span> <span class="n">PolynomialPhase</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">mp</span> <span class="o">=</span> <span class="n">MakeTrace</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">pulse_t</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">pulse_f</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">generate_pulse</span><span class="p">((</span><span class="n">amp</span><span class="p">,</span> <span class="n">phase</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Using a pulse and user specified measurement parameters a trace can be calculated.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># method has to be replaced with the method name</span>
+<span class="n">theta</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">spectra</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">generate_method</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">pulse_t</span><span class="p">,</span> <span class="n">pulse_f</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="how-to-run-a-retrieval">
+<h2>How to run a retrieval?<a class="headerlink" href="#how-to-run-a-retrieval" title="Link to this heading"></a></h2>
+<p>All retrieval algorithm implementations follow the same pattern. During the class instantiation the measurement data and parameters as well as some or all algorithm parameters are provided.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.method</span><span class="w"> </span><span class="kn">import</span> <span class="n">algorithm</span>
+
+<span class="n">myalgorithm</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">nonlinear_method</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In addition measured spectra or a known gate pulse may optionally be provided.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">f_spectrum</span><span class="p">,</span> <span class="n">spectrum_pulse</span><span class="p">,</span> <span class="s2">&quot;pulse&quot;</span><span class="p">)</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">f_spectrum</span><span class="p">,</span> <span class="n">spectrum_gate_pulse</span><span class="p">,</span> <span class="s2">&quot;gate&quot;</span><span class="p">)</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">get_gate_pulse</span><span class="p">(</span><span class="n">f_gate</span><span class="p">,</span> <span class="n">pulse_f_gate</span><span class="p">)</span> <span class="c1"># needs to be in frequency domain</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Further algorithm parameters may be set via attributes or as described in <a class="reference internal" href="example_nonlinear_optimization.html"><span class="std std-doc">Nonlinear Optimization</span></a>.<br />
+An initial guess has to be created using <code class="docutils literal notranslate"><span class="pre">myalgorithm.create_initial_guess()</span></code>. Depending on the type of the algorithm the inputs to this function may differ. For a <code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithm</span></code> the guess options are <code class="docutils literal notranslate"><span class="pre">&quot;random&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;random_phase&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;constant&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;constant_phase&quot;</span></code>. For a <code class="docutils literal notranslate"><span class="pre">GeneralAlgorithm</span></code> different options can be specified for the spectral amplitude and phase. For the amplitude these are <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;lorentizan&quot;</span></code>. For the phase they are <code class="docutils literal notranslate"><span class="pre">&quot;polynomial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;sinusoidal&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;sigmoidal&quot;</span></code>. The inputs <code class="docutils literal notranslate"><span class="pre">&quot;bsplines_k&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;constinuous&quot;</span></code> and the inputs for <code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithm</span></code>s are available for both amplitude and phase. For B-Splines <span id="id1">[<a class="reference internal" href="literature.html#id29" title="Yi Zhou. A tutorial on uniform b-spline. 2023. URL: https://arxiv.org/abs/2309.15477, arXiv:2309.15477.">1</a>]</span> the order is defined via <code class="docutils literal notranslate"><span class="pre">k</span></code>. So 5th-order B-Splines are defined as <code class="docutils literal notranslate"><span class="pre">&quot;bsplines_5&quot;</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For a classical algorithm</span>
+<span class="n">population</span> <span class="o">=</span> <span class="n">myalgorithm</span><span class="o">.</span><span class="n">create_initial_guess</span><span class="p">(</span><span class="n">population_size</span><span class="p">,</span> <span class="n">guess_type</span><span class="p">)</span>
+
+<span class="c1"># For a general algorithm, no_funcs defines the number of basis functions</span>
+<span class="n">population</span> <span class="o">=</span> <span class="n">myalgorithm</span><span class="o">.</span><span class="n">create_initial_guess</span><span class="p">(</span><span class="n">population_size</span><span class="p">,</span> <span class="n">amp_type</span><span class="p">,</span> <span class="n">phase_type</span><span class="p">,</span> <span class="n">no_funcs_amp</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, the retrieval is run via the <code class="docutils literal notranslate"><span class="pre">myalgorithm.run()</span></code> function. Parts of the returned object can be visalized via <code class="docutils literal notranslate"><span class="pre">myalgorithm.plot_results()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">final_result</span> <span class="o">=</span> <span class="n">myalgorithm</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">no_iterations</span><span class="p">)</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">plot_results</span><span class="p">(</span><span class="n">final_result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="PulsedJAX: Pulse-Retrieval with JAX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_overview_methods.html" class="btn btn-neutral float-right" title="Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

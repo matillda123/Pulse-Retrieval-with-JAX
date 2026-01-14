@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Literature &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="frog" href="frog.html" />
+    <link rel="prev" title="Update nonlinear Signal" href="eqs_s_prime_and_polyak.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Literature</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/literature.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="literature">
+<h1>Literature<a class="headerlink" href="#literature" title="Link to this heading"></a></h1>
+<div class="docutils container" id="id1">
+<div role="list" class="citation-list">
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Yi Zhou. A tutorial on uniform b-spline. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.15477">https://arxiv.org/abs/2309.15477</a>, <a class="reference external" href="https://arxiv.org/abs/2309.15477">arXiv:2309.15477</a>.</p>
+</div>
+<div class="citation" id="id2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Rick P. Trebino. <em>Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses</em>. Springer US, New York, NY, 1st ed. 2000. edition, 2000. ISBN 9781461511816. <a class="reference external" href="https://doi.org/10.1007/978-1-4615-1181-6">doi:10.1007/978-1-4615-1181-6</a>.</p>
+</div>
+<div class="citation" id="id3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Miguel Miranda, Cord L. Arnold, Thomas Fordell, Francisco Silva, Benjamín Alonso, Rosa Weigand, Anne L'Huillier, and Helder Crespo. Characterization of broadband few-cycle laser pulses with the d-scan technique. <em>Opt. Express</em>, 20(17):18732–18743, Aug 2012. <a class="reference external" href="https://doi.org/10.1364/OE.20.018732">doi:10.1364/OE.20.018732</a>.</p>
+</div>
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Bingwei Xu, Jess M. Gunn, Johanna M. Dela Cruz, Vadim V. Lozovoy, and Marcos Dantus. Quantitative investigation of the multiphoton intrapulse interference phase scan method for simultaneous phase measurement and compensation of femtosecond laser pulses. <em>J. Opt. Soc. Am. B</em>, 23(4):750–759, Apr 2006. <a class="reference external" href="https://doi.org/10.1364/JOSAB.23.000750">doi:10.1364/JOSAB.23.000750</a>.</p>
+</div>
+<div class="citation" id="id6" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Dirk Spangenberg, Pieter Neethling, Erich Rohwer, Michael H. Brügmann, and Thomas Feurer. Time-domain ptychography. <em>Phys. Rev. A</em>, 91:021803, Feb 2015. <a class="reference external" href="https://doi.org/10.1103/PhysRevA.91.021803">doi:10.1103/PhysRevA.91.021803</a>.</p>
+</div>
+<div class="citation" id="id9" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Tobias Schweizer. <em>Time-Domain Ptychography and its Applications in Ultrafast Science</em>. PhD thesis, Universität Bern, 2021. <a class="reference external" href="https://doi.org/10.48549/4001">doi:10.48549/4001</a>.</p>
+</div>
+<div class="citation" id="id7" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Jonathan R. Birge, Richard Ell, and Franz X. Kärtner. Two-dimensional spectral shearing interferometry for few-cycle pulse characterization. <em>Opt. Lett.</em>, 31(13):2063–2065, Jul 2006. <a class="reference external" href="https://doi.org/10.1364/OL.31.002063">doi:10.1364/OL.31.002063</a>.</p>
+</div>
+<div class="citation" id="id8" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>K. Sperlich, B. Seifert, and H. Stolz. Phase and intensity retrieval of ultrashort laser pulses with single-shot vampire. <em>Advanced Photonics</em>, pages JM5A.37, 2014. <a class="reference external" href="https://doi.org/10.1364/BGPP.2014.JM5A.37">doi:10.1364/BGPP.2014.JM5A.37</a>.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Kenneth W. DeLong, David N. Fittinghoff, Rick Trebino, Bern Kohler, and Kent Wilson. Pulse retrieval in frequency-resolved optical gating based on the method of generalized projections. <em>Opt. Lett.</em>, 19(24):2152–2154, Dec 1994. <a class="reference external" href="https://doi.org/10.1364/OL.19.002152">doi:10.1364/OL.19.002152</a>.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Pavel Sidorenko, Oren Lahav, Zohar Avnat, and Oren Cohen. Ptychographic reconstruction algorithm for frequency-resolved optical gating: super-resolution and supreme robustness. <em>Optica</em>, 3(12):1320–1330, Dec 2016. <a class="reference external" href="https://doi.org/10.1364/OPTICA.3.001320">doi:10.1364/OPTICA.3.001320</a>.</p>
+</div>
+<div class="citation" id="id10" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Andrew Maiden, Daniel Johnson, and Peng Li. Further improvements to the ptychographical iterative engine. <em>Optica</em>, 4(7):736–745, Jul 2017. <a class="reference external" href="https://doi.org/10.1364/OPTICA.4.000736">doi:10.1364/OPTICA.4.000736</a>.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Nils C. Geib. Python for Pulse Retrieval. 2019. URL: <a class="reference external" href="https://github.com/ncgeib/pypret">https://github.com/ncgeib/pypret</a>.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Ji Qiang and Chad Mitchell. A unified differential evolution algorithm for global optimization. <em>IEEE Transactions on Evolutionary Computation.</em>, 06 2014. URL: <a class="reference external" href="https://www.osti.gov/biblio/1163659">https://www.osti.gov/biblio/1163659</a>.</p>
+</div>
+<div class="citation" id="id23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>I Grigorenko and M.E Garcia. An evolutionary algorithm to calculate the ground state of a quantum system. <em>Physica A: Statistical Mechanics and its Applications</em>, 284(1):131–139, 2000. <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">doi:10.1016/S0378-4371(00)00218-1</a>.</p>
+</div>
+<div class="citation" id="id24" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Christoffer Oxelmark Krook and Valdas Pasiskevicius. Overcoming noise in pulse retrieval: introducing the line-search frog algorithm. <em>Opt. Express</em>, 33(16):33258–33269, Aug 2025. <a class="reference external" href="https://doi.org/10.1364/OE.569606">doi:10.1364/OE.569606</a>.</p>
+</div>
+<div class="citation" id="id17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Robert Tjarko Lange. Evosax: jax-based evolution strategies. <em>arXiv preprint arXiv:2212.04180</em>, 2022.</p>
+</div>
+<div class="citation" id="id18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Robert Tjarko Lange. evosax: Evolution Strategies in JAX. 2022. URL: <a class="reference external" href="https://github.com/RobertTLange/evosax">https://github.com/RobertTLange/evosax</a>.</p>
+</div>
+<div class="citation" id="id19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>DeepMind, Igor Babuschkin, Kate Baumli, Alison Bell, Surya Bhupatiraju, Jake Bruce, Peter Buchlovsky, David Budden, Trevor Cai, Aidan Clark, Ivo Danihelka, Antoine Dedieu, Claudio Fantacci, Jonathan Godwin, Chris Jones, Ross Hemsley, Tom Hennigan, Matteo Hessel, Shaobo Hou, Steven Kapturowski, Thomas Keck, Iurii Kemaev, Michael King, Markus Kunesch, Lena Martens, Hamza Merzic, Vladimir Mikulik, Tamara Norman, George Papamakarios, John Quan, Roman Ring, Francisco Ruiz, Alvaro Sanchez, Laurent Sartran, Rosalia Schneider, Eren Sezener, Stephen Spencer, Srivatsan Srinivasan, Miloš Stanojević, Wojciech Stokowiec, Luyu Wang, Guangyao Zhou, and Fabio Viola. The DeepMind JAX Ecosystem. 2020. URL: <a class="reference external" href="http://github.com/google-deepmind">http://github.com/google-deepmind</a>.</p>
+</div>
+<div class="citation" id="id21" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Jason Rader, Terry Lyons, and Patrick Kidger. Optimistix. 2024. URL: <a class="reference external" href="https://github.com/patrick-kidger/optimistix">https://github.com/patrick-kidger/optimistix</a>.</p>
+</div>
+<div class="citation" id="id20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Jason Rader, Terry Lyons, and Patrick Kidger. Optimistix: modular optimisation in jax and equinox. <em>arXiv:2402.09983</em>, 2024.</p>
+</div>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>J. Gagnon, E. Goulielmakis, and V. S. Yakovlev. The accurate frog characterization of attosecond pulses from streaking measurements. <em>Applied Physics B</em>, 92(1):25–32, Jul 2008. <a class="reference external" href="https://doi.org/10.1007/s00340-008-3063-x">doi:10.1007/s00340-008-3063-x</a>.</p>
+</div>
+<div class="citation" id="id14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Daniel J. Kane. Principal components generalized projections: a review. <em>J. Opt. Soc. Am. B</em>, 25(6):A120–A132, Jun 2008. <a class="reference external" href="https://doi.org/10.1364/JOSAB.25.00A120">doi:10.1364/JOSAB.25.00A120</a>.</p>
+</div>
+<div class="citation" id="id13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Daniel J. Kane and Andrei B. Vakhtin. A review of ptychographic techniques for ultrashort pulse measurement. <em>Progress in Quantum Electronics</em>, 81:100364, 2022. <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.pquantelec.2021.100364">doi:https://doi.org/10.1016/j.pquantelec.2021.100364</a>.</p>
+</div>
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. <em>J. Opt. Soc. Am. B</em>, 34(1):190–197, Jan 2017. <a class="reference external" href="https://doi.org/10.1364/JOSAB.34.000190">doi:10.1364/JOSAB.34.000190</a>.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Jorge Nocedal and Stephen Wright. <em>Numerical Optimization</em>. Springer New York, New York, NY, 2nd ed. 2006 edition, 2006. ISBN 9780387400655. <a class="reference external" href="https://doi.org/10.1007/978-0-387-40065-5">doi:10.1007/978-0-387-40065-5</a>.</p>
+</div>
+<div class="citation" id="id27" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>B.T. Polyak. Minimization of unsmooth functionals. <em>USSR Computational Mathematics and Mathematical Physics</em>, 9(3):14–29, 1969. <a class="reference external" href="https://doi.org/https://doi.org/10.1016/0041-5553(69)90061-5">doi:https://doi.org/10.1016/0041-5553(69)90061-5</a>.</p>
+</div>
+<div class="citation" id="id26" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Ken Kreutz-Delgado. The complex gradient operator and the cr-calculus. 2009. URL: <a class="reference external" href="https://arxiv.org/abs/0906.4835">https://arxiv.org/abs/0906.4835</a>, <a class="reference external" href="https://arxiv.org/abs/0906.4835">arXiv:0906.4835</a>.</p>
+</div>
+<div class="citation" id="id11" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Nils C. Geib, Matthias Zilk, Thomas Pertsch, and Falk Eilenberger. Common pulse retrieval algorithm: a fast and universal method to retrieve ultrashort pulses. <em>Optica</em>, 6(4):495–505, Apr 2019. <a class="reference external" href="https://doi.org/10.1364/OPTICA.6.000495">doi:10.1364/OPTICA.6.000495</a>.</p>
+</div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eqs_s_prime_and_polyak.html" class="btn btn-neutral float-left" title="Update nonlinear Signal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="frog.html" class="btn btn-neutral float-right" title="frog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

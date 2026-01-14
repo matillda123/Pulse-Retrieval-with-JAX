@@ -341,9 +341,6 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         Overwriting its creation would be possible but a bit cumbersome. 
         """
         frequency, frequency_big = self.measurement_info.frequency, self.measurement_info.frequency_big
-        self.phase_matrix = do_interpolation_1d(frequency_big, frequency, self.phase_matrix)
-        self.measurement_info = tree_at(lambda x: x.phase_matrix, self.measurement_info, self.phase_matrix)
-
         self.spectral_filter1 = do_interpolation_1d(frequency_big, frequency, self.spectral_filter1)
         self.spectral_filter2 = do_interpolation_1d(frequency_big, frequency, self.spectral_filter2)
         self.measurement_info = tree_at(lambda x: x.spectral_filter1, self.measurement_info, self.spectral_filter1)
@@ -390,12 +387,9 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
 
         else:
             gate = pulse_t
-        
-        # shift in time is solved, by jnp.roll -> isnt exact
-        gate, delay = self.apply_phase(gate, measurement_info, sk_big, rn_big) 
 
-        gate1 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, sk_big, rn_big)
-        gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter2, sk_big, rn_big)
+        gate1, gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, 
+                                                  measurement_info.spectral_filter2, sk_big, rn_big)
             
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency_big, tau_arr, time_big)
         tau = measurement_info.tau_pulse_anc1
@@ -406,7 +400,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         signal_t = jnp.real(pulse_t)*gate
         signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
 
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, delay=delay)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
         return signal_t
 
 
@@ -474,7 +468,7 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         else:
             gate_pulse = pulse_t
 
-        gate_disp, delay = self.apply_phase(gate_pulse, measurement_info, sk_big, rn_big) 
+        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk_big, rn_big) 
 
         tau = measurement_info.tau_interferometer
         gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency_big, jnp.asarray([tau]), time_big)
@@ -486,5 +480,5 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         signal_t = jnp.real(pulse_t)*gate
 
         signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, delay=delay)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
         return signal_t

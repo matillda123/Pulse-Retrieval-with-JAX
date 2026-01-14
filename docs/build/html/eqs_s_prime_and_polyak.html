@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update nonlinear Signal &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Literature" href="literature.html" />
+    <link rel="prev" title="PIE - Gradient" href="eqs_pie_grad_hessian.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="definitions_and_formulas.html">Definitions and Formulas</a></li>
+      <li class="breadcrumb-item active">Update nonlinear Signal</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eqs_s_prime_and_polyak.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="update-nonlinear-signal">
+<h1>Update nonlinear Signal<a class="headerlink" href="#update-nonlinear-signal" title="Link to this heading"></a></h1>
+<section id="projection">
+<h2>Projection<a class="headerlink" href="#projection" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(S_{mk}' = \sum_{n}D_{kn} \cdot \mathrm{sgn}(T_{mn}^{\mathrm{exp}})\cdot\sqrt{|T_{mn}^{\mathrm{exp}}|} \dfrac{S_{mn}}{|S_{mn}|}\)</span></p>
+</section>
+<section id="iteration">
+<h2>Iteration<a class="headerlink" href="#iteration" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(S_{mk}' = S_{mk} - \alpha\eta\cdot\nabla_{mk}r\)</span></p>
+<br>
+<section id="intensity">
+<h3>Intensity<a class="headerlink" href="#intensity" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(r = \sum_n(T_{mn}^{\mathrm{exp}} - \mu T_{mn})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (T_{mn}^{\mathrm{exp}} - \mu T_{mn})\cdot S_{mn}\)</span></p>
+<p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj} (2\mu T_{mn} - T_{mn}^{\mathrm{exp}})\)</span></p>
+<br>
+</section>
+<section id="magnitude">
+<h3>Magnitude<a class="headerlink" href="#magnitude" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(r=\sum_n(\sqrt{T_{mn}^{\mathrm{exp}}} - \mu |S_{mn}|)^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{|S_mn|} - S_{mn})\)</span></p>
+<p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj}\)</span></p>
+</section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="adaptive-stepsize">
+<h1>Adaptive Stepsize<a class="headerlink" href="#adaptive-stepsize" title="Link to this heading"></a></h1>
+<p><span class="math notranslate nohighlight">\(E_n'-E_n = \eta\cdot d_n\)</span></p>
+<p>For gradient-descent-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot\nabla L\)</span><br />
+For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=-1\cdot (H_L)^{-1}\nabla L \quad\Rightarrow\quad d^\dagger H d = -1\cdot d^\dagger\nabla L\)</span></p>
+<section id="based-on-taylor-series">
+<h2>Based on Taylor-Series<a class="headerlink" href="#based-on-taylor-series" title="Link to this heading"></a></h2>
+<section id="order">
+<h3>1. Order<a class="headerlink" href="#order" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta = \frac{L'-L}{2\cdot \Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+<p>In Copra: <span class="math notranslate nohighlight">\(L'=-L \quad\rightarrow\quad\)</span>  <span class="math notranslate nohighlight">\(\eta = \frac{-L}{\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+</section>
+<section id="id1">
+<h3>2. Order<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(L'=L + 2\cdot \Re\left\{\sum_n (E_n'-E_n)^\dagger \nabla_nL\right\} + \Re\left\{\sum_{np} (E_n'-E_n)^\dagger H_{np}(E_p'-E_p)\right\}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta = 2\cdot\left(1 \mp\sqrt{1-\frac{L'-L}{2\Re\{ d^\dagger\cdot \nabla L \}}}\right)\)</span></p>
+<p>(with signed sqrt to keep numerical stability, is the case for all sqrt here)</p>
+</section>
+</section>
+<section id="based-on-pade-approximation">
+<h2>Based on Pade-Approximation<a class="headerlink" href="#based-on-pade-approximation" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(R_{nm}(x)=\frac{P(x)}{Q(x)} = \frac{\sum\limits_{i=0}^{n} a_i x^i}{1+\sum\limits_{i=1}^{m} b_i x^i}\)</span></p>
+<p>If Taylor-series is: <span class="math notranslate nohighlight">\(\quad T(x)=f_0 + f_1 x +f_2x^2 + \mathcal{O}(x^3)\)</span></p>
+<br>
+<p><span class="math notranslate nohighlight">\(R_{01}(x)=\frac{a_0}{1+b_1x} = \frac{f_0}{1-\frac{f_1}{f_0}x}\)</span></p>
+<p><span class="math notranslate nohighlight">\(R_{11}(x)=\frac{a_0+a_1x}{1+b_1x} = \frac{f_0 + \left(f_1-\frac{f_2}{f_1}f_0\right)x}{1-\frac{f_2}{f_1}x}\)</span></p>
+<p><span class="math notranslate nohighlight">\(R_{02}(x)=\frac{a_0}{1+b_1x+b_2x^2} = \frac{f_0}{1-\frac{f_1}{f_0}x + \left(\left(\frac{f_1}{f_0}\right)^2-\frac{f_2}{f_0}\right)x^2}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{01}=\frac{L}{L'}\cdot\frac{L'-L}{2\cdot\Re\{ d^\dagger\cdot \nabla L \}}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{11}=\frac{2(L'-L)}{4\cdot\Re\{ d^\dagger\cdot \nabla L \} - (L'-L)}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\eta_{02}=\frac{L}{4\cdot\Re\{ d^\dagger\cdot \nabla L \}+L}\cdot\left(1\pm\sqrt{1 - 4\cdot\left(1 + \frac{L}{4\cdot\Re\{ d^\dagger\cdot \nabla L \}}\right)\cdot\frac{L'-L}{L'}}\right)\)</span></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eqs_pie_grad_hessian.html" class="btn btn-neutral float-left" title="PIE - Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="literature.html" class="btn btn-neutral float-right" title="Literature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

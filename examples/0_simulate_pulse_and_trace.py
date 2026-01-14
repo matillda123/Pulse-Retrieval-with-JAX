@@ -32,10 +32,10 @@ delay, frequency_trace, trace, spectra = mp.generate_frog(time, frequency, pulse
 import refractiveindex
 phase_type = "material"
 parameters = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson")
-z_arr = jnp.linspace(-1,1,128)
+theta = jnp.linspace(-1,1,128)
 
-z_arr, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, pulse_t, pulse_f, "shg", 
-                                                               z_arr, phase_type, parameters)
+theta, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, pulse_t, pulse_f, "shg", 
+                                                               theta, phase_type, parameters)
 
 
 

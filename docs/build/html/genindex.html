@@ -48,22 +48,28 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
@@ -224,12 +230,8 @@
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.apply_noise">apply_noise() (in module simulate_trace.make_trace)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.apply_phase">apply_phase() (core.base_classes_methods.RetrievePulses2DSI method)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.apply_phase">(core.base_classes_methods.RetrievePulsesVAMPIRE method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.apply_phase">apply_phase() (core.base_classes_methods.RetrievePulsesVAMPIRE method)</a>
 </li>
-      </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.apply_spectral_filter">apply_spectral_filter() (core.base_classes_methods.RetrievePulses2DSI method)</a>
 
       <ul>
@@ -1430,12 +1432,12 @@
         <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.get_phase">(core.base_general_optimization.AutoDiffBASE method)</a>
 </li>
       </ul></li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.get_phase_matrix">get_phase_matrix() (core.base_classes_methods.RetrievePulses2DSI method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.get_phase_matrix">get_phase_matrix() (core.base_classes_methods.RetrievePulsesCHIRPSCAN method)</a>
 
       <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.get_phase_matrix">(core.base_classes_methods.RetrievePulsesCHIRPSCAN method)</a>
-</li>
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.get_phase_matrix">(core.base_classes_methods.RetrievePulsesVAMPIRE method)</a>
+</li>
+        <li><a href="core.html#core.spectral_filter_funcs.get_phase_matrix">(in module core.spectral_filter_funcs)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -2858,6 +2860,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.TemporalAmplitude">TemporalAmplitude (class in simulate_trace.make_pulse)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta">theta (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.time">time (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
       <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.time_big">time_big (real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
@@ -3043,8 +3047,6 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.z_arr">z_arr (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
-</li>
       <li><a href="core.gradients.html#core.gradients.frog_z_error_gradients.Z_gradient_cross_correlation_pulse">Z_gradient_cross_correlation_pulse() (in module core.gradients.frog_z_error_gradients)</a>
 
       <ul>

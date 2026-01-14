@@ -9,7 +9,7 @@
   <title>simulate_trace &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -51,21 +51,28 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Definitions_and_Formulas.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
@@ -494,7 +501,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTrace">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#simulate_trace.make_pulse.MakePulse" title="simulate_trace.make_pulse.MakePulse"><code class="xref py py-class docutils literal notranslate"><span class="pre">MakePulse</span></code></a></p>
 <p>Simulates measurement traces based in input pulses.
 Inherits from make_pulse.MakePulse.</p>
@@ -572,7 +579,7 @@ Inherits from make_pulse.MakePulse.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTrace.generate_chirpscan">
-<span class="sig-name descname"><span class="pre">generate_chirpscan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_stuff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace.generate_chirpscan" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">generate_chirpscan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_stuff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace.generate_chirpscan" title="Link to this definition"></a></dt>
 <dd><p>Generates a Chirp-Scan trace using the provide pulse/gate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -582,7 +589,7 @@ Inherits from make_pulse.MakePulse.</p>
 <li><p><strong>pulse_t</strong> (<em>jnp.array</em>) – the input pulse in the time domain</p></li>
 <li><p><strong>pulse_f</strong> (<em>jnp.array</em>) – the input pulse in the frequency domain</p></li>
 <li><p><strong>nonlinear_method</strong> (<em>str</em>) – the nonlinear method</p></li>
-<li><p><strong>z_arr</strong> (<em>jnp.array</em>) – defines the shift arr of the chirp scan. (e.g. material thickness, phase_shift in MIIPS, …)</p></li>
+<li><p><strong>theta</strong> (<em>jnp.array</em>) – defines the shift arr of the chirp scan. (e.g. material thickness, phase_shift in MIIPS, …)</p></li>
 <li><p><strong>phase_type</strong> (<em>str</em><em>, </em><em>Callable</em>) – defines how the applied phase is created, (e.g. material, MIIPS, … )</p></li>
 <li><p><strong>parameters</strong> (<em>tuple</em>) – defines further necessary input parameters to the function that calculates phase_matrix</p></li>
 <li><p><strong>real_fields</strong> (<em>bool</em>) – whether the nonlinear signal should be generated using real fields</p></li>
@@ -733,7 +740,7 @@ Inherits from make_pulse.MakePulse.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTraceCHIRPSCAN">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTraceCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTraceCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_off_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTraceCHIRPSCAN" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#simulate_trace.make_trace.MakeTraceBASE" title="simulate_trace.make_trace.MakeTraceBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">MakeTraceBASE</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTraceCHIRPSCAN.get_parameters_to_make_signal_t">

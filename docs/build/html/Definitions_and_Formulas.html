@@ -27,9 +27,7 @@
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="frog" href="frog.html" />
-    <link rel="prev" title="Advanced Usage" href="example_advanced_things.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,21 +51,28 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Overview Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Overview Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Equations</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Definitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#z-gradients">Z-Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#z-pseudo-hessian">Z-Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pie-gradient">PIE Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#update-nonlinear-signal">Update nonlinear Signal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
@@ -198,11 +203,10 @@
 <span class="math notranslate nohighlight">\(S_{mk} = (E_k + A_{mk})\cdot G(E_k + A_{mk})\)</span></p></li>
 <li><p>Time-Domain-Ptychography<br />
 Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\)</span> is different.<br />
-<span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)</p></li>
+<span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p></li>
 <li><p>2D-SI<br />
 <span class="math notranslate nohighlight">\(S_{mk} = G(E_k'\cdot e^{-i\tau_0\omega_n} + A_{mk}'') \cdot E_k \quad\)</span> ( <span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay of <span class="math notranslate nohighlight">\(E_k\)</span> and <span class="math notranslate nohighlight">\(E_k'\)</span> )<br />
-<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter)<br />
-<span class="math notranslate nohighlight">\(E_k'\)</span> and <span class="math notranslate nohighlight">\(A_{mk}''\)</span> have an optional material <span class="math notranslate nohighlight">\(\phi_n\)</span> dispersion from the interferometer.</p></li>
+<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p></li>
 <li><p>Vampire<br />
 <span class="math notranslate nohighlight">\(S_{mk} = G(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot A_{mk}\quad\)</span>  (Original definition, pushing <span class="math notranslate nohighlight">\(m\)</span> onto gate makes it easier with PIE.)<br />
 <span class="math notranslate nohighlight">\(S_{mk} = G_m(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot E_k = G(A_{mk}\cdot e^{-i\tau_0\omega_n} + A_{mk}')\cdot E_k\)</span><br />
@@ -214,20 +218,14 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <h2>Error<a class="headerlink" href="#error" title="Link to this heading"></a></h2>
 <ol class="arabic">
 <li><p>G-Error (Trace Error)</p>
-<p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum_n\sum_m (T_{mn}^{\mathrm{exp}} - \mu \cdot T_{mn})^2\)</span></p>
-<p><span class="math notranslate nohighlight">\(\mu = \frac{\sum_n\sum_m T_{mn} \cdot T_{mn}^{\mathrm{exp}}}{\sum_n\sum_m T_{mn}^2}\)</span></p>
+<p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum\limits_{nm} (T_{mn}^{\mathrm{exp}} - \mu \cdot T_{mn})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\mu = \dfrac{\sum\limits_{nm} T_{mn} \cdot T_{mn}^{\mathrm{exp}}}{\sum\limits_{nm} T_{mn}^2}\)</span></p>
 </li>
-</ol>
-<br>
-<ol class="arabic" start="2">
 <li><p>Z-Error</p>
-<p><span class="math notranslate nohighlight">\(Z = \sum_k\sum_m | S_{mk}' - S_{mk}|^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(Z = \sum\limits_{km} | S_{mk}' - S_{mk}|^2\)</span></p>
 </li>
-</ol>
-<br>
-<ol class="arabic" start="3">
 <li><p>PIE-Error</p>
-<p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum_n\sum_m (\sqrt{T_{mn}^{\mathrm{exp}}} - |S_{mn}|)^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(L = \frac{1}{N_m\cdot N_n}\sum\limits_{nm} (\sqrt{T_{mn}^{\mathrm{exp}}} - |S_{mn}|)^2\)</span></p>
 </li>
 </ol>
 </section>
@@ -590,27 +588,27 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <ol class="arabic">
 <li><p>SHG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')+E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')+E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\right)\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="2">
 <li><p>THG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^2+2E_k\cdot(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot E_k\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^2+2E_k\cdot(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot E_k\right)\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="3">
 <li><p>PG<br />
-<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(E_k'+A_{mk}'')\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left(|E_k'+A_{mk}''|^2 + E_k\cdot(E_k'+A_{mk}'')^*\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\right)\cdot e^{i\phi_n}\)</span></p>
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = D_{nk}E_k(E_k'+A_{mk}'')\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left(|E_k'+A_{mk}''|^2 + E_k\cdot(E_k'+A_{mk}'')^*\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\right)\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="4">
 <li><p>SD<br />
-<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(E_k' + A_{mk}'')^*\)</span></p>
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot(E_k' + A_{mk}'')^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^*\right)^2\)</span></p>
 </li>
 </ol>
@@ -618,7 +616,7 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <ol class="arabic" start="5">
 <li><p>nth-HG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^{n-1}+(n-1)E_k\cdot(E_k'+A_{mk}'')^{n-2}(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot E_k\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = D_{kn}\left((E_k'+A_{mk}'')^{n-1}+(n-1)E_k\cdot(E_k'+A_{mk}'')^{n-2}(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot E_k\right)\)</span></p>
 </li>
 </ol>
 </section>
@@ -633,27 +631,27 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <ol class="arabic">
 <li><p>SHG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="2">
 <li><p>THG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 2D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 2D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot(A_k + A_{mk})\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="3">
 <li><p>PG<br />
-<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})^*\)</span></p>
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot(A_k + A_{mk})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot(A_k + A_{mk})^*\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="4">
 <li><p>SD<br />
-<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot e^{-i\phi_n}\cdot(A_k + A_{mk})^*\)</span></p>
+<span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n^*} = 2D_{nk}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*\cdot(A_k + A_{mk})^*\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dA_n} = 0\)</span></p>
 </li>
 </ol>
@@ -661,7 +659,7 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <ol class="arabic" start="5">
 <li><p>nth-HG<br />
 <span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n^*} = 0\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1)D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot e^{i\phi_n}\cdot(A_k + A_{mk})^{n-2}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{dS_{mk}}{dE_n} = (n-1)D_{kn}E_k\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')\cdot(A_k + A_{mk})^{n-2}\)</span></p>
 </li>
 </ol>
 </section>
@@ -1102,15 +1100,15 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <br>
 <ol class="arabic" start="3">
 <li><p>PG</p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot\left((E_k'+A_{mk}'')^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{i\phi_p} + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{-i\phi_n}\cdot e^{i\phi_p}\right)\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot\left((E_k'+A_{mk}'')^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})\cdot e^{i\phi_n} + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})^*\cdot e^{i\phi_n}\cdot e^{-i\phi_p}\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot\left((E_k'+A_{mk}'')^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p}) + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})^*(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot\left((E_k'+A_{mk}'')^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n}) + E_k^*(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})^*\right)\)</span></p>
 </li>
 </ol>
 <br>
 <ol class="arabic" start="4">
 <li><p>SD</p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot 2(E_k'+A_{mk}'')(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\cdot e^{i\phi_p}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot 2(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})\cdot e^{i\phi_n}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p}\left(\frac{dS_{mk}}{dE_n}\right)^* = D_{nk}D_{kp}\cdot 2(E_k'+A_{mk}'')(B_p'e^{-i\tau_0\omega_p}+B_p''e^{-i\tau_m\omega_p})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dE_p^*}\left(\frac{dS_{mk}}{dE_n^*}\right)^* = D_{pk}D_{kn}\cdot 2(E_k'+A_{mk}'')(B_n'e^{-i\tau_0\omega_n}+B_n''e^{-i\tau_m\omega_n})\)</span></p>
 </li>
 </ol>
 <br>
@@ -1141,8 +1139,8 @@ Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\
 <br>
 <ol class="arabic" start="3">
 <li><p>PG</p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dA_p}\left(\frac{dS_{mk}}{dA_n}\right)^* = D_{nk}D_{kp}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')\cdot e^{-i\phi_n}\cdot e^{i\phi_p}\cdot E_k^*\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d}{dA_p^*}\left(\frac{dS_{mk}}{dA_n^*}\right)^* = D_{kn}D_{pk}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')^*\cdot e^{i\phi_n}\cdot e^{-i\phi_p}\cdot E_k^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dA_p}\left(\frac{dS_{mk}}{dA_n}\right)^* = D_{nk}D_{kp}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')^*(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')\cdot E_k^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d}{dA_p^*}\left(\frac{dS_{mk}}{dA_n^*}\right)^* = D_{kn}D_{pk}\cdot(B_n'e^{-i\tau_0\omega_n}+e^{-i\tau_m\omega_n}B_n'')(B_p'e^{-i\tau_0\omega_p}+e^{-i\tau_m\omega_p}B_p'')^*\cdot E_k^*\)</span></p>
 </li>
 </ol>
 <br>
@@ -1373,10 +1371,7 @@ For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_advanced_things.html" class="btn btn-neutral float-left" title="Advanced Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="frog.html" class="btn btn-neutral float-right" title="frog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
