@@ -47,7 +47,7 @@ def get_filter(filter_func, frequency, parameters, custom_func=None,
         filter_func (str, tuple[str]): can be one of ```gaussian, lorentzian, rectangular, multi or custom```. 
                                         For multi, parameters needs to specify the repsective filetr function
         frequency (jnp.array): the frequency axis
-        parameters (tuple): the parameters required by the filter function
+        parameters (tuple): the parameters required by the filter function, have the input form (a, f0, fwhm, p)
         custom_func (Callable, None): in case of filter_func="custom" the custom filter function needs to be provided here.
         refractive_index (refractiveindex.RefractiveIndexMaterial): provides the refractive index
         material_thickness (float, int): the material thickness in millimeters

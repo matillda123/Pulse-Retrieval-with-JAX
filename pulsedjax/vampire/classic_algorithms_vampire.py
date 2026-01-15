@@ -6,11 +6,39 @@ from equinox import tree_at
 import refractiveindex
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesVAMPIRE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 
 from pulsedjax.core.gradients.vampire_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.vampire_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
 from pulsedjax.core.hessians.pie_pseudo_hessian import PIE_get_pseudo_newton_direction
+
+from pulsedjax.utilities import calculate_gate
+
+
+
+class LSGPA(LSGPABASE, RetrievePulsesVAMPIRE):
+    __doc__ = LSGPABASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, **kwargs)
+
+
+
+class CPCGPA(CPCGPABASE, RetrievePulsesVAMPIRE):
+    __doc__ = CPCGPABASE.__doc__
+
+    def __init__(self, delay, frequency, trace, nonlinear_method, spectral_filter, cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
+        super().__init__(delay, frequency, trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
+
+    
+    def calculate_gate(self, gate_pulse, measurement_info):
+        tau, nonlinear_method = measurement_info.tau_interferometer, measurement_info.nonlinear_method
+        sk, rn, frequency, time = measurement_info.sk, measurement_info.rn, measurement_info.frequency, measurement_info.time
+        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        return calculate_gate(gate_pulses, nonlinear_method)
+
 
 
 

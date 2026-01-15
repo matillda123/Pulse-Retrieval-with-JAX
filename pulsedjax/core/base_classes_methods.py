@@ -358,7 +358,7 @@ class RetrievePulsesFROG(RetrievePulses):
     """
     The reconstruction class for FROG. Inherits from RetrievePulses.
 
-    [1] R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
+    R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
 
     Attributes:
         tau_arr (jnp.array): the delays
@@ -546,11 +546,11 @@ class RetrievePulsesFROG(RetrievePulses):
             idx = self.get_idx_best_individual(descent_state)
 
         individual = self.get_individual_from_idx(idx, descent_state.population)
-        pulse_t = individual.pulse
+        pulse_t = individual.pulse[0]
         pulse_f = self.fft(pulse_t, sk, rn)
 
         if measurement_info.doubleblind==True:
-            gate_t = individual.gate
+            gate_t = individual.gate[0]
             gate_f = self.fft(gate_t, sk, rn)
         else:
             gate_t, gate_f = pulse_t, pulse_f
@@ -567,7 +567,7 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
     """
     The reconstruction class for Time-Domain-Ptychography.
 
-    [1] D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
+    D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
 
     Attributes:
         spectral_filter (jnp.array): the spectral filter in the gate arm.
@@ -661,8 +661,8 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
     """
     The reconstruction class for Chirp-Scan methods.
 
-    [1] V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
-    [2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012) 
+    V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
+    M. Miranda et al., Opt. Express 20, 18732-18743 (2012) 
 
     Attributes:
         theta (jnp.array): the shifts

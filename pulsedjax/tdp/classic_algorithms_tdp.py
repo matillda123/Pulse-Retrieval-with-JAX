@@ -1,12 +1,38 @@
 from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesTDP
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, COPRABASE
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, COPRABASE
 
 from pulsedjax.core.gradients.tdp_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.tdp_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
 
 from pulsedjax.frog import PtychographicIterativeEngine as PtychgraphicIterativeEngineFROG
+
+from pulsedjax.utilities import calculate_gate
+
+
+
+
+class LSGPA(LSGPABASE, RetrievePulsesTDP):
+    __doc__ = LSGPABASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, **kwargs)
+        
+
+
+
+class CPCGPA(CPCGPABASE, RetrievePulsesTDP):
+    __doc__ = CPCGPABASE.__doc__
+
+    def __init__(self, delay, frequency, trace, nonlinear_method, spectral_filter, cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
+        super().__init__(delay, frequency, trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
+        
+
+    
+    def calculate_gate(self, gate_pulse, measurement_info):
+        gate_pulse = self.apply_spectral_filter(gate_pulse, measurement_info.spectral_filter, measurement_info.sk, measurement_info.rn)
+        return calculate_gate(gate_pulse, measurement_info.nonlinear_method)
 
 
 

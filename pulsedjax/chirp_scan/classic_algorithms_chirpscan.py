@@ -23,7 +23,7 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     """
     The (improoved)-MIIPS Algorithm. Doesnt seem to work though.
 
-    [1] A. Comin et al., Opt. Express 24, 2505-2512 (2016)
+    A. Comin et al., Opt. Express 24, 2505-2512 (2016)
 
     Attributes:
         integration_method (str): the integration method to use, can be cumsum or euler_maclaurin_k
@@ -130,7 +130,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
     """
     The Basic Reconstruction Algorithm.
     
-    [1] M. Miranda et al., J. Opt. Soc. Am. B 34, 190-197 (2017) 
+    M. Miranda et al., J. Opt. Soc. Am. B 34, 190-197 (2017) 
 
     """
 

@@ -360,7 +360,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
     """
     Employs the evosax package to perform the optimization.
 
-    [1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)
+    Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)
 
     Attributes:
         solver (evosax-solver): any evosax-solver should work
@@ -545,7 +545,7 @@ class LSFBASE(GeneralOptimizationBASE):
     and thus optimized in its discretized form.
 
 
-    [1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
+    C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
 
     Attributes:
         number_of_bisection_iterations (int): as the name says
@@ -847,8 +847,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
     """
     Employs the optimistix package to perform the optimization via Automatic-Differentiation.
 
-    [1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
-    [2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)
+    J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+    DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)
 
     Attributes:
         solver (optimistix-solver, optax-solver): solvers need to be initialized

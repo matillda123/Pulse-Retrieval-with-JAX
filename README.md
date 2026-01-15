@@ -36,7 +36,8 @@ For some methods, specific additional algorithms are implemented:
 | Method | Algorithms | Citation |
 |---|---|---|
 | FROG | Vanilla | [R. Trebino, 10.1007/978-1-4615-1181-6 (2000)](https://link.springer.com/book/10.1007/978-1-4615-1181-6) |
-|  | LSGPA | [J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)](https://doi.org/10.1007/s00340-008-3063-x) |
+|  |  |  |
+| FROG, TDP and VAMPIRE | LSGPA | [J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)](https://doi.org/10.1007/s00340-008-3063-x) |
 |  |  C-PCGPA | [D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364),  (2022)](https://doi.org/10.1016/j.pquantelec.2021.100364) |
 |  |  |  |
 | 2D-SI | Direct-Reconstruction | [J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)](https://doi.org/10.1364/OL.31.002063) |  
