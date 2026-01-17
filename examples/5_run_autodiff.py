@@ -7,7 +7,7 @@ phase0 = PolynomialPhase(None, (0,0,50,-25))
 
 
 mp = MakeTrace(N=128*10, f_max=2)
-time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp0,phase0))
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0,phase0))
 
 delay_inp = jnp.linspace(-150,150,256)
 delay, frequency_trace, trace, spectra = mp.generate_frog(time, frequency, pulse_t, pulse_f, "pg", delay_inp,

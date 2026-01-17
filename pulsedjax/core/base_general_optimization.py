@@ -365,7 +365,8 @@ class EvosaxBASE(GeneralOptimizationBASE):
     Attributes:
         solver (evosax-solver): any evosax-solver should work
         solver_params (any): user defined parameters for the evosax-solver, if None the default params set in evosax are used
-
+        solver_kwargs (dict): some evosax-solver require additional input arguments. These can be supplied via this aattribute.
+        
     """
     def __init__(self, *args, solver=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -373,6 +374,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
         self._name = "Evosax"
         self.solver = solver
         self.solver_params = None
+        self.solver_kwargs = {}
         
 
 
@@ -399,7 +401,6 @@ class EvosaxBASE(GeneralOptimizationBASE):
             population_amp, population_phase = population_amp_or_phase, population
 
         population_eval = self.merge_population_from_amp_and_phase(population_amp, population_phase)
-
         fitness = self.calculate_error_population(population_eval, measurement_info, descent_info)
         state, _ = solver.tell(key_tell, population, fitness, state, params)
         population, state = solver.ask(key_ask_2, state, params)
@@ -499,11 +500,13 @@ class EvosaxBASE(GeneralOptimizationBASE):
 
         population_size = self.descent_info.population_size
         individual = self.get_individual_from_idx(0, population)
+        individual = jax.tree.map(lambda x: x[0], individual)
         individual_amp, individual_phase = self.split_population_in_amp_and_phase(individual)
 
         solver_amp, solver_phase = self.solver, self.solver
-        self.descent_info = self.descent_info.expand(solver = MyNamespace(amp=solver_amp(population_size=population_size, solution=individual_amp), 
-                                                                          phase=solver_phase(population_size=population_size, solution=individual_phase)))
+        solver_kwargs = self.solver_kwargs
+        self.descent_info = self.descent_info.expand(solver = MyNamespace(amp=solver_amp(population_size=population_size, solution=individual_amp, **solver_kwargs), 
+                                                                          phase=solver_phase(population_size=population_size, solution=individual_phase, **solver_kwargs)))
         descent_info=self.descent_info
 
         if descent_info.measured_spectrum_is_provided.pulse==False or (descent_info.measured_spectrum_is_provided.gate==False and measurement_info.doubleblind==True):
@@ -578,7 +581,7 @@ class LSFBASE(GeneralOptimizationBASE):
 
         elif mode=="continuous":
             x_new = jnp.linspace(0, 1, shape[0])
-            N = (ratio_points_for_continuous*shape[0]).astype(jnp.int16)
+            N = int(ratio_points_for_continuous*shape[0])
 
             key1, key2 = jax.random.split(key, 2)
             x = jnp.sort(jax.random.choice(key1, x_new, (N, ), replace=False))

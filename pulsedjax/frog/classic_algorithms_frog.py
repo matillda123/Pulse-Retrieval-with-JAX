@@ -8,7 +8,7 @@ from pulsedjax.core.base_classes_methods import RetrievePulsesFROG
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, initialize_S_prime_params
 
-from pulsedjax.utilities import scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
+from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
 from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.gradients.frog_z_error_gradients import calculate_Z_gradient
@@ -28,14 +28,12 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
 
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
-        if cross_correlation=="doubleblind":
-            print("Vanilla/LSGPA dont work for doubleblind.")
-            # which is weird because lsgpa was invented for attosecond-streaking -> is doubleblind by definition. 
+        assert cross_correlation!="doubleblind", "Vanilla doesnt work for doubleblind"
 
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
-        self._name = "Vanilla"        
+        self._name = "Vanilla"   
 
-        # for some reason vanilla only works with central_f=0. No idea why. Is undone when using LSGPA.
+        # for some reason vanilla only works with central_f=0. No idea why.
         idx = get_com(jnp.mean(self.measured_trace, axis=0), jnp.arange(jnp.size(self.frequency)))
         self.f0 = frequency[int(idx)]
         self.frequency = self.frequency - self.f0
@@ -115,7 +113,9 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         measurement_info = self.measurement_info
 
         s_prime_params = initialize_S_prime_params(self)
-        self.descent_info = self.descent_info.expand(s_prime_params=s_prime_params)
+        self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
+                                                     xi = self.xi,
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population=population)

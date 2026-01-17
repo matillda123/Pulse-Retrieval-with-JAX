@@ -226,7 +226,9 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         measurement_info = self.measurement_info
 
         s_prime_params = initialize_S_prime_params(self)
-        self.descent_info = self.descent_info.expand(s_prime_params=s_prime_params)
+        self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
+                                                     xi = self.xi,
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population=population)
@@ -508,8 +510,10 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         s_prime_params = initialize_S_prime_params(self)
         self.descent_info = self.descent_info.expand(svd = self.svd, 
                                                      constraints = self.constraints,
+                                                     antialias = self.antialias,
                                                      s_prime_params = s_prime_params,
-                                                     antialias = self.antialias)
+                                                     xi = self.xi,
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
         descent_info = self.descent_info
 
 
@@ -1167,8 +1171,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         descent_state, do_local, do_global = self.initialize_run(population)
 
-        descent_state, error_arr_local = run_scan(do_local, descent_state, no_iterations_local, self.jit)
-        descent_state, error_arr_global = run_scan(do_global, descent_state, no_iterations_global, self.jit)
+        descent_state, error_arr_local = run_scan(do_local, descent_state, no_iterations_local)
+        descent_state, error_arr_global = run_scan(do_global, descent_state, no_iterations_global)
 
         error_arr = jnp.concatenate([error_arr_local, error_arr_global], axis=0)
         error_arr = jnp.squeeze(error_arr)
@@ -1512,8 +1516,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         descent_state, do_local, do_global = self.initialize_run(population)
 
-        descent_state, error_arr_local = run_scan(do_local, descent_state, no_iterations_local, self.jit)
-        descent_state, error_arr_global = run_scan(do_global, descent_state, no_iterations_global, self.jit)
+        descent_state, error_arr_local = run_scan(do_local, descent_state, no_iterations_local)
+        descent_state, error_arr_global = run_scan(do_global, descent_state, no_iterations_global)
 
         error_arr = jnp.concatenate([error_arr_local, error_arr_global], axis=0)
         error_arr = jnp.squeeze(error_arr)

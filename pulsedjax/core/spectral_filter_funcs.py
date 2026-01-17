@@ -37,7 +37,7 @@ def multi_filter(frequency, parameters, filter_dict):
     return y
 
 
-def get_filter(filter_func, frequency, parameters, custom_func=None, 
+def get_filter(filter_type, frequency, parameters, custom_func=None, 
                refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
                material_thickness=0):
     """ 
@@ -60,7 +60,7 @@ def get_filter(filter_func, frequency, parameters, custom_func=None,
                        rectangular=rectangular_filter,
                        multi=multi_filter,
                        custom=custom_func)
-    y = filter_dict[filter_func](frequency, parameters, filter_dict)
+    y = filter_dict[filter_type](frequency, parameters, filter_dict)
     y = y/jnp.abs(jnp.max(y))
 
     if material_thickness>0:

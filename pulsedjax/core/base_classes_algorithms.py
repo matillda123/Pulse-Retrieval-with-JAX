@@ -26,9 +26,7 @@ class AlgorithmsBASE:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.jit = False
         self.spectrum_is_being_used = False
-
 
         self.fft = do_fft
         self.ifft = do_ifft
@@ -42,7 +40,7 @@ class AlgorithmsBASE:
         do_checks_before_running(self, **kwargs)
 
         carry, do_scan = self.initialize_run(init_vals)
-        carry, error_arr = run_scan(do_scan, carry, no_iterations, self.jit)
+        carry, error_arr = run_scan(do_scan, carry, no_iterations)
         final_result = self.post_process(carry, error_arr)
         return final_result
     

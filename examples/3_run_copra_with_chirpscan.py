@@ -8,7 +8,7 @@ phase0 = RandomPhase(number_of_points=4)
 
 
 mp = MakeTrace(N=128*10, f_max=2)
-time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp0,phase0))
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0,phase0))
 
 
 import refractiveindex

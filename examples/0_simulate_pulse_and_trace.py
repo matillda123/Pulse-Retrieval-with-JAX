@@ -18,9 +18,9 @@ pulse = MultiPulse(("G","G","L"), (1,1,1), (50,50), (25,25,25), (0.25,0.25,0.3),
 # this class can generate pulses and traces
 mp = MakeTrace(N=128*10, f_max=2)
 
-time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp1,phase1))
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp1,phase1))
 delay = jnp.linspace(time[0], time[-1], 256)
-#time, pulse_t, frequency, pulse_f = mp.generate_pulse(pulse) # in case of MultiPulse
+#time, frequency, pulse_t, pulse_f = mp.generate_pulse(pulse) # in case of MultiPulse
 mp.plot_envelopes()
 
 

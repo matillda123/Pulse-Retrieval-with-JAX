@@ -85,7 +85,9 @@ class MakeTrace(MakePulseBase):
             tuple[jnp.array, jnp.array, jnp.array, Pytree], the time and frequency axis, the trace, the spectra
 
         """
-        
+        if cross_correlation=="doubleblind":
+            cross_correlation=True
+
         if real_fields==True:
             maketrace = MakeTraceFROGReal
         else:
@@ -137,7 +139,9 @@ class MakeTrace(MakePulseBase):
             tuple[jnp.array, jnp.array, jnp.array, Pytree], the time and frequency axis, the trace, the spectra
 
         """
-        
+        if cross_correlation=="doubleblind":
+            cross_correlation=True
+            
         if real_fields==True:
             maketrace = MakeTraceTDPReal
         else:
@@ -162,7 +166,7 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_chirpscan(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, real_fields=False, 
+    def generate_chirpscan(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, real_fields=False, 
                            frequency_range=None, N=256, cut_off_val=0.001, plot_stuff=True):
         
         """
@@ -193,7 +197,7 @@ class MakeTrace(MakePulseBase):
         else:
             maketrace = MakeTraceCHIRPSCAN
 
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, 
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, 
                                 frequency_range, N, cut_off_val)
         
         
@@ -241,6 +245,9 @@ class MakeTrace(MakePulseBase):
             tuple[jnp.array, jnp.array, jnp.array, Pytree], the time and frequency axis, the trace, the spectra
 
         """
+
+        if cross_correlation=="doubleblind":
+            cross_correlation=True
 
         if real_fields==True:
             maketrace = MakeTrace2DSIReal
@@ -298,6 +305,9 @@ class MakeTrace(MakePulseBase):
             tuple[jnp.array, jnp.array, jnp.array, Pytree], the time and frequency axis, the trace, the spectra
 
         """
+
+        if cross_correlation=="doubleblind":
+            cross_correlation=True
         
 
         if real_fields==True:
@@ -404,18 +414,20 @@ class MakeTraceBASE:
 
         if is_delay_based==True:
             if self.interpolate_fft_conform==True:
-                central_t = (self.x_arr[0] + self.x_arr[-1])/2
-                dt = 1/np.abs((fmax-fmin))
+                central_f = (fmin + fmax)/2
+                df = 1/np.abs((self.x_arr[-1] - self.x_arr[0]))
 
-                tmin = central_t - dt*self.N/2
-                tmax = central_t + dt*self.N/2
-                time_interpolate = np.linspace(tmin, tmax, self.N)
+                fmin = central_f - df*self.N/2
+                fmax = central_f + df*self.N/2
+                time_interpolate = self.x_arr
+                frequency_interpolate = np.linspace(fmin, fmax, self.N)
             else:
                 time_interpolate = self.x_arr
+                frequency_interpolate = np.linspace(fmin, fmax, self.N)
         else:		
             time_interpolate = self.x_arr
-
-        frequency_interpolate = np.linspace(fmin, fmax, self.N)
+            frequency_interpolate = np.linspace(fmin, fmax, self.N)
+        
         trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
@@ -598,7 +610,7 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
 
 
 class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, parameters, frequency_range, N, cut_off_val):
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, frequency_range, N, cut_off_val):
         super().__init__()
 
         self.theta = theta
@@ -618,7 +630,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
         self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
 
         self.phase_type = phase_type
-        self.parameters = parameters
+        self.chirp_parameters = chirp_parameters
 
 
     def get_parameters_to_make_signal_t(self):

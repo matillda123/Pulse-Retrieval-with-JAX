@@ -9,8 +9,8 @@ phase2 = RandomPhase()
 
 mp = MakeTrace(N=128*20, f_max=2)
 
-time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp0,phase2))
-_, _, frequency_gate, pulse_f_gate = mp.generate_pulse((amp0,phase0))
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0,phase2))
+_, frequency_gate, _, pulse_f_gate = mp.generate_pulse((amp0,phase0))
 
 delay = jnp.linspace(time[0], time[-1], 256)
 delay, frequency_trace, trace, spectra = mp.generate_frog(time, frequency, pulse_t, pulse_f, "shg", delay, cross_correlation=True,

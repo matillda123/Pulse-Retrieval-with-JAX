@@ -56,7 +56,7 @@ class MyNamespace:
             if isinstance(value, MyNamespace):
                 myoutput[key] = value.__repr__()
             else:
-                if isinstance(value, (jax.Array,tuple,list,np.ndarray)):
+                if isinstance(value, (jax.Array,list,np.ndarray)):
                     myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
                 else:
                     try:
@@ -136,7 +136,7 @@ def do_checks_before_running(algorithm_instance, **kwargs):
 
 
 
-def run_scan(do_scan, carry, no_iterations, use_jit):
+def run_scan(do_scan, carry, no_iterations):
     """
     Run a solver iteratively using lax.scan with or without jax.jit.
 
@@ -150,15 +150,10 @@ def run_scan(do_scan, carry, no_iterations, use_jit):
         tuple[Carry, Y], the output of jax.lax.scan
 
     """
+
+    @jax.jit
     def scan(carry):
         return jax.lax.scan(do_scan, carry, length=no_iterations)
-
-
-    if use_jit==True:
-        scan = jax.jit(scan)
-    else:
-        pass
-    
     return scan(carry)
 
 
@@ -361,10 +356,12 @@ def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12):
     """
     Wraps around interpax.interp1d
     """
+    # if method=="linear":
+    #     y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
+    # else:
     if method=="linear":
-        y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
-    else:
-        y_new = interp1d(x_new, x, y, method=method, extrap=extrap)
+        method="cubic"
+    y_new = interp1d(x_new, x, y, method=method, extrap=extrap)
     return y_new
 
 

@@ -218,8 +218,8 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted,
     grad_func_interferometric_False_cross_correlation_False={"shg": Z_gradient_shg, "thg": Z_gradient_thg, "pg": Z_gradient_pg, "sd": Z_gradient_sd, "nhg": Z_gradient_nhg}
     grad_func_interferometric_False_cross_correlation_True={"shg": Z_gradient_cross_correlation_pulse, "thg": Z_gradient_cross_correlation_pulse, "pg": Z_gradient_cross_correlation_pulse, "sd": Z_gradient_cross_correlation_pulse, "nhg": Z_gradient_cross_correlation_pulse}
 
-    grad_func_interferometric_True_cross_correlation_False={"shg": Z_gradient_shg_interferometric, "thg": Z_gradient_thg_interferometric, "pg": Z_gradient_pg_interferometric, "nhg": Z_gradient_nhg_interferometric}
-    grad_func_interferometric_True_cross_correlation_True={"shg": Z_gradient_shg_interferometric_cross_correlation_pulse, "thg": Z_gradient_thg_interferometric_cross_correlation_pulse, "pg": Z_gradient_pg_interferometric_cross_correlation_pulse, "nhg": Z_gradient_nhg_interferometric_cross_correlation_pulse}
+    grad_func_interferometric_True_cross_correlation_False={"shg": Z_gradient_shg_interferometric, "thg": Z_gradient_thg_interferometric, "pg": Z_gradient_pg_interferometric, "sd": Z_gradient_pg_interferometric, "nhg": Z_gradient_nhg_interferometric}
+    grad_func_interferometric_True_cross_correlation_True={"shg": Z_gradient_shg_interferometric_cross_correlation_pulse, "thg": Z_gradient_thg_interferometric_cross_correlation_pulse, "pg": Z_gradient_pg_interferometric_cross_correlation_pulse, "sd": Z_gradient_pg_interferometric_cross_correlation_pulse, "nhg": Z_gradient_nhg_interferometric_cross_correlation_pulse}
 
     grad_func_interferometric_False={False: grad_func_interferometric_False_cross_correlation_False,
                            True: grad_func_interferometric_False_cross_correlation_True}
@@ -272,6 +272,7 @@ def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, pulse_t_shifted, 
     grad_func_interferometric_True_cross_correlation_gate={"shg": Z_gradient_shg_interferometric_cross_correlation_gate, 
                                      "thg": Z_gradient_thg_interferometric_cross_correlation_gate, 
                                      "pg": Z_gradient_pg_interferometric_cross_correlation_gate,
+                                     "sd": Z_gradient_pg_interferometric_cross_correlation_gate,
                                      "nhg": Z_gradient_nhg_interferometric_cross_correlation_gate}
     
     grad_func={False: grad_func_interferometric_False_cross_correlation_gate,

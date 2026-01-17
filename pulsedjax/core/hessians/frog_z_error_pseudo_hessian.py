@@ -284,11 +284,13 @@ def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, o
     hess_func_interferometric_True_cross_correlation_False={"shg": calc_Z_error_pseudo_hessian_subelement_shg_interferometric,
                                      "thg": calc_Z_error_pseudo_hessian_subelement_thg_interferometric,
                                      "pg": calc_Z_error_pseudo_hessian_subelement_pg_interferometric,
+                                     "sd": calc_Z_error_pseudo_hessian_subelement_pg_interferometric,
                                      "nhg": calc_Z_error_pseudo_hessian_subelement_nhg_interferometric}
     
     hess_func_interferometric_True_cross_correlation_True={"shg": calc_Z_error_pseudo_hessian_subelement_shg_interferometric_cross_correlation_pulse,
                                      "thg": calc_Z_error_pseudo_hessian_subelement_thg_interferometric_cross_correlation_pulse,
                                      "pg": calc_Z_error_pseudo_hessian_subelement_pg_interferometric_cross_correlation_pulse,
+                                     "sd": calc_Z_error_pseudo_hessian_subelement_pg_interferometric_cross_correlation_pulse,
                                      "nhg": calc_Z_error_pseudo_hessian_subelement_nhg_interferometric_cross_correlation_pulse}
 
 
@@ -340,6 +342,7 @@ def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, om
     hess_func_interferometric_True_cross_correlation_gate={"shg": calc_Z_error_pseudo_hessian_subelement_shg_interferometric_cross_correlation_gate,
                                      "thg": calc_Z_error_pseudo_hessian_subelement_thg_interferometric_cross_correlation_gate,
                                      "pg": calc_Z_error_pseudo_hessian_subelement_pg_interferometric_cross_correlation_gate,
+                                     "sd": calc_Z_error_pseudo_hessian_subelement_pg_interferometric_cross_correlation_gate,
                                      "nhg": calc_Z_error_pseudo_hessian_subelement_nhg_interferometric_cross_correlation_gate}
     
     

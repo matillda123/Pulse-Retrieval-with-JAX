@@ -364,7 +364,7 @@ class MakePulse:
             parameters (tuple[SpectralAmplitude, SpectralPhase], CustomPulse, MultiPulse): the input parameters
 
         Returns:
-            tuple[jnp.array, jnp.array, jnp.array, jnp.array], the pulse and correspnding axes (time, pulse_t, frequency, pulse_f)
+            tuple[jnp.array, jnp.array, jnp.array, jnp.array], the pulse and correspnding axes (time, frequency, pulse_t, pulse_f)
         """
         
         parameters = self.init_generation(parameters)
@@ -384,7 +384,7 @@ class MakePulse:
             pulse_t = do_ifft(pulse_f, self.sk, self.rn)
 
         self.pulses = MyNamespace(time=self.time, frequency=self.frequency, pulse_t=pulse_t, pulse_f=pulse_f)
-        return self.time, pulse_t, self.frequency, pulse_f
+        return self.time, self.frequency, pulse_t, pulse_f
     
 
 

@@ -8,7 +8,7 @@ phase0 = RandomPhase()
 
 
 mp = MakeTrace(N=128*20, f_max=2)
-time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp0, phase0))
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0, phase0))
 
 
 # create lorentzian spectral filters with amp=1, central frequencies of 0.245/0.255, fwhm=0.0001 and p=1
