@@ -5,10 +5,10 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, initialize_S_prime_params
 
 
-from pulsedjax.utilities import scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
+from pulsedjax.utilities import MyNamespace, scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
 from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.gradients.chirpscan_z_error_gradients import calculate_Z_gradient
@@ -202,10 +202,15 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
         """
 
-        self.descent_state = self.descent_state.expand(population = population)
-       
         measurement_info = self.measurement_info
+
+        s_prime_params = initialize_S_prime_params(self)
+        self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
+                                                     xi = self.xi,
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
         descent_info = self.descent_info
+
+        self.descent_state = self.descent_state.expand(population = population)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -316,9 +321,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         difference_signal_t = signal_t_new - signal_t.signal_t
 
         grad = -1*jnp.conjugate(probe)*difference_signal_t
-        U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
+        U = self.get_PIE_weights(probe, alpha, pie_method)
 
-        grad_U = jax.vmap(self.reverse_transform_grad, in_axes=(0,0,None))(grad*U, phase_matrix_m, measurement_info)
+        grad_U = self.reverse_transform_grad(grad*U, phase_matrix_m, measurement_info)
         return grad_U
 
 

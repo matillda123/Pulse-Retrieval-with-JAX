@@ -828,8 +828,8 @@ class LSFBASE(GeneralOptimizationBASE):
 
         individual = self.get_individual_from_idx(idx, descent_state.population)
 
-        pulse_t = individual.pulse
-        gate_t = individual.gate
+        pulse_t = individual.pulse[0]
+        gate_t = individual.gate[0]
         pulse_f = self.fft(pulse_t, sk, rn) 
         gate_f = self.fft(gate_t, sk, rn) 
         return pulse_t, gate_t, pulse_f, gate_f

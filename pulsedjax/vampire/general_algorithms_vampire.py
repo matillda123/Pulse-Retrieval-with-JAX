@@ -13,10 +13,13 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulsesVAMPIRE):
 
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
-                 cross_correlation=False, **kwargs):
+                 cross_correlation=False, 
+                 strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
                          material_thickness=material_thickness, refractive_index=refractive_index, 
-                         cross_correlation=cross_correlation, **kwargs)
+                         cross_correlation=cross_correlation,
+                         strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate,
+                         **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -33,12 +36,10 @@ class Evosax(EvosaxBASE, RetrievePulsesVAMPIRE):
 
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
                  material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
-                 cross_correlation=False, solver=None, 
-                 strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7,**kwargs):
+                 cross_correlation=False, solver=None, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
                          material_thickness=material_thickness, refractive_index=refractive_index, 
-                         cross_correlation=cross_correlation, solver=solver,
-                         strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
+                         cross_correlation=cross_correlation, solver=solver, **kwargs)
 
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):

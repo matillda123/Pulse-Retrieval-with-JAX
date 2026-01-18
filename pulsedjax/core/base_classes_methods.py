@@ -790,11 +790,11 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
             idx = self.get_idx_best_individual(descent_state)
 
         individual = self.get_individual_from_idx(idx, descent_state.population)
-        pulse_f = individual.pulse
+        pulse_f = individual.pulse[0]
         pulse_t = self.ifft(pulse_f, sk, rn)
 
         if measurement_info.doubleblind==True:
-            gate_f = individual.gate
+            gate_f = individual.gate[0]
             gate_t = self.ifft(gate_f, sk, rn)
         else:
             gate_f, gate_t = pulse_f, pulse_t
@@ -1009,7 +1009,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gate_shifted=gate)
         return signal_t
 
 

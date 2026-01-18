@@ -862,10 +862,11 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
     def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the descent direction based on the PIE version. """
-        get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, population=population, pie_method=pie_method, 
-                                        measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate=pulse_or_gate)
+        get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, pie_method=pie_method, 
+                                        measurement_info=measurement_info, 
+                                        descent_info=descent_info, pulse_or_gate=pulse_or_gate)
 
-        grad_U = get_descent_direction(signal_t, signal_t_new, transform_arr, measured_trace)
+        grad_U = get_descent_direction(signal_t, signal_t_new, transform_arr, measured_trace, population)
         return grad_U
 
 
@@ -888,13 +889,13 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
     def calc_grad_for_linesearch(self, gamma, linesearch_info, measurement_info, descent_info, pulse_or_gate, local_or_global):
         """ Calculates the PIE direction such that it can be called in a linesearch. """
-        transform_arr, measured_trace = linesearch_info.transform_arr[jnp.newaxis, ... ], linesearch_info.measured_trace[jnp.newaxis, ... ]
+        transform_arr, measured_trace = linesearch_info.transform_arr, linesearch_info.measured_trace
         individual, descent_direction = linesearch_info.population, linesearch_info.descent_direction
         
         individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
-        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(None,0,None))(individual, transform_arr, measurement_info)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,None,None,None, None))(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
-                                                                                       descent_info, local_or_global)
+        signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
+        signal_t_new = calculate_S_prime(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
+                                         descent_info, local_or_global)
 
         grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, descent_info.pie_method, 
                                                              measurement_info, descent_info, pulse_or_gate)
@@ -928,7 +929,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         conjugate_gradients = descent_info.conjugate_gradients
         newton_info = getattr(descent_info.newton, local_or_global)
 
-        grad_U = self.calculate_PIE_descent_direction(population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate)
+        grad_U = jax.vmap(self.calculate_PIE_descent_direction, in_axes=(0,0,0,0,0,None,None,None,None))(population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad_U, axis=1)
 
         if newton_info=="diagonal" or (newton_info=="full" and pulse_or_gate=="pulse"):
@@ -941,7 +942,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
             descent_direction, lbfgs_state = get_quasi_newton_direction(grad_sum, lbfgs_state, descent_info)
 
         else:
-            descent_direction = -1*grad_sum #-1*jnp.sum(grad*U, axis=1)
+            descent_direction = -1*grad_sum
 
 
 

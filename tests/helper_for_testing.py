@@ -11,6 +11,12 @@ import jax.numpy as jnp
 
 
 class pulsedjax_testing:
+    """
+    Central objct used for testing. In order to add new methods or algorithms the class-methods 
+    make_method_kwargs() and/or make_run_kwargs_...() have to be modified. Maybe some other methods as well 
+    depending on the options allowed in the method/algorithm.
+    
+    """
     def __init__(self, method, algorithm, real_fields=False):
         self.method = method
         self.algorithm = algorithm
@@ -37,18 +43,18 @@ class pulsedjax_testing:
         self.LSF = getattr(self.package, "LSF")
         self.AutoDiff = getattr(self.package, "AutoDiff")
 
-        if any([algorithm == i for i in (pulsedjax.frog.Vanilla, self.LSGPA, self.CPCGPA, self.PIE)]) and method=="frog" or method=="tdp":
-            self.method_isnt_for_interferometric=True
+        if any([algorithm == i for i in (pulsedjax.frog.Vanilla, self.LSGPA, self.CPCGPA, self.PIE)]):
+            self.isnt_for_interferometric=True
         else:
-            self.method_isnt_for_interferometric=False
+            self.isnt_for_interferometric=False
 
 
-        if algorithm == self.CPCGPA:
-            self.method_isnt_for_sd=True
+        if algorithm == self.CPCGPA or self.real_fields==True:
+            self.isnt_for_sd=True
         else:
-            self.method_isnt_for_sd=False
+            self.isnt_for_sd=False
 
-        if algorithm == pulsedjax.frog.Vanilla or algorithm == pulsedjax.frog.LSGPA:
+        if any([algorithm == i for i in (pulsedjax.frog.Vanilla, pulsedjax.twodsi.DirectReconstruction, self.LSGPA)]) or  ((method=="twodsi" or method=="vampire") and algorithm==self.PIE):
             self.isnt_for_doubleblind=True
         else:
             self.isnt_for_doubleblind=False
@@ -73,12 +79,12 @@ class pulsedjax_testing:
 
         cross_correlation = [False, True, "doubleblind", False, "doubleblind"]
         interferometric = [True, False, True, False, False]
-        nonlinear_method = ["shg", "thg", "sd", "5hg", "pg"]
+        nonlinear_method = ["shg", "thg", "sd", "shg", "pg"]
 
-        if self.method_isnt_for_interferometric==True:
+        if self.isnt_for_interferometric==True:
             interferometric = [False, False, False, False, False]
 
-        if self.method_isnt_for_sd==True:
+        if self.isnt_for_sd==True:
             nonlinear_method = ["shg", "thg", "pg", "5hg", "pg"]
 
         if self.isnt_for_doubleblind==True:
@@ -98,7 +104,6 @@ class pulsedjax_testing:
             method_kwargs = dict(spectral_filter1 = spectral_filter1,
                                 spectral_filter2 = spectral_filter2,
                                 tau_pulse_anc1 = tau_pulse_anc1,
-                                material_thickness = material_thickness,
                                 cross_correlation = cross_correlation[i],
                                 nonlinear_method = nonlinear_method[i])
         elif method=="vampire":
@@ -135,6 +140,10 @@ class pulsedjax_testing:
         options_s_prime_method = ["projection", "iteration", "iteration", "iteration", "iteration"]
         options_r_error = ["intensity", "intensity", "amplitude", "amplitude", "intensity"]
         options_r_error_newton = [False, True, True, False, False]
+
+        if self.real_fields==True:
+            options_global_newton = options_global_newton_pie = [False, "lbfgs", False, False, "lbfgs"]
+
 
         if algorithm == self.PIE:
             options_newton = options_global_newton_pie
@@ -205,7 +214,7 @@ class pulsedjax_testing:
         phase_guess = ["polynomial", "sinusoidal", "sigmoidal", "bsplines_5", "constant"]
         no_amp = [5,5,15,5,5]
         no_phase = no_amp
-        return dict(amp_type=amp_guess[0], phase_type=phase_guess[0], no_funcs_amp=no_amp[0], no_funcs_phase=no_phase[i])
+        return dict(amp_type=amp_guess[i], phase_type=phase_guess[i], no_funcs_amp=no_amp[i], no_funcs_phase=no_phase[i])
 
 
     def make_run_and_population_kwargs(self, i, algorithm):
@@ -260,6 +269,7 @@ class pulsedjax_testing:
         if method=="tdp":
             spectral_filter = do_interpolation_1d(frequency_trace, frequency, method_kwargs["spectral_filter"])
             method_kwargs["spectral_filter"] = spectral_filter
+            
         elif method=="twodsi":
             spectral_filter1 = do_interpolation_1d(frequency_trace, frequency, method_kwargs["spectral_filter1"])
             spectral_filter2 = do_interpolation_1d(frequency_trace, frequency, method_kwargs["spectral_filter2"])
@@ -305,9 +315,19 @@ class pulsedjax_testing:
 
         method_kwargs_temp = method_kwargs.copy()
         nonlinear_method = method_kwargs_temp.pop("nonlinear_method")
-        theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
-                                                                        gate=(frequency, pulse_f), real_fields=self.real_fields,
-                                                                        N=128, plot_stuff=False, **method_kwargs_temp)
+
+        if method=="chirp_scan":
+            theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
+                                                                            real_fields=self.real_fields,
+                                                                            N=128, plot_stuff=False, 
+                                                                            frequency_range=(jnp.min(frequency), jnp.max(frequency)),
+                                                                            **method_kwargs_temp)
+        else:
+            theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
+                                                                            gate=(frequency, pulse_f), real_fields=self.real_fields,
+                                                                            N=128, plot_stuff=False, 
+                                                                            frequency_range=(jnp.min(frequency), jnp.max(frequency)),
+                                                                            **method_kwargs_temp)
         
 
         method_kwargs = self.interpolate_spectral_filter_onto_new_frequency(frequency, frequency_trace, method, method_kwargs)
@@ -321,11 +341,18 @@ class pulsedjax_testing:
         theta, frequency, trace = m_parameters.theta, m_parameters.frequency, m_parameters.trace
         method_kwargs = m_parameters.method_kwargs
 
+        if self.real_fields==True:
+            method_kwargs = {"f_range_fields": (jnp.min(frequency), jnp.max(frequency)), **method_kwargs}
+
         population_kwargs = a_parameters.population_kwargs
         run_kwargs = a_parameters.run_kwargs
         run_args = a_parameters.run_args
 
-        population_size = 6
+        if algorithm == pulsedjax.twodsi.DirectReconstruction:
+            population_size = 1
+            a_parameters = a_parameters.expand(use_spectra=True)
+        else:
+            population_size = 6
 
         myalgorithm = algorithm(theta, frequency, trace, **method_kwargs)
         population = myalgorithm.create_initial_population(population_size, **population_kwargs)
@@ -351,6 +378,9 @@ class pulsedjax_testing:
 
 
 def run_test(i, method, algorithm, real_fields=False):
+    """
+    Is called to perform test with inputs no. i for a pair of method and algorithms.
+    """
     test = pulsedjax_testing(method, algorithm, real_fields)
     m_parameters = test.make_m_parameters(i, method)
     a_parameters = test.make_a_parameters(i, algorithm)

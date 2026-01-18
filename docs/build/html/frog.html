@@ -134,7 +134,9 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">Vanilla</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.Vanilla" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>The Vanilla-FROG Algorithm as described by R. Trebino.</p>
-<p>[1] R. Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p>
+<ol class="upperalpha simple" start="18">
+<li><p>Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p></li>
+</ol>
 <dl class="py method">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.Vanilla.update_pulse">
 <span class="sig-name descname"><span class="pre">update_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.Vanilla.update_pulse" title="Link to this definition"></a></dt>
@@ -185,29 +187,26 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dl class="py class">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.LSGPA">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">LSGPA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.LSGPA" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#frog.classic_algorithms_frog.Vanilla" title="frog.classic_algorithms_frog.Vanilla"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vanilla</span></code></a></p>
-<p>The Least-Squares Generalized Projection Algorithm.</p>
-<p>[1] J. Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.LSGPA.update_pulse">
-<span class="sig-name descname"><span class="pre">update_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.LSGPA.update_pulse" title="Link to this definition"></a></dt>
-<dd><p>Generates an new (maybe improoved) guess for the pulse.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.LSGPA.update_gate">
-<span class="sig-name descname"><span class="pre">update_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.LSGPA.update_gate" title="Link to this definition"></a></dt>
-<dd><p>Generates an new (maybe improoved) guess for the gate.</p>
-</dd></dl>
-
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">LSGPABASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
+<p>The Least-Squares Generalized Projection Algorithm.
+Only available for delay based non-interferometric methods.</p>
+<ol class="upperalpha simple" start="10">
+<li><p>Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)</p></li>
+</ol>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">CPCGPA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
-<p>The Constrained-PCGP-Algorithms.</p>
-<p>[1] D. J. Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364), 10.1016/j.pquantelec.2021.100364 (2022)</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CPCGPABASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
+<p>The Constrained-PCGP-Algorithms.
+Only available for delay based non-interferometric methods.</p>
+<ol class="upperalpha simple" start="4">
+<li><ol class="upperalpha simple" start="10">
+<li><p>Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364), 10.1016/j.pquantelec.2021.100364 (2022)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.constraints">
 <span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.constraints" title="Link to this definition"></a></dt>
@@ -242,103 +241,9 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.get_spectral_amplitude">
-<span class="sig-name descname"><span class="pre">get_spectral_amplitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.get_spectral_amplitude" title="Link to this definition"></a></dt>
-<dd><p>Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.do_anti_alias">
-<span class="sig-name descname"><span class="pre">do_anti_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">half_N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.do_anti_alias" title="Link to this definition"></a></dt>
-<dd><p>Performs anti-aliasing to the opf by setting a lower and upper an triangle to zero.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.calculate_opf">
-<span class="sig-name descname"><span class="pre">calculate_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_prime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_prime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.calculate_opf" title="Link to this definition"></a></dt>
-<dd><p>Calculates the opf given a pulse and gate.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.shift_rows">
-<span class="sig-name descname"><span class="pre">shift_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.shift_rows" title="Link to this definition"></a></dt>
-<dd><p>Vectorized version of shift_rows. Takes similar arguments as shift_rows but with additional array axes over which shift_rows is mapped.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.convert_opf_to_signal_t">
-<span class="sig-name descname"><span class="pre">convert_opf_to_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.convert_opf_to_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Transforms opf to signal field, by shifting along the time axis. Switching and flipping the two halfs around.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.calculate_signal_t_using_opf">
-<span class="sig-name descname"><span class="pre">calculate_signal_t_using_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.calculate_signal_t_using_opf" title="Link to this definition"></a></dt>
-<dd><p>Calculates signal_t for and individual via the opf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.convert_signal_t_to_opf">
-<span class="sig-name descname"><span class="pre">convert_signal_t_to_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.convert_signal_t_to_opf" title="Link to this definition"></a></dt>
-<dd><p>Converts a signal field into an opf by reversing the operations from  convert_opf_to_signal_t().</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.decompose_opf">
-<span class="sig-name descname"><span class="pre">decompose_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.decompose_opf" title="Link to this definition"></a></dt>
-<dd><p>Decomposes the opf into its dominant components via an SVD or the Power-Method.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.impose_constraints">
-<span class="sig-name descname"><span class="pre">impose_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.impose_constraints" title="Link to this definition"></a></dt>
-<dd><p>Applies additional constraints according to the operator formalism of PCGP.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.update_individual">
-<span class="sig-name descname"><span class="pre">update_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.update_individual" title="Link to this definition"></a></dt>
-<dd><p>Updates and individual using an updated opf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.step">
-<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.step" title="Link to this definition"></a></dt>
-<dd><p>Performs one iteration of the C-PCGP Algorithm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>descent_state</strong> – Pytree,</p></li>
-<li><p><strong>measurement_info</strong> – Pytree,</p></li>
-<li><p><strong>descent_info</strong> – Pytree,</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[Pytree, jnp.array], the updated descent state and the current errors</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.initialize_run">
-<span class="sig-name descname"><span class="pre">initialize_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.initialize_run" title="Link to this definition"></a></dt>
-<dd><p>Prepares all provided data and parameters for the reconstruction.
-Here the final shape/structure of descent_state, measurement_info and descent_info are determined.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>population</strong> – Pytree, the initial guess as created by self.create_initial_population()</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.post_process_create_trace">
-<span class="sig-name descname"><span class="pre">post_process_create_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.post_process_create_trace" title="Link to this definition"></a></dt>
-<dd><p>For PCGP the trace is constructed using the opf.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="frog.classic_algorithms_frog.CPCGPA.calculate_gate">
+<span class="sig-name descname"><span class="pre">calculate_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.CPCGPA.calculate_gate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -347,7 +252,12 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.GeneralizedProjection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedProjectionBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>Implements the Generalized Projection Algorithm.</p>
-<p>[1] K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p>
+<ol class="upperalpha simple" start="11">
+<li><ol class="upperalpha simple" start="23">
+<li><p>DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.GeneralizedProjection.no_steps_descent">
 <span class="sig-name descname"><span class="pre">no_steps_descent</span></span><a class="headerlink" href="#frog.classic_algorithms_frog.GeneralizedProjection.no_steps_descent" title="Link to this definition"></a></dt>
@@ -384,8 +294,8 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.PtychographicIterativeEngine" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>Implements a version of the Ptychographic Iterative Engine (PIE).</p>
-<p>[1] A. Maiden et al., Optica 4, 736-745 (2017)
-[2] T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
+<p>A. Maiden et al., Optica 4, 736-745 (2017)
+T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.PtychographicIterativeEngine.alpha">
 <span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#frog.classic_algorithms_frog.PtychographicIterativeEngine.alpha" title="Link to this definition"></a></dt>
@@ -451,7 +361,12 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.classic_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.COPRA" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">COPRABASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA).</p>
-<p>[1] N. C. Geib, Optica 6, 495-505 (2019)</p>
+<ol class="upperalpha simple" start="14">
+<li><ol class="upperalpha simple" start="3">
+<li><p>Geib et al., Optica 6, 495-505 (2019)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py method">
 <dt class="sig sig-object py" id="frog.classic_algorithms_frog.COPRA.update_individual">
 <span class="sig-name descname"><span class="pre">update_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.classic_algorithms_frog.COPRA.update_individual" title="Link to this definition"></a></dt>
@@ -549,7 +464,7 @@ Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.general_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.general_algorithms_frog.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">EvosaxBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>Employs the evosax package to perform the optimization.</p>
-<p>[1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
+<p>Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.general_algorithms_frog.Evosax.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#frog.general_algorithms_frog.Evosax.solver" title="Link to this definition"></a></dt>
@@ -572,6 +487,17 @@ Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="frog.general_algorithms_frog.Evosax.solver_kwargs">
+<span class="sig-name descname"><span class="pre">solver_kwargs</span></span><a class="headerlink" href="#frog.general_algorithms_frog.Evosax.solver_kwargs" title="Link to this definition"></a></dt>
+<dd><p>some evosax-solver require additional input arguments. These can be supplied via this aattribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="frog.general_algorithms_frog.Evosax.get_pulses_from_population">
 <span class="sig-name descname"><span class="pre">get_pulses_from_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.general_algorithms_frog.Evosax.get_pulses_from_population" title="Link to this definition"></a></dt>
@@ -587,7 +513,12 @@ Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for
 <p>Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG.</p>
 <p>The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
 and thus optimized in its discretized form.</p>
-<p>[1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p>
+<ol class="upperalpha simple" start="3">
+<li><ol class="upperalpha simple" start="15">
+<li><p>Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.general_algorithms_frog.LSF.number_of_bisection_iterations">
 <span class="sig-name descname"><span class="pre">number_of_bisection_iterations</span></span><a class="headerlink" href="#frog.general_algorithms_frog.LSF.number_of_bisection_iterations" title="Link to this definition"></a></dt>
@@ -640,8 +571,8 @@ and thus optimized in its discretized form.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">frog.general_algorithms_frog.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#frog.general_algorithms_frog.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiffBASE</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
 <p>Employs the optimistix package to perform the optimization via Automatic-Differentiation.</p>
-<p>[1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
-[2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
+<p>J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="frog.general_algorithms_frog.AutoDiff.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#frog.general_algorithms_frog.AutoDiff.solver" title="Link to this definition"></a></dt>

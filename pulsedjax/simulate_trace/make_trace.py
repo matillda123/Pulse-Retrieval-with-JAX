@@ -640,7 +640,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
                                             nonlinear_method=self.nonlinear_method, doubleblind=False, central_frequency = self.central_frequency)
         individual = MyNamespace(pulse=self.pulse_f, gate=None)
 
-        self.phase_matrix = self.get_phase_matrix(self.parameters)
+        self.phase_matrix = self.get_phase_matrix(self.chirp_parameters)
         return individual, self.measurement_info, self.phase_matrix
     
     
@@ -701,12 +701,13 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
     def get_parameters_to_make_signal_t(self):
         measurement_info = MyNamespace(time=self.time, frequency=self.frequency, frequency_exp=self.frequency, tau_pulse_anc1 = self.tau_pulse_anc1,
                                        time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn, 
+                                       sk_exp=self.sk, rn_exp=self.rn, 
                                        cross_correlation=self.cross_correlation, gate=self.gate,
                                        nonlinear_method=self.nonlinear_method, doubleblind=False, c0=self.c0, 
                                        spectral_filter1=self.spectral_filter1, spectral_filter2=self.spectral_filter2, central_frequency = self.central_frequency)
         
-        self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, measurement_info)
-        measurement_info = measurement_info.expand(phase_matrix = self.phase_matrix)
+        #self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, measurement_info)
+        #measurement_info = measurement_info.expand(phase_matrix = self.phase_matrix)
 
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
         return individual, measurement_info, self.x_arr

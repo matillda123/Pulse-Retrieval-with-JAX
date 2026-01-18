@@ -375,7 +375,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
         nonlinear_method = measurement_info.nonlinear_method
 
-        pulse_t = individual.pulse
+        pulse = individual.pulse
         pulse, _ = self.interpolate_signal(pulse, measurement_info, "main", "big")
 
         if measurement_info.cross_correlation==True:
@@ -386,7 +386,7 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
             gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
 
         else:
-            gate = pulse_t
+            gate = pulse
 
         gate1, gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, 
                                                   measurement_info.spectral_filter2, sk_big, rn_big)
@@ -397,10 +397,10 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
-        signal_t = jnp.real(pulse_t)*gate
+        signal_t = jnp.real(pulse)*gate
         signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
 
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gate_shifted=gate)
         return signal_t
 
 
@@ -464,7 +464,7 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
 
         elif measurement_info.doubleblind==True:
             gate_pulse = individual.gate
-            gate, _ = self.interpolate_signal(gate, measurement_info, "main", "big")
+            gate_pulse, _ = self.interpolate_signal(gate_pulse, measurement_info, "main", "big")
         else:
             gate_pulse = pulse_t
 
@@ -480,5 +480,5 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         signal_t = jnp.real(pulse_t)*gate
 
         signal_t, signal_f = self.interpolate_signal(signal_t, measurement_info, "big", "exp")
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gate_shifted=gate)
         return signal_t

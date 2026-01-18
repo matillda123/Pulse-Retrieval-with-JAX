@@ -44,7 +44,7 @@
    "source": [
     "## Chirp-Scan  \n",
     "\n",
-    "Contrary to FROG a Chirp-Scan {cite}`dscan,miips` is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form $T(\\theta, \\omega) = |S(\\theta, \\omega)|^2$. The signal field is defined as:  \n",
+    "Contrary to FROG a Chirp-Scan {cite}`miips,miipsquant,dscan` is always assumed to be realized in a collinear setup. It is a single pulse method, such that by definition no cross-correlation and no interferometric version exist. It works by applying an arbitrary (but known) higher order spectral phase to the pulse. For each applied phase the spectrum of a nonlinear process is recorded. Yielding a trace of the form $T(\\theta, \\omega) = |S(\\theta, \\omega)|^2$. The signal field is defined as:  \n",
     "\n",
     "$S(\\theta, t) = E(\\theta, t) \\cdot G(E(\\theta, t))$  \n",
     "\n",
@@ -91,13 +91,9 @@
     "## Time-Domain-Ptchography  \n",
     "\n",
     "Time-Domain-Ptychography {cite}`tdp,tdp_thesis` can be understood as a FROG variant. The only difference is that $A(t)$ is spectrally filtered. The transfer-function of this filter has to be provided. In `pulsedjax.core.spectral_filter_funcs.py` exemplary functions to generate/evaluate a filter are available.  \n",
-    "The filter is provided via `spectral_filter`. It needs to have the same frequency axis as the measured trace.  \n",
-    "The available algorithms for FROG-retrieval are described in [Algorithms](example_overview_algorithms.ipynb).\n",
-    "\n",
-    "<br>\n",
-    "Currently there may be an issue with regards to the delays between pulse and gate.\n",
-    "What about materialdispersion of an arbitrary filter?\n",
-    "what about a delay mismatch since time zero is arbitrary, but not considered here?"
+    "The filter is provided via `spectral_filter`. It can be complex valued, which incorporates (material) dispersion. It needs to have the same frequency axis as the measured trace.  \n",
+    "For an auto-correlation based TDP, it is necessary to shift the delays such that zero is located at the point of highest intensity of the trace. Otherwise a mismatch in the group-delay of pulse and filtered pulse causes inconsistencies and prohibits convergence.  \n",
+    "The available algorithms for TDP-retrieval are described in [Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
    ]
   },
   {
@@ -129,7 +125,7 @@
     "where $A'$ is a modified and delayed version of $A$. Usually the \"modification\" is achieved via material dispersion. In contrast to 2D-SI no spectral filtering is introduced.  \n",
     "The working idea is to create a duplicate but modified pulse in the interferometer at a fixed delay. The pulse $E$ is shifted in time over these in order to create a FROG-like trace. This approach resolves any ambiguities which may be present in an analog FROG measurement.  \n",
     "In order for the retrieval to work the interferometer delay has to be set using `tau_interferometer`, the material has to be provided via `refractive_index=refractiveindex.RefractiveIndexMaterial` and its thickness needs to be specified in millimeters with `material_thickness`.\n",
-    "The available algorithms for VAMPIRE-retrieval are described in [Algorithms](example_overview_algorithms.ipynb)."
+    "The available algorithms for VAMPIRE-retrieval are described in [Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
    ]
   }
  ],

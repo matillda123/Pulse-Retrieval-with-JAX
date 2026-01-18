@@ -19,16 +19,25 @@ from pulsedjax.utilities import calculate_gate
 class LSGPA(LSGPABASE, RetrievePulsesVAMPIRE):
     __doc__ = LSGPABASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, **kwargs)
-
+    
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
 
 
 class CPCGPA(CPCGPABASE, RetrievePulsesVAMPIRE):
     __doc__ = CPCGPABASE.__doc__
 
-    def __init__(self, delay, frequency, trace, nonlinear_method, spectral_filter, cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
-        super().__init__(delay, frequency, trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
+    
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
 
     
     def calculate_gate(self, gate_pulse, measurement_info):
@@ -117,7 +126,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
         probe = signal_t.gate
         grad = -1*jnp.conjugate(probe)*difference_signal_t
-        U = jax.vmap(self.get_PIE_weights, in_axes=(0,None,None))(probe, alpha, pie_method)
+        U = self.get_PIE_weights(probe, alpha, pie_method)
         
         return grad*U
     

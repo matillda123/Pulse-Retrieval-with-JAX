@@ -43,8 +43,8 @@ class Evosax(EvosaxBASE, RetrievePulsesTDP):
 class LSF(LSFBASE, RetrievePulsesTDP):
     __doc__ = LSFBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectal_filter, cross_correlation=False, interferometric=False, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectal_filter=spectal_filter, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter=spectral_filter, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
 
 

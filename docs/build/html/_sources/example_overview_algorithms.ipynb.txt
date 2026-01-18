@@ -310,6 +310,7 @@
     "                                           no_funcs_amp=5, no_funcs_phase=15)\n",
     "\n",
     "evo.solver_params = None    # None, causes the default params to be used.\n",
+    "evo.solver_kwargs = {}    # Some solvers need non-standard input args/kwargs at initialization\n",
     "\n",
     "final_result = evo.run(population, 50)"
    ]

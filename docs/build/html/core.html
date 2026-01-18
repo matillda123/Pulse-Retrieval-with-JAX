@@ -1277,7 +1277,9 @@ Allows modification of the error-function via error_metric() and loss_function_m
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesFROG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulses" title="core.base_classes_methods.RetrievePulses"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a></p>
 <p>The reconstruction class for FROG. Inherits from RetrievePulses.</p>
-<p>[1] R. Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p>
+<ol class="upperalpha simple" start="18">
+<li><p>Trebino, “Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses”, 10.1007/978-1-4615-1181-6 (2000)</p></li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesFROG.tau_arr">
 <span class="sig-name descname"><span class="pre">tau_arr</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesFROG.tau_arr" title="Link to this definition"></a></dt>
@@ -1451,7 +1453,9 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesTDP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesTDP" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulsesFROG" title="core.base_classes_methods.RetrievePulsesFROG"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></a></p>
 <p>The reconstruction class for Time-Domain-Ptychography.</p>
-<p>[1] D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)</p>
+<ol class="upperalpha simple" start="4">
+<li><p>Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)</p></li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesTDP.spectral_filter">
 <span class="sig-name descname"><span class="pre">spectral_filter</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesTDP.spectral_filter" title="Link to this definition"></a></dt>
@@ -1494,8 +1498,8 @@ The guess is in the time domain. Assumes an autocorrelation FROG.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCAN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chirp_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_methods.RetrievePulses" title="core.base_classes_methods.RetrievePulses"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></a></p>
 <p>The reconstruction class for Chirp-Scan methods.</p>
-<p>[1] V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
-[2] M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
+<p>V. V. Lozovoy et al., Optics Letters 29, 775-777 (2004)
+M. Miranda et al., Opt. Express 20, 18732-18743 (2012)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta">
 <span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta" title="Link to this definition"></a></dt>
@@ -1884,11 +1888,218 @@ This applies a dispersion based on phase_matrix in order to achieve this.</p>
 <dd></dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.LSGPABASE">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">LSGPABASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.LSGPABASE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
+<p>The Least-Squares Generalized Projection Algorithm.
+Only available for delay based non-interferometric methods.</p>
+<ol class="upperalpha simple" start="10">
+<li><p>Gagnon et al., Appl. Phys. B 92, 25-32, 10.1007/s00340-008-3063-x (2008)</p></li>
+</ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.LSGPABASE.update_pulse">
+<span class="sig-name descname"><span class="pre">update_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.LSGPABASE.update_pulse" title="Link to this definition"></a></dt>
+<dd><p>Generates an new (maybe improoved) guess for the pulse.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.LSGPABASE.update_gate">
+<span class="sig-name descname"><span class="pre">update_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.LSGPABASE.update_gate" title="Link to this definition"></a></dt>
+<dd><p>Generates an new (maybe improoved) guess for the gate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.LSGPABASE.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.LSGPABASE.step" title="Link to this definition"></a></dt>
+<dd><p>Performs one iteration of the Vanilla Algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>descent_state</strong> – Pytree,</p></li>
+<li><p><strong>measurement_info</strong> – Pytree,</p></li>
+<li><p><strong>descent_info</strong> – Pytree,</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Pytree, jnp.array], the updated descent state and the current errors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.LSGPABASE.initialize_run">
+<span class="sig-name descname"><span class="pre">initialize_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.LSGPABASE.initialize_run" title="Link to this definition"></a></dt>
+<dd><p>Prepares all provided data and parameters for the reconstruction.
+Here the final shape/structure of descent_state, measurement_info and descent_info are determined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>population</strong> – Pytree, the initial guess as created by self.create_initial_population()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">CPCGPABASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
+<p>The Constrained-PCGP-Algorithms.
+Only available for delay based non-interferometric methods.</p>
+<ol class="upperalpha simple" start="4">
+<li><ol class="upperalpha simple" start="10">
+<li><p>Kane and A. B. Vakhtin, Prog. Quantum Electron. 81 (100364), 10.1016/j.pquantelec.2021.100364 (2022)</p></li>
+</ol>
+</li>
+</ol>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.constraints">
+<span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.constraints" title="Link to this definition"></a></dt>
+<dd><p>if true the operator based constraints are used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.svd">
+<span class="sig-name descname"><span class="pre">svd</span></span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.svd" title="Link to this definition"></a></dt>
+<dd><p>if true a full SVD is performed instead of a single iteration of the power method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.antialias">
+<span class="sig-name descname"><span class="pre">antialias</span></span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.antialias" title="Link to this definition"></a></dt>
+<dd><p>if true anti-aliasing is applied to the outer-product-matrix-form</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.get_spectral_amplitude">
+<span class="sig-name descname"><span class="pre">get_spectral_amplitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measured_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_spectrum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.get_spectral_amplitude" title="Link to this definition"></a></dt>
+<dd><p>Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.calculate_opf">
+<span class="sig-name descname"><span class="pre">calculate_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_prime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_prime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.calculate_opf" title="Link to this definition"></a></dt>
+<dd><p>Calculates the opf given a pulse and gate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.calculate_signal_t_using_opf">
+<span class="sig-name descname"><span class="pre">calculate_signal_t_using_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.calculate_signal_t_using_opf" title="Link to this definition"></a></dt>
+<dd><p>Calculates signal_t for and individual via the opf.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.do_anti_alias">
+<span class="sig-name descname"><span class="pre">do_anti_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">half_N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.do_anti_alias" title="Link to this definition"></a></dt>
+<dd><p>Performs anti-aliasing to the opf by setting a lower and upper an triangle to zero.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.shift_rows">
+<span class="sig-name descname"><span class="pre">shift_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.shift_rows" title="Link to this definition"></a></dt>
+<dd><p>Vectorized version of shift_rows. Takes similar arguments as shift_rows but with additional array axes over which shift_rows is mapped.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.convert_opf_to_signal_t">
+<span class="sig-name descname"><span class="pre">convert_opf_to_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.convert_opf_to_signal_t" title="Link to this definition"></a></dt>
+<dd><p>Transforms opf to signal field, by shifting along the time axis. Switching and flipping the two halfs around.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.convert_signal_t_to_opf">
+<span class="sig-name descname"><span class="pre">convert_signal_t_to_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.convert_signal_t_to_opf" title="Link to this definition"></a></dt>
+<dd><p>Converts a signal field into an opf by reversing the operations from  convert_opf_to_signal_t().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.decompose_opf">
+<span class="sig-name descname"><span class="pre">decompose_opf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.decompose_opf" title="Link to this definition"></a></dt>
+<dd><p>Decomposes the opf into its dominant components via an SVD or the Power-Method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.impose_constraints">
+<span class="sig-name descname"><span class="pre">impose_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.impose_constraints" title="Link to this definition"></a></dt>
+<dd><p>Applies additional constraints according to the operator formalism of PCGP.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.update_individual">
+<span class="sig-name descname"><span class="pre">update_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.update_individual" title="Link to this definition"></a></dt>
+<dd><p>Updates and individual using an updated opf.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.step" title="Link to this definition"></a></dt>
+<dd><p>Performs one iteration of the C-PCGP Algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>descent_state</strong> – Pytree,</p></li>
+<li><p><strong>measurement_info</strong> – Pytree,</p></li>
+<li><p><strong>descent_info</strong> – Pytree,</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Pytree, jnp.array], the updated descent state and the current errors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.initialize_run">
+<span class="sig-name descname"><span class="pre">initialize_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.initialize_run" title="Link to this definition"></a></dt>
+<dd><p>Prepares all provided data and parameters for the reconstruction.
+Here the final shape/structure of descent_state, measurement_info and descent_info are determined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>population</strong> – Pytree, the initial guess as created by self.create_initial_population()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.base_classic_algorithms.CPCGPABASE.post_process_create_trace">
+<span class="sig-name descname"><span class="pre">post_process_create_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.CPCGPABASE.post_process_create_trace" title="Link to this definition"></a></dt>
+<dd><p>For PCGP the trace is constructed using the opf.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.GeneralizedProjectionBASE">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjectionBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.GeneralizedProjectionBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
 <p>Implements the Generalized Projection Algorithm.</p>
-<p>[1] K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p>
+<ol class="upperalpha simple" start="11">
+<li><ol class="upperalpha simple" start="23">
+<li><p>DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.GeneralizedProjectionBASE.no_steps_descent">
 <span class="sig-name descname"><span class="pre">no_steps_descent</span></span><a class="headerlink" href="#core.base_classic_algorithms.GeneralizedProjectionBASE.no_steps_descent" title="Link to this definition"></a></dt>
@@ -1984,8 +2195,8 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngineBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pie_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rPIE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.PtychographicIterativeEngineBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
 <p>Implements a version of the Ptychographic Iterative Engine (PIE).</p>
-<p>[1] A. Maiden et al., Optica 4, 736-745 (2017)
-[2] T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
+<p>A. Maiden et al., Optica 4, 736-745 (2017)
+T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.PtychographicIterativeEngineBASE.alpha">
 <span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#core.base_classic_algorithms.PtychographicIterativeEngineBASE.alpha" title="Link to this definition"></a></dt>
@@ -2137,7 +2348,12 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_classic_algorithms.</span></span><span class="sig-name descname"><span class="pre">COPRABASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.COPRABASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.ClassicAlgorithmsBASE" title="core.base_classes_algorithms.ClassicAlgorithmsBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicAlgorithmsBASE</span></code></a></p>
 <p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA).</p>
-<p>[1] N. C. Geib, Optica 6, 495-505 (2019)</p>
+<ol class="upperalpha simple" start="14">
+<li><ol class="upperalpha simple" start="3">
+<li><p>Geib et al., Optica 6, 495-505 (2019)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.base_classic_algorithms.COPRABASE.update_population">
 <span class="sig-name descname"><span class="pre">update_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_classic_algorithms.COPRABASE.update_population" title="Link to this definition"></a></dt>
@@ -2477,7 +2693,7 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">EvosaxBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.EvosaxBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
 <p>Employs the evosax package to perform the optimization.</p>
-<p>[1] Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
+<p>Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.EvosaxBASE.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#core.base_general_optimization.EvosaxBASE.solver" title="Link to this definition"></a></dt>
@@ -2496,6 +2712,17 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.base_general_optimization.EvosaxBASE.solver_kwargs">
+<span class="sig-name descname"><span class="pre">solver_kwargs</span></span><a class="headerlink" href="#core.base_general_optimization.EvosaxBASE.solver_kwargs" title="Link to this definition"></a></dt>
+<dd><p>some evosax-solver require additional input arguments. These can be supplied via this aattribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2558,7 +2785,12 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <p>Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG.</p>
 <p>The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
 and thus optimized in its discretized form.</p>
-<p>[1] C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p>
+<ol class="upperalpha simple" start="3">
+<li><ol class="upperalpha simple" start="15">
+<li><p>Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</p></li>
+</ol>
+</li>
+</ol>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.LSFBASE.number_of_bisection_iterations">
 <span class="sig-name descname"><span class="pre">number_of_bisection_iterations</span></span><a class="headerlink" href="#core.base_general_optimization.LSFBASE.number_of_bisection_iterations" title="Link to this definition"></a></dt>
@@ -2708,8 +2940,8 @@ Here the final shape/structure of descent_state, measurement_info and descent_in
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.base_general_optimization.</span></span><span class="sig-name descname"><span class="pre">AutoDiffBASE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.base_classes_algorithms.GeneralOptimizationBASE" title="core.base_classes_algorithms.GeneralOptimizationBASE"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralOptimizationBASE</span></code></a></p>
 <p>Employs the optimistix package to perform the optimization via Automatic-Differentiation.</p>
-<p>[1] J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
-[2] DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
+<p>J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)
+DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (2020)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.base_general_optimization.AutoDiffBASE.solver">
 <span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#core.base_general_optimization.AutoDiffBASE.solver" title="Link to this definition"></a></dt>
@@ -3376,7 +3608,7 @@ returns the linearized group delay per mm at that wavelength.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.spectral_filter_funcs.get_filter">
-<span class="sig-prename descclassname"><span class="pre">core.spectral_filter_funcs.</span></span><span class="sig-name descname"><span class="pre">get_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_func=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.spectral_filter_funcs.get_filter" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.spectral_filter_funcs.</span></span><span class="sig-name descname"><span class="pre">get_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_func=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refractive_index=&lt;refractiveindex.refractiveindex.RefractiveIndexMaterial</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_thickness=0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.spectral_filter_funcs.get_filter" title="Link to this definition"></a></dt>
 <dd><p>Generate a spectral filter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -3384,7 +3616,7 @@ returns the linearized group delay per mm at that wavelength.</p>
 <li><p><strong>filter_func</strong> (<em>str</em><em>, </em><em>tuple</em><em>[</em><em>str</em><em>]</em>) – can be one of <code class="docutils literal notranslate"><span class="pre">`gaussian,</span> <span class="pre">lorentzian,</span> <span class="pre">rectangular,</span> <span class="pre">multi</span> <span class="pre">or</span> <span class="pre">custom`</span></code>.
 For multi, parameters needs to specify the repsective filetr function</p></li>
 <li><p><strong>frequency</strong> (<em>jnp.array</em>) – the frequency axis</p></li>
-<li><p><strong>parameters</strong> (<em>tuple</em>) – the parameters required by the filter function</p></li>
+<li><p><strong>parameters</strong> (<em>tuple</em>) – the parameters required by the filter function, have the input form (a, f0, fwhm, p)</p></li>
 <li><p><strong>custom_func</strong> (<em>Callable</em><em>, </em><em>None</em>) – in case of filter_func=”custom” the custom filter function needs to be provided here.</p></li>
 <li><p><strong>refractive_index</strong> (<em>refractiveindex.RefractiveIndexMaterial</em>) – provides the refractive index</p></li>
 <li><p><strong>material_thickness</strong> (<em>float</em><em>, </em><em>int</em>) – the material thickness in millimeters</p></li>
