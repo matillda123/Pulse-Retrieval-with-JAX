@@ -4,11 +4,12 @@ Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics
 This does not mean that the implemented algorithms are differentiable. (They are probably not.) The point is to take advantage of jax.jit and other Jax-transformations.
 
 
-## Installation  
+## Installation and Documentation
 To install (create a new environment and) run:
 ```
 pip install git+https://github.com/matillda123/pulse-retrieval-with-jax.git
 ```
+The documentation is available [here](https://pulse-retrieval-with-jax.readthedocs.io/en/latest/index.html).
 
 ## Overview  
 Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE.  
@@ -56,6 +57,7 @@ If you end up using this code for a publication, please use the citation below a
   year = {2025}
 }
 ```
+
 
 
 
