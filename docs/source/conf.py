@@ -30,6 +30,7 @@ myst_enable_extensions = [
 nb_execution_mode = "off"
 
 autosummary_generate = True
+autosummary_imported_members = True
 
 templates_path = ['_templates']
 include_patters = ['**']
