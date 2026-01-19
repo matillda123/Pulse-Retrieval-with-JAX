@@ -746,63 +746,30 @@ def center_signal_to_max(signal):
 
 
 
-
-
-
-
-def loss_function_modifications(trace, measured_trace, tau_or_zarr, frequency, amplitude_or_intensity, fd_grad):
+def loss_function_for_general(trace, measured_trace, exponent_trace=1, L_norm=1):
     """
-    General optimization algorithms are not limited to a specific loss function. This function modifies the given trace and measured_trace
-    such that residuals based on the amplitude instead of the intensity are optimized. Alternatively finite difference derivatives of the trace 
-    can be optimized instead.
+    An example of a modified loss function for general algorithms. 
+    
+    Inspired by ELFPIE: S. Zhang, T.T.J.M. Berendschot and J. Zhou, Signal Processing 210 109088, 10.1016/j.sigpro.2023.109088, (2023)
+
+    Args:
+        trace (jnp.array): the current trace
+        measured_trace (jnp.array): the measured trace
+        measurement_info (pytree):
+        descent_info (pytree):
+        
+        kwargs:
+            exponent_trace (int, float): the exponent applied to trace before building the residual
+            L_norm (int, float): the norm exponent to be used
     
     """
     measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
     trace = trace/jnp.max(jnp.abs(trace))
 
-    if amplitude_or_intensity=="amplitude":
-        # add small value since auto-diff of sqrt(0) is problematic
-        measured_trace = jnp.sqrt(jnp.abs(measured_trace) + 1e-9)*jnp.sign(measured_trace)
-        trace = jnp.sqrt(jnp.abs(trace) + 1e-9)*jnp.sign(trace)
-    elif amplitude_or_intensity=="intensity":
-        pass
-    elif type(amplitude_or_intensity)==int or type(amplitude_or_intensity)==float:
-        exp_val = amplitude_or_intensity
-        measured_trace = (jnp.abs(measured_trace) + 1e-9)**exp_val*jnp.sign(measured_trace)
-        trace = (jnp.abs(trace) + 1e-9)**exp_val*jnp.sign(trace)
-    else:
-        raise ValueError(f"amplitude_or_intensity needs to be amplitude, intensity or an int/float. Not {amplitude_or_intensity}")
-
-
-    if fd_grad!=False:
-        def scan_fd_gradient(y, x, axis):
-            return jnp.gradient(y, x, axis=axis), None
-        
-        fd_x = Partial(scan_fd_gradient, axis=0)
-        fd_y = Partial(scan_fd_gradient, axis=1)
-        x = jnp.broadcast_to(tau_or_zarr, (fd_grad, ) + jnp.shape(tau_or_zarr))
-        y = jnp.broadcast_to(frequency, (fd_grad, ) + jnp.shape(frequency))
-        
-        measured_trace_0, _ = jax.lax.scan(fd_x, measured_trace, xs=x)
-        measured_trace_1, _ = jax.lax.scan(fd_y, measured_trace, xs=y)
-
-        trace_0, _ = jax.lax.scan(fd_x, trace, xs=x)
-        trace_1, _ = jax.lax.scan(fd_y, trace, xs=y)
-
-
-        # can one use the actual "vector" instead of this -> would allow to incorporate sign of gradient
-        # measured_trace = jnp.abs(measured_trace_0) + jnp.abs(measured_trace_1)
-        # trace = jnp.abs(trace_0) + jnp.abs(trace_1)
-        measured_trace = jnp.asarray([measured_trace_0, measured_trace_1])
-        trace = jnp.asarray([trace_0, trace_1])
-
-        measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace), axis=(1,2))[:,jnp.newaxis,jnp.newaxis]
-        trace = trace/jnp.max(jnp.abs(trace), axis=(1,2))[:,jnp.newaxis,jnp.newaxis]
-    else:
-        measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
-        trace = trace/jnp.max(jnp.abs(trace))
-
-    return trace, measured_trace
+    residual = jnp.sign(trace)*jnp.abs(trace)**(exponent_trace) - jnp.sign(measured_trace)*jnp.abs(measured_trace)**(exponent_trace)
+    residual = jnp.gradient(residual)
+    error = jnp.sum(jnp.abs(residual)**L_norm)
+    return error
 
 
 

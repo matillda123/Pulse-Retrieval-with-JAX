@@ -504,8 +504,6 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     The Base-Class for all general solvers. Inherits from AlgorithmsBASE.
 
     Attributes:
-        fd_grad (bool, int): the loss function can be calcualted with the residuals of the finite-differences of the trace
-        amplitude_or_intensity (str, int, float): the loss function can be calculated with the residuals of fields to arbitrary powers
         error_metric (Callable): an arbitrary loss-function, needs to expect (trace, measured_trace) as input
     
     """
@@ -514,8 +512,6 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         super().__init__(*args, **kwargs)
         self._name = "GeneralOptimizationBASE"
 
-        self.fd_grad = False
-        self.amplitude_or_intensity = "intensity"
         self.error_metric = self.trace_error
 
         self.make_bsplines_amp = None
@@ -792,6 +788,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def trace_error(self, trace, measured_trace):
         """ The mean least squares error. """
+        measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
+        trace = trace/jnp.max(jnp.abs(trace))
         return jnp.mean(jnp.abs(trace - measured_trace)**2)
 
 
@@ -799,19 +797,10 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         """ Calculates the error of an individual based on its trace. 
         Allows modification of the error-function via error_metric() and loss_function_modification(). """
         measured_trace = measurement_info.measured_trace
-        amplitude_or_intensity, fd_grad = descent_info.amplitude_or_intensity, descent_info.fd_grad
         error_metric = descent_info.error_metric
 
-        x_arr, y_arr, trace = self.construct_trace(individual, measurement_info, descent_info)
-
-        trace, measured_trace = loss_function_modifications(trace, measured_trace, x_arr, y_arr, amplitude_or_intensity, fd_grad)
-
-        if fd_grad!=False:
-            trace_error = jax.vmap(error_metric)(trace, measured_trace)
-            trace_error = jnp.sum(trace_error, axis=0)
-        else:
-            trace_error = error_metric(trace, measured_trace)
-        
+        trace = self.construct_trace(individual, measurement_info, descent_info)
+        trace_error = error_metric(trace, measured_trace)
         return trace_error
             
     
