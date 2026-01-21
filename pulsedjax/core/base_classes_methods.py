@@ -6,7 +6,7 @@ import refractiveindex
 import jax
 import jax.numpy as jnp
 
-from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, center_signal_to_max, center_signal
+from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, center_signal, project_onto_amplitude
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
 from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase
 
@@ -272,7 +272,15 @@ class RetrievePulses:
         if self.measurement_info.cross_correlation==True:
             pass
         else:
+            pulse_f_amp, gate_f_amp = jnp.abs(pulse_f), jnp.abs(gate_f)
             pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
+
+            pulse_f = project_onto_amplitude(pulse_f, pulse_f_amp)
+            pulse_t = self.ifft(pulse_f, self.measurement_info.sk, self.measurement_info.rn)
+
+            gate_f = project_onto_amplitude(gate_f, gate_f_amp)
+            gate_t = self.ifft(gate_f, self.measurement_info.sk, self.measurement_info.rn)
+                
 
         measured_trace = self.measurement_info.measured_trace
         measured_trace = measured_trace/jnp.linalg.norm(measured_trace)

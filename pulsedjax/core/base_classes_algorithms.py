@@ -5,7 +5,7 @@ import numpy as np
 from jax.tree_util import Partial
 from equinox import tree_at
 
-from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, loss_function_modifications, project_onto_amplitude, do_checks_before_running
+from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude, do_checks_before_running
 from .bsplines_1d import get_prefactor, get_M, make_bsplines
 from .create_population import create_population_general, create_population_classic
 
@@ -828,11 +828,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
             self.measurement_info = tree_at(lambda x: x.central_f.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
-
-        self.descent_info = self.descent_info.expand(fd_grad = self.fd_grad,
-                                                     amplitude_or_intensity = self.amplitude_or_intensity,
-                                                     error_metric = self.error_metric)
-
+        self.descent_info = self.descent_info.expand(error_metric = self.error_metric)
         self.descent_state = self.descent_state.expand(population = population)
 
 

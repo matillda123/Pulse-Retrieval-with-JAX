@@ -897,9 +897,10 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         signal_t_new = calculate_S_prime(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
                                          descent_info, local_or_global)
 
-        grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, descent_info.pie_method, 
+        # None, is the correct choice since it yields the steepest descent direction
+        grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, None, 
                                                              measurement_info, descent_info, pulse_or_gate)
-        return jnp.sum(grad_U, axis=1)
+        return jnp.sum(grad_U, axis=0)
     
 
 

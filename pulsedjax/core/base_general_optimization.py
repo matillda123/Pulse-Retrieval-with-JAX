@@ -13,6 +13,36 @@ from .base_classes_algorithms import GeneralOptimizationBASE
 
 
 
+
+
+def loss_function_for_general(trace, measured_trace, exponent_trace=1, L_norm=1):
+    """
+    An example of a modified loss function for general algorithms. 
+    
+    Inspired by ELFPIE: S. Zhang, T.T.J.M. Berendschot and J. Zhou, Signal Processing 210 109088, 10.1016/j.sigpro.2023.109088, (2023)
+
+    Args:
+        trace (jnp.array): the current trace
+        measured_trace (jnp.array): the measured trace
+        
+        kwargs:
+            exponent_trace (int, float): the exponent applied to trace before building the residual
+            L_norm (int, float): the norm exponent to be used
+    
+    """
+    measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
+    trace = trace/jnp.max(jnp.abs(trace))
+
+    residual = jnp.sign(trace)*jnp.abs(trace)**(exponent_trace) - jnp.sign(measured_trace)*jnp.abs(measured_trace)**(exponent_trace)
+    residual = jnp.gradient(residual)
+    error = jnp.sum(jnp.abs(residual)**L_norm)
+    return error
+
+
+
+
+
+
 def make_key_tree(key, pytree):
     """ For a given pytree, each leaf is replaced by a prng-key. """
     leaves, treedef = jax.tree.flatten(pytree)

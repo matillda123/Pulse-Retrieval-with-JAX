@@ -11,7 +11,7 @@ def PIE_get_pseudo_hessian_element(probe_k, probe_j, time_k, time_j, omega, sign
 
     D_arr_kj = jnp.exp(1j*omega*(time_k-time_j))
 
-    val_subelement_arr = D_arr_kj*(2 - jnp.sign(measured_trace)*jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-9))
+    val_subelement_arr = D_arr_kj*(2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-9))
     val_subelement = jnp.sum(val_subelement_arr)
 
     hess_element = 0.25*jnp.conjugate(probe_k)*probe_j*val_subelement
