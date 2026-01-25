@@ -5,13 +5,16 @@ from jax.tree_util import Partial
 from pulsedjax.utilities import scan_helper, calculate_newton_direction
 
 
+# maybe one could do "all" of this more efficiently via jnp.einsum
+# but idk how much one would actually gain
+
 
 def PIE_get_pseudo_hessian_element(probe_k, probe_j, time_k, time_j, omega, signal_f, measured_trace):
     """ Sum over frequency axis via jax.lax.scan."""
 
     D_arr_kj = jnp.exp(1j*omega*(time_k-time_j))
 
-    val_subelement_arr = D_arr_kj*(2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-9))
+    val_subelement_arr = D_arr_kj*(2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
     val_subelement = jnp.sum(val_subelement_arr)
 
     hess_element = 0.25*jnp.conjugate(probe_k)*probe_j*val_subelement

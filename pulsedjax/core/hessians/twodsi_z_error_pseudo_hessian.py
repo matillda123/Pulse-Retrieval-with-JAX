@@ -128,7 +128,7 @@ def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, o
                                               nonlinear_method, cross_correlation):
     """ Sum over time axis via jax.vmap. """
     
-    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
+    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))*1/jnp.size(pulse_t)
 
     if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
         n = int(nonlinear_method[0])
@@ -163,7 +163,7 @@ def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, om
     
     """ Sum over time axis via jax.vmap """
     
-    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
+    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))*1/jnp.size(pulse_t)
 
     if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":
         n = int(nonlinear_method[0])

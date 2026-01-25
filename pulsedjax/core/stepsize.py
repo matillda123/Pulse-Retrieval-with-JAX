@@ -40,6 +40,12 @@ def backtracking_linesearch(linesearch_state, error_func, grad_func, linesearch_
 
 
 
+def finding_phase(current_vals, bracket, linesearch_info, linesearch_params):
+    low_vals, high_vals = bracket.high, current_vals
+    gamma = current_vals.gamma * linesearch_params.delta_gamma
+    return gamma, low_vals, high_vals
+
+
 
 
 def zoom_interpolation(low_vals, high_vals):
@@ -59,13 +65,6 @@ def zoom_interpolation(low_vals, high_vals):
 
     gamma = jnp.where(use_bisection, gamma_bisection, gamma_cubic)
     return gamma
-
-
-
-def finding_phase(current_vals, bracket, linesearch_info, linesearch_params):
-    low_vals, high_vals = bracket.high, current_vals
-    gamma = current_vals.gamma * linesearch_params.delta_gamma
-    return gamma, low_vals, high_vals
 
 
 def zoom_phase(current_vals, bracket, linesearch_info, linesearch_params):

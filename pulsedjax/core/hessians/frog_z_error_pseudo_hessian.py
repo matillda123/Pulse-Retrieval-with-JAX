@@ -254,7 +254,7 @@ def calc_Z_error_pseudo_hessian_element_pulse(exp_arr_mp, exp_arr_mn, omega_p, o
     
     """ Sum over time axis via jax.lax.scan. Does not use jax.vmap because of memory limits. """
     
-    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
+    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))*1/jnp.size(pulse_t)
 
 
     if cross_correlation==True or cross_correlation=="doubleblind":
@@ -323,7 +323,7 @@ def calc_Z_error_pseudo_hessian_element_gate(exp_arr_mp, exp_arr_mn, omega_p, om
     
     """ Sum over time axis via jax.lax.scan. """
     
-    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))
+    D_arr_pn=jnp.exp(1j*time_k*(omega_p-omega_n))*1/jnp.size(pulse_t)
 
     if frogmethod[-2:]=="hg" and frogmethod!="shg" and frogmethod!="thg":
         n = int(frogmethod[0])
