@@ -475,13 +475,14 @@ class RetrievePulsesFROG(RetrievePulses):
         signal = jnp.pad(signal, pad_arr)
         
         frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
-        time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
+        # time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
+        time = jnp.concatenate([time, time+(jnp.size(time)+1)*jnp.mean(jnp.diff(time))])
 
         sk, rn = get_sk_rn(time, frequency)
 
         # its not really necessary to vmap here. could be done by broadcasting i guess.
         signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
-        return signal_shifted[ ... , :N]
+        return signal_shifted[ ... , :N] 
 
 
 

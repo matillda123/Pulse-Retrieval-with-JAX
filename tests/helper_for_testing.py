@@ -135,20 +135,14 @@ class pulsedjax_testing:
         options_linesearch_method = [False, False, "backtracking", "zoom", False]
         options_delta_gamma_linesearch = [0.5, 0.5, 0.5, 1.5, 0.5] # delta_gamma
         options_ncg = ["fletcher_reeves", "polak_ribiere", "hestenes_stiefel", "dai_yuan", False]
-        options_global_newton = [False, "lbfgs", "diagonal", "full", "lbfgs"]
-        options_global_newton_pie = [False, "lbfgs", "diagonal", False, "lbfgs"] # global newton for pie
+        options_newton = [False, "lbfgs", "diagonal", "full", "lbfgs"]
         options_s_prime_method = ["projection", "iteration", "iteration", "iteration", "iteration"]
         options_r_error = ["intensity", "intensity", "amplitude", "amplitude", "intensity"]
         options_r_error_newton = [False, True, True, False, False]
 
         if self.real_fields==True:
-            options_global_newton = options_global_newton_pie = [False, "lbfgs", False, False, "lbfgs"]
+            options_newton = [False, "lbfgs", False, False, "lbfgs"]
 
-
-        if algorithm == self.PIE:
-            options_newton = options_global_newton_pie
-        else:
-            options_newton = options_global_newton
 
         run_kwargs = dict(linesearch = options_linesearch_method[i],
                         delta_gamma = options_delta_gamma_linesearch[i],

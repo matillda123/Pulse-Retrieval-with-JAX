@@ -52,19 +52,22 @@ def PIE_get_full_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_t
     """ Calculates the full pseudo hessian through jnp.einsum(). """
 
     time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
-    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(jnp.size(time))
+    N = jnp.size(time)
+    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
 
     if pulse_or_gate=="pulse":
         hessian_all_m = jnp.einsum("kn,Nmk,Nmj,jn,Nmn -> Nmkj", Dkn.conj(), probe, probe.conj(), Dkn, subelement)
     
     elif pulse_or_gate=="gate":
-        # is here to test which shape transform arr has
-        jax.debug.print("transform_arr {error}", error=jnp.shape(transform_arr))
-        phase_matrix = jnp.exp(-1j*transform_arr[:,jnp.newaxis]*omega[jnp.newaxis,:])
+        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
+
+        time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
+        Dkn = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
         H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn, phase_matrix, Dkn.conj())
+        H = H[:, :N,:N]
         hessian_all_m = jnp.einsum("Nju,un,Nmu,Nmi,in,Nki,Nmn -> Nmkj", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
-    
+
     elif pulse_or_gate=="chirpscan":
         phase_matrix = transform_arr
         H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn, phase_matrix, Dkn.conj())
@@ -82,18 +85,22 @@ def PIE_get_diagonal_pseudo_hessian_all_m(probe, signal_f, transform_arr, measur
     """ Calculates the diagonal pseudo hessian through jnp.einsum(). """
     
     time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
-    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(jnp.size(time))
+    N = jnp.size(time)
+    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
 
     if pulse_or_gate=="pulse":
         hessian_all_m = jnp.einsum("kn,Nmk,Nmk,kn,Nmn -> Nmk", Dkn.conj(), probe, probe.conj(), Dkn, subelement)
 
     elif pulse_or_gate=="gate":
-        jax.debug.print("transform_arr {error}", error=jnp.shape(transform_arr))
-        phase_matrix = jnp.exp(-1j*transform_arr[:,jnp.newaxis]*omega[jnp.newaxis,:])
-        H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn, phase_matrix, Dkn.conj())
+        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
+
+        time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
+        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
+        H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn_new, phase_matrix, Dkn_new.conj())
+        H = H[:, :N,:N]
         hessian_all_m = jnp.einsum("Nki,in,Nmi,Nmi,in,Nik,Nmn -> Nmk", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
-    
+
     elif pulse_or_gate=="chirpscan":
         phase_matrix = transform_arr
         H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn, phase_matrix, Dkn.conj())
@@ -150,5 +157,10 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
     lambda_lm, solver = newton.lambda_lm, newton.linalg_solver
     full_or_diagonal = getattr(newton, local_or_global)
     hessian_all_m = PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, full_or_diagonal, pulse_or_gate)
+
+    if pulse_or_gate=="gate" and measurement_info.nonlinear_method=="sd":
+        # this should be correct, one can pull the conjugate out, then one gets the same formula
+        # so one calcualtes the hessian as with other methods, and then conjugates 
+        hessian_all_m = jnp.conjugate(hessian_all_m)
 
     return calculate_newton_direction(grad, hessian_all_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)
