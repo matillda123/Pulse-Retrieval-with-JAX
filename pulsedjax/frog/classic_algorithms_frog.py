@@ -308,14 +308,10 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             pulse_t = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
             probe = self.get_gate_probe_for_hessian(pulse_t, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
-        # if local_or_global=="_local": # it would be nicer to fix this generally. 
-        #     measured_trace = measured_trace[jnp.newaxis, :]
+        else:
+            raise ValueError
 
-
-        reverse_transform = None
-
-        # signal_f = self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
-        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, reverse_transform, newton_direction_prev, 
+        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, newton_direction_prev, 
                                                                      measurement_info, descent_info, pulse_or_gate, local_or_global)
         return descent_direction, newton_state
     
