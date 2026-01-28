@@ -741,7 +741,7 @@ def remove_phase_jumps(phase):
 
 
 
-def get_score_values(final_result, input_pulses, gate=False, factor=-1):
+def get_score_values(output_pulses, input_pulses, gate=False, factor=-1):
     """
     Computes different error-metrics for a reconstructed pulse given the exact pulse is known and provided. 
     The error metrics are the maximum cross-correlation between reconstructed and exact pulse in the time and frequency domain. 
@@ -750,11 +750,11 @@ def get_score_values(final_result, input_pulses, gate=False, factor=-1):
 
     """
     
-    time, frequency = final_result.time, final_result.frequency
+    time, frequency = output_pulses.time, output_pulses.frequency
     if gate==True:
-        pulse_t, pulse_f = final_result.gate_t, final_result.gate_f
+        pulse_t, pulse_f = output_pulses.gate_t, output_pulses.gate_f
     else:
-        pulse_t, pulse_f = final_result.pulse_t, final_result.pulse_f
+        pulse_t, pulse_f = output_pulses.pulse_t, output_pulses.pulse_f
 
     time_inp, frequency_inp = input_pulses.time, input_pulses.frequency
     pulse_t_inp, pulse_f_inp = input_pulses.pulse_t, input_pulses.pulse_f

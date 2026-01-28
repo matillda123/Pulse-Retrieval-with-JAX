@@ -30,9 +30,9 @@ def hartmann6(x1, x2, x3, x4, x5, x6):
 
 
 
-def initialize_client(name, parameter_type, bounds, myfunc):
+def initialize_client(name, parameter_type, bounds, myfunc, scaling=None):
     client = Client()
-    parameters = [RangeParameterConfig(name=name[i], parameter_type=parameter_type[i], bounds=bounds[i]) 
+    parameters = [RangeParameterConfig(name=name[i], parameter_type=parameter_type[i], bounds=bounds[i], scaling=scaling) 
                   for i in range(len(name))]
     client.configure_experiment(parameters=parameters)
 
@@ -49,6 +49,7 @@ def bayes_opt_step(client, max_trials, myfunc, observation_noise):
     for trial_index, parameters in trials.items():
         kwargs = parameters
         result = myfunc(**kwargs)
+        result = np.asarray(result).item()
         noise = observation_noise*np.abs(result)
         result = (result + np.random.normal(0, noise, size=np.shape(result)), noise)
         raw_data = {str(myfunc.__name__): result}
@@ -67,12 +68,16 @@ def bayes_opt_run(client, max_iterations=10, max_trials=5, myfunc=None, observat
 
 
 
+def get_observed_data(client):
+    params = np.asarray([list(completed_trials.arm.parameters.values()) for completed_trials in client._experiment.completed_trials])
+    observed = client._experiment.lookup_data().df["mean"].to_numpy()
+    return params, observed
+
 
 def probe_model(Xs, client):
-    # I think this should be easier
     posterior = client._generation_strategy.model.model.surrogate.model.posterior
 
-    Xs = torch.Tensor([[Xs]])
+    Xs = torch.tensor(np.asarray(Xs))
     Ys = posterior(Xs)
     return Ys.mean.detach().numpy().squeeze(), Ys.variance.detach().numpy().squeeze()
 
