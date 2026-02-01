@@ -558,6 +558,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         no_steps_descent (int): the numer of descent steps per iteration
 
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -570,19 +571,19 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         self.r_local_method = None
 
-
     
     def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Applies the descent based update to the population. """
         population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
         return population
-    
+        
 
     
     def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for the entire population. """
         grad = jax.vmap(self.calculate_Z_gradient_individual, in_axes=(0, 0, 0, 0, None, None))(signal_t, signal_t_new, population, transform_arr, 
                                                                                                 measurement_info, pulse_or_gate)
+        
         return grad
 
     
@@ -685,6 +686,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
     def do_descent_Z_error_step(self, descent_state, signal_t_new, measurement_info, descent_info):
         """ Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate. """
+
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
 
@@ -735,7 +737,6 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
         measured_trace = measurement_info.measured_trace
-        sk, rn = measurement_info.sk, measurement_info.rn
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
@@ -1228,6 +1229,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
     def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for the current population. """
         grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, transform_arr, measurement_info, pulse_or_gate)
+        # grad = jnp.conjugate(1j*getattr(population, pulse_or_gate))*grad
         return grad
 
 
@@ -1254,6 +1256,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         
         grad = self.get_Z_gradient_individual(signal_t, signal_t_new, individual, transform_arr, measurement_info, pulse_or_gate)
+        # grad = jnp.conjugate(1j*getattr(individual, pulse_or_gate))*grad
         return jnp.sum(grad, axis=0)
     
 

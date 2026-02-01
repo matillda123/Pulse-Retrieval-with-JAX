@@ -204,7 +204,6 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted,
 
     deltaS = signal_t_new - signal_t
 
-
     if cross_correlation==True or doubleblind==True:
         cross_correlation=True
 

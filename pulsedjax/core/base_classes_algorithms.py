@@ -91,16 +91,18 @@ class AlgorithmsBASE:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
+            #names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", "COPRA", "GeneralizedProjection"]
+            
+            if any([self._name==name for name in names_list])==True:
+                # in these classes the spectrum is applied directly
+                pass
 
-            if self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
+            elif self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
                 self._local_step = self.local_step
                 self._global_step = self.global_step
                 self.local_step = Partial(self.do_step_and_apply_spectrum, do_step=self._local_step)
                 self.global_step = Partial(self.do_step_and_apply_spectrum, do_step=self._global_step)
 
-            elif any([self._name==name for name in names_list])==True:
-                # in these classes the spectrum is applied directly
-                pass
             else:
                 self._step = self.step
                 self.step = Partial(self.do_step_and_apply_spectrum, do_step=self._step)
@@ -485,7 +487,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
         momentum = MyNamespace(update_for_velocity_map=signal, velocity_map=velocity_map)
         return signal, momentum
-
 
     
 
