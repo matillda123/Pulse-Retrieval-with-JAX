@@ -279,6 +279,8 @@ class RetrievePulses:
                 gate_f_amp = self.measurement_info.spectral_amplitude.gate
             else:
                 gate_f_amp = jnp.abs(gate_f)
+        else:
+            gate_f_amp = pulse_f_amp
         
 
         if self.measurement_info.cross_correlation==True:
