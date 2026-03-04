@@ -1,12 +1,13 @@
 import jax.numpy as jnp
 import jax
-import refractiveindex
 
 from scipy.constants import c as c0
 
 
-def get_parameters_material_scan(shelf="main", book="SiO2", page="Malitson"):
-    return refractiveindex.RefractiveIndexMaterial(shelf=shelf, book=book, page=page)
+def _eval_refractive_index(refractive_index, wavelength_nm):
+    """ Fetches the refractive index value from the refractive_index object"""
+    return refractive_index.get_refractive_index(wavelength_nm + 1e-9)
+
 
 
 def calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength):
@@ -16,8 +17,8 @@ def calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavele
     """
     
     dlambda = 0.5 #nm
-    n0 = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength_0)-dlambda + 1e-9, bounds_error=False)
-    n2 = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength_0)+dlambda + 1e-9, bounds_error=False)
+    n0 = _eval_refractive_index(refractive_index, jnp.abs(wavelength_0)-dlambda)
+    n2 = _eval_refractive_index(refractive_index, jnp.abs(wavelength_0)+dlambda)
     dndl = (n2-n0)/(2*dlambda)
 
     idx = jnp.argmin(jnp.abs(wavelength-wavelength_0))
@@ -42,7 +43,7 @@ def calculate_phase_matrix_material(measurement_info, parameters):
     theta, frequency = measurement_info.theta, measurement_info.frequency
 
     wavelength = c0/frequency*1e-6 # wavelength in nm
-    n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
+    n_arr = _eval_refractive_index(refractive_index, jnp.abs(wavelength)) # wavelength needs to be in nm
     n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
     k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
     k_arr = k0_arr*n_arr

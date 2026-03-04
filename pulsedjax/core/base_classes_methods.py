@@ -269,10 +269,21 @@ class RetrievePulses:
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
         
+        if self.descent_info.measured_spectrum_is_provided.pulse==True:
+            pulse_f_amp = self.measurement_info.spectral_amplitude.pulse
+        else:
+            pulse_f_amp = jnp.abs(pulse_f)
+
+        if self.measurement_info.doubleblind==True:
+            if self.descent_info.measured_spectrum_is_provided.gate==True:
+                gate_f_amp = self.measurement_info.spectral_amplitude.gate
+            else:
+                gate_f_amp = jnp.abs(gate_f)
+        
+
         if self.measurement_info.cross_correlation==True:
             pass
         else:
-            pulse_f_amp, gate_f_amp = jnp.abs(pulse_f), jnp.abs(gate_f)
             pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
 
             pulse_f = project_onto_amplitude(pulse_f, pulse_f_amp)
