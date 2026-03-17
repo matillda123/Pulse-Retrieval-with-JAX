@@ -9,7 +9,7 @@ import jax
 
 from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max
 from pulsedjax.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesTDP, RetrievePulsesVAMPIRE
-from pulsedjax.real_fields.base_classes_methods import RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSIwithRealFields, RetrievePulsesTDPwithRealFields, RetrievePulsesVAMPIREwithRealFields
+from pulsedjax.real_fields.core.base_classes_methods import RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSIwithRealFields, RetrievePulsesTDPwithRealFields, RetrievePulsesVAMPIREwithRealFields
 from .make_pulse import MakePulse as MakePulseBase
 
 
@@ -60,7 +60,7 @@ class MakeTrace(MakePulseBase):
 
     
     def generate_frog(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation=False, interferometric=False, gate=(None, None), 
-                      real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
+                      real_fields=False, frequency_range=None, f_range_fields=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         """
         Generates a FROG trace using the provide pulse/gate. 
 
@@ -94,7 +94,7 @@ class MakeTrace(MakePulseBase):
             maketrace = MakeTraceFROG
         
         self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform)
+                                   frequency_range, f_range_fields, frequency_range, N, cut_off_val, interpolate_fft_conform)
 
 
         if cross_correlation==True:
@@ -112,7 +112,7 @@ class MakeTrace(MakePulseBase):
 
 
     def generate_tdp(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation=False, interferometric=False, gate=(None, None), 
-                     real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
+                     real_fields=False, frequency_range=None, f_range_fields=None, N=256, cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         
         """
         Generates a TDP trace using the provide pulse/gate. 
@@ -148,7 +148,7 @@ class MakeTrace(MakePulseBase):
             maketrace = MakeTraceTDP
         
         self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform)
+                                   frequency_range, f_range_fields, frequency_range, N, cut_off_val, interpolate_fft_conform)
 
 
         if cross_correlation==True:
@@ -167,7 +167,7 @@ class MakeTrace(MakePulseBase):
 
 
     def generate_chirpscan(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, real_fields=False, 
-                           frequency_range=None, N=256, cut_off_val=0.001, plot_stuff=True):
+                           frequency_range=None, f_range_fields=None, N=256, cut_off_val=0.001, plot_stuff=True):
         
         """
         Generates a Chirp-Scan trace using the provide pulse/gate. 
@@ -198,7 +198,7 @@ class MakeTrace(MakePulseBase):
             maketrace = MakeTraceCHIRPSCAN
 
         self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, 
-                                frequency_range, N, cut_off_val)
+                                frequency_range, f_range_fields, frequency_range, N, cut_off_val)
         
         
         time_trace, frequency_trace, trace, spectra = self.maketrace.generate_trace()
@@ -214,7 +214,7 @@ class MakeTrace(MakePulseBase):
 
     def generate_2dsi(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1=None, spectral_filter2=None, tau_pulse_anc1=0, 
                       material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
-                      cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, N=256, cut_off_val=0.001, 
+                      cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, f_range_fields=None, N=256, cut_off_val=0.001, 
                       interpolate_fft_conform=False, plot_stuff=True):
         
         """
@@ -255,7 +255,7 @@ class MakeTrace(MakePulseBase):
             maketrace = MakeTrace2DSI
 
         self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
-                                   material_thickness, refractive_index, cross_correlation, frequency_range, N, cut_off_val, 
+                                   material_thickness, refractive_index, cross_correlation, frequency_range, f_range_fields, frequency_range, N, cut_off_val, 
                                    interpolate_fft_conform)
         
         if self.maketrace.cross_correlation==True:
@@ -275,7 +275,7 @@ class MakeTrace(MakePulseBase):
 
     def generate_vampire(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer=0, material_thickness=0, 
                          refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
-                         cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, N=256, 
+                         cross_correlation=False, gate=(None, None), real_fields=False, frequency_range=None, f_range_fields=None, N=256, 
                          cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         
 
@@ -316,7 +316,7 @@ class MakeTrace(MakePulseBase):
             maketrace = MakeTraceVAMPIRE
 
         self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer, material_thickness, 
-                                   refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform)
+                                   refractive_index, cross_correlation, frequency_range, f_range_fields, frequency_range, N, cut_off_val, interpolate_fft_conform)
 
         if self.maketrace.cross_correlation==True:
             gate = self.maketrace.get_gate_pulse(gate[0], gate[1])
@@ -364,11 +364,49 @@ def interpolate_spectrum(frequency, pulse_f, N):
 
 
 class MakeTraceBASE:
-    def __init__(self, *args, **kwargs):
-        self.cross_correlation = False
-
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                 N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                 cross_correlation, interferometric, *args, **kwargs):
         self.fft = do_fft
         self.ifft = do_ifft
+
+        self.time = time
+        self.frequency = frequency
+        self.pulse_t = pulse_t
+        self.pulse_f = pulse_f
+        self.gate = None
+        self.nonlinear_method = nonlinear_method
+        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
+        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
+
+        self.N = N
+        self.cut_off_val = cut_off_val
+        self.interpolate_fft_conform = interpolate_fft_conform
+        self.frequency_range = frequency_range
+        self.f_range_fields = f_range_fields
+        self.f_range_pulse = f_range_pulse
+        
+        self.cross_correlation = cross_correlation
+        self.interferometric = interferometric
+
+        self.c0 = c0
+
+        if self.f_range_fields!=None:
+            _fmin, _fmax = self.f_range_fields
+            mask = jnp.zeros(jnp.size(self.frequency))
+            idx0, idx1 = jnp.argmin(jnp.abs(self.frequency - _fmin)), jnp.argmin(jnp.abs(self.frequency - _fmax))
+            self.mask = mask.at[idx0:idx1+1].set(1)
+        else:
+            self.mask = 1
+
+
+        self.measurement_info = MyNamespace(mask=self.mask,
+                                       time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn,
+                                       time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn,
+                                       time_exp=self.time, frequency_exp=self.frequency, sk_exp=self.sk, rn_exp=self.rn,
+                                       cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
+                                       nonlinear_method=self.nonlinear_method, doubleblind=False, 
+                                       central_frequency = self.central_frequency, c0 = self.c0)
 
 
     def generate_trace(self):
@@ -427,7 +465,8 @@ class MakeTraceBASE:
         else:		
             time_interpolate = self.x_arr
             frequency_interpolate = np.linspace(fmin, fmax, self.N)
-        
+
+
         trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
@@ -509,96 +548,55 @@ class MakeTraceBASE:
         plt.show()
 
 
+    def get_gate_pulse(self, frequency_gate, gate_f):
+        gate_f = do_interpolation_1d(self.frequency, frequency_gate, gate_f)
+        self.gate = self.ifft(gate_f, self.sk, self.rn)
+        self.measurement_info = self.measurement_info.expand(gate=self.gate)
+        return self.gate
 
 
 
 
 class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, cross_correlation, interferometric, 
-                 frequency_range, N, cut_off_val, interpolate_fft_conform):
-        super().__init__()
+                 frequency_range, f_range_fields, f_range_pulse, N, cut_off_val, interpolate_fft_conform):
         
-        self.time=time
-        self.frequency=frequency
-        self.pulse_t=pulse_t
-        self.pulse_f=pulse_f
-        self.nonlinear_method=nonlinear_method
-        self.N=N
-        self.interpolate_fft_conform=interpolate_fft_conform
-        self.cut_off_val = cut_off_val
-        self.frequency_range = frequency_range
-        self.cross_correlation=cross_correlation
-        self.interferometric=interferometric
-        self.gate = None
-
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                         cross_correlation, interferometric)
+        
         self.x_arr = delay
-
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
-
-
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        gate_f = do_interpolation_1d(self.frequency, frequency_gate, gate_f)
-        self.gate = self.ifft(gate_f, self.sk, self.rn)
-        return self.gate
-
+       
 
 
     def get_parameters_to_make_signal_t(self):
-        measurement_info = MyNamespace(gate=self.gate, time=self.time, frequency=self.frequency, frequency_exp=self.frequency, 
-                                       time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn,
-                                       sk_exp=self.sk, rn_exp=self.rn,
-                                       cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
-                                       nonlinear_method=self.nonlinear_method, doubleblind=False, central_frequency = self.central_frequency)
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
-        return individual, measurement_info, self.x_arr
+        return individual, self.measurement_info, self.x_arr
 
 
 
 
 class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter, cross_correlation, interferometric, 
-                                   frequency_range, N, cut_off_val, interpolate_fft_conform):
-        super().__init__()
+                                   frequency_range, f_range_fields, f_range_pulse, N, cut_off_val, interpolate_fft_conform):
         
-        self.time=time
-        self.frequency=frequency
-        self.pulse_t=pulse_t
-        self.pulse_f=pulse_f
-        self.nonlinear_method=nonlinear_method
-        self.N=N
-        self.interpolate_fft_conform=interpolate_fft_conform
-        self.cut_off_val = cut_off_val
-        self.frequency_range = frequency_range
-        self.cross_correlation=cross_correlation
-        self.interferometric=interferometric
-        self.gate = None
-
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                         cross_correlation, interferometric)
+        
         self.x_arr = delay
 
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
         if spectral_filter==None:
             self.spectral_filter = jnp.ones(jnp.size(frequency))
         else:
             self.spectral_filter = spectral_filter
 
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
-        
-        
-
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
-
 
     def get_parameters_to_make_signal_t(self):
-        individual, measurement_info, x_arr = MakeTraceFROG.get_parameters_to_make_signal_t(self)
-        measurement_info = measurement_info.expand(spectral_filter=self.spectral_filter)
-        return individual, measurement_info, x_arr
-    
+        individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
+        self.measurement_info = self.measurement_info.expand(spectral_filter=self.spectral_filter)
+        return individual, self.measurement_info, self.x_arr
 
-    def interpolate_trace(self):
-        return MakeTraceFROG.interpolate_trace(self)
     
 
 
@@ -610,37 +608,22 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
 
 
 class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
-    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, frequency_range, N, cut_off_val):
-        super().__init__()
+    def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, theta, phase_type, chirp_parameters, frequency_range, f_range_fields, f_range_pulse, N, cut_off_val):
+        
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, False, frequency_range, f_range_fields, f_range_pulse, 
+                         False, False)
 
         self.theta = theta
-        self.time = time
-        self.frequency = frequency
-        self.pulse_t = pulse_t
-        self.pulse_f = pulse_f
-        self.nonlinear_method = nonlinear_method
-        self.N=N
-        self.cut_off_val = cut_off_val
-        self.frequency_range = frequency_range
-
         self.x_arr = theta
-
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
-
         self.phase_type = phase_type
         self.chirp_parameters = chirp_parameters
 
 
     def get_parameters_to_make_signal_t(self):
-        self.measurement_info = MyNamespace(theta=self.theta, frequency=self.frequency, 
-                                            frequency_exp=self.frequency, time_big=self.time, frequency_big=self.frequency, 
-                                            sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn, sk_exp=self.sk, rn_exp=self.rn, 
-                                            nonlinear_method=self.nonlinear_method, doubleblind=False, central_frequency = self.central_frequency)
-        individual = MyNamespace(pulse=self.pulse_f, gate=None)
-
+        self.measurement_info = self.measurement_info.expand(theta = self.theta)
         self.phase_matrix = self.get_phase_matrix(self.chirp_parameters)
+        individual = MyNamespace(pulse=self.pulse_f, gate=None)
         return individual, self.measurement_info, self.phase_matrix
     
     
@@ -652,33 +635,15 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
 
 class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, spectral_filter1, spectral_filter2, tau_pulse_anc1, 
-                 material_thickness, refractive_index, cross_correlation, frequency_range, N, cut_off_val, 
+                 material_thickness, refractive_index, cross_correlation, frequency_range, f_range_fields, f_range_pulse, N, cut_off_val, 
                  interpolate_fft_conform):
-        super().__init__()
-
-        self.interpolate_fft_conform=interpolate_fft_conform
-
-
-        self.c0 = c0
-        
-        self.time=time
-        self.frequency=frequency
-        self.pulse_t=pulse_t
-        self.pulse_f=pulse_f
-        self.nonlinear_method=nonlinear_method
-        self.N=N
-        self.cut_off_val = cut_off_val
-        self.frequency_range = frequency_range
-        self.cross_correlation = cross_correlation
-        self.gate = None
-        self.tau_pulse_anc1 = tau_pulse_anc1
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                         cross_correlation, False)
 
         self.x_arr = delay
-
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
+        self.tau_pulse_anc1 = tau_pulse_anc1
         self.refractive_index, self.material_thickness = refractive_index, material_thickness
-
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
 
         if spectral_filter1==None:
             self.spectral_filter1 = jnp.ones(jnp.size(self.frequency))
@@ -692,79 +657,36 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
 
 
 
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        gate_f = do_interpolation_1d(self.frequency, frequency_gate, gate_f)
-        self.gate = self.ifft(gate_f, self.sk, self.rn)
-        return self.gate
-                
-
     def get_parameters_to_make_signal_t(self):
-        measurement_info = MyNamespace(time=self.time, frequency=self.frequency, frequency_exp=self.frequency, tau_pulse_anc1 = self.tau_pulse_anc1,
-                                       time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn, sk=self.sk, rn=self.rn, 
-                                       sk_exp=self.sk, rn_exp=self.rn, 
-                                       cross_correlation=self.cross_correlation, gate=self.gate,
-                                       nonlinear_method=self.nonlinear_method, doubleblind=False, c0=self.c0, 
-                                       spectral_filter1=self.spectral_filter1, spectral_filter2=self.spectral_filter2, central_frequency = self.central_frequency)
-        
-        #self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, measurement_info)
-        #measurement_info = measurement_info.expand(phase_matrix = self.phase_matrix)
-
+        self.measurement_info = self.measurement_info.expand(tau_pulse_anc1 = self.tau_pulse_anc1, 
+                                                             spectral_filter1=self.spectral_filter1, 
+                                                             spectral_filter2=self.spectral_filter2)
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
-        return individual, measurement_info, self.x_arr
-
-
-    def interpolate_trace(self):
-        return MakeTraceFROG.interpolate_trace(self)
+        return individual, self.measurement_info, self.x_arr
     
-
-
 
 
 
 
 class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, delay, tau_interferometer, material_thickness, 
-                 refractive_index, cross_correlation, frequency_range, N, cut_off_val, interpolate_fft_conform):
-        super().__init__()
-
-        self.c0=c0
-        self.refractive_index=refractive_index
-        self.material_thickness = material_thickness
+                 refractive_index, cross_correlation, frequency_range, f_range_fields, f_range_pulse, N, cut_off_val, interpolate_fft_conform):
         
-        self.time=time
-        self.frequency=frequency
-        self.pulse_t=pulse_t
-        self.pulse_f=pulse_f
-        self.nonlinear_method=nonlinear_method
-        self.N=N
-        self.interpolate_fft_conform=interpolate_fft_conform
-        self.cut_off_val = cut_off_val
-        self.frequency_range = frequency_range
-        self.cross_correlation=cross_correlation
-        self.interferometric=False
-        self.gate = None
-        self.tau_interferometer = tau_interferometer
-
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
-
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                         cross_correlation, False)
         self.x_arr = delay
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
+        self.tau_interferometer = tau_interferometer
+        self.refractive_index, self.material_thickness = refractive_index, material_thickness
         
-
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
 
 
     def get_parameters_to_make_signal_t(self):
-        individual, measurement_info, x_arr = MakeTraceFROG.get_parameters_to_make_signal_t(self)
-        measurement_info = measurement_info.expand(c0=self.c0)
-        self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, measurement_info)
-        measurement_info = measurement_info.expand(tau_interferometer=self.tau_interferometer, phase_matrix = self.phase_matrix)
-        return individual, measurement_info, x_arr
-    
-
-    def interpolate_trace(self):
-        return MakeTraceFROG.interpolate_trace(self)
+        self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, self.measurement_info)
+        self.measurement_info = self.measurement_info.expand(tau_interferometer = self.tau_interferometer, 
+                                                             phase_matrix = self.phase_matrix)
+        individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)
+        return individual, self.measurement_info, self.x_arr
 
 
 
@@ -776,20 +698,11 @@ class MakeTraceFROGReal(MakeTraceFROG, RetrievePulsesFROGwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
-    
-
-
 
 
 class MakeTraceTDPReal(MakeTraceTDP, RetrievePulsesTDPwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
-
 
 
 
@@ -804,15 +717,8 @@ class MakeTrace2DSIReal(MakeTrace2DSI, RetrievePulses2DSIwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)
-
-
 
 
 class MakeTraceVAMPIREReal(MakeTraceVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def get_gate_pulse(self, frequency_gate, gate_f):
-        return MakeTraceFROG.get_gate_pulse(self, frequency_gate, gate_f)

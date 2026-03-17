@@ -19,7 +19,8 @@ def test_frog(algorithm):
 
 from pulsedjax.real_fields import frog 
 
-algorithms_list = [frog.PtychographicIterativeEngine, frog.DifferentialEvolution, frog.Evosax, frog.LSF, frog.AutoDiff]
+algorithms_list = [frog.GeneralizedProjection, frog.PtychographicIterativeEngine, frog.COPRA, 
+                   frog.DifferentialEvolution, frog.Evosax, frog.LSF, frog.AutoDiff]
 
 @pytest.mark.parametrize("algorithm", algorithms_list)
 def test_frog_real_fields(algorithm):

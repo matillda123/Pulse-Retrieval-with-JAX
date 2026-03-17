@@ -216,7 +216,11 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     def reverse_transform_grad(self, signal, tau_arr, measurement_info):
         """ For reconstruction of the gate-pulse the shift has to be undone. """
-        frequency, time = measurement_info.frequency, measurement_info.time
+
+        if measurement_info.real_fields==False:
+            frequency, time = measurement_info.frequency, measurement_info.time
+        else:
+            frequency, time = measurement_info.frequency_big, measurement_info.time_big
 
         signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
         return signal
@@ -240,6 +244,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             raise NotImplementedError(f"nonlinear_method={nonlinear_method} is not available.")
 
         return grad_all_m
+
 
 
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):

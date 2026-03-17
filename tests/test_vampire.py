@@ -23,8 +23,8 @@ def test_vampire(algorithm):
 
 from pulsedjax.real_fields import vampire
 
-algorithms_list = [vampire.PtychographicIterativeEngine, vampire.DifferentialEvolution, 
-                   vampire.Evosax, vampire.LSF, vampire.AutoDiff]
+algorithms_list = [vampire.GeneralizedProjection, vampire.PtychographicIterativeEngine, vampire.COPRA, 
+                   vampire.DifferentialEvolution, vampire.Evosax, vampire.LSF, vampire.AutoDiff]
 
 @pytest.mark.parametrize("algorithm", algorithms_list)
 def test_vampire_real_fields(algorithm):

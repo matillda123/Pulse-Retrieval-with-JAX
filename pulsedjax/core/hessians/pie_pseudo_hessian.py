@@ -51,7 +51,11 @@ from pulsedjax.utilities import scan_helper, calculate_newton_direction
 def PIE_get_full_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, pulse_or_gate):
     """ Calculates the full pseudo hessian through jnp.einsum(). """
 
-    time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    if measurement_info.real_fields==False:
+        time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    else:
+        time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
+        
     N = jnp.size(time)
     Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
@@ -83,8 +87,11 @@ def PIE_get_full_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_t
 
 def PIE_get_diagonal_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, pulse_or_gate):
     """ Calculates the diagonal pseudo hessian through jnp.einsum(). """
-    
-    time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    if measurement_info.real_fields==False:
+        time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    else:
+        time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
+
     N = jnp.size(time)
     Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))

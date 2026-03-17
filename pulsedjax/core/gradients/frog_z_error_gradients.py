@@ -191,7 +191,11 @@ def Z_gradient_nhg_interferometric_cross_correlation_gate(deltaS, pulse_t, pulse
 
 
 def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted, gate_shifted, tau_arr, measurement_info, is_tdp):
-    frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    if measurement_info.real_fields==False:
+        frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    else:
+        frequency, sk, rn = measurement_info.frequency_big, measurement_info.sk_big, measurement_info.rn_big
+
     cross_correlation, doubleblind, interferometric, frogmethod = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric, measurement_info.nonlinear_method
 
     omega_arr = 2*jnp.pi*frequency
@@ -242,7 +246,10 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, pulse_t_shifted,
 
 
 def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, pulse_t_shifted, gate_shifted, tau_arr, measurement_info, is_tdp):
-    frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    if measurement_info.real_fields==False:
+        frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    else:
+        frequency, sk, rn = measurement_info.frequency_big, measurement_info.sk_big, measurement_info.rn_big
     interferometric, frogmethod = measurement_info.interferometric, measurement_info.nonlinear_method
 
     omega_arr = 2*jnp.pi*frequency

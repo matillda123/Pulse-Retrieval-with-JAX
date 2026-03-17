@@ -67,13 +67,13 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.gate_pulses, signal_t.gate, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
@@ -124,10 +124,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         alpha = descent_info.alpha
         difference_signal_t = signal_t_new - signal_t.signal_t
 
-        probe = signal_t.gate
+        probe = signal_t.gate_shifted
         grad = -1*jnp.conjugate(probe)*difference_signal_t
         U = self.get_PIE_weights(probe, alpha, pie_method)
-        
         return grad*U
     
 
@@ -150,11 +149,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         """ Calculates the PIE newton direction for a population. """
         
         newton_direction_prev = getattr(local_or_global_state.newton, pulse_or_gate).newton_direction_prev
-        probe = signal_t.gate
+        probe = signal_t.gate_shifted
 
-        reverse_transform = None
-        #signal_f = self.fft(signal_t.signal_t, measurement_info.sk, measurement_info.rn)
-        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, reverse_transform, newton_direction_prev, 
+        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, newton_direction_prev, 
                                                                      measurement_info, descent_info, pulse_or_gate, local_or_global)
         return descent_direction, newton_state
     
@@ -195,7 +192,7 @@ class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
@@ -205,7 +202,7 @@ class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
         """ Calculates the Z-error newton direction for a population. """
         
         newton_state = local_or_global_state.newton
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.gate_pulses, signal_t.gate, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          newton_state, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state

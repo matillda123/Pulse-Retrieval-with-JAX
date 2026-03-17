@@ -384,7 +384,11 @@ def calc_Z_error_pseudo_hessian_one_m(dummy, exp_arr_m, pulse_t_shifted_m, gate_
 def calc_Z_error_pseudo_hessian_all_m(pulse_t, pulse_t_shifted, gate_shifted, deltaS, tau_arr, measurement_info, full_or_diagonal, pulse_or_gate, is_tdp):
     """ Loop over shifts to get hessian for each. Does not use jax.vmap because of memory limits. """
 
-    time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    if measurement_info.real_fields==False:
+        time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    else:
+        time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
+        
     cross_correlation, interferometric, frogmethod = measurement_info.cross_correlation, measurement_info.interferometric, measurement_info.nonlinear_method
 
     exp_arr = jnp.exp(-1j*jnp.outer(tau_arr, omega))

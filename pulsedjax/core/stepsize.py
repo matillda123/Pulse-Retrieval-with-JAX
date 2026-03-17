@@ -238,13 +238,18 @@ def do_linesearch(linesearch_info, measurement_info, descent_info, error_func, g
 
 
 def get_scaling(gradient, descent_direction, xi, local_or_global_state, pulse_or_gate, local_or_global):
-    scaling = jnp.real(jnp.sum(jnp.vecdot(descent_direction, gradient))) + xi
+    scaling = jnp.real(jnp.sum(jnp.vecdot(descent_direction, gradient)))
+    scaling = scaling + jnp.sign(scaling)*xi
 
     if local_or_global=="_local":
         max_scaling = getattr(local_or_global_state.max_scaling, pulse_or_gate)
-        scaling = jnp.greater(jnp.abs(scaling), jnp.abs(max_scaling))*scaling + jnp.greater(jnp.abs(max_scaling), jnp.abs(scaling))*max_scaling
-        local_or_global_state = tree_at(lambda x: getattr(x.max_scaling, pulse_or_gate), local_or_global_state, scaling)
 
+        use_max = jnp.abs(scaling) <= jnp.abs(max_scaling)
+        use_new = 1 - use_max
+        scaling = use_max*max_scaling + use_new*scaling
+
+        local_or_global_state = tree_at(lambda x: getattr(x.max_scaling, pulse_or_gate), local_or_global_state, scaling)
+        
     elif local_or_global=="_global":
         pass
 
@@ -306,6 +311,6 @@ def adaptive_step_size(error, gradient, descent_direction, xi, local_or_global_s
     # # if eta is negative then it is not used -> (e.g. if newton direction points opposite to gradient -> scaling is positive -> eta likely negative)
     # is_negative = (eta < 0)
     # eta = 1*is_negative + eta*(1-is_negative)
-
+    
     return eta*descent_direction, local_or_global_state
 

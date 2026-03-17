@@ -315,12 +315,14 @@ class pulsedjax_testing:
                                                                             real_fields=self.real_fields,
                                                                             N=128, plot_stuff=False, 
                                                                             frequency_range=(jnp.min(frequency), jnp.max(frequency)),
+                                                                            f_range_fields=(jnp.min(frequency), jnp.max(frequency)),
                                                                             **method_kwargs_temp)
         else:
             theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
                                                                             gate=(frequency, pulse_f), real_fields=self.real_fields,
                                                                             N=128, plot_stuff=False, 
                                                                             frequency_range=(jnp.min(frequency), jnp.max(frequency)),
+                                                                            f_range_fields=(jnp.min(frequency), jnp.max(frequency)),
                                                                             **method_kwargs_temp)
         
 
@@ -336,7 +338,9 @@ class pulsedjax_testing:
         method_kwargs = m_parameters.method_kwargs
 
         if self.real_fields==True:
-            method_kwargs = {"f_range_fields": (jnp.min(frequency), jnp.max(frequency)), **method_kwargs}
+            method_kwargs = {"f_range_fields": (jnp.min(frequency), jnp.max(frequency)),
+                             "f_range_pulse": (jnp.min(frequency), jnp.max(frequency)), 
+                             **method_kwargs}
 
         population_kwargs = a_parameters.population_kwargs
         run_kwargs = a_parameters.run_kwargs

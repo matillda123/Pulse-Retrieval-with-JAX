@@ -898,7 +898,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         signal_t_new = calculate_S_prime(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
                                          descent_info, local_or_global)
 
-        # None, is the correct choice since it yields the steepest descent direction
+        # None, is the correct choice since it yields the steepest descent direction of pie
         grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, None, 
                                                              measurement_info, descent_info, pulse_or_gate)
         return jnp.sum(grad_U, axis=0)
@@ -965,6 +965,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
             pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            # this could be a vecdot instead of vmap -> needs testing though
 
             linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
                                         pk_dot_gradient=pk_dot_gradient, error=pie_error,
@@ -1041,15 +1042,15 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         transform_arr, measured_trace, descent_state = self.shuffle_data_along_m(descent_state, measurement_info, descent_info)
 
-        local_iteration=Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
-        local_iteration=Partial(scan_helper, actual_function=local_iteration, number_of_args=1, number_of_xs=2)
+        local_iteration = Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
+        local_iteration = Partial(scan_helper, actual_function=local_iteration, number_of_args=1, number_of_xs=2)
 
         descent_state, _ = jax.lax.scan(local_iteration, descent_state, (transform_arr, measured_trace))
 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace=calculate_trace(signal_t.signal_f)
-        trace_error=jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measurement_info.measured_trace)
+        trace = calculate_trace(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measurement_info.measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
     
@@ -1100,8 +1101,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace=calculate_trace(signal_t.signal_f)
-        trace_error=jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measured_trace)
+        trace = calculate_trace(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
 
@@ -1309,7 +1310,6 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                                                                                             local_or_global_state, 
                                                                                                                             adaptive_scaling_info,
                                                                                                                             pulse_or_gate, local_or_global)
-            
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
             pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)        
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 

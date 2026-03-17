@@ -93,10 +93,14 @@ def calc_Z_error_pseudo_hessian_one_m(dummy, exp_arr_m, pulse_t_dispersed, delta
 
 def calc_Z_error_pseudo_hessian_all_m(pulse_t_dispersed, deltaS, phase_matrix, measurement_info, full_or_diagonal):
     """ Loop over shifts to get hessian for each. Does not use jax.vmap because of memory limits. """
-    time, omega, nonlinear_method = measurement_info.time, 2*jnp.pi*measurement_info.frequency, measurement_info.nonlinear_method
+    if measurement_info.real_fields==False:
+        time, omega = measurement_info.time, 2*jnp.pi*measurement_info.frequency
+    else:
+        time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
 
+    nonlinear_method = measurement_info.nonlinear_method
     exp_arr = jnp.exp(-1j*phase_matrix)
-
+    
     hessian_all_m = Partial(calc_Z_error_pseudo_hessian_one_m, time=time, omega=omega, nonlinear_method=nonlinear_method, full_or_diagonal=full_or_diagonal)
 
     carry = jnp.zeros(1)

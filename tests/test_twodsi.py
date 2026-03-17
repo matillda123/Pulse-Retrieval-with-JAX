@@ -21,7 +21,8 @@ def test_2dsi(algorithm):
 
 from pulsedjax.real_fields import twodsi
 
-algorithms_list = [twodsi.PtychographicIterativeEngine, twodsi.DifferentialEvolution, twodsi.Evosax, twodsi.LSF, twodsi.AutoDiff]
+algorithms_list = [twodsi.GeneralizedProjection, twodsi.PtychographicIterativeEngine, twodsi.COPRA, 
+                   twodsi.DifferentialEvolution, twodsi.Evosax, twodsi.LSF, twodsi.AutoDiff]
 
 @pytest.mark.parametrize("algorithm", algorithms_list)
 def test_2dsi_real_fields(algorithm):

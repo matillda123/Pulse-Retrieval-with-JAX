@@ -20,7 +20,8 @@ def test_tdp(algorithm):
 
 from pulsedjax.real_fields import tdp 
 
-algorithms_list = [tdp.PtychographicIterativeEngine, tdp.DifferentialEvolution, tdp.Evosax, tdp.LSF, tdp.AutoDiff]
+algorithms_list = [tdp.GeneralizedProjection, tdp.PtychographicIterativeEngine, tdp.COPRA, 
+                   tdp.DifferentialEvolution, tdp.Evosax, tdp.LSF, tdp.AutoDiff]
 
 @pytest.mark.parametrize("algorithm", algorithms_list)
 def test_tdp_real_fields(algorithm):

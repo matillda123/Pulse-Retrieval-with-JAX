@@ -243,7 +243,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.global_adaptive_scaling = False
         self.local_adaptive_scaling_factor = -1 # this is the definition in copra paper, seems aggressive
         self.global_adaptive_scaling_factor = -1
-        self.xi = 1e-12
+        self.xi = 0
 
         self.momentum_is_being_used = False
 
@@ -787,7 +787,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     
 
     def trace_error(self, trace, measured_trace):
-        """ The mean least squares error. """
+        """ The least squares error. """
         measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
         trace = trace/jnp.max(jnp.abs(trace))
         return jnp.mean(jnp.abs(trace - measured_trace)**2)

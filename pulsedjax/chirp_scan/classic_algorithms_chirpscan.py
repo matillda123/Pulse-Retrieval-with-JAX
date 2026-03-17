@@ -268,7 +268,11 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     def reverse_transform_grad(self, signal, phase_matrix, measurement_info):
         """ For Chirp-Scan the effects of the phase matrix have to be undone to obtain the actual PIE-direction. """
-        sk, rn = measurement_info.sk, measurement_info.rn
+        if measurement_info.real_fields==False:
+            sk, rn = measurement_info.sk, measurement_info.rn
+        else:
+            sk, rn = measurement_info.sk_big, measurement_info.rn_big
+
         signal_f = self.fft(signal, sk, rn)
         signal_f = signal_f*jnp.exp(-1j*phase_matrix)
         signal = self.ifft(signal_f, sk, rn)
@@ -295,8 +299,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         """ Updates an individual based on a descent direction and a step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
         
-        pulse_t=self.ifft(individual.pulse, sk, rn)
-        pulse_t=pulse_t + gamma*descent_direction
+        pulse_t = self.ifft(individual.pulse, sk, rn)
+        pulse_t = pulse_t + gamma*descent_direction
         pulse = self.fft(pulse_t, sk, rn)
 
         individual = tree_at(lambda x: x.pulse, individual, pulse)

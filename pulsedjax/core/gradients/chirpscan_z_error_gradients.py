@@ -41,7 +41,12 @@ def calculate_Z_gradient(pulse_t_dispersed, signal_t, signal_t_new, phase_matrix
         jnp.array, the Z-error gradient
     
     """
-    nonlinear_method, sk, rn = measurement_info.nonlinear_method, measurement_info.sk, measurement_info.rn
+    if measurement_info.real_fields==False:
+        sk, rn = measurement_info.sk, measurement_info.rn
+    else:
+        sk, rn = measurement_info.sk_big, measurement_info.rn_big
+
+    nonlinear_method  = measurement_info.nonlinear_method
     difference_signal_t = signal_t_new-signal_t
 
     if nonlinear_method[-2:]=="hg" and nonlinear_method!="shg" and nonlinear_method!="thg":

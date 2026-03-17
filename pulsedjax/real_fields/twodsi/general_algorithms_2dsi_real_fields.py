@@ -1,4 +1,4 @@
-from pulsedjax.real_fields.base_classes_methods import RetrievePulses2DSIwithRealFields
+from pulsedjax.real_fields.core.base_classes_methods import RetrievePulses2DSIwithRealFields
 from pulsedjax.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, LSFBASE, AutoDiffBASE
 
 from pulsedjax.utilities import MyNamespace
@@ -7,9 +7,9 @@ from pulsedjax.utilities import MyNamespace
 class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulses2DSIwithRealFields):
     __doc__ = DifferentialEvolutionBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), 
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None,
                  strategy="best1_bin", selection_mechanism="greedy", mutation_rate=0.5, crossover_rate=0.7, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields,
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields,
                          strategy=strategy, selection_mechanism=selection_mechanism, mutation_rate=mutation_rate, crossover_rate=crossover_rate, **kwargs)
         self._post_init()
 
@@ -22,8 +22,8 @@ class DifferentialEvolution(DifferentialEvolutionBASE, RetrievePulses2DSIwithRea
 class Evosax(EvosaxBASE, RetrievePulses2DSIwithRealFields):
     __doc__ = EvosaxBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), solver=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, solver=solver, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None, solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, solver=solver, **kwargs)
         self._post_init()
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -36,8 +36,8 @@ class Evosax(EvosaxBASE, RetrievePulses2DSIwithRealFields):
 class LSF(LSFBASE, RetrievePulses2DSIwithRealFields):
     __doc__ = LSFBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, **kwargs)
         self._post_init()
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):
@@ -55,8 +55,8 @@ class LSF(LSFBASE, RetrievePulses2DSIwithRealFields):
 class AutoDiff(AutoDiffBASE, RetrievePulses2DSIwithRealFields):
     __doc__ = AutoDiffBASE.__doc__
 
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), solver=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, solver=solver, **kwargs)
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None, solver=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, solver=solver, **kwargs)
         self._post_init()
 
     def get_pulses_from_population(self, population, measurement_info, descent_info):

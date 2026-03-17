@@ -20,7 +20,7 @@ def test_chirp_scan(algorithm):
 
 from pulsedjax.real_fields import chirp_scan 
 
-algorithms_list = [chirp_scan.PtychographicIterativeEngine, 
+algorithms_list = [chirp_scan.GeneralizedProjection, chirp_scan.PtychographicIterativeEngine, chirp_scan.COPRA, 
                    chirp_scan.DifferentialEvolution, chirp_scan.Evosax, chirp_scan.LSF, chirp_scan.AutoDiff]
 
 

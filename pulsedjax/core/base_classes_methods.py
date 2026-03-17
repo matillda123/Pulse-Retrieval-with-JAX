@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, center_signal, project_onto_amplitude
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
-from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase
+from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase, _eval_refractive_index
 
 
 
@@ -90,6 +90,10 @@ class RetrievePulses:
         self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
         self.measured_trace = jnp.asarray(measured_trace)
 
+        self.dt = jnp.mean(jnp.diff(self.time))
+        self.df = jnp.mean(jnp.diff(self.frequency))
+        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
+
         if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
             if self.cross_correlation==False and self.doubleblind==False:
                 self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
@@ -97,8 +101,12 @@ class RetrievePulses:
                 if self.central_frequency==None and self.material_thickness!=0:
                     raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
                                      Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
-
-        return self.x_arr, self.time, self.frequency, self.measured_trace, self.central_frequency
+                
+        self.measurement_info = self.measurement_info.expand(time=self.time, frequency=self.frequency, 
+                                                        sk=self.sk, rn=self.rn, 
+                                                        dt=self.dt, df=self.df,
+                                                        central_frequency = self.central_frequency)
+        return self.x_arr, self.time, self.frequency, self.measured_trace
 
 
 
@@ -147,7 +155,7 @@ class RetrievePulses:
 
         x_arr, time, frequency, measured_trace = final_result.x_arr, final_result.time, final_result.frequency, final_result.measured_trace
         frequency_exp = final_result.frequency_exp
-        
+
         trace = trace/jnp.max(trace)
         measured_trace = measured_trace/jnp.max(measured_trace)
         trace_difference = measured_trace-trace
@@ -230,7 +238,7 @@ class RetrievePulses:
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
         trace = calculate_trace(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
-        idx = jnp.argmin(trace_error)
+        idx = jnp.nanargmin(trace_error)
         return idx
     
 
@@ -312,12 +320,12 @@ class RetrievePulses:
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
         if self.measurement_info.real_fields==True:
-            frequency_exp = self.measurement_info.frequency_exp
+            frequency_exp = self.measurement_info.frequency_big
         else:
             frequency_exp = frequency
 
         final_result_population = self.get_final_result_population()
-        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp=frequency_exp,
+        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp = frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
                                  error_arr=error_arr, population=final_result_population)
@@ -398,17 +406,10 @@ class RetrievePulsesFROG(RetrievePulses):
         
         super().__init__(nonlinear_method, **kwargs)
 
-        self.tau_arr, self.time, self.frequency, self.measured_trace, self.central_frequency = self.get_data(delay, frequency, measured_trace)
+        self.tau_arr, self.time, self.frequency, self.measured_trace = self.get_data(delay, frequency, measured_trace)
         self.gate = jnp.zeros(jnp.size(self.time))
 
         self.transform_arr = self.tau_arr
-        #self.idx_arr = jnp.arange(jnp.shape(self.transform_arr)[0])   
-        
-
-        self.dt = jnp.mean(jnp.diff(self.time))
-        self.df = jnp.mean(jnp.diff(self.frequency))
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
         self.cross_correlation = cross_correlation
         self.interferometric = interferometric
 
@@ -421,20 +422,13 @@ class RetrievePulsesFROG(RetrievePulses):
             raise ValueError(f"cross_correlation can only take one of doubleblind, True or False. Got {self.cross_correlation}") 
 
         self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
-                                                             frequency = self.frequency,
-                                                             time = self.time,
                                                              measured_trace = self.measured_trace,
                                                              cross_correlation = self.cross_correlation,
                                                              doubleblind = self.doubleblind,
                                                              interferometric = self.interferometric,
-                                                             dt = self.dt,
-                                                             df = self.df,
-                                                             sk = self.sk,
-                                                             rn = self.rn,
                                                              gate = self.gate,
                                                              transform_arr = self.transform_arr,
-                                                             x_arr = self.x_arr,
-                                                             central_frequency = self.central_frequency)
+                                                             x_arr = self.x_arr)
         
 
 
@@ -617,6 +611,7 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
         return signal
     
 
+
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         """
         Calculates the signal field of TDP in the time domain. 
@@ -702,24 +697,12 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
     def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
         super().__init__(nonlinear_method, **kwargs)
 
-        self.theta, self.time, self.frequency, self.measured_trace, self.central_frequency = self.get_data(theta, frequency, measured_trace)
-
-        self.dt = jnp.mean(jnp.diff(self.time))
-        self.df = jnp.mean(jnp.diff(self.frequency))
-        self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-
+        self.theta, self.time, self.frequency, self.measured_trace = self.get_data(theta, frequency, measured_trace)
         self.measurement_info = self.measurement_info.expand(theta = self.theta,
-                                                             frequency = self.frequency,
-                                                             time = self.time,
                                                              measured_trace = self.measured_trace,
                                                              cross_correlation = self.cross_correlation,
                                                              doubleblind = self.doubleblind,
-                                                             dt = self.dt,
-                                                             df = self.df,
-                                                             sk = self.sk,
-                                                             rn = self.rn,
-                                                             x_arr = self.x_arr,
-                                                             central_frequency = self.central_frequency)
+                                                             x_arr = self.x_arr)
         
 
         self.phase_type = phase_type
@@ -746,8 +729,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
         self.transform_arr = self.phase_matrix
-        #self.idx_arr = jnp.arange(jnp.shape(self.transform_arr)[0])   
-
         self.measurement_info = self.measurement_info.expand(phase_matrix = self.phase_matrix,
                                                              transform_arr = self.transform_arr)
         return self.phase_matrix
@@ -920,7 +901,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate)
         return signal_t
 
 
@@ -966,7 +947,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         """
         frequency, c0 = measurement_info.frequency, measurement_info.c0
         wavelength = c0/frequency*1e-6 # wavelength in nm
-        n_arr = refractive_index.material.getRefractiveIndex(jnp.abs(wavelength) + 1e-9, bounds_error=False) # wavelength needs to be in nm
+        n_arr = _eval_refractive_index(refractive_index, jnp.abs(wavelength)) # wavelength needs to be in nm
         n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
         k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
         k_arr = k0_arr*n_arr
@@ -1031,7 +1012,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate=gate, gate_shifted=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate)
         return signal_t
 
 

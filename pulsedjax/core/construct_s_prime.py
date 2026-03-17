@@ -228,11 +228,10 @@ def calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, 
     method = getattr(descent_info.s_prime_params, local_or_global)
 
     if measurement_info.real_fields==True:
-        sk, rn = measurement_info.sk_exp, measurement_info.rn_exp
+        sk, rn = measurement_info.sk_big, measurement_info.rn_big
     else:
         sk, rn = measurement_info.sk, measurement_info.rn
         
-
     if method=="projection":
         signal_t_new = calculate_S_prime_projection(signal_f, measured_trace, mu, sk, rn)
 

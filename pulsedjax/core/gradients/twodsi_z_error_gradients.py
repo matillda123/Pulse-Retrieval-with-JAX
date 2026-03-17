@@ -85,9 +85,12 @@ def Z_gradient_nhg_cross_correlation_gate(deltaS, pulse_t, gate_pulses, gate, ex
 
 
 def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, measurement_info, is_vampire):
-    frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    if measurement_info.real_fields==False:
+        frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    else:
+        frequency, sk, rn = measurement_info.frequency_big, measurement_info.sk_big, measurement_info.rn_big
+    
     nonlinear_method = measurement_info.nonlinear_method
-
     omega_arr = 2*jnp.pi*frequency
     
     if is_vampire==True:
@@ -128,9 +131,12 @@ def calculate_Z_gradient_pulse(signal_t, signal_t_new, pulse_t, gate_pulses, gat
 
 
 def calculate_Z_gradient_gate(signal_t, signal_t_new, pulse_t, gate_pulses, gate, tau_arr, measurement_info, is_vampire):
-    frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
-    nonlinear_method = measurement_info.nonlinear_method
+    if measurement_info.real_fields==False:
+        frequency, sk, rn = measurement_info.frequency, measurement_info.sk, measurement_info.rn
+    else:
+        frequency, sk, rn = measurement_info.frequency_big, measurement_info.sk_big, measurement_info.rn_big
 
+    nonlinear_method = measurement_info.nonlinear_method
     omega_arr = 2*jnp.pi*frequency
     
     if is_vampire==True:

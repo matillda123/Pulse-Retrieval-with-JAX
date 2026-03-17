@@ -30,7 +30,7 @@ def get_initial_amp(measurement_info):
             raise ValueError(f"nonlinear_method needs to be one of shg or thg. Not {nonlinear_method}")
         
         if measurement_info.real_fields==True:
-            amp = do_interpolation_1d(frequency, measurement_info.frequency_exp/factor, amp)
+            amp = do_interpolation_1d(frequency, measurement_info.frequency_big/factor, amp)
         else:
             amp = do_interpolation_1d(frequency, frequency/factor, amp)
 

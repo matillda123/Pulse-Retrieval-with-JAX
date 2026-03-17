@@ -56,7 +56,7 @@ class MyNamespace:
             if isinstance(value, MyNamespace):
                 myoutput[key] = value.__repr__()
             else:
-                if isinstance(value, (jax.Array,list,np.ndarray)):
+                if isinstance(value, (jax.Array, np.ndarray)):
                     myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
                 else:
                     try:
@@ -144,7 +144,6 @@ def run_scan(do_scan, carry, no_iterations):
         do_scan (Callable): the callable needs to take carry its argument
         carry (Pytree): the initial state of the iteration
         no_iterations (int): the number of iterations
-        use_jit (bool): whether jax.jit is supposed to be used or not
 
     Returns:
         tuple[Carry, Y], the output of jax.lax.scan
@@ -354,14 +353,18 @@ def get_sk_rn(time, frequency):
 
 def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12):
     """
-    Wraps around interpax.interp1d
+    Wraps around interpax.interp1d and jnp.interp
     """
-    # if method=="linear":
-    #     y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
-    # else:
-    if method=="linear":
-        method="cubic"
-    y_new = interp1d(x_new, x, y, method=method, extrap=extrap)
+
+    if method=="linear" and jnp.issubdtype(y.dtype, jnp.complexfloating):
+        # y_real = jnp.interp(x_new, x, jnp.real(y), left=extrap, right=extrap)
+        # y_imag = jnp.interp(x_new, x, jnp.imag(y), left=extrap, right=extrap)
+        # y_new = y_real + 1j*y_imag
+        y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
+    elif method=="linear" and jnp.issubdtype(y.dtype, jnp.floating):
+        y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
+    else:
+        y_new = interp1d(x_new, x, y, method=method, extrap=extrap)
     return y_new
 
 
