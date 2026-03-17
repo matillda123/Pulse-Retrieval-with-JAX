@@ -19,7 +19,7 @@
    example_nonlinear_optimization
    example_advanced_things
 
-   pytree_structures
+   pytree_structure
    definitions_and_formulas
 
    literature
