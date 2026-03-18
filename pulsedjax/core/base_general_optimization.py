@@ -1,15 +1,15 @@
 import numpy as np
+from functools import partial as Partial
 
 import jax.numpy as jnp
 import jax
-from jax.tree_util import Partial
 from equinox import tree_at
 
 import equinox
 import optimistix
 
 from pulsedjax.utilities import scan_helper, scan_helper_equinox, optimistix_helper_loss_function, MyNamespace, do_interpolation_1d
-from .base_classes_algorithms import GeneralOptimizationBASE
+from pulsedjax.core.base_classes_algorithms import GeneralOptimizationBASE
 
 
 

@@ -1,8 +1,8 @@
 import jax
-from jax.tree_util import Partial
+from functools import partial as Partial
 
 from pulsedjax.utilities import calculate_newton_direction
-from .twodsi_z_error_pseudo_hessian import calc_Z_error_pseudo_hessian_all_m
+from pulsedjax.core.hessians.twodsi_z_error_pseudo_hessian import calc_Z_error_pseudo_hessian_all_m
 
 
 

@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import jax
-from jax.tree_util import Partial
+from functools import partial as Partial
 
 from equinox import tree_at
 
@@ -128,7 +128,7 @@ def create_population_classic(key, population_size, guess_type, measurement_info
 
 def polynomial_guess(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
-    c = jax.random.uniform(subkey, shape, minval=-1e3, maxval=1e3)
+    c = jax.random.uniform(subkey, shape, minval=-1e1, maxval=1e1)
     population = tree_at(lambda x: x.phase, population, c, is_leaf=lambda x: x is None)
     return key, population
 
@@ -141,7 +141,7 @@ def sinusoidal_guess(key, population, shape, measurement_info):
     bmin=0.5/(2*jnp.max(frequency))
     bmax=1/(2*jnp.max(frequency))
 
-    a = jax.random.uniform(key1, shape, minval=0, maxval=1)
+    a = jax.random.uniform(key1, shape, minval=0.5, maxval=1)
     b = jax.random.uniform(key2, shape, minval=bmin, maxval=bmax)
     c = jax.random.uniform(key3, shape, minval=0, maxval=2*jnp.pi)
 
@@ -154,7 +154,7 @@ def sigmoidal_guess(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
     key1, key2, key3 = jax.random.split(subkey, 3)
 
-    a=jax.random.uniform(key1, shape, minval=0, maxval=4*jnp.pi)
+    a=jax.random.uniform(key1, shape, minval=0.5, maxval=4*jnp.pi)
     c=jax.random.uniform(key2, shape, minval=jnp.min(frequency), maxval=jnp.max(frequency))
     k=jax.random.uniform(key3, shape, minval=-2, maxval=2)
 
@@ -176,7 +176,7 @@ def continuous_discrete_guess_phase(key, population, shape, measurement_info):
     keys = jax.random.split(subkey, shape[0])
 
     phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(keys, shape[1], frequency, 
-                                                                                                        -4*jnp.pi, 4*jnp.pi, jnp.ones(jnp.size(frequency)))
+                                                                                                        -2*jnp.pi, 2*jnp.pi, jnp.ones(jnp.size(frequency)))
     population = tree_at(lambda x: x.phase, population, phase, is_leaf=lambda x: x is None)
     return key, population
 
@@ -186,7 +186,7 @@ def gaussian_or_lorentzian_guess(key, population, shape, measurement_info):
     frequency = measurement_info.frequency
     key, subkey = jax.random.split(key, 2)
     key1, key2, key3 = jax.random.split(subkey, 3)
-    a = jax.random.uniform(key1, shape, minval=0, maxval=1)
+    a = jax.random.uniform(key1, shape, minval=0.5, maxval=1)
     b = jax.random.uniform(key2, shape, minval=1e-3, maxval=(jnp.max(frequency)-jnp.min(frequency))/3)
     c = jax.random.uniform(key3, shape, minval=jnp.min(frequency), maxval=jnp.max(frequency))
     
@@ -212,7 +212,7 @@ def continuous_discrete_guess_amp(key, population, shape, measurement_info):
 def bspline_guess_amp(key, population, shape, measurement_info):
     key, subkey = jax.random.split(key, 2)
 
-    c = jax.random.uniform(subkey, shape, minval=0.0, maxval=2.0)
+    c = jax.random.uniform(subkey, shape, minval=1.0, maxval=2.0)
     population = tree_at(lambda x: x.amp, population, MyNamespace(c=c), is_leaf=lambda x: x is None)
     return key, population
 

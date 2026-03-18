@@ -1,6 +1,6 @@
 import jax
 import jax.numpy as jnp
-from jax.tree_util import Partial
+from functools import partial as Partial
 
 from equinox import tree_at
 

@@ -1,8 +1,6 @@
 import jax.numpy as jnp
-import jax
-from jax.tree_util import Partial
 
-from pulsedjax.utilities import scan_helper, calculate_newton_direction
+from pulsedjax.utilities import calculate_newton_direction
 
 
 

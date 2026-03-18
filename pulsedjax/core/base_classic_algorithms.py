@@ -1,18 +1,18 @@
 import jax
 import jax.numpy as jnp
 
-from jax.tree_util import Partial
+from functools import partial as Partial
 from equinox import tree_at
 
 
-from .stepsize import do_linesearch, adaptive_step_size
-from .nonlinear_cg import get_nonlinear_CG_direction
-from .lbfgs import get_quasi_newton_direction
+from pulsedjax.core.stepsize import do_linesearch, adaptive_step_size
+from pulsedjax.core.nonlinear_cg import get_nonlinear_CG_direction
+from pulsedjax.core.lbfgs import get_quasi_newton_direction
 
 from pulsedjax.utilities import scan_helper, MyNamespace, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan, do_checks_before_running
-from .base_classes_algorithms import ClassicAlgorithmsBASE
+from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 
-from .construct_s_prime import calculate_S_prime
+from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 
 

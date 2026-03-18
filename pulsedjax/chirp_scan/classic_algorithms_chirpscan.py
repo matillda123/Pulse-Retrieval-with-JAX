@@ -1,7 +1,8 @@
 import jax
 import jax.numpy as jnp
-from jax.tree_util import Partial
 from equinox import tree_at
+
+from functools import partial as Partial
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE

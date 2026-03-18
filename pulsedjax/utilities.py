@@ -1,6 +1,5 @@
 import jax.numpy as jnp
 import jax
-from jax.tree_util import Partial
 
 import numpy as np
 

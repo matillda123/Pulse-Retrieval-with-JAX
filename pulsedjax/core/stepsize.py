@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import jax
-from jax.tree_util import Partial
+from functools import partial as Partial
 from equinox import tree_at
 
 from pulsedjax.utilities import while_loop_helper, MyNamespace

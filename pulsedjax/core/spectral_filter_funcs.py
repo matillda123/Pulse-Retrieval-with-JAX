@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-from .phase_matrix_funcs import calc_group_delay_phase
+from pulsedjax.core.phase_matrix_funcs import calc_group_delay_phase
 from scipy.constants import c as c0
 import refractiveindex
 

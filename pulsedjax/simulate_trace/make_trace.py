@@ -10,7 +10,7 @@ import jax
 from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max
 from pulsedjax.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesTDP, RetrievePulsesVAMPIRE
 from pulsedjax.real_fields.core.base_classes_methods import RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSIwithRealFields, RetrievePulsesTDPwithRealFields, RetrievePulsesVAMPIREwithRealFields
-from .make_pulse import MakePulse as MakePulseBase
+from pulsedjax.simulate_trace.make_pulse import MakePulse as MakePulseBase
 
 
 

@@ -2,14 +2,14 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from jax.tree_util import Partial
+from functools import partial as Partial
 from equinox import tree_at
 
 from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude, do_checks_before_running
-from .bsplines_1d import get_prefactor, get_M, make_bsplines
-from .create_population import create_population_general, create_population_classic
+from pulsedjax.core.bsplines_1d import get_prefactor, get_M, make_bsplines
+from pulsedjax.core.create_population import create_population_general, create_population_classic
 
-from .base_classes_methods import RetrievePulsesCHIRPSCAN
+from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 
 
 class AlgorithmsBASE:
@@ -836,14 +836,31 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
 
 
-    def get_idx_best_individual(self, descent_state):
-        """ Calculates the error for a population. Returns the index of the lowest individual. """
+    def _get_idx_individual(self, descent_state, idx_func):
+        """ Calculates the error for a population. Returns the index of the worst individual. """
         population = descent_state.population
         pulse_arr, gate_arr = self.get_pulses_from_population(population, self.measurement_info, self.descent_info)
         error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(MyNamespace(pulse=pulse_arr, gate=gate_arr), 
                                                                                        self.measurement_info, self.descent_info)
-        idx = jnp.argmin(error_arr)
+        idx = idx_func(error_arr)
         return idx
+
+
+    def get_idx_best_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of the fittest individual. """
+        return self._get_idx_individual(descent_state, jnp.argmin)
+    
+
+    def get_idx_best_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of the worst individual. """
+        return self._get_idx_individual(descent_state, jnp.argmax)
+
+
+    def get_idx_average_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of an average individual. """
+        get_mean_idx = lambda x: jnp.argmin(jnp.abs(x - jnp.mean(x)))
+        return self._get_idx_individual(descent_state, get_mean_idx)
+       
 
 
 

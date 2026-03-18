@@ -1,5 +1,4 @@
 import jax.numpy as jnp
-import jax
 
 from equinox import tree_at
 
