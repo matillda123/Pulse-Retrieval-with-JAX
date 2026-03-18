@@ -19,7 +19,7 @@ delay, frequency_trace, trace, spectra = mp.generate_frog(time, frequency, pulse
 
 from pulsedjax.frog import PtychographicIterativeEngine
 
-pie = PtychographicIterativeEngine(delay, frequency_trace, trace, "pg", "rPIE")
+pie = PtychographicIterativeEngine(delay, frequency_trace, trace, "pg", pie_method="rPIE")
 
 # # Incorporates Spectrum via projection onto it
 # frequency_spectrum, spectrum = spectra.pulse[0], spectra.pulse[1]
@@ -32,7 +32,7 @@ population = pie.create_initial_population(5, "random")
 
 pie.alpha = 0.15
 pie.local_gamma = 0.1
-pie.global_gamma = 0.1
+pie.global_gamma = 0.01
 
 final_result = pie.run(population, 100, 100)
 pie.plot_results(final_result)

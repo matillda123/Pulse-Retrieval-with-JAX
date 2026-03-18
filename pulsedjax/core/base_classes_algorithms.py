@@ -788,7 +788,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def trace_error(self, trace, measured_trace):
         """ The least squares error. """
-        measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
+        # if measured trace is big, the compiler complains about constant-folding time
+        #measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
         trace = trace/jnp.max(jnp.abs(trace))
         return jnp.mean(jnp.abs(trace - measured_trace)**2)
 
@@ -828,6 +829,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
             self.measurement_info = tree_at(lambda x: x.central_f.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
+        self.measurement_info = self.measurement_info.expand(measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace)))
         self.descent_info = self.descent_info.expand(error_metric = self.error_metric)
         self.descent_state = self.descent_state.expand(population = population)
 
@@ -858,6 +860,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         if measurement_info.doubleblind==True:
             gate_t = jax.vmap(self.make_pulse_t_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
             gate_f = jax.vmap(self.make_pulse_f_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
+            gate_t, gate_f = gate_t[0], gate_f[0]
         else:
             gate_t, gate_f = pulse_t, pulse_f
 

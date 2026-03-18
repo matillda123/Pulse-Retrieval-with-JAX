@@ -31,7 +31,7 @@ copra.local_gamma = 1e4 # sometimes the local step size needs to be quite large
 copra.global_gamma = 0.25
 
 # damping parameter, avoids division by zero in adaptive stepsize
-copra.xi = 1e-3
+# copra.xi = 1e-9
 
 population = copra.create_initial_population(5, "random")
 final_result = copra.run(population, 100, 300)

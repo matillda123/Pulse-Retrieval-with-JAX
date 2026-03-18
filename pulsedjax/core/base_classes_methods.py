@@ -45,7 +45,7 @@ class RetrievePulses:
         self.cross_correlation = False
         self.doubleblind = False 
         self.interferometric = False
-        self.central_frequency_trace = central_frequency_trace
+        self.central_frequency_trace = central_frequency
 
         if nonlinear_method=="shg":
             self.factor = 2

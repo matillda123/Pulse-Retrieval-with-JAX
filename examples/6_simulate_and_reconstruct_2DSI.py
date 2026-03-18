@@ -12,9 +12,9 @@ time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0, phase0))
 
 
 # create lorentzian spectral filters with amp=1, central frequencies of 0.245/0.255, fwhm=0.0001 and p=1
-from pulsedjax import spectral_filter_funcs
-spectral_filter1 = spectral_filter_funcs.get_filter("lorentzian", frequency, (1,0.255,0.0001,1))
-spectral_filter2 = spectral_filter_funcs.get_filter("lorentzian", frequency, (1,0.245,0.0001,1))
+from pulsedjax import get_spectral_filter
+spectral_filter1 = get_spectral_filter("lorentzian", frequency, (1,0.255,0.0001,1))
+spectral_filter2 = get_spectral_filter("lorentzian", frequency, (1,0.245,0.0001,1))
 
 delay = jnp.linspace(-30, 30, 128*2)
 delay, frequency_trace, trace, spectra = mp.generate_2dsi(time, frequency, pulse_t, pulse_f, "shg", delay, 

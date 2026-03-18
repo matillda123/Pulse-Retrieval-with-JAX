@@ -406,7 +406,7 @@ class MakeTraceBASE:
                                        time_exp=self.time, frequency_exp=self.frequency, sk_exp=self.sk, rn_exp=self.rn,
                                        cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
                                        nonlinear_method=self.nonlinear_method, doubleblind=False, 
-                                       central_frequency = self.central_frequency, c0 = self.c0)
+                                       central_frequency_trace = self.central_frequency, c0 = self.c0)
 
 
     def generate_trace(self):

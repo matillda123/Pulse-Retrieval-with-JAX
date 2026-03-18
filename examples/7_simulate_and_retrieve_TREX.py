@@ -29,7 +29,7 @@ delay, frequency, trace, spectra = mp.generate_frog(time, frequency, pulse_t, pu
                                                     
                                                     # for real_fields one needs to manually zoom into a specfic f-range
                                                     # this is because the fundamental and egative frequencies are present
-                                                    frequency_range=(0.55,1.2))
+                                                    frequency_range=(0.55,1.2), f_range_fields=(0,1.2))
 
 
 
@@ -41,7 +41,7 @@ import optimistix
 ad = frog.AutoDiff(delay, frequency, trace, "thg", cross_correlation="doubleblind", interferometric=True, 
                    
                    # Same thing here, one needs to specify the f-range in which the pulse/gate are located
-                   f_range_fields=(0.075, 0.5))
+                   f_range_pulse=(0.075, 0.5), f_range_fields=(0.55,1.2))
 
 
 # in doubleblind providing the spectra is needed to avoid ambiguities

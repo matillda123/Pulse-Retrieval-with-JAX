@@ -42,16 +42,15 @@ theta, frequency_trace, trace, spectra = mp.generate_chirpscan(time, frequency, 
 
 
 # generate SHG TDP
-from pulsedjax import spectral_filter_funcs
-spectral_filter = spectral_filter_funcs.get_filter("gaussian", frequency, (1,0.25,0.01,1))
+from pulsedjax import get_spectral_filter
+spectral_filter = get_spectral_filter("gaussian", frequency, (1,0.25,0.01,1))
 delay, frequency_trace, trace, spectra = mp.generate_tdp(time, frequency, pulse_t, pulse_f, "shg", delay, spectral_filter)
 
 
 # generate SFG 2DSI
-spectral_filter1 = spectral_filter_funcs.get_filter("lorentzian", frequency, (1,0.24,0.005,1))
-spectral_filter2 = spectral_filter_funcs.get_filter("lorentzian", frequency, (1,0.25,0.005,1))
-delay, frequency_trace, trace, spectra = mp.generate_2dsi(time, frequency, pulse_t, pulse_f, "shg", delay, spectral_filter1, spectral_filter2,
-                                                          scale_time_range=0.1)
+spectral_filter1 = get_spectral_filter("lorentzian", frequency, (1,0.24,0.005,1))
+spectral_filter2 = get_spectral_filter("lorentzian", frequency, (1,0.25,0.005,1))
+delay, frequency_trace, trace, spectra = mp.generate_2dsi(time, frequency, pulse_t, pulse_f, "shg", delay, spectral_filter1, spectral_filter2)
 
 
 # generate SHG VAMPIRE
