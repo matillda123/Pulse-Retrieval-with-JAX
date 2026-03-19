@@ -424,7 +424,7 @@ class MakeTraceBASE:
                                        interferometric=self.interferometric, 
                                        doubleblind=False, 
                                        nonlinear_method=self.nonlinear_method,
-                                       central_frequency_trace = self.central_frequency, c0 = self.c0)
+                                       central_frequency = self.central_frequency, c0 = self.c0)
 
 
     def generate_trace(self):
