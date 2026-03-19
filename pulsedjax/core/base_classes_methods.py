@@ -348,7 +348,6 @@ class RetrievePulses:
 
 
 
-
     
     
     
@@ -460,7 +459,6 @@ class RetrievePulsesFROG(RetrievePulses):
 
 
 
-
     # this and calculate_shifted signal would probably be better/more sensibly placed in utilites.py
     def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
         """ The Fourier-Shift theorem. """
@@ -482,12 +480,9 @@ class RetrievePulsesFROG(RetrievePulses):
         signal = jnp.pad(signal, pad_arr)
         
         frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
-        # time = jnp.fft.fftshift(jnp.fft.fftfreq(2*N, jnp.mean(jnp.diff(frequency))))
         time = jnp.concatenate([time, time+(jnp.size(time)+1)*jnp.mean(jnp.diff(time))])
-
         sk, rn = get_sk_rn(time, frequency)
 
-        # its not really necessary to vmap here. could be done by broadcasting i guess.
         signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
         return signal_shifted[ ... , :N] 
 
@@ -539,17 +534,6 @@ class RetrievePulsesFROG(RetrievePulses):
         signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
         signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, pulse_t_shifted=pulse_t_shifted, gate_shifted=gate_shifted, gate_pulse_shifted=gate_pulse_shifted)
         return signal_t
-
-
-
-
-    def generate_signal_t(self, descent_state, measurement_info, descent_info):
-        """ Applies calculate_signal_t to a whole population via jax.vmap """
-        tau_arr = measurement_info.tau_arr
-        population = descent_state.population
-        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, tau_arr, measurement_info)
-        return signal_t
-    
 
 
 
@@ -771,18 +755,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         return signal_t
     
 
-    def generate_signal_t(self, descent_state, measurement_info, descent_info):
-        """ Applies calculate_signal_t to a whole population via jax.vmap """
-        phase_matrix = measurement_info.phase_matrix
-        population = descent_state.population
-        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, phase_matrix, measurement_info)
-        return signal_t
 
-
-
-
-
-    
 
 
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):

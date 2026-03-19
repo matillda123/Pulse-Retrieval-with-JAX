@@ -12,9 +12,6 @@ from pulsedjax.core.lbfgs import get_quasi_newton_direction
 from pulsedjax.utilities import scan_helper, MyNamespace, calculate_mu, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan, do_checks_before_running
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 
-from pulsedjax.core.construct_s_prime import calculate_S_prime
-
-
 
 
 
@@ -194,8 +191,10 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         trace = calculate_trace(signal_t.signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, measurement_info, descent_info, "_global")
-        
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, 
+                                                         mu, measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,0,None,None,None))
+    
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
         #population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
@@ -476,7 +475,9 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         trace = calculate_trace(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
 
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,None,None,None,None))(signal_t.signal_t, signal_t.signal_f, measured_trace, 1, measurement_info, descent_info, "_global")
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, measured_trace, 1, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,None,None,None,None))
         opf = jax.vmap(self.convert_signal_t_to_opf, in_axes=(0,None))(signal_t_new, idx_arr)
 
         if descent_info.antialias==True:
@@ -742,8 +743,9 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         trace = calculate_trace(signal_t.signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, measurement_info, descent_info, "_global")
-
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,0,None,None,None))
         descent_state = self.do_descent_Z_error(descent_state, signal_t_new, measurement_info, descent_info)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
@@ -895,9 +897,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         
         individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        signal_t_new = calculate_S_prime(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
-                                         descent_info, local_or_global)
-
+        signal_t_new = self.calculate_S_prime_individual(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, 
+                                                         measurement_info, descent_info, local_or_global)
+        
         # None, is the correct choice since it yields the steepest descent direction of pie
         grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, None, 
                                                              measurement_info, descent_info, pulse_or_gate)
@@ -965,7 +967,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
             pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            # this could be a vecdot instead of vmap -> needs testing though
+            # this could be a vecdot instead of vmap i think -> needs testing though
 
             linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
                                         pk_dot_gradient=pk_dot_gradient, error=pie_error,
@@ -1001,8 +1003,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
     def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
         """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,None,None,None,None))(signal_t.signal_t,signal_t.signal_f, trace_line, 1, measurement_info, descent_info, "_local")
-
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, trace_line, 1, 
+                                                         measurement_info, descent_info, "_local", 
+                                                         axes=(0,0,0,None,None,None,None))
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_t.signal_f, trace_line)
 
         local_state, population = descent_state._local, descent_state.population
@@ -1076,9 +1079,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         measured_trace = measurement_info.measured_trace
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,None,None,None,None))(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, measurement_info, 
-                                                                                         descent_info, "_global")
-        
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, 1, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,None,None,None,None))
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_t.signal_f, measured_trace)
 
         global_state, population = descent_state._global, descent_state.population 
@@ -1343,10 +1346,10 @@ class COPRABASE(ClassicAlgorithmsBASE):
     def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
         """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,0,0,None,None,None))(signal_t.signal_t, signal_t.signal_f, trace_line, descent_state._local.mu, measurement_info, 
-                                                                                   descent_info, "_local")
-
-
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, trace_line, descent_state._local.mu, 
+                                                         measurement_info, descent_info, "_local", 
+                                                         axes=(0,0,0,0,None,None,None))
+        
         population, local_state = descent_state.population, descent_state._local
         local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, population, local_state, measurement_info, descent_info, 
                                                    "pulse", "_local")
@@ -1423,9 +1426,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, measurement_info, 
-                                                                                      descent_info, "_global")
-
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,0,None,None,None))
 
         population, global_state = descent_state.population, descent_state._global
         global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, population, global_state, measurement_info, 

@@ -10,7 +10,6 @@ from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, Pt
 
 
 from pulsedjax.utilities import MyNamespace, scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
-from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.gradients.chirpscan_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.chirpscan_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -180,7 +179,9 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         trace = calculate_trace(signal_t.signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, measurement_info, descent_info, "_global")
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,0,None,None,None))
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)

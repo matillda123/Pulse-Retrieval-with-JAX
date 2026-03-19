@@ -9,7 +9,6 @@ from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, initialize_S_prime_params
 
 from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
-from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.gradients.frog_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.frog_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -81,7 +80,9 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         trace = calculate_trace(signal_t.signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = jax.vmap(calculate_S_prime, in_axes=(0,0,None,0,None,None,None))(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, measurement_info, descent_info, "_global")
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,0,None,0,None,None,None))
         
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)

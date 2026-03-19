@@ -8,6 +8,7 @@ from equinox import tree_at
 from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude, do_checks_before_running
 from pulsedjax.core.bsplines_1d import get_prefactor, get_M, make_bsplines
 from pulsedjax.core.create_population import create_population_general, create_population_classic
+from pulsedjax.core.construct_s_prime import calculate_S_prime
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 
@@ -31,6 +32,22 @@ class AlgorithmsBASE:
         self.fft = do_fft
         self.ifft = do_ifft
         self._name = "AlgorithmsBASE"
+
+
+
+    def generate_signal_t(self, descent_state, measurement_info, descent_info):
+        """ Applies calculate_signal_t to a whole population via jax.vmap """
+        transform_arr = measurement_info.transform_arr
+        population = descent_state.population
+        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, transform_arr, measurement_info)
+        return signal_t
+
+
+    def calculate_S_prime_individual(self, signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global):
+        return calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
+    
+    def calculate_S_prime_population(self, signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global, axes):
+        return jax.vmap(self.calculate_S_prime_individual, in_axes=axes)(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
 
 
 

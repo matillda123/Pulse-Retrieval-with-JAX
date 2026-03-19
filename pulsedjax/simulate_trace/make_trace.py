@@ -76,6 +76,7 @@ class MakeTrace(MakePulseBase):
             gate (tuple[jnp.array, jnp.array]): a tuple containing the frequency axis and the gate-pulse in the frequency domain. Is used as gate if cross_correlation=True
             real_fields (bool): whether the nonlinear signal should be generated using real fields
             frequency_range (tuple[Scalar,Scalar]): defines the frequenyc range of the trace
+            f_range_fields (tuple[Scalar,Scalar]): defines the frequency range of the nonlinear signals to consider
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
@@ -130,6 +131,7 @@ class MakeTrace(MakePulseBase):
             gate (tuple[jnp.array, jnp.array]): a tuple containing the frequency axis and the gate-pulse in the frequency domain. Is used as gate if cross_correlation=True
             real_fields (bool): whether the nonlinear signal should be generated using real fields
             frequency_range (tuple[Scalar,Scalar]): defines the frequenyc range of the trace
+            f_range_fields (tuple[Scalar,Scalar]): defines the frequency range of the nonlinear signals to consider
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
@@ -183,6 +185,7 @@ class MakeTrace(MakePulseBase):
             parameters (tuple): defines further necessary input parameters to the function that calculates phase_matrix
             real_fields (bool): whether the nonlinear signal should be generated using real fields
             frequency_range (tuple[Scalar,Scalar]): defines the frequenyc range of the trace
+            f_range_fields (tuple[Scalar,Scalar]): defines the frequency range of the nonlinear signals to consider
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             plot_stuff (bool): whether the trace and pulse should be plotted
@@ -236,6 +239,7 @@ class MakeTrace(MakePulseBase):
             gate (tuple[jnp.array, jnp.array]): a tuple containing the frequency axis and the gate-pulse in the frequency domain. Is used as gate if cross_correlation=True
             real_fields (bool): whether the nonlinear signal should be generated using real fields
             frequency_range (tuple[Scalar,Scalar]): defines the frequenyc range of the trace
+            f_range_fields (tuple[Scalar,Scalar]): defines the frequency range of the nonlinear signals to consider
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
@@ -296,6 +300,7 @@ class MakeTrace(MakePulseBase):
             gate (tuple[jnp.array, jnp.array]): a tuple containing the frequency axis and the gate-pulse in the frequency domain. Is used as gate if cross_correlation=True
             real_fields (bool): whether the nonlinear signal should be generated using real fields
             frequency_range (tuple[Scalar,Scalar]): defines the frequenyc range of the trace
+            f_range_fields (tuple[Scalar,Scalar]): defines the frequency range of the nonlinear signals to consider
             N (int): defines the number of points along the frequency axis of the trace
             cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
             interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
@@ -367,6 +372,14 @@ class MakeTraceBASE:
     def __init__(self, time, frequency, pulse_t, pulse_f, nonlinear_method, 
                  N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                  cross_correlation, interferometric, *args, **kwargs):
+        
+        if self.nonlinear_method=="shg":
+            self.factor=2
+        elif self.nonlinear_method=="thg":
+            self.factor=3
+        else:
+            self.factor=1
+
         self.fft = do_fft
         self.ifft = do_ifft
 
@@ -410,13 +423,6 @@ class MakeTraceBASE:
 
 
     def generate_trace(self):
-        if self.nonlinear_method=="shg":
-            self.factor=2
-        elif self.nonlinear_method=="thg":
-            self.factor=3
-        else:
-            self.factor=1
-
         individual, measurement_info, transform_arr = self.get_parameters_to_make_signal_t()
 
         self.signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
