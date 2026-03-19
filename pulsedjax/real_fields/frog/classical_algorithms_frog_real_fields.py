@@ -53,6 +53,8 @@ class CPCGPA(RetrievePulsesFROGwithRealFields, _CPCGPA):
         self.tau_arr_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_big), jnp.mean(jnp.diff(self.frequency_big))))
         self.measured_trace = jax.vmap(Partial(do_interpolation_1d, method="linear"), 
                                        in_axes=(None, None, 1), out_axes=1)(self.tau_arr_new, self.tau_arr, self.measured_trace)
+        
+        #self.measured_trace = 0.5*(self.measured_trace + jnp.flip(self.measured_trace, axis=1))
         self.measurement_info = tree_at(lambda x: x.tau_arr, self.measurement_info, self.tau_arr_new)
         self.measurement_info = tree_at(lambda x: x.x_arr, self.measurement_info, self.tau_arr_new)
         self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, self.tau_arr_new)
@@ -65,23 +67,24 @@ class CPCGPA(RetrievePulsesFROGwithRealFields, _CPCGPA):
     
     def calculate_signal_t_using_opf(self, individual, iteration, measurement_info, descent_info):
         """ Calculates signal_t for and individual via the opf. """
-        idx_arr = measurement_info.idx_arr
-
+        
         pulse_t, pulse_t_prime = individual.pulse, individual.pulse_prime
         pulse_t, _ = self.interpolate_signal_t(pulse_t, measurement_info, "main", "big")
         pulse_t_prime, _ = self.interpolate_signal_t(pulse_t_prime, measurement_info, "main", "big")
+        pulse_t, pulse_t_prime = jnp.real(pulse_t), jnp.real(pulse_t_prime)
 
         if measurement_info.doubleblind==True:
             gate, gate_prime = individual.gate, individual.gate_prime
-            gate, _ = self.interpolate_signal_t(jnp.real(gate), measurement_info, "main", "big")
-            gate_prime, _ = self.interpolate_signal_t(jnp.real(gate_prime), measurement_info, "main", "big")
+            gate, _ = self.interpolate_signal_t(gate, measurement_info, "main", "big")
+            gate_prime, _ = self.interpolate_signal_t(gate_prime, measurement_info, "main", "big")
+            gate, gate_prime = jnp.real(gate), jnp.real(gate_prime)
 
         elif measurement_info.cross_correlation==True:
             gate = gate_prime = self.calculate_gate(jnp.real(measurement_info.gate), measurement_info)
 
         else:
-            gate = self.calculate_gate(jnp.real(pulse_t), measurement_info)
-            gate_prime = self.calculate_gate(jnp.real(pulse_t_prime), measurement_info)
+            gate = self.calculate_gate(pulse_t, measurement_info)
+            gate_prime = self.calculate_gate(pulse_t_prime, measurement_info)
 
         
         opf = self.calculate_opf(pulse_t, gate, pulse_t_prime, gate_prime, iteration, measurement_info.nonlinear_method, measurement_info)
@@ -90,10 +93,12 @@ class CPCGPA(RetrievePulsesFROGwithRealFields, _CPCGPA):
             half_N = jnp.size(opf[0])//2
             opf = self.do_anti_alias(opf, half_N)
 
-        signal_t = self.convert_opf_to_signal_t(opf, idx_arr)
+        signal_t = self.convert_opf_to_signal_t(opf, measurement_info.idx_arr)
         signal_t = jnp.transpose(signal_t) # transpose for consistency
         signal_f = self.fft(signal_t, measurement_info.sk_big, measurement_info.rn_big)
-        signal_f = signal_f*measurement_info.mask
+        mask = measurement_info.mask
+        #mask = 0.5*(mask + jnp.flip(mask))
+        signal_f = signal_f*mask
         signal_t = self.ifft(signal_f, measurement_info.sk_big, measurement_info.rn_big)
         return MyNamespace(signal_t=signal_t, signal_f=signal_f)
 
@@ -101,7 +106,7 @@ class CPCGPA(RetrievePulsesFROGwithRealFields, _CPCGPA):
 
     def update_individual(self, opf, individual, measurement_info, descent_info):
         """ Updates and individual using an updated opf. """
-        individual = jax.tree.map(lambda x: self.interpolate_signal_t(x, measurement_info, "main", "big")[0], individual)
+        individual = jax.tree.map(lambda x: jnp.real(self.interpolate_signal_t(x, measurement_info, "main", "big")[0]), individual)
         individual = super().update_individual(opf, individual, measurement_info, descent_info)
         return jax.tree.map(lambda x: self.interpolate_signal_t(x, measurement_info, "big", "main")[0], individual)
 

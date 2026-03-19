@@ -479,6 +479,7 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, measured_trace, 1, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,0,None,None,None,None,None))
+        
         opf = jax.vmap(self.convert_signal_t_to_opf, in_axes=(0,None))(signal_t_new, idx_arr)
 
         if descent_info.antialias==True:

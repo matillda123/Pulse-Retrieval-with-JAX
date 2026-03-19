@@ -45,7 +45,7 @@ class RetrievePulses:
         self.cross_correlation = False
         self.doubleblind = False 
         self.interferometric = False
-        self.central_frequency_trace = central_frequency
+        self.central_frequency = central_frequency
 
         if nonlinear_method=="shg":
             self.factor = 2
@@ -96,16 +96,16 @@ class RetrievePulses:
 
         if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
             if self.cross_correlation==False and self.doubleblind==False:
-                self.central_frequency_trace = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
+                self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
             else:
-                if self.central_frequency_trace==None and self.material_thickness!=0:
+                if self.central_frequency==None and self.material_thickness!=0:
                     raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
                                      Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
                 
         self.measurement_info = self.measurement_info.expand(time=self.time, frequency=self.frequency, 
                                                         sk=self.sk, rn=self.rn, 
                                                         dt=self.dt, df=self.df,
-                                                        central_frequency_trace = self.central_frequency_trace)
+                                                        central_frequency = self.central_frequency)
         return self.x_arr, self.time, self.frequency, self.measured_trace
 
 
@@ -929,7 +929,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
         k_arr = k0_arr*n_arr
 
-        wavelength_0 = c0/(measurement_info.central_frequency_trace + 1e-9)*1e-6 
+        wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
         Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
         phase_matrix = material_thickness*(k_arr-Tg_phase)
         return phase_matrix

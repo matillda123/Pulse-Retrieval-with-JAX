@@ -95,13 +95,13 @@ class RetrievePulsesRealFields(RetrievePulses):
 
         if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
             if self.cross_correlation==False and self.doubleblind==False:
-                self.central_frequency_trace = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency_big)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
+                self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency_big)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
             else:
-                if self.central_frequency_trace==None and self.material_thickness!=0:
+                if self.central_frequency==None and self.material_thickness!=0:
                     raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
                                      Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
         
-        self.measurement_info = self.measurement_info.expand(central_frequency_trace = self.central_frequency_trace)
+        self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
         return self.x_arr, self.time, self.frequency, self.measured_trace
     
 

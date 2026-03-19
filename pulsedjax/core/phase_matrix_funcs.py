@@ -48,7 +48,7 @@ def calculate_phase_matrix_material(measurement_info, parameters):
     k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
     k_arr = k0_arr*n_arr
 
-    wavelength_0 = c0/(measurement_info.central_frequency_trace + 1e-9)*1e-6 
+    wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
     Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
 
     phase_matrix = theta[:, jnp.newaxis]*(k_arr[jnp.newaxis, :] - Tg_phase[jnp.newaxis,:])
