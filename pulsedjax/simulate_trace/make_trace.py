@@ -373,10 +373,13 @@ class MakeTraceBASE:
                  N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                  cross_correlation, interferometric, *args, **kwargs):
         
-        if self.nonlinear_method=="shg":
+        if nonlinear_method=="shg":
             self.factor=2
-        elif self.nonlinear_method=="thg":
+        elif nonlinear_method=="thg":
             self.factor=3
+        elif nonlinear_method[-2:]=="hg":
+            n = int(nonlinear_method[0])
+            self.factor=n
         else:
             self.factor=1
 
@@ -417,8 +420,10 @@ class MakeTraceBASE:
                                        time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn,
                                        time_big=self.time, frequency_big=self.frequency, sk_big=self.sk, rn_big=self.rn,
                                        time_exp=self.time, frequency_exp=self.frequency, sk_exp=self.sk, rn_exp=self.rn,
-                                       cross_correlation=self.cross_correlation, interferometric=self.interferometric, 
-                                       nonlinear_method=self.nonlinear_method, doubleblind=False, 
+                                       cross_correlation=self.cross_correlation, 
+                                       interferometric=self.interferometric, 
+                                       doubleblind=False, 
+                                       nonlinear_method=self.nonlinear_method,
                                        central_frequency_trace = self.central_frequency, c0 = self.c0)
 
 
@@ -436,7 +441,7 @@ class MakeTraceBASE:
 
 
     
-    def interpolate_trace(self, is_delay_based=True):
+    def interpolate_trace(self, is_delay_based=True): # this is way to complicated
         max_val = np.max(self.trace)
 
         idx = np.where(self.trace>max_val*self.cut_off_val)
@@ -573,7 +578,6 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
         
         self.x_arr = delay
        
-
 
     def get_parameters_to_make_signal_t(self):
         individual = MyNamespace(pulse=self.pulse_t, gate=self.gate)

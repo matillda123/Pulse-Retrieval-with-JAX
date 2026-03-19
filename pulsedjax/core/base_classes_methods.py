@@ -316,7 +316,11 @@ class RetrievePulses:
         trace = self.post_process_create_trace(individual)
         trace = trace/jnp.linalg.norm(trace)
 
-        x_arr = self.measurement_info.x_arr
+        if self._name == "CPCGPA" and self.measurement_info.real_fields==True:
+            x_arr = self.tau_arr_new
+        else:
+            x_arr = self.measurement_info.x_arr
+
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
         if self.measurement_info.real_fields==True:

@@ -459,6 +459,7 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
         gate=jnp.abs(pulse_t)**2
 
     elif method=="sd":
+        # numerics isnt aware of phasematching -> sd is the same as/on top of pg 
         raise ValueError(f"idk if/how one can implement method=sd here.")
     
     elif method[-2:] == "hg":

@@ -121,7 +121,8 @@ def initialize_descent_info(optimizer):
     s_prime_params = initialize_S_prime_params(optimizer)
     
     descent_info = optimizer.descent_info.expand(gamma = MyNamespace(_local=optimizer.local_gamma, _global=optimizer.global_gamma),
-                                                 conjugate_gradients = optimizer.conjugate_gradients,
+                                                 conjugate_gradients = MyNamespace(_local=optimizer.local_conjugate_gradients, 
+                                                                                   _global=optimizer.global_conjugate_gradients),
                                                  linesearch_params = linesearch_params,
                                                  newton = newton,
                                                  s_prime_params = s_prime_params,
@@ -159,18 +160,19 @@ class LSGPABASE(ClassicAlgorithmsBASE):
 
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
         """ Generates an new (maybe improoved) guess for the pulse. """
-        pulse=jnp.sum(signal_t_new*jnp.conjugate(gate_shifted), axis=1)/(jnp.sum(jnp.abs(gate_shifted)**2, axis=1) + 1e-12)
+        _lambda = 1e-12
+        pulse = jnp.sum(signal_t_new*jnp.conjugate(gate_shifted), axis=1)/(jnp.sum(jnp.abs(gate_shifted)**2, axis=1) + _lambda)
         return pulse
-    
     
     def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
         """ Generates an new (maybe improoved) guess for the gate. """
-        gate=jnp.sum(signal_t_new*jnp.conjugate(pulse_t_shifted), axis=1)/(jnp.sum(jnp.abs(pulse_t_shifted)**2, axis=1) + 1e-12)
+        _lambda = 1e-12
+        # maybe there is an error here -> its the same formula as for the pulse, doesnt seem right 
+        gate = jnp.sum(signal_t_new*jnp.conjugate(pulse_t_shifted), axis=1)/(jnp.sum(jnp.abs(pulse_t_shifted)**2, axis=1) + _lambda)
         return gate
     
 
 
-        
     def step(self, descent_state, measurement_info, descent_info):
         """ 
         Performs one iteration of the Vanilla Algorithm. 
@@ -189,21 +191,19 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
-
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, 
+        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t, signal_t.signal_f, measured_trace, 
                                                          mu, measurement_info, descent_info, "_global", 
                                                          axes=(0,0,None,0,None,None,None))
     
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
-        #population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
+        population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
-
 
         if measurement_info.doubleblind==True:
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
-            #population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
+            population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
         return descent_state, trace_error.reshape(-1,1)
@@ -264,7 +264,7 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
 
         self._name = "CPCGPA"
         
-        self.idx_arr = jnp.arange(jnp.size(self.frequency))
+        self.idx_arr = jnp.arange(jnp.size(self.frequency)) 
         self.measurement_info = self.measurement_info.expand(idx_arr = self.idx_arr)
 
         self.constraints = constraints
@@ -293,6 +293,7 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         else:
             raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
         
+        # this is needed to avoid inconsitencies in the algorithm
         return super().get_spectral_amplitude(measured_frequency+(f0-f0_p), measured_spectrum, pulse_or_gate)
     
 
@@ -388,11 +389,11 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
             #     pulse_t = jnp.dot(opf.conj, jnp.dot(opf.T.conj(), pulse_t))
             # else:
             pulse_t = jnp.dot(opf, jnp.dot(opf.T.conj(), pulse_t))
-            pulse_t = pulse_t/jnp.linalg.norm(pulse_t) # needed. otherwise amplitude goes to zero.
+            pulse_t = pulse_t/jnp.linalg.norm(pulse_t) # needed. otherwise amplitude may go to zero.
 
             if measurement_info.doubleblind==True:
                 gate = jnp.dot(opf.T.conj(), jnp.dot(opf, gate))
-                gate = gate/jnp.linalg.norm(gate) # needed. otherwise amplitude goes to zero.
+                gate = gate/jnp.linalg.norm(gate) # needed. otherwise amplitude may go to zero.
                 # is fine, since amplitudes factor out -> wouldnt be fine for interferometric
             else:
                 gate = None
@@ -620,7 +621,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         The step size is determined via a fixed/adaptive step size, a backtracking or a zoom linesearch.
         """       
 
-        newton_info, conjugate_gradients = descent_info.newton._global, descent_info.conjugate_gradients
+        newton_info, conjugate_gradients = descent_info.newton._global, getattr(descent_info.conjugate_gradients, "_global")
 
         population = descent_state.population
         transform_arr = measurement_info.transform_arr
@@ -930,7 +931,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         
 
         pie_method = descent_info.pie_method
-        conjugate_gradients = descent_info.conjugate_gradients
+        conjugate_gradients = getattr(descent_info.conjugate_gradients, local_or_global)
         newton_info = getattr(descent_info.newton, local_or_global)
 
         grad_U = jax.vmap(self.calculate_PIE_descent_direction, in_axes=(0,0,0,0,0,None,None,None,None))(population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate)
@@ -1277,6 +1278,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         """
         
         gamma, newton_info = getattr(descent_info.gamma, local_or_global), getattr(descent_info.newton, local_or_global)
+        conjugate_gradients = getattr(descent_info.conjugate_gradients, local_or_global)
         
         if local_or_global=="_global":
             shape = (descent_info.population_size, ) + jnp.shape(transform_arr)
@@ -1299,7 +1301,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
             descent_direction = -1*grad_sum
 
 
-        if descent_info.conjugate_gradients!=False:
+        if conjugate_gradients!=False:
             cg = getattr(local_or_global_state.cg, pulse_or_gate)
             descent_direction, cg = jax.vmap(get_nonlinear_CG_direction, in_axes=(0,0,None))(descent_direction, cg, descent_info.conjugate_gradients)
             local_or_global_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), local_or_global_state, cg)

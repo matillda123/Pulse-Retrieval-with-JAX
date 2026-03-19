@@ -246,7 +246,8 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.lbfgs_memory = 10
         self.linalg_solver = "lineax"
 
-        self.conjugate_gradients = False
+        self.local_conjugate_gradients = False
+        self.global_conjugate_gradients = False
 
         self.r_local_method = "projection"
         self.r_global_method = "projection"
@@ -254,7 +255,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_newton = False
         self.r_weights = 1.0
         self.r_no_iterations = 1
-        self.r_step_scaling = "linear" # i think im not using this some things are hardcoded in construct_s_prime
+        self.r_step_scaling = "linear" # i think im not using this, linear may be hardcoded
 
         self.local_adaptive_scaling = False
         self.global_adaptive_scaling = False

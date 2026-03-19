@@ -142,8 +142,6 @@ class LSGPA(LSGPABASE, RetrievePulsesFROG):
         
 
 
-
-
 class CPCGPA(CPCGPABASE, RetrievePulsesFROG):
     __doc__ = CPCGPABASE.__doc__
 
@@ -151,7 +149,7 @@ class CPCGPA(CPCGPABASE, RetrievePulsesFROG):
         super().__init__(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
         
 
-    def calculate_gate(self, gate_pulse, measurement_info):
+    def calculate_gate(self, gate_pulse, measurement_info): # why does this exist?
         return calculate_gate(gate_pulse, measurement_info.nonlinear_method)
         
 
