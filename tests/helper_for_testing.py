@@ -27,7 +27,7 @@ class pulsedjax_testing:
         else:
             self.package = getattr(pulsedjax, method)
         
-        if method!="chirp_scan" and method!="twodsi" and self.real_fields==False:
+        if method!="chirp_scan" and method!="twodsi":
             self.CPCGPA = getattr(self.package, "CPCGPA")
             self.LSGPA = getattr(self.package, "LSGPA")
         else:
@@ -146,7 +146,7 @@ class pulsedjax_testing:
 
         run_kwargs = dict(linesearch = options_linesearch_method[i],
                         delta_gamma = options_delta_gamma_linesearch[i],
-                        conjugate_gradients = options_ncg[i],
+                        global_conjugate_gradients = options_ncg[i],
                         global_newton = options_newton[i],
                         r_global_method = options_s_prime_method[i],
                         r_gradient = options_r_error[i],
@@ -352,7 +352,7 @@ class pulsedjax_testing:
         else:
             population_size = 6
 
-        myalgorithm = algorithm(theta, frequency, trace, **method_kwargs)
+        myalgorithm = algorithm(theta, frequency, trace, central_frequency=(0,0), **method_kwargs)
         population = myalgorithm.create_initial_population(population_size, **population_kwargs)
 
         if myalgorithm.cross_correlation==True:

@@ -25,6 +25,8 @@ class LSGPA(RetrievePulsesVAMPIREwithRealFields, _LSGPA):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
                          material_thickness=material_thickness, refractive_index=refractive_index, 
                          cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, **kwargs)
+    
+        assert self.doubleblind==False
         
 
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
@@ -36,7 +38,7 @@ class LSGPA(RetrievePulsesVAMPIREwithRealFields, _LSGPA):
     
     def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
         """ Generates an new (maybe improoved) guess for the gate. """
-        gate = super().update_pulse(gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info)
+        gate = super().update_gate(gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info)
         gate, _ = self.interpolate_signal_t(gate, measurement_info, "big", "main")
         return gate
     
@@ -70,8 +72,13 @@ class CPCGPA(RetrievePulsesVAMPIREwithRealFields, _CPCGPA):
         self.measurement_info = tree_at(lambda x: x.measured_trace, self.measurement_info, self.measured_trace)
 
 
-    def calculate_gate(self, gate_pulse, measurement_info): # why does this exist?
-        return calculate_gate_with_Real_Fields(gate_pulse, measurement_info.nonlinear_method)
+    def calculate_gate(self, gate_pulse, measurement_info):
+        tau, nonlinear_method = measurement_info.tau_interferometer, measurement_info.nonlinear_method
+        sk, rn, frequency, time = measurement_info.sk_big, measurement_info.rn_big, measurement_info.frequency_big, measurement_info.time_big
+        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        return calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
     
     
     def calculate_signal_t_using_opf(self, individual, iteration, measurement_info, descent_info):
@@ -141,9 +148,6 @@ class GeneralizedProjection(RetrievePulsesVAMPIREwithRealFields, _GeneralizedPro
         """ Calculates the Z-error gradient for an individual. """
         pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
         population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
 
         grad = super().calculate_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
@@ -154,9 +158,6 @@ class GeneralizedProjection(RetrievePulsesVAMPIREwithRealFields, _GeneralizedPro
 
         pulse, _ = self.interpolate_signal_t(descent_state.population.pulse, measurement_info, "main", "big")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(descent_state.population.gate, measurement_info, "main", "big")
-        #     descent_state = tree_at(lambda x: x.descent_state.gate, descent_state, jnp.real(gate))
 
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t_new, signal_t, tau_arr, 
                                                                                descent_state, measurement_info, descent_info, 
@@ -187,9 +188,6 @@ class PtychographicIterativeEngine(RetrievePulsesVAMPIREwithRealFields, _Ptychog
         if pulse_or_gate=="gate":
             pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
             population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
 
         grad_U = super().calculate_PIE_descent_direction_m(signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_U, _ = self.interpolate_signal_t(grad_U, measurement_info, "big", "main")
@@ -203,9 +201,6 @@ class PtychographicIterativeEngine(RetrievePulsesVAMPIREwithRealFields, _Ptychog
         if pulse_or_gate=="gate":
             pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
             population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
 
         descent_direction, newton_state = super().calculate_PIE_newton_direction(grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, pulse_or_gate, local_or_global)
         descent_direction, _ = self.interpolate_signal_t(descent_direction, measurement_info, "big", "main")
@@ -231,9 +226,6 @@ class COPRA(RetrievePulsesVAMPIREwithRealFields, _COPRA):
 
         pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
         population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
             
         grad = super().get_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
@@ -248,9 +240,6 @@ class COPRA(RetrievePulsesVAMPIREwithRealFields, _COPRA):
 
         pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
         population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-        # if measurement_info.doubleblind==True:
-        #     gate, _ = self.interpolate_signal_t(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
 
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t, signal_t_new, tau_arr, 
                                                                                population, local_or_global_state, 

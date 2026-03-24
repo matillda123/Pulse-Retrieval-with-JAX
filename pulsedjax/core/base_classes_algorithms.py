@@ -5,12 +5,17 @@ import numpy as np
 from functools import partial as Partial
 from equinox import tree_at
 
-from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude, do_checks_before_running
+from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude
 from pulsedjax.core.bsplines_1d import get_prefactor, get_M, make_bsplines
 from pulsedjax.core.create_population import create_population_general, create_population_classic
 from pulsedjax.core.construct_s_prime import calculate_S_prime
 
-from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
+from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN, RetrievePulsesVAMPIRE
+
+
+
+
+
 
 
 class AlgorithmsBASE:
@@ -18,10 +23,7 @@ class AlgorithmsBASE:
     The Base-Class for all solvers.
 
     Attributes:
-        jit (bool): enables/disables jax.jit
         spectrum_is_being_used (bool): what the name says
-        fft (Callable): performs an fft, performs an fft of a signal. (Needs to expect signal, sk, rn, axis)
-        ifft (Callable): performs an ifft, performs an ifft of a signal. (Needs to expect signal, sk, rn, axis)
 
     """
     def __init__(self, *args, **kwargs):
@@ -29,9 +31,17 @@ class AlgorithmsBASE:
 
         self.spectrum_is_being_used = False
 
-        self.fft = do_fft
-        self.ifft = do_ifft
+        # self.fft = do_fft
+        # self.ifft = do_ifft
         self._name = "AlgorithmsBASE"
+
+
+
+    def fft(self, signal, sk, rn, axis=-1):
+        return do_fft(signal, sk, rn, axis=axis)
+    
+    def ifft(self, signal, sk, rn, axis=-1):
+        return do_ifft(signal, sk, rn, axis=axis)
 
 
 
@@ -43,18 +53,44 @@ class AlgorithmsBASE:
         return signal_t
 
 
-    def calculate_S_prime_individual(self, signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global):
-        return calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
+    def calculate_S_prime_individual(self, signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global):
+        return calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global)
     
-    def calculate_S_prime_population(self, signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global, axes):
-        return jax.vmap(self.calculate_S_prime_individual, in_axes=axes)(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global)
+    def calculate_S_prime_population(self, signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global, axes):
+        return jax.vmap(self.calculate_S_prime_individual, in_axes=axes)(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global)
+
+
+
+
+
+    def do_checks_before_running(self, **kwargs):
+        ''' Called by algorithm.run() performs a few checks and applies settings before running the algorithms. '''
+
+        # takes kwargs and applies them as algorithm parameters 
+        allowed_params = vars(self).keys()
+        for key, value in kwargs.items():
+            if key not in allowed_params:
+                raise TypeError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+
+        if self.spectrum_is_being_used==True:
+            assert (self.descent_info.measured_spectrum_is_provided.pulse==True or 
+                    self.descent_info.measured_spectrum_is_provided.gate==True), "you need to provide a spectrum"
+        
+        if self.measurement_info.doubleblind==True:
+            if (self.descent_info.measured_spectrum_is_provided.pulse==False or 
+                self.descent_info.measured_spectrum_is_provided.gate==False):
+                print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
+
+
 
 
 
     def run(self, init_vals, no_iterations=1, **kwargs):
         """ This function is invoked by most solvers to perform the iterative reconstruction. """
         
-        do_checks_before_running(self, **kwargs)
+        self.do_checks_before_running(**kwargs)
 
         carry, do_scan = self.initialize_run(init_vals)
         carry, error_arr = run_scan(do_scan, carry, no_iterations)
@@ -63,22 +99,28 @@ class AlgorithmsBASE:
     
 
 
-    def do_step_and_apply_spectrum(self, descent_state, measurement_info, descent_info, do_step):
+    def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
         """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
         population = descent_state.population
+        sk, rn = measurement_info.sk, measurement_info.rn
+        eta = measurement_info.eta_spectral_amplitude
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
             norm_pulse = jnp.linalg.norm(population.pulse, axis=-1)
-            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.pulse, measurement_info.spectral_amplitude.pulse, 
-                                                                              measurement_info.sk, measurement_info.rn)
+            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None,None))(population.pulse, 
+                                                                              measurement_info.spectral_amplitude.pulse,
+                                                                              eta,
+                                                                              sk, rn)
             
             pulse = pulse/jnp.linalg.norm(pulse,axis=-1)[:,jnp.newaxis]*norm_pulse[:,jnp.newaxis]
             population = tree_at(lambda x: x.pulse, population, pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
             norm_gate = jnp.linalg.norm(population.gate, axis=-1)
-            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None))(population.gate, measurement_info.spectral_amplitude.gate, 
-                                                                             measurement_info.sk, measurement_info.rn)
+            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None,None))(population.gate, 
+                                                                             measurement_info.spectral_amplitude.gate, 
+                                                                             eta, 
+                                                                             sk, rn)
             gate = gate/jnp.linalg.norm(gate,axis=-1)[:,jnp.newaxis]*norm_gate[:,jnp.newaxis]
             population = tree_at(lambda x: x.gate, population, gate)
             
@@ -94,22 +136,32 @@ class AlgorithmsBASE:
         """ 
         Needs to be called if a pulse spectrum is meant to be used in the reconstruction. 
 
+        In Classical Algorithms.
+        The spectrum will be applied as a projection of the pulse onto an average of itself 
+        and the spectrum of the current guess. This process can be tuned via eta.
+
+        In General Optimization Algorithms, providing the specteum will cause an optimization 
+        of the spectral phase only. Therefore eta has no effect, except for LSF.
+
         Args:
             frequency: jnp.array, the frequency axis of spectrum
             spectrum: jnp.array, the spectrum
             pulse_or_gate (str): whether the spectrum is from the pulse or the gate-pulse.
+            eta (float): has to be bigger than zero and not larger than one, (1-eta) * abs(pulse_f) + eta * spectral_amplitude
         
         Returns:
             the class instance
         """
+        if pulse_or_gate=="gate":
+            assert self.doubleblind==True
+            
         _ = self.get_spectral_amplitude(frequency, spectrum, pulse_or_gate)
 
         if self.spectrum_is_being_used==True:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
-            #names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", "COPRA", "GeneralizedProjection"]
-            
+
             if any([self._name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
@@ -117,34 +169,35 @@ class AlgorithmsBASE:
             elif self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
                 self._local_step = self.local_step
                 self._global_step = self.global_step
-                self.local_step = Partial(self.do_step_and_apply_spectrum, do_step=self._local_step)
-                self.global_step = Partial(self.do_step_and_apply_spectrum, do_step=self._global_step)
+                self.local_step = Partial(self.do_step_and_apply_spectral_amplitude, do_step=self._local_step)
+                self.global_step = Partial(self.do_step_and_apply_spectral_amplitude, do_step=self._global_step)
 
             else:
                 self._step = self.step
-                self.step = Partial(self.do_step_and_apply_spectrum, do_step=self._step)
+                self.step = Partial(self.do_step_and_apply_spectral_amplitude, do_step=self._step)
 
             self.spectrum_is_being_used = True
             return self
         
 
-    def apply_spectrum(self, pulse, spectrum, sk, rn):
+    def apply_spectrum(self, pulse, spectral_amplitude, eta, sk, rn):
         if isinstance(self, RetrievePulsesCHIRPSCAN):
-            pulse = self.apply_spectrum_frequency_domain(pulse, spectrum, sk, rn)
+            pulse = self.apply_spectrum_frequency_domain(pulse, spectral_amplitude, eta)
         else:
-            pulse = self.apply_spectrum_time_domain(pulse, spectrum, sk, rn)
+            pulse = self.apply_spectrum_time_domain(pulse, spectral_amplitude, eta, sk, rn)
         return pulse
 
+        
+    def apply_spectrum_frequency_domain(self, pulse, spectral_amplitude, eta):
+        spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
+        pulse = project_onto_amplitude(pulse, spectral_amplitude)
+        return pulse
     
-    def apply_spectrum_time_domain(self, pulse_t, spectrum, sk, rn):
+    def apply_spectrum_time_domain(self, pulse_t, spectral_amplitude, eta, sk, rn):
         pulse_f = self.fft(pulse_t, sk, rn)
-        pulse_f_new = project_onto_amplitude(pulse_f, spectrum)
+        pulse_f_new = self.apply_spectrum_frequency_domain(pulse_f, spectral_amplitude, eta)
         pulse_t = self.ifft(pulse_f_new, sk, rn)
         return pulse_t
-    
-    def apply_spectrum_frequency_domain(self, pulse, spectrum, sk, rn):
-        pulse = project_onto_amplitude(pulse, spectrum)
-        return pulse
     
 
 
@@ -745,7 +798,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
             amp = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
-            central_f = getattr(measurement_info.central_f, pulse_or_gate)
+            central_f = getattr(measurement_info.central_frequency, pulse_or_gate)
 
         else:
             amp, central_f = self.get_amplitude(individual.amp, measurement_info, descent_info)
@@ -840,12 +893,12 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         if self.descent_info.measured_spectrum_is_provided.pulse==True:
             spectrum = self.measurement_info.spectral_amplitude.pulse
             idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info = tree_at(lambda x: x.central_f.pulse, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
+            self.measurement_info = tree_at(lambda x: x.central_frequency.pulse, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
         if self.descent_info.measured_spectrum_is_provided.gate==True:
             spectrum = self.measurement_info.spectral_amplitude.gate
             idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info = tree_at(lambda x: x.central_f.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
+            self.measurement_info = tree_at(lambda x: x.central_frequency.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
         self.measurement_info = self.measurement_info.expand(measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace)))
         self.descent_info = self.descent_info.expand(error_metric = self.error_metric)

@@ -16,12 +16,6 @@ class GeneralizedProjection(RetrievePulsesCHIRPSCANwithRealFields, _GeneralizedP
     
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        # population isnt used
-        # pulse = self.interpolate_signal_f(population.pulse, measurement_info, "main", "big")
-        # population = tree_at(lambda x: x.pulse, population, pulse)
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, gate)
 
         grad = super().calculate_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
@@ -29,13 +23,6 @@ class GeneralizedProjection(RetrievePulsesCHIRPSCANwithRealFields, _GeneralizedP
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        # population isnt used
-        # pulse = self.interpolate_signal_f(descent_state.population.pulse, measurement_info, "main", "big")
-        # descent_state = tree_at(lambda x: x.population.pulse, descent_state, pulse)
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(descent_state.population.gate, measurement_info, "main", "big")
-        #     descent_state = tree_at(lambda x: x.descent_state.gate, descent_state, gate)
 
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t_new, signal_t, tau_arr, 
                                                                                descent_state, measurement_info, descent_info, 
@@ -58,13 +45,6 @@ class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, _Ptych
     def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
 
-        # not needed since population isnt used
-        # pulse = self.interpolate_signal_f(population.pulse, measurement_info, "main", "big")
-        # population = tree_at(lambda x: x.pulse, population, pulse) # no jnp.real beacsue its in f-domain
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, jnp.real(gate))
-
         grad_U = super().calculate_PIE_descent_direction_m(signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_U, _ = self.interpolate_signal_t(grad_U, measurement_info, "big", "main")
         return grad_U
@@ -73,13 +53,6 @@ class PtychographicIterativeEngine(RetrievePulsesCHIRPSCANwithRealFields, _Ptych
     def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
                                        pulse_or_gate, local_or_global):
         """ Calculates the newton direction for a population. """
-
-        # not needed since population isnt used
-        # pulse = self.interpolate_signal_f(population.pulse, measurement_info, "main", "big")
-        # population = tree_at(lambda x: x.pulse, population, pulse) # no jnp.real beacsue its in f-domain
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, gate)
 
         descent_direction, newton_state = super().calculate_PIE_newton_direction(grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, pulse_or_gate, local_or_global)
         descent_direction, _ = self.interpolate_signal_t(descent_direction, measurement_info, "big", "main")
@@ -100,13 +73,6 @@ class COPRA(RetrievePulsesCHIRPSCANwithRealFields, _COPRA):
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
 
-        # population isnt used
-        # pulse = self.interpolate_signal_f(population.pulse, measurement_info, "main", "big")
-        # population = tree_at(lambda x: x.pulse, population, pulse) # no jnp.real beacsue its in f-domain
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, gate)
-
         grad = super().get_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
 
@@ -115,13 +81,6 @@ class COPRA(RetrievePulsesCHIRPSCANwithRealFields, _COPRA):
     def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
                                            full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        # population isnt used
-        # pulse = self.interpolate_signal_f(population.pulse, measurement_info, "main", "big")
-        # population = tree_at(lambda x: x.pulse, population, pulse) # no jnp.real beacsue its in f-domain
-        # if measurement_info.doubleblind==True:
-        #     gate = self.interpolate_signal_f(population.gate, measurement_info, "main", "big")
-        #     population = tree_at(lambda x: x.gate, population, gate)
 
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t, signal_t_new, tau_arr, 
                                                                                population, local_or_global_state, 

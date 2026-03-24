@@ -1091,7 +1091,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         """
 
         assert self.solver!=optimistix.IndirectLevenbergMarquardt, f"{self.solver} cannot be used here, because of a jax/xla issue involving the memory layout for FFTs."
-
+        assert self.solver!=None
 
         self.initialize_general_optimizer(population)
         

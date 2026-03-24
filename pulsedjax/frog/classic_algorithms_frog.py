@@ -78,17 +78,15 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
-
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, 
+        signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
-                                                         axes=(0,0,None,0,None,None,None))
+                                                         axes=(0,None,0,None,None,None))
         
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
         population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
-
 
         if measurement_info.doubleblind==True:
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
@@ -149,7 +147,7 @@ class CPCGPA(CPCGPABASE, RetrievePulsesFROG):
         super().__init__(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, constraints=constraints, svd=svd, antialias=antialias, **kwargs)
         
 
-    def calculate_gate(self, gate_pulse, measurement_info): # why does this exist?
+    def calculate_gate(self, gate_pulse, measurement_info):
         return calculate_gate(gate_pulse, measurement_info.nonlinear_method)
         
 
@@ -253,14 +251,14 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         difference_signal_t = signal_t_new - signal_t.signal_t
 
         if pulse_or_gate=="pulse":
-            probe = signal_t.gate_shifted
-            grad = -1*jnp.conjugate(probe)*difference_signal_t
+            probe = jnp.conjugate(signal_t.gate_shifted)
+            grad = -1*probe*difference_signal_t
             U = self.get_PIE_weights(probe, alpha, pie_method)
             grad_U = grad*U
             
-        elif pulse_or_gate=="gate":
-            probe = jnp.broadcast_to(population.pulse, jnp.shape(difference_signal_t))
-            grad = -1*jnp.conjugate(probe)*difference_signal_t
+        elif pulse_or_gate=="gate": 
+            probe = jnp.conjugate(jnp.broadcast_to(population.pulse, jnp.shape(difference_signal_t)))
+            grad = -1*probe*difference_signal_t
             U = self.get_PIE_weights(probe, alpha, pie_method)
 
             grad = self.modify_grad_for_gate_pulse(grad, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)

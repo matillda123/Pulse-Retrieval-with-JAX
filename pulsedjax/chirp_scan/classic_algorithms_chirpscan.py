@@ -179,9 +179,9 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         trace = calculate_trace(signal_t.signal_f)
 
         mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-        signal_t_new = self.calculate_S_prime_population(signal_t.signal_t,signal_t.signal_f, measured_trace, mu, 
+        signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
-                                                         axes=(0,0,None,0,None,None,None))
+                                                         axes=(0,None,0,None,None,None))
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
         
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)

@@ -113,27 +113,6 @@ jax.tree_util.register_pytree_node(MyNamespace, flatten_MyNamespace, unflatten_M
 
 
 
-def do_checks_before_running(algorithm_instance, **kwargs):
-    ''' Called by algorithm.run() performs a few checks and applies settings before running the algorithms. '''
-
-    # takes kwargs and applies them as algorithm parameters 
-    allowed_params = vars(algorithm_instance).keys()
-    for key, value in kwargs.items():
-        if key not in allowed_params:
-            raise TypeError(f"Unknown parameter: {key}")
-        setattr(algorithm_instance, key, value)
-
-
-    if algorithm_instance.spectrum_is_being_used==True:
-        assert algorithm_instance.descent_info.measured_spectrum_is_provided.pulse==True or algorithm_instance.descent_info.measured_spectrum_is_provided.gate==True, "you need to provide a spectrum"
-    
-    if algorithm_instance.measurement_info.doubleblind==True:
-        if algorithm_instance.descent_info.measured_spectrum_is_provided.pulse==False or algorithm_instance.descent_info.measured_spectrum_is_provided.gate==False:
-            print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
-
-
-
-
 
 def run_scan(do_scan, carry, no_iterations):
     """

@@ -208,7 +208,7 @@ def calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, sk, rn, 
 
 
 
-def calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, descent_info, local_or_global):
+def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_info, local_or_global):
     """
     Calculates signal_t_new/S_prime via projection or iterative optimization
 
@@ -233,10 +233,10 @@ def calculate_S_prime(signal_t, signal_f, measured_trace, mu, measurement_info, 
         sk, rn = measurement_info.sk, measurement_info.rn
         
     if method=="projection":
-        signal_t_new = calculate_S_prime_projection(signal_f, measured_trace, mu, sk, rn)
+        signal_t_new = calculate_S_prime_projection(signal_t.signal_f, measured_trace, mu, sk, rn)
 
     elif method=="iteration":
-        signal_t_new = calculate_S_prime_iterative(signal_t, signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global)
+        signal_t_new = calculate_S_prime_iterative(signal_t.signal_t, signal_t.signal_f, measured_trace, mu, sk, rn, descent_info, local_or_global)
 
     else:
          raise ValueError(f"method needs to be one of projection or iteration. Not {method}")

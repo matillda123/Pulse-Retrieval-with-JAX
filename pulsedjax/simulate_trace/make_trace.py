@@ -393,7 +393,9 @@ class MakeTraceBASE:
         self.gate = None
         self.nonlinear_method = nonlinear_method
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
-        self.central_frequency = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
+
+        central_frequency_pulse = jnp.sum(jnp.abs(pulse_f)*frequency)/jnp.sum(jnp.abs(pulse_f))
+        self.central_frequency = MyNamespace(pulse=central_frequency_pulse, gate=None)
 
         self.N = N
         self.cut_off_val = cut_off_val
@@ -562,7 +564,12 @@ class MakeTraceBASE:
     def get_gate_pulse(self, frequency_gate, gate_f):
         gate_f = do_interpolation_1d(self.frequency, frequency_gate, gate_f)
         self.gate = self.ifft(gate_f, self.sk, self.rn)
-        self.measurement_info = self.measurement_info.expand(gate=self.gate)
+
+        central_frequency_gate = jnp.sum(jnp.abs(gate_f)*self.frequency)/jnp.sum(jnp.abs(gate_f))
+        self.central_frequency = self.central_frequency.expand(gate=central_frequency_gate)
+
+        self.measurement_info = self.measurement_info.expand(gate=self.gate, 
+                                                             central_frequency=self.central_frequency)
         return self.gate
 
 

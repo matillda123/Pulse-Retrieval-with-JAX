@@ -25,6 +25,8 @@ class LSGPA(LSGPABASE, RetrievePulsesVAMPIRE):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
                          material_thickness=material_thickness, refractive_index=refractive_index, 
                          cross_correlation=cross_correlation, **kwargs)
+        
+        assert self.doubleblind==False
 
 
 class CPCGPA(CPCGPABASE, RetrievePulsesVAMPIRE):

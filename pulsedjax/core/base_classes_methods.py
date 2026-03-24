@@ -37,15 +37,34 @@ class RetrievePulses:
 
     """
 
-    def __init__(self, nonlinear_method, *args, seed=None, central_frequency=None, **kwargs):
+    def __init__(self, nonlinear_method, *args, cross_correlation=False, interferometric=False, seed=None, 
+                 central_frequency=(None,None), eta_spectral_amplitude=1, **kwargs):
         super().__init__(*args, **kwargs)
+
+        assert 0 < eta_spectral_amplitude <= 1
+        assert len(central_frequency) == 2
+
 
         self.nonlinear_method = nonlinear_method
         self.f0 = 0
-        self.cross_correlation = False
-        self.doubleblind = False 
-        self.interferometric = False
-        self.central_frequency = central_frequency
+        self.cross_correlation = cross_correlation
+        self.interferometric = interferometric
+
+        if self.cross_correlation=="doubleblind":
+            self.doubleblind = True
+            self.cross_correlation = False
+        elif self.cross_correlation==True or self.cross_correlation==False:
+            self.doubleblind = False
+        else: 
+            raise ValueError(f"cross_correlation can only take one of doubleblind, True or False. Got {self.cross_correlation}") 
+
+        self.transfer_function = None
+        self.eta_spectral_amplitude = eta_spectral_amplitude
+
+        # central frequency will be overwritten if spectra are provided
+        central_frequency_pulse, central_frequency_gate = central_frequency
+        self.central_frequency = MyNamespace(pulse=central_frequency_pulse, gate=central_frequency_gate)
+
 
         if nonlinear_method=="shg":
             self.factor = 2
@@ -59,14 +78,17 @@ class RetrievePulses:
 
         self.measurement_info = MyNamespace(nonlinear_method = self.nonlinear_method, 
                                             spectral_amplitude = MyNamespace(pulse=None, gate=None), 
-                                            central_f = MyNamespace(pulse=None, gate=None),
+                                            central_frequency = self.central_frequency,
                                             real_fields = False,
-                                            interferometric = False,
-                                            doubleblind = False)
+                                            interferometric = self.interferometric,
+                                            cross_correlation = self.cross_correlation,
+                                            doubleblind = self.doubleblind,
+                                            eta_spectral_amplitude = self.eta_spectral_amplitude,
+                                            transfer_function = self.transfer_function)
         self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
         self.descent_state = MyNamespace()
 
-
+        self.key = None
         if seed==None:
             self.prng_seed = np.random.randint(0, 1e9)
         else:
@@ -76,6 +98,18 @@ class RetrievePulses:
 
 
 
+        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulsesVAMPIRE)):
+            if (self.measurement_info.central_frequency.pulse==None and 
+                self.measurement_info.cross_correlation==False and 
+                self.measurement_info.doubleblind==False):
+                raise ValueError("You need to provide a central_frequency for the pulse.")
+            elif (self.measurement_info.central_frequency.gate==None and 
+                (self.measurement_info.cross_correlation==True or
+                self.measurement_info.doubleblind==True)):
+                raise ValueError("You need to provide a central_frequency for the gate.")
+            
+
+
     def update_PRNG_key(self, seed):
         self.prng_seed = seed
         self.key = jax.random.PRNGKey(seed)
@@ -83,29 +117,19 @@ class RetrievePulses:
 
     def get_data(self, x_arr, frequency, measured_trace):
         """ Prepare/Convert data. """
-        measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
 
         self.x_arr = jnp.asarray(x_arr)
         self.frequency = jnp.asarray(frequency)
         self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
-        self.measured_trace = jnp.asarray(measured_trace)
+        self.measured_trace = jnp.asarray(measured_trace/jnp.linalg.norm(measured_trace))
 
         self.dt = jnp.mean(jnp.diff(self.time))
         self.df = jnp.mean(jnp.diff(self.frequency))
         self.sk, self.rn = get_sk_rn(self.time, self.frequency)
 
-        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
-            if self.cross_correlation==False and self.doubleblind==False:
-                self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
-            else:
-                if self.central_frequency==None and self.material_thickness!=0:
-                    raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
-                                     Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
-                
         self.measurement_info = self.measurement_info.expand(time=self.time, frequency=self.frequency, 
                                                         sk=self.sk, rn=self.rn, 
-                                                        dt=self.dt, df=self.df,
-                                                        central_frequency = self.central_frequency)
+                                                        dt=self.dt, df=self.df)
         return self.x_arr, self.time, self.frequency, self.measured_trace
 
 
@@ -121,14 +145,19 @@ class RetrievePulses:
         if pulse_or_gate=="pulse":
             self.measurement_info.spectral_amplitude.pulse = spectral_amplitude
             self.descent_info.measured_spectrum_is_provided.pulse = True
+            central_f = jnp.sum(jnp.abs(spectral_amplitude)*frequency)/jnp.sum(jnp.abs(spectral_amplitude))
+            self.central_frequency = self.central_frequency.expand(pulse=central_f)
 
         elif pulse_or_gate=="gate":
             self.measurement_info.spectral_amplitude.gate = spectral_amplitude
             self.descent_info.measured_spectrum_is_provided.gate = True
+            central_f = jnp.sum(jnp.abs(spectral_amplitude)*frequency)/jnp.sum(jnp.abs(spectral_amplitude))
+            self.central_frequency = self.central_frequency.expand(gate=central_f)
 
         else:
             raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
-
+        
+        self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
         return spectral_amplitude
     
 
@@ -140,11 +169,15 @@ class RetrievePulses:
         self.measurement_info = self.measurement_info.expand(gate = self.gate)
         return self.gate
     
-    
 
-    def get_individual_from_idx(self, idx, population):
-        individual = jax.tree.map(lambda x: x[jnp.newaxis, idx], population)
-        return individual
+
+    def get_transfer_function(self, frequency, transfer_function):
+        transfer_function = do_interpolation_1d(self.frequency, frequency, transfer_function)
+        self.transfer_function = self.ifft(transfer_function, self.sk, self.rn)
+        self.measurement_info = self.measurement_info.expand(transfer_function = self.transfer_function)
+        return self.transfer_function
+    
+    
     
 
 
@@ -228,7 +261,9 @@ class RetrievePulses:
 
 
 
-
+    def get_individual_from_idx(self, idx, population): # this probably doesnt work for general optimization algorithms
+        individual = jax.tree.map(lambda x: x[jnp.newaxis, idx], population)
+        return individual
 
 
     def get_idx_best_individual(self, descent_state):
@@ -270,20 +305,20 @@ class RetrievePulses:
 
 
 
-    def post_process(self, descent_state, error_arr):
+    def post_process(self, descent_state, error_arr): # this is to complicated
         """ Creates the final_result object from the final descent_state. """
         error_arr = jnp.squeeze(error_arr)
         self.descent_state = descent_state
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
         
-        if self.descent_info.measured_spectrum_is_provided.pulse==True:
+        if self.descent_info.measured_spectrum_is_provided.pulse==True and self.measurement_info.eta_spectral_amplitude==1:
             pulse_f_amp = self.measurement_info.spectral_amplitude.pulse
         else:
             pulse_f_amp = jnp.abs(pulse_f)
 
         if self.measurement_info.doubleblind==True:
-            if self.descent_info.measured_spectrum_is_provided.gate==True:
+            if self.descent_info.measured_spectrum_is_provided.gate==True and self.measurement_info.eta_spectral_amplitude==1:
                 gate_f_amp = self.measurement_info.spectral_amplitude.gate
             else:
                 gate_f_amp = jnp.abs(gate_f)
@@ -407,28 +442,15 @@ class RetrievePulsesFROG(RetrievePulses):
     """
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
         
-        super().__init__(nonlinear_method, **kwargs)
+        super().__init__(nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
 
         self.tau_arr, self.time, self.frequency, self.measured_trace = self.get_data(delay, frequency, measured_trace)
         self.gate = jnp.zeros(jnp.size(self.time))
 
         self.transform_arr = self.tau_arr
-        self.cross_correlation = cross_correlation
-        self.interferometric = interferometric
-
-        if self.cross_correlation=="doubleblind":
-            self.doubleblind = True
-            self.cross_correlation = False
-        elif self.cross_correlation==True or self.cross_correlation==False:
-            pass
-        else: 
-            raise ValueError(f"cross_correlation can only take one of doubleblind, True or False. Got {self.cross_correlation}") 
-
+        
         self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
                                                              measured_trace = self.measured_trace,
-                                                             cross_correlation = self.cross_correlation,
-                                                             doubleblind = self.doubleblind,
-                                                             interferometric = self.interferometric,
                                                              gate = self.gate,
                                                              transform_arr = self.transform_arr,
                                                              x_arr = self.x_arr)
@@ -462,8 +484,6 @@ class RetrievePulsesFROG(RetrievePulses):
     
 
 
-
-    # this and calculate_shifted signal would probably be better/more sensibly placed in utilites.py
     def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
         """ The Fourier-Shift theorem. """
         signal_f = self.fft(signal, sk, rn)
@@ -511,9 +531,7 @@ class RetrievePulsesFROG(RetrievePulses):
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
-
-
-        pulse_t_shifted=self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
         if cross_correlation==True:
             gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.gate, frequency, tau_arr, time)
@@ -536,7 +554,18 @@ class RetrievePulsesFROG(RetrievePulses):
             signal_t = pulse*gate_shifted
             
         signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, pulse_t_shifted=pulse_t_shifted, gate_shifted=gate_shifted, gate_pulse_shifted=gate_pulse_shifted)
+
+
+        # if all(measurement_info.transfer_function!=None): # this should also show up in z-gradients 
+        #     signal_f = signal_f*measurement_info.transfer_function
+        #     signal_t = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
+
+
+        signal_t = MyNamespace(signal_t=signal_t, 
+                               signal_f=signal_f, 
+                               pulse_t_shifted=pulse_t_shifted, 
+                               gate_shifted=gate_shifted, 
+                               gate_pulse_shifted=gate_pulse_shifted)
         return signal_t
 
 
@@ -688,8 +717,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         self.theta, self.time, self.frequency, self.measured_trace = self.get_data(theta, frequency, measured_trace)
         self.measurement_info = self.measurement_info.expand(theta = self.theta,
                                                              measured_trace = self.measured_trace,
-                                                             cross_correlation = self.cross_correlation,
-                                                             doubleblind = self.doubleblind,
                                                              x_arr = self.x_arr)
         
 
@@ -704,7 +731,8 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         self.parameters = parameters
 
         if self.phase_type=="material":
-            self.phase_matrix = calculate_phase_matrix_material(self.measurement_info, parameters)
+            self.phase_matrix = calculate_phase_matrix_material(self.measurement_info, parameters, 
+                                                                self.measurement_info.central_frequency.pulse)
 
         elif type(self.phase_type)==str:
             self.phase_matrix = calculate_phase_matrix(self.measurement_info, parameters, phase_func=phase_func_dict[self.phase_type])
@@ -923,13 +951,19 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         Calculates the phase matrix that is applied of a pulse passes through a material.
         """
         frequency, c0 = measurement_info.frequency, measurement_info.c0
+
+        if measurement_info.cross_correlation==True or measurement_info.doubleblind==True:
+           central_f = measurement_info.central_frequency.gate
+        else:
+            central_f = measurement_info.central_frequency.pulse
+
         wavelength = c0/frequency*1e-6 # wavelength in nm
         n_arr = _eval_refractive_index(refractive_index, jnp.abs(wavelength)) # wavelength needs to be in nm
         n_arr = jnp.where(jnp.isnan(n_arr)==False, n_arr, 1.0)
         k0_arr = 2*jnp.pi/(wavelength*1e-6 + 1e-9) #wavelength is needed in mm
         k_arr = k0_arr*n_arr
 
-        wavelength_0 = c0/(measurement_info.central_frequency + 1e-9)*1e-6 
+        wavelength_0 = c0/(central_f + 1e-9)*1e-6 
         Tg_phase = calc_group_delay_phase(refractive_index, n_arr, k0_arr, wavelength_0, wavelength)
         phase_matrix = material_thickness*(k_arr-Tg_phase)
         return phase_matrix

@@ -13,12 +13,9 @@ The documentation is available [here](https://pulse-retrieval-with-jax.readthedo
 
 ## Overview  
 Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE. 
-For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
+For each method SHG, THG, PG/TG and SD as well as cross-correlation retrievals are implemented (with some exceptions). Doubleblind retrievals are implemented as well, however usually these suffer from serious convergence issues. For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
 
 On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid. In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once.  
-
-Adding new methods or algorithms should be relatively easy. The general approach for doing this is described [here](https://pulse-retrieval-with-jax.readthedocs.io/en/latest/example_advanced_things.html#adding-new-methods).
-
 
 
 The available algorithms are: 
@@ -26,7 +23,7 @@ The available algorithms are:
 | Algorithm | Citation |
 |---|---|
 | Generalized Projection | [K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)](https://doi.org/10.1364/OL.19.002152)  |
-| Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) |
+| Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) and [P. Sidorenko et al., Optica 3, 1320-1330 (2016)](https://doi.org/10.1364/OPTICA.3.001320)|
 | Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) and [pypret](https://github.com/ncgeib/pypret) |
 | Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1)|
 | Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
@@ -46,8 +43,7 @@ For some methods, specific additional algorithms are implemented:
 | 2D-SI | Direct-Reconstruction | [J. R. Birge et al., Opt. Lett. 31, 2063-2065, 10.1364/OL.31.002063 (2006)](https://doi.org/10.1364/OL.31.002063) |  
 
 
-
-
+Adding new methods or algorithms should be relatively easy. The general approach for doing this is described [here](https://pulse-retrieval-with-jax.readthedocs.io/en/latest/example_advanced_things.html#adding-new-methods).
 
 If you end up using this code for a publication, please use the citation below as well as the appropriate citations for the algorithm used.
 

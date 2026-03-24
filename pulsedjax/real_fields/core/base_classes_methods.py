@@ -33,7 +33,7 @@ class RetrievePulsesRealFields(RetrievePulses):
         assert self._fmin_pulse!=None and self._fmax_pulse!=None, "f_range_pulse needs to be provided"
 
         self.f_max_all_fields = f_max_all_fields
-        if self.f_max_all_fields==None: # change this to a warning eventually
+        if self.f_max_all_fields==None: 
             print(f"The maximum nonlinear signal is assumed to be the maximum of the provided frequency_range.")
         
         super().__init__(*args, **kwargs)
@@ -92,16 +92,6 @@ class RetrievePulsesRealFields(RetrievePulses):
                                                              mask = self.mask)
         
         self.measured_trace = self.interpolate_signal_f(self.measured_trace, self.measurement_info, "exp", "big")
-
-        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesVAMPIRE)):
-            if self.cross_correlation==False and self.doubleblind==False:
-                self.central_frequency = jnp.sum(jnp.sum(self.measured_trace,axis=0)*self.frequency_big)/jnp.sum(jnp.sum(self.measured_trace,axis=0))*1/self.factor
-            else:
-                if self.central_frequency==None and self.material_thickness!=0:
-                    raise ValueError("""For cross_correlation or doubleblind central_frequency cannot be None. 
-                                     Please provide the central_frequency of the gate-pulse at the point of a material dispersion.""")
-        
-        self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
         return self.x_arr, self.time, self.frequency, self.measured_trace
     
 
@@ -129,7 +119,9 @@ class RetrievePulsesRealFields(RetrievePulses):
         elif signal_f.ndim==1:
             signal_f = interpolate(frequency_2, frequency_1, signal_f)
         else:
-            signal_f = jax.vmap(interpolate, in_axes=(None,None,batch_axes), out_axes=batch_axes)(frequency_2, frequency_1, signal_f)
+            signal_f = jax.vmap(interpolate, 
+                                in_axes = (None,None,batch_axes), 
+                                out_axes = batch_axes)(frequency_2, frequency_1, signal_f)
         
         return signal_f
 
