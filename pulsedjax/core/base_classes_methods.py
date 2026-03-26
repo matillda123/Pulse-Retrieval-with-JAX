@@ -534,9 +534,9 @@ class RetrievePulsesFROG(RetrievePulses):
         cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
 
-        pulse, gate = individual.pulse, individual.gate
-        pulse_t = self.ifft(pulse, measurement_info.sk, measurement_info.rn)
-        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
+        pulse_f, gate = individual.pulse, individual.gate
+        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr, time)
 
         if cross_correlation==True:
             gate_t = measurement_info.gate
@@ -561,8 +561,6 @@ class RetrievePulsesFROG(RetrievePulses):
             signal_t = pulse_t*gate_shifted
             
         signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
-
-
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f, 
                                pulse_t_shifted = pulse_t_shifted, 

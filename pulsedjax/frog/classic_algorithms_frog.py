@@ -192,10 +192,10 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent_direction and step size. """
 
-        pulse = getattr(individual, pulse_or_gate)
-        pulse = pulse + gamma*descent_direction
+        pulse_f = getattr(individual, pulse_or_gate)
+        pulse_f = pulse_f + gamma*descent_direction
 
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
         return individual
 
 
@@ -258,14 +258,14 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         difference_signal_t = signal_t_new - signal_t.signal_t
 
         if pulse_or_gate=="pulse":
-            probe = jnp.conjugate(signal_t.gate_shifted)
-            grad = -1*probe*difference_signal_t
+            probe = signal_t.gate_shifted
+            grad = -1*jnp.conjugate(probe)*difference_signal_t
             U = self.get_PIE_weights(probe, alpha, pie_method)
             grad_U = grad*U
             
         elif pulse_or_gate=="gate": 
-            probe = jnp.conjugate(jnp.broadcast_to(signal_t.pulse_t, jnp.shape(difference_signal_t)))
-            grad = -1*probe*difference_signal_t
+            probe = jnp.broadcast_to(signal_t.pulse_t, jnp.shape(difference_signal_t))
+            grad = -1*jnp.conjugate(probe)*difference_signal_t
             U = self.get_PIE_weights(probe, alpha, pie_method)
 
             grad = self.modify_grad_for_gate_pulse(grad, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
@@ -278,11 +278,13 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and step size. """
         sk, rn = measurement_info.sk, measurement_info.rn
-        signal = self.ifft(getattr(individual, pulse_or_gate), sk, rn)
-        signal = signal + gamma*descent_direction
-        signal = self.fft(signal, sk, rn)
+        
+        signal_f = getattr(individual, pulse_or_gate)
+        signal_t = self.ifft(signal_f, sk, rn)
+        signal_t = signal_t + gamma*descent_direction
+        signal_f = self.fft(signal_t, sk, rn)
 
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
         return individual
 
 

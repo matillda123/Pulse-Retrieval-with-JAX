@@ -152,7 +152,7 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
+            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", "LSF"]
 
             if any([self._name==name for name in names_list])==True: # COPRA and GP may/could be placed here with some work?
                 # in these classes the spectrum is applied directly
@@ -410,14 +410,12 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         """
         self.key, subkey = jax.random.split(self.key, 2)
         pulse_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
-        pulse_t_arr = self.ifft(pulse_f_arr, self.measurement_info.sk, self.measurement_info.rn)
 
         if self.doubleblind==True:
             self.key, subkey = jax.random.split(self.key, 2)
             gate_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
-            gate_t_arr = self.ifft(gate_f_arr, self.measurement_info.sk, self.measurement_info.rn)
         else:
-            gate_t_arr, gate_f_arr = None, None
+            gate_f_arr = None
 
         self.descent_info = self.descent_info.expand(population_size=population_size)
         return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr)

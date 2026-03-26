@@ -523,8 +523,8 @@ class MakeTraceBASE:
         ax2.legend(loc=1)
 
         if self.cross_correlation==True:
-            ax1.plot(time, np.abs(self.gate), label="Gate-Pulse", c="tab:red")
-            ax2.plot(time, np.unwrap(np.angle(self.gate))*1/np.pi, label="Gate-Pulse", c="tab:green")
+            ax1.plot(time, np.abs(self.gate_t), label="Gate-Pulse", c="tab:red")
+            ax2.plot(time, np.unwrap(np.angle(self.gate_t))*1/np.pi, label="Gate-Pulse", c="tab:green")
 
         ax1=plt.subplot(2,2,2)
         ax1.plot(frequency, np.abs(pulse_f), label="Amplitude")

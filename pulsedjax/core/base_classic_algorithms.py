@@ -1375,7 +1375,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
             pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
             # also vecdot here 
-            #         
+            
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 
                                         pk_dot_gradient=pk_dot_gradient, transform_arr=transform_arr)
             
@@ -1639,18 +1639,13 @@ class LSFBASE(ClassicAlgorithmsBASE):
     """
     Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG. 
 
-    The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
-    and thus optimized in its discretized form.
-
-
     C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
 
     Attributes:
         number_of_bisection_iterations (int): as the name says
         random_direction_mode (str): can be random or continuous
         ratio_points_for_continuous (int): smaller value means more randomness/eratic
-        error_metric (Callable): error_metric(trace, measured_trace), for arbitrary error functions, works since this algorithm is gradient free
-
+       
     """
 
     def __init__(self, *args, **kwargs):
@@ -1665,9 +1660,6 @@ class LSFBASE(ClassicAlgorithmsBASE):
 
         self.boundary = 1 
 
-        self.error_metric = calculate_trace_error
-
-    
 
     def get_random_values(self, key, shape, minval, maxval, descent_info):
         """ LSF requires random directions. These are produced here. """
@@ -1769,8 +1761,11 @@ class LSFBASE(ClassicAlgorithmsBASE):
         """ Does one bisection step of the LSF algorithm. """
 
         Em = (El + Er)/2
-        E_arr=jnp.array([El, Em, Er])
-        
+        E_arr = jnp.array([El, Em, Er])
+
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+            E_arr = getattr(measurement_info.spectral_amplitude, pulse_or_gate)*E_arr/jnp.abs(E_arr)
+
         error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
         idx = jnp.argmax(error_arr, axis=0)
 
@@ -1825,7 +1820,6 @@ class LSFBASE(ClassicAlgorithmsBASE):
     def make_population_bisection_search(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
         if pulse_or_gate=="pulse":
             pulse_arr, gate_arr = E_arr, population.gate
-
         elif pulse_or_gate=="gate":
             pulse_arr, gate_arr = population.pulse, E_arr
         else:
@@ -1841,9 +1835,9 @@ class LSFBASE(ClassicAlgorithmsBASE):
         needs to be constructed from the current population and the fields in the cureent optimization.
         """
         population = self.make_population_bisection_search(E_arr, population, measurement_info, descent_info, pulse_or_gate)
-        signal_t = self.generate_signal_t(MyNamespace(population=population))
+        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
-        return jax.vmap(self.error_metric, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        return jnp.sum(jnp.abs(trace-measurement_info.measured_trace)**2, axis=(1,2))
     
 
 
@@ -1871,6 +1865,10 @@ class LSFBASE(ClassicAlgorithmsBASE):
         population = self.search_along_direction(direction, population, measurement_info, descent_info)
 
         error_arr, _ = self.calculate_error_population(population, measurement_info, descent_info)
+
+        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)        
+        trace = calculate_trace(signal_t.signal_f)
+        error_arr = jnp.sum(jnp.abs(trace - measurement_info.measured_trace)**2, axis=(1,2))
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         return descent_state, error_arr.reshape(-1,1)
     
