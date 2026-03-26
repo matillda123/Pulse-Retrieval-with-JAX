@@ -5,7 +5,7 @@ from equinox import tree_at
 import refractiveindex
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesVAMPIRE
-from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE
 
 from pulsedjax.core.gradients.vampire_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.vampire_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -44,7 +44,11 @@ class CPCGPA(CPCGPABASE, RetrievePulsesVAMPIRE):
     def calculate_gate(self, gate_pulse, measurement_info):
         tau, nonlinear_method = measurement_info.tau_interferometer, measurement_info.nonlinear_method
         sk, rn, frequency, time = measurement_info.sk, measurement_info.rn, measurement_info.frequency, measurement_info.time
+        
+        # this will be wrong if i change apply phase to expect signals in f domain
+        #gate_pulse_f = self.fft(gate_pulse, sk, rn)
         gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+
         gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
         gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
         return calculate_gate(gate_pulses, nonlinear_method)
@@ -68,13 +72,13 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
@@ -82,13 +86,11 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesVAMPIRE):
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and step size."""
-        sk, rn = measurement_info.sk, measurement_info.rn
 
-        pulse_f = self.fft(getattr(individual, pulse_or_gate), sk, rn)
+        pulse_f = getattr(individual, pulse_or_gate)
         pulse_f = pulse_f + gamma*descent_direction
-        pulse = self.ifft(pulse_f, sk, rn)
 
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
         return individual
 
 
@@ -133,10 +135,13 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and step size. """
-        signal = getattr(individual, pulse_or_gate)
-        signal = signal + gamma*descent_direction
+        sk, rn = measurement_info.sk, measurement_info.rn
+        signal_f = getattr(individual, pulse_or_gate)
+        signal_t = self.ifft(signal_f, sk, rn)
+        signal_t = signal_t + gamma*descent_direction
+        signal_f = self.fft(signal_t, sk, rn)
 
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
         return individual
 
 
@@ -179,21 +184,17 @@ class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
         """ Updates an individual via a descent direction and a step size. """
-        sk, rn = measurement_info.sk, measurement_info.rn
 
-        signal = getattr(individual, pulse_or_gate)
-        signal_f = self.fft(signal, sk, rn)
+        signal_f = getattr(individual, pulse_or_gate)
         signal_f = signal_f + gamma*descent_direction
-        signal = self.ifft(signal_f, sk, rn)
-
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
         return individual
 
 
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
@@ -203,7 +204,26 @@ class COPRA(COPRABASE, RetrievePulsesVAMPIRE):
         """ Calculates the Z-error newton direction for a population. """
         
         newton_state = local_or_global_state.newton
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.gate_pulses, signal_t.gate_shifted, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          newton_state, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
+    
+
+
+
+
+
+class LSF(LSFBASE, RetrievePulsesVAMPIRE):
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, **kwargs)
+
+    
+
+        

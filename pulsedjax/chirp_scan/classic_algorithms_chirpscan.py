@@ -6,7 +6,7 @@ from functools import partial as Partial
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, initialize_S_prime_params
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params
 
 
 from pulsedjax.utilities import MyNamespace, scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
@@ -362,3 +362,25 @@ class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info, 
                                                                          newton_state, descent_info.newton, full_or_diagonal)
         return descent_direction, newton_state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class LSF(LSFBASE, RetrievePulsesCHIRPSCAN):
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+

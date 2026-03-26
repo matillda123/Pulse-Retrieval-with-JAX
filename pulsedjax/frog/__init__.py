@@ -1,2 +1,2 @@
-from .classic_algorithms_frog import Vanilla, LSGPA, CPCGPA, GeneralizedProjection, PtychographicIterativeEngine, COPRA
-from .general_algorithms_frog import DifferentialEvolution, Evosax, LSF, AutoDiff
+from .classic_algorithms_frog import Vanilla, LSGPA, CPCGPA, GeneralizedProjection, PtychographicIterativeEngine, COPRA, LSF
+from .general_algorithms_frog import DifferentialEvolution, Evosax, AutoDiff

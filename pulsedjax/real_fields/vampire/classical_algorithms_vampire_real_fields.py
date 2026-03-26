@@ -2,7 +2,7 @@ from pulsedjax.real_fields.core.base_classes_methods import RetrievePulsesVAMPIR
 from pulsedjax.vampire import (LSGPA as _LSGPA, CPCGPA as _CPCGPA,
                                GeneralizedProjection as _GeneralizedProjection, 
                                PtychographicIterativeEngine as _PtychographicIterativeEngine, 
-                               COPRA as _COPRA)
+                               COPRA as _COPRA, LSF as _LSF)
 
 from pulsedjax.utilities import MyNamespace, calculate_gate_with_Real_Fields, do_interpolation_1d
 
@@ -61,14 +61,14 @@ class CPCGPA(RetrievePulsesVAMPIREwithRealFields, _CPCGPA):
         self.idx_arr = jnp.arange(jnp.size(self.frequency_big)) 
         self.measurement_info = tree_at(lambda x: x.idx_arr, self.measurement_info, self.idx_arr)
 
-        self.tau_arr_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_big), jnp.mean(jnp.diff(self.frequency_big))))
+        tau_arr_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency_big), jnp.mean(jnp.diff(self.frequency_big))))
         self.measured_trace = jax.vmap(Partial(do_interpolation_1d, method="linear"), 
-                                       in_axes=(None, None, 1), out_axes=1)(self.tau_arr_new, self.tau_arr, self.measured_trace)
+                                       in_axes=(None, None, 1), out_axes=1)(tau_arr_new, self.tau_arr, self.measured_trace)
         
         #self.measured_trace = 0.5*(self.measured_trace + jnp.flip(self.measured_trace, axis=1))
-        self.measurement_info = tree_at(lambda x: x.tau_arr, self.measurement_info, self.tau_arr_new)
-        self.measurement_info = tree_at(lambda x: x.x_arr, self.measurement_info, self.tau_arr_new)
-        self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, self.tau_arr_new)
+        self.measurement_info = tree_at(lambda x: x.tau_arr, self.measurement_info, tau_arr_new)
+        self.measurement_info = tree_at(lambda x: x.x_arr, self.measurement_info, tau_arr_new)
+        self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, tau_arr_new)
         self.measurement_info = tree_at(lambda x: x.measured_trace, self.measurement_info, self.measured_trace)
 
 
@@ -249,3 +249,24 @@ class COPRA(RetrievePulsesVAMPIREwithRealFields, _COPRA):
         descent_direction = self.interpolate_signal_f(descent_direction, measurement_info, "big", "main")
         return descent_direction, newton_state
 
+
+
+
+
+
+
+
+
+
+
+
+class LSF(RetrievePulsesVAMPIREwithRealFields, _LSF):
+    __doc__ = _LSF.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, tau_interferometer=0,
+                 material_thickness=0, refractive_index=refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson"), 
+                 cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, tau_interferometer=tau_interferometer, 
+                         material_thickness=material_thickness, refractive_index=refractive_index, 
+                         cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, **kwargs)
+        self._post_init()

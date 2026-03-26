@@ -10,9 +10,6 @@ from pulsedjax.core.bsplines_1d import get_prefactor, get_M, make_bsplines
 from pulsedjax.core.create_population import create_population_general, create_population_classic
 from pulsedjax.core.construct_s_prime import calculate_S_prime
 
-from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN, RetrievePulsesVAMPIRE
-
-
 
 
 
@@ -31,8 +28,6 @@ class AlgorithmsBASE:
 
         self.spectrum_is_being_used = False
 
-        # self.fft = do_fft
-        # self.ifft = do_ifft
         self._name = "AlgorithmsBASE"
 
 
@@ -49,6 +44,7 @@ class AlgorithmsBASE:
         """ Applies calculate_signal_t to a whole population via jax.vmap """
         transform_arr = measurement_info.transform_arr
         population = descent_state.population
+        #signal_t = jax.tree.map(lambda x: self.calculate_signal_t(x, transform_arr, measurement_info), population)
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, transform_arr, measurement_info)
         return signal_t
 
@@ -107,20 +103,16 @@ class AlgorithmsBASE:
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
             norm_pulse = jnp.linalg.norm(population.pulse, axis=-1)
-            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None,None))(population.pulse, 
-                                                                              measurement_info.spectral_amplitude.pulse,
-                                                                              eta,
-                                                                              sk, rn)
+            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None))(population.pulse, 
+                                                                         measurement_info.spectral_amplitude.pulse, eta)
             
             pulse = pulse/jnp.linalg.norm(pulse,axis=-1)[:,jnp.newaxis]*norm_pulse[:,jnp.newaxis]
             population = tree_at(lambda x: x.pulse, population, pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
             norm_gate = jnp.linalg.norm(population.gate, axis=-1)
-            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None,None,None))(population.gate, 
-                                                                             measurement_info.spectral_amplitude.gate, 
-                                                                             eta, 
-                                                                             sk, rn)
+            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None))(population.gate, 
+                                                                        measurement_info.spectral_amplitude.gate, eta)
             gate = gate/jnp.linalg.norm(gate,axis=-1)[:,jnp.newaxis]*norm_gate[:,jnp.newaxis]
             population = tree_at(lambda x: x.gate, population, gate)
             
@@ -162,7 +154,7 @@ class AlgorithmsBASE:
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
 
-            if any([self._name==name for name in names_list])==True:
+            if any([self._name==name for name in names_list])==True: # COPRA and GP may/could be placed here with some work?
                 # in these classes the spectrum is applied directly
                 pass
 
@@ -180,25 +172,10 @@ class AlgorithmsBASE:
             return self
         
 
-    def apply_spectrum(self, pulse, spectral_amplitude, eta, sk, rn):
-        if isinstance(self, RetrievePulsesCHIRPSCAN):
-            pulse = self.apply_spectrum_frequency_domain(pulse, spectral_amplitude, eta)
-        else:
-            pulse = self.apply_spectrum_time_domain(pulse, spectral_amplitude, eta, sk, rn)
-        return pulse
-
-        
-    def apply_spectrum_frequency_domain(self, pulse, spectral_amplitude, eta):
+    def apply_spectrum(self, pulse, spectral_amplitude, eta):
         spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
         pulse = project_onto_amplitude(pulse, spectral_amplitude)
         return pulse
-    
-    def apply_spectrum_time_domain(self, pulse_t, spectral_amplitude, eta, sk, rn):
-        pulse_f = self.fft(pulse_t, sk, rn)
-        pulse_f_new = self.apply_spectrum_frequency_domain(pulse_f, spectral_amplitude, eta)
-        pulse_t = self.ifft(pulse_f_new, sk, rn)
-        return pulse_t
-    
 
 
 
@@ -308,7 +285,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_newton = False
         self.r_weights = 1.0
         self.r_no_iterations = 1
-        self.r_step_scaling = "linear" # i think im not using this, linear may be hardcoded
 
         self.local_adaptive_scaling = False
         self.global_adaptive_scaling = False
@@ -416,7 +392,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_newton = newton
         self.r_weights = weights
         self.r_no_iterations = no_iterations
-        # self.r_step_scaling = "linear"
         return self
 
 
@@ -445,13 +420,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
             gate_t_arr, gate_f_arr = None, None
 
         self.descent_info = self.descent_info.expand(population_size=population_size)
-
-        if isinstance(self, RetrievePulsesCHIRPSCAN):
-            population = MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr)
-        else:
-            population = MyNamespace(pulse=pulse_t_arr, gate=gate_t_arr)
-
-        return population
+        return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr)
 
 
 
@@ -503,7 +472,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
 
-    def momentum(self, population_size, eta):
+    def momentum(self, population_size, eta): # maybe there is a difference with respect to this being done in t or f domain
         """ 
         Needs to be called if momentum is meant to be used in the reconstruction. 
 
@@ -562,11 +531,11 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
     
-    def calculate_error_population(self, descent_state, measurement_info, descent_info):
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
+    def calculate_error_population(self, population, measurement_info, descent_info):
+        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)        
         trace = calculate_trace(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
-        return trace_error
+        return trace_error, population
     
 
     
@@ -597,7 +566,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         self.error_metric = self.trace_error
 
         self.make_bsplines_amp = None
-        self.make_bsplines_phase =None
+        self.make_bsplines_phase = None
 
 
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
@@ -821,42 +790,18 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def get_pulses_f_from_population(self, population, measurement_info, descent_info):
         """ Evaluates a parametrized population onto the frequency axis. """
-        make_pulse = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="pulse")
-        pulse_f_arr = jax.vmap(make_pulse)(population)
+        make_pulse = Partial(self.make_pulse_f_from_individual, pulse_or_gate="pulse")
+        pulse_f_arr = jax.vmap(make_pulse, in_axes=(0,None,None))(population, measurement_info, descent_info)
 
         if measurement_info.doubleblind==True:
-            make_gate = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="gate")
-            gate_arr = jax.vmap(make_gate)(population)
+            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="gate")
+            gate_f_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
         else:
-            gate_arr = pulse_f_arr
+            gate_f_arr = None # pulse_f_arr
 
-        return pulse_f_arr, gate_arr
+        return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr)
     
     
-
-    def make_pulse_t_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate="pulse"):
-        """ Evaluates a parametrized individual onto the time axis. """
-        signal_f = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, pulse_or_gate)
-        signal = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
-        return signal
-    
-    
-
-    def get_pulses_t_from_population(self, population, measurement_info, descent_info):
-        """ Evaluates a parametrized population onto the time axis. """
-        make_pulse = Partial(self.make_pulse_t_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="pulse")
-        pulse_t_arr = jax.vmap(make_pulse)(population)
-
-        if measurement_info.doubleblind==True:
-            make_gate = Partial(self.make_pulse_t_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="gate")
-            gate_arr = jax.vmap(make_gate)(population)
-        else:
-            gate_arr = pulse_t_arr
-
-        return pulse_t_arr, gate_arr
-    
-    
-
 
 
     def construct_trace(self, individual, measurement_info, descent_info):
@@ -890,9 +835,9 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def calculate_error_population(self, population, measurement_info, descent_info):
         """ Calls jax.vmap over calculate_error_individual() for an entire population. """
-        pulse_arr, gate_arr = self.get_pulses_from_population(population, measurement_info, descent_info)
-        error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(MyNamespace(pulse=pulse_arr, gate=gate_arr), measurement_info, descent_info)
-        return error_arr
+        population = self.get_pulses_f_from_population(population, measurement_info, descent_info)
+        error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
+        return error_arr, population
     
 
 
@@ -900,17 +845,22 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def initialize_general_optimizer(self, population):
         """ A common initialization step for all general solvers. """
-        if self.descent_info.measured_spectrum_is_provided.pulse==True:
-            spectrum = self.measurement_info.spectral_amplitude.pulse
-            idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info = tree_at(lambda x: x.central_frequency.pulse, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
-        if self.descent_info.measured_spectrum_is_provided.gate==True:
-            spectrum = self.measurement_info.spectral_amplitude.gate
-            idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-            self.measurement_info = tree_at(lambda x: x.central_frequency.gate, self.measurement_info, self.frequency[int(idx)], is_leaf=lambda x: x is None)
+        # is being done when spectra are provided
+        # if self.descent_info.measured_spectrum_is_provided.pulse==True:
+        #     spectrum = self.measurement_info.spectral_amplitude.pulse
+        #     idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
+        #     self.measurement_info = tree_at(lambda x: x.central_frequency.pulse, self.measurement_info, 
+        #                                     self.frequency[int(idx)], is_leaf=lambda x: x is None)
 
-        self.measurement_info = self.measurement_info.expand(measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace)))
+        # if self.descent_info.measured_spectrum_is_provided.gate==True:
+        #     spectrum = self.measurement_info.spectral_amplitude.gate
+        #     idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
+        #     self.measurement_info = tree_at(lambda x: x.central_frequency.gate, self.measurement_info, 
+        #                                     self.frequency[int(idx)], is_leaf=lambda x: x is None)
+        
+        measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace))
+        self.measurement_info = self.measurement_info.expand(measured_trace = measured_trace)
         self.descent_info = self.descent_info.expand(error_metric = self.error_metric)
         self.descent_state = self.descent_state.expand(population = population)
 
@@ -918,22 +868,25 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
 
 
-    def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
-        """ Post-processing to evaluate parametrized individuals. """
-        if idx==None:
-            idx = self.get_idx_best_individual(descent_state)
-        individual = self.get_individual_from_idx(idx, descent_state.population)
+    # def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
+    #     """ Post-processing to evaluate parametrized individuals. """
+    #     sk, rn = measurement_info.sk, measurement_info.rn
 
-        pulse_t = jax.vmap(self.make_pulse_t_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "pulse")
-        pulse_f = jax.vmap(self.make_pulse_f_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "pulse")
-        pulse_t, pulse_f = pulse_t[0], pulse_f[0]
+    #     population = self.get_pulses_f_from_population(descent_state.population, measurement_info, descent_info)
+    #     error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
+        
+    #     if idx==None:
+    #         idx = jnp.argmin(error_arr)
 
-        if measurement_info.doubleblind==True:
-            gate_t = jax.vmap(self.make_pulse_t_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
-            gate_f = jax.vmap(self.make_pulse_f_from_individual, in_axes=(0,None,None,None))(individual, measurement_info, descent_info, "gate")
-            gate_t, gate_f = gate_t[0], gate_f[0]
-        else:
-            gate_t, gate_f = pulse_t, pulse_f
+    #     individual = self.get_individual_from_idx(idx, population)
+    #     pulse_f = individual.pulse[0]
+    #     pulse_t = self.ifft(pulse_f, sk, rn)
 
-        return pulse_t, gate_t, pulse_f, gate_f
+    #     if measurement_info.doubleblind==True:
+    #         gate_f = individual.gate[0]
+    #         gate_t = self.ifft(gate_f, sk, rn)
+    #     else:
+    #         gate_t, gate_f = pulse_t, pulse_f
+
+    #     return pulse_t, gate_t, pulse_f, gate_f
     

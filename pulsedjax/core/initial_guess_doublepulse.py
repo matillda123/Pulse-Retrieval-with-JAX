@@ -175,5 +175,5 @@ def make_population_doublepulse(key, population_size, tau_arr, frequency, measur
     
     shape = (population_size, np.size(frequency))
     noise = jax.random.uniform(key, shape, minval=-0.1, maxval=0.1)
-    pulse_t = pulse_t + noise
-    return jax.numpy.asarray(pulse_t)
+    pulse_f = pulse_f + noise
+    return jax.numpy.asarray(pulse_f)

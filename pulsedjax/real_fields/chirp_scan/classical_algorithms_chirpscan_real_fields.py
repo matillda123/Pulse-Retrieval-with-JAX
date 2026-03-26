@@ -4,7 +4,7 @@ from equinox import tree_at
 from pulsedjax.real_fields.core.base_classes_methods import RetrievePulsesCHIRPSCANwithRealFields
 from pulsedjax.chirp_scan import (GeneralizedProjection as _GeneralizedProjection, 
                                   PtychographicIterativeEngine as _PtychographicIterativeEngine, 
-                                  COPRA as _COPRA)
+                                  COPRA as _COPRA, LSF as _LSF)
 
 class GeneralizedProjection(RetrievePulsesCHIRPSCANwithRealFields, _GeneralizedProjection):
     __doc__ = _GeneralizedProjection.__doc__
@@ -89,3 +89,17 @@ class COPRA(RetrievePulsesCHIRPSCANwithRealFields, _COPRA):
         
         descent_direction = self.interpolate_signal_f(descent_direction, measurement_info, "big", "main")
         return descent_direction, newton_state
+    
+
+
+
+
+
+
+
+
+class LSF(RetrievePulsesCHIRPSCANwithRealFields, _LSF):
+    __doc__ = _LSF.__doc__
+    def __init__(self, theta, frequency, measured_trace, nonlinear_method, phase_type=None, chirp_parameters=None, f_range_fields=(None,None), f_range_pulse=(None, None), f_max_all_fields=None, **kwargs):
+        super().__init__(theta, frequency, measured_trace, nonlinear_method, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
+        self._post_init()

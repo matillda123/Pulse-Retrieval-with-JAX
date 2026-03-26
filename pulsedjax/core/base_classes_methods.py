@@ -169,13 +169,10 @@ class RetrievePulses:
 
 
     def get_transfer_function(self, frequency, transfer_function):
-        transfer_function = do_interpolation_1d(self.frequency, frequency, transfer_function)
-        self.transfer_function = self.ifft(transfer_function, self.sk, self.rn)
+        self.transfer_function = do_interpolation_1d(self.frequency, frequency, transfer_function)
         self.measurement_info = self.measurement_info.expand(transfer_function = self.transfer_function)
         return self.transfer_function
-    
-    
-    
+        
 
 
     def plot_results(self, final_result, exact_pulse=None):
@@ -263,27 +260,54 @@ class RetrievePulses:
         return individual
 
 
-    def _get_idx_individual(self, descent_state, idx_func):
-        """ Calculates the error for a population. Returns the index of the worst individual. """
-        error_arr = self.calculate_error_population(descent_state, self.measurement_info, self.descent_info)
+    def _get_idx_individual(self, population, idx_func):
+        """ Calculates the error for a population. Returns the index of the worst individual. And the population """
+        error_arr, population = self.calculate_error_population(population, self.measurement_info, self.descent_info)
         idx = idx_func(error_arr)
-        return idx
+        return idx, population
     
 
-    def get_idx_best_individual(self, descent_state):
-        """ Calculates the error for a population. Returns the index of the fittest individual. """
-        return self._get_idx_individual(descent_state, jnp.nanargmin)
+    def get_idx_best_individual(self, population):
+        """ Calculates the error for a population. Returns the index of the fittest individual. And the population"""
+        return self._get_idx_individual(population, jnp.nanargmin)
     
 
-    def get_idx_worst_individual(self, descent_state):
-        """ Calculates the error for a population. Returns the index of the worst individual. """
-        return self._get_idx_individual(descent_state, jnp.nanargmax)
+    def get_idx_worst_individual(self, population):
+        """ Calculates the error for a population. Returns the index of the worst individual. And the population """
+        return self._get_idx_individual(population, jnp.nanargmax)
 
 
-    def get_idx_average_individual(self, descent_state):
-        """ Calculates the error for a population. Returns the index of an average individual. """
+    def get_idx_average_individual(self, population):
+        """ Calculates the error for a population. Returns the index of an average individual. And the population """
         get_mean_idx = lambda x: jnp.nanargmin(jnp.abs(x - jnp.nanmean(x)))
-        return self._get_idx_individual(descent_state, get_mean_idx)
+        return self._get_idx_individual(population, get_mean_idx)
+    
+
+
+
+
+    
+
+    def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
+        """ FROG specific post processing to get the final pulse/gate """
+        sk, rn = measurement_info.sk, measurement_info.rn
+
+        if idx==None:
+            idx, population = self.get_idx_best_individual(descent_state.population)
+        else:
+            population = descent_state.population
+
+        individual = self.get_individual_from_idx(idx, population)
+        pulse_f = individual.pulse[0]
+        pulse_t = self.ifft(pulse_f, sk, rn)
+
+        if measurement_info.doubleblind==True:
+            gate_f = individual.gate[0]
+            gate_t = self.ifft(gate_f, sk, rn)
+        else:
+            gate_t, gate_f = pulse_t, pulse_f
+
+        return pulse_t, gate_t, pulse_f, gate_f
     
 
 
@@ -321,18 +345,18 @@ class RetrievePulses:
 
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
         
-        if self.descent_info.measured_spectrum_is_provided.pulse==True and self.measurement_info.eta_spectral_amplitude==1:
-            pulse_f_amp = self.measurement_info.spectral_amplitude.pulse
-        else:
-            pulse_f_amp = jnp.abs(pulse_f)
+        # if self.descent_info.measured_spectrum_is_provided.pulse==True and self.measurement_info.eta_spectral_amplitude==1:
+        #     pulse_f_amp = self.measurement_info.spectral_amplitude.pulse
+        # else:
+        #     pulse_f_amp = jnp.abs(pulse_f)
 
-        if self.measurement_info.doubleblind==True:
-            if self.descent_info.measured_spectrum_is_provided.gate==True and self.measurement_info.eta_spectral_amplitude==1:
-                gate_f_amp = self.measurement_info.spectral_amplitude.gate
-            else:
-                gate_f_amp = jnp.abs(gate_f)
-        else:
-            gate_f_amp = pulse_f_amp
+        # if self.measurement_info.doubleblind==True:
+        #     if self.descent_info.measured_spectrum_is_provided.gate==True and self.measurement_info.eta_spectral_amplitude==1:
+        #         gate_f_amp = self.measurement_info.spectral_amplitude.gate
+        #     else:
+        #         gate_f_amp = jnp.abs(gate_f)
+        # else:
+        #     gate_f_amp = pulse_f_amp
         
 
         if self.measurement_info.cross_correlation==True:
@@ -340,31 +364,20 @@ class RetrievePulses:
         else:
             pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
 
-            pulse_f = project_onto_amplitude(pulse_f, pulse_f_amp)
-            pulse_t = self.ifft(pulse_f, self.measurement_info.sk, self.measurement_info.rn)
+            # pulse_f = project_onto_amplitude(pulse_f, pulse_f_amp)
+            # pulse_t = self.ifft(pulse_f, self.measurement_info.sk, self.measurement_info.rn)
 
-            gate_f = project_onto_amplitude(gate_f, gate_f_amp)
-            gate_t = self.ifft(gate_f, self.measurement_info.sk, self.measurement_info.rn)
+            # gate_f = project_onto_amplitude(gate_f, gate_f_amp)
+            # gate_t = self.ifft(gate_f, self.measurement_info.sk, self.measurement_info.rn)
                 
 
         measured_trace = self.measurement_info.measured_trace
         measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
-
-        if isinstance(self, (RetrievePulsesFROG, RetrievePulses2DSI)):
-            individual = MyNamespace(pulse=pulse_t, gate=gate_t)
-        elif isinstance(self, RetrievePulsesCHIRPSCAN):
-            individual = MyNamespace(pulse=pulse_f, gate=None)
-        else:
-            raise ValueError(f"self doesnt match. Is {self}")
         
-        trace = self.post_process_create_trace(individual)
+        trace = self.post_process_create_trace(MyNamespace(pulse=pulse_f, gate=gate_f))
         trace = trace/jnp.linalg.norm(trace)
 
-        if self._name == "CPCGPA" and self.measurement_info.real_fields==True:
-            x_arr = self.tau_arr_new
-        else:
-            x_arr = self.measurement_info.x_arr
-
+        x_arr = self.measurement_info.x_arr
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
         if self.measurement_info.real_fields==True:
@@ -372,30 +385,11 @@ class RetrievePulses:
         else:
             frequency_exp = frequency
 
-        final_result_population = self.get_final_result_population()
         final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp = frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
-                                 error_arr=error_arr, population=final_result_population)
+                                 error_arr=error_arr)
         return final_result
-    
-
-
-    def get_final_result_population(self):
-        time, frequency = self.measurement_info.time, self.measurement_info.frequency
-        N = self.descent_info.population_size
-
-        final_result_arr = []
-        for idx in range(N):
-            pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(self.descent_state, self.measurement_info, self.descent_info, idx=idx)
-            pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
-            final_result = MyNamespace(time=time, frequency=frequency, pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f)
-            final_result_arr.append(final_result)
-
-        return final_result_arr
-
-
-
     
     
     
@@ -486,14 +480,15 @@ class RetrievePulsesFROG(RetrievePulses):
 
         tau_arr, frequency, measured_trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
         nonlinear_method = measurement_info.nonlinear_method
-        pulse_t_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+        pulse_f_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, **kwargs)
 
-        population = MyNamespace(pulse=pulse_t_arr, gate=None)
+        population = MyNamespace(pulse=pulse_f_arr, gate=None)
         return population
+        
     
 
 
-    def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
+    def shift_signal_in_time(self, signal, tau, frequency, sk, rn): # change this to a precomuped and the applied phase matrix
         """ The Fourier-Shift theorem. """
         signal_f = self.fft(signal, sk, rn)
         signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*frequency*tau)
@@ -540,65 +535,44 @@ class RetrievePulsesFROG(RetrievePulses):
         frogmethod = measurement_info.nonlinear_method
 
         pulse, gate = individual.pulse, individual.gate
+        pulse_t = self.ifft(pulse, measurement_info.sk, measurement_info.rn)
         pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
 
         if cross_correlation==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.gate, frequency, tau_arr, time)
+            gate_t = measurement_info.gate
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency, tau_arr, time)
+            gate_t = self.ifft(gate, measurement_info.sk, measurement_info.rn)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         else:
-            gate_pulse_shifted = None
+            gate_pulse_shifted, gate_t = None, None
             gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
 
 
         if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = (pulse + pulse_t_shifted)*calculate_gate(pulse + pulse_t_shifted, frogmethod)
+            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
         elif interferometric==True:
-            signal_t = (pulse + gate_pulse_shifted)*calculate_gate(pulse + gate_pulse_shifted, frogmethod)
+            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
         else:
-            signal_t = pulse*gate_shifted
+            signal_t = pulse_t*gate_shifted
             
         signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
 
 
-        # if all(measurement_info.transfer_function!=None): # this should also show up in z-gradients 
-        #     signal_f = signal_f*measurement_info.transfer_function
-        #     signal_t = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
-
-
-        signal_t = MyNamespace(signal_t=signal_t, 
-                               signal_f=signal_f, 
-                               pulse_t_shifted=pulse_t_shifted, 
-                               gate_shifted=gate_shifted, 
-                               gate_pulse_shifted=gate_pulse_shifted)
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               signal_f = signal_f, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = pulse_t)
         return signal_t
 
 
 
-
-    def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
-        """ FROG specific post processing to get the final pulse/gate """
-        sk, rn = measurement_info.sk, measurement_info.rn
-
-        if idx==None:
-            idx = self.get_idx_best_individual(descent_state)
-
-        individual = self.get_individual_from_idx(idx, descent_state.population)
-        pulse_t = individual.pulse[0]
-        pulse_f = self.fft(pulse_t, sk, rn)
-
-        if measurement_info.doubleblind==True:
-            gate_t = individual.gate[0]
-            gate_f = self.fft(gate_t, sk, rn)
-        else:
-            gate_t, gate_f = pulse_t, pulse_f
-
-        return pulse_t, gate_t, pulse_f, gate_f
-    
 
 
 
@@ -629,7 +603,7 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
         
 
 
-    def apply_spectral_filter(self, signal, spectral_filter, sk, rn):
+    def apply_spectral_filter(self, signal, spectral_filter, sk, rn): # here the ffts are probably also unnecessary
         """ Apply a spectral filter to a signal. """
         signal_f = self.fft(signal, sk, rn)
         signal_f = signal_f*spectral_filter
@@ -657,35 +631,42 @@ class RetrievePulsesTDP(RetrievePulsesFROG):
 
         spectral_filter, sk, rn = measurement_info.spectral_filter, measurement_info.sk, measurement_info.rn
 
-        pulse, gate = individual.pulse, individual.gate
-        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency, tau_arr, time)
+        pulse_f, gate_f = individual.pulse, individual.gate
+        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr, time)
 
         if cross_correlation==True:
-            gate_pulse = measurement_info.gate
-            gate_pulse = self.apply_spectral_filter(gate_pulse, spectral_filter, sk, rn)
+            gate_t = measurement_info.gate
+            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
             gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
-            gate = self.apply_spectral_filter(gate, spectral_filter, sk, rn)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency, tau_arr, time)
+            gate_t = self.ifft(gate_f, measurement_info.sk, measurement_info.rn)
+            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr, time)
             gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
 
         else:
+            gate_pulse_shifted, gate_t = None, None
             pulse_t_shifted = self.apply_spectral_filter(pulse_t_shifted, spectral_filter, sk, rn)
-            gate_pulse_shifted = None
             gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
 
 
         if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = (pulse + pulse_t_shifted)*calculate_gate(pulse + pulse_t_shifted, frogmethod)
+            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
         elif interferometric==True:
-            signal_t = (pulse + gate_pulse_shifted)*calculate_gate(pulse + gate_pulse_shifted, frogmethod)
+            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
         else:
-            signal_t = pulse*gate_shifted
+            signal_t = pulse_t*gate_shifted
             
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, pulse_t_shifted=pulse_t_shifted, gate_shifted=gate_shifted, gate_pulse_shifted=gate_pulse_shifted)
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               signal_f = signal_f, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = pulse_t)
         return signal_t
 
 
@@ -798,25 +779,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
 
-
-    def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
-        """ Chirp-Scan specific post processing to get the final pulse/gate """
-        sk, rn =  measurement_info.sk, measurement_info.rn
-
-        if idx==None:
-            idx = self.get_idx_best_individual(descent_state)
-
-        individual = self.get_individual_from_idx(idx, descent_state.population)
-        pulse_f = individual.pulse[0]
-        pulse_t = self.ifft(pulse_f, sk, rn)
-
-        if measurement_info.doubleblind==True:
-            gate_f = individual.gate[0]
-            gate_t = self.ifft(gate_f, sk, rn)
-        else:
-            gate_f, gate_t = pulse_f, pulse_t
-
-        return pulse_t, gate_t, pulse_f, gate_f
     
 
 
@@ -868,7 +830,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
     
 
 
-    def apply_spectral_filter(self, signal, spectral_filter1, spectral_filter2, sk, rn):
+    def apply_spectral_filter(self, signal, spectral_filter1, spectral_filter2, sk, rn): # same here as above
         """ Apply a spectral filter to a signal. """
         signal_f = self.fft(signal, sk, rn)
         signal_f1 = signal_f*spectral_filter1
@@ -894,16 +856,18 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         time, frequency, nonlinear_method = measurement_info.time, measurement_info.frequency, measurement_info.nonlinear_method
         sk, rn = measurement_info.sk, measurement_info.rn
         
-        pulse_t = individual.pulse
+        pulse_f = individual.pulse
+        pulse_t = self.ifft(pulse_f, sk, rn)
 
         if measurement_info.cross_correlation==True:
-            gate = measurement_info.gate
+            gate_t = measurement_info.gate
         elif measurement_info.doubleblind==True:
-            gate = individual.gate
+            gate_f = individual.gate
+            gate_t = self.ifft(gate_f, sk, rn)
         else:
-            gate = pulse_t
+            gate_t = pulse_t
         
-        gate1, gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, 
+        gate1, gate2 = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter1, 
                                                   measurement_info.spectral_filter2, sk, rn)
         
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
@@ -915,7 +879,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate, pulse_t=pulse_t)
         return signal_t
 
 
@@ -979,7 +943,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 
 
-    def apply_phase(self, pulse_t, measurement_info, sk, rn):
+    def apply_phase(self, pulse_t, measurement_info, sk, rn): # smae here as above
         """
         For an VAMPIRE reconstruction one may need to consider effects of material dispersion in the interferometer.
         This applies a dispersion based on phase_matrix in order to achieve this. 
@@ -1009,30 +973,30 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         time, frequency, nonlinear_method = measurement_info.time, measurement_info.frequency, measurement_info.nonlinear_method
         sk, rn = measurement_info.sk, measurement_info.rn
 
-        pulse_t = individual.pulse
+        pulse_f = individual.pulse
+        pulse_t = self.ifft(pulse_f, sk, rn)
 
         if measurement_info.cross_correlation==True:
-            gate_pulse = measurement_info.gate
-
+            gate_t = measurement_info.gate
         elif measurement_info.doubleblind==True:
-            gate_pulse = individual.gate
-
+            gate_f = individual.gate
+            gate_t = self.ifft(gate_f, sk, rn)
         else:
-            gate_pulse = pulse_t
+            gate_t = pulse_t
 
-        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
+        gate_disp = self.apply_phase(gate_t, measurement_info, sk, rn) 
 
         tau = measurement_info.tau_interferometer
-        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency, jnp.asarray([tau]), time)
 
-        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        gate_pulses = jnp.squeeze(gate_t_shifted) + gate_disp
         gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency, tau_arr, time)
         gate = calculate_gate(gate_pulses, nonlinear_method)
 
         signal_t = pulse_t*gate
 
         signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate)
+        signal_t = MyNamespace(signal_t=signal_t, signal_f=signal_f, gate_pulses=gate_pulses, gate_shifted=gate, pulse_t=pulse_t)
         return signal_t
 
 

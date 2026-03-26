@@ -6,7 +6,7 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesFROG 
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, initialize_S_prime_params
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params
 
 from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
 
@@ -49,12 +49,14 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
     def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
         """ Generates an new (maybe improoved) guess for the pulse. """
         pulse_t = jnp.sum(signal_t_new, axis=1)
-        return pulse_t
+        pulse_f = self.fft(pulse_t, measurement_info.sk, measurement_info.rn)
+        return pulse_f
     
     def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
         """ Generates an new (maybe improoved) guess for the gate. """
         gate = jnp.sum(signal_t_new, axis=2)
         gate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(measurement_info.time, measurement_info.tau_arr, gate)
+        gate = self.fft(gate, measurement_info.sk, measurement_info.rn)
         return gate
 
     
@@ -173,7 +175,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, tau_arr, 
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, tau_arr, 
                                     measurement_info, pulse_or_gate)
         return grad
 
@@ -181,7 +183,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
         
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, descent_state.population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
@@ -189,11 +191,9 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesFROG):
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent_direction and step size. """
-        sk, rn = measurement_info.sk, measurement_info.rn
 
-        pulse_f = self.fft(getattr(individual, pulse_or_gate), sk, rn)
-        pulse_f = pulse_f + gamma*descent_direction
-        pulse = self.ifft(pulse_f, sk, rn)
+        pulse = getattr(individual, pulse_or_gate)
+        pulse = pulse + gamma*descent_direction
 
         individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse)
         return individual
@@ -264,7 +264,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             grad_U = grad*U
             
         elif pulse_or_gate=="gate": 
-            probe = jnp.conjugate(jnp.broadcast_to(population.pulse, jnp.shape(difference_signal_t)))
+            probe = jnp.conjugate(jnp.broadcast_to(signal_t.pulse_t, jnp.shape(difference_signal_t)))
             grad = -1*probe*difference_signal_t
             U = self.get_PIE_weights(probe, alpha, pie_method)
 
@@ -277,8 +277,10 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and step size. """
-        signal = getattr(individual, pulse_or_gate)
+        sk, rn = measurement_info.sk, measurement_info.rn
+        signal = self.ifft(getattr(individual, pulse_or_gate), sk, rn)
         signal = signal + gamma*descent_direction
+        signal = self.fft(signal, sk, rn)
 
         individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
         return individual
@@ -314,7 +316,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             probe = signal_t.gate_shifted
 
         elif pulse_or_gate=="gate":
-            pulse_t = jnp.broadcast_to(population.pulse[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
+            pulse_t = jnp.broadcast_to(signal_t.pulse_t[:,jnp.newaxis,:], jnp.shape(signal_t.signal_t))
             probe = self.get_gate_probe_for_hessian(pulse_t, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
 
         else:
@@ -350,20 +352,17 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
 
     def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
         """ Updates an individual based on a descent direction and a step size. """
-        sk, rn = measurement_info.sk, measurement_info.rn
 
-        signal = getattr(individual, pulse_or_gate)
-        signal_f = self.fft(signal, sk, rn)
+        signal_f = getattr(individual, pulse_or_gate)
         signal_f = signal_f + gamma*descent_direction
-        signal = self.ifft(signal_f, sk, rn)
 
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal)
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
         return individual
 
 
     def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, population.pulse, signal_t.pulse_t_shifted, 
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.pulse_t_shifted, 
                                     signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
@@ -375,8 +374,19 @@ class COPRA(COPRABASE, RetrievePulsesFROG):
 
 
         newton_state = local_or_global_state.newton
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, population.pulse, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
                                                                          signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
                                                                          newton_state, descent_info.newton, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
 
+
+
+
+
+
+
+class LSF(LSFBASE, RetrievePulsesFROG):
+    __doc__ = LSFBASE.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)

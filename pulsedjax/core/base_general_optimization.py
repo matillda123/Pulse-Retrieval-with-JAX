@@ -325,17 +325,18 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
         mutant_population = self.do_mutation(mutation_strategy, mutation_rate, best_individual, parent_population, key1)
         trial_population = self.do_crossover(crossover_strategy, crossover_rate, parent_population, mutant_population, key2)
 
-        trace_error_parents = self.calculate_error_population(parent_population, measurement_info, descent_info)
-        trace_error_trial = self.calculate_error_population(trial_population, measurement_info, descent_info)
+        trace_error_parents, _ = self.calculate_error_population(parent_population, measurement_info, descent_info)
+        trace_error_trial, _ = self.calculate_error_population(trial_population, measurement_info, descent_info)
 
         population, error = self.select_population(key3, selection_mechanism, trace_error_parents, trace_error_trial, parent_population, trial_population, descent_info)
 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
-        error_mean = jnp.mean(error)
-        error_min = jnp.min(error)
-        error_max = jnp.max(error)
+        error_mean = jnp.nanmean(error)
+        error_min = jnp.nanmin(error)
+        error_max = jnp.nanmax(error)
 
-        descent_state = tree_at(lambda x: x.best_individual, descent_state, self.get_individual_from_idx(jnp.argmin(error), population))
+        best_individual = self.get_individual_from_idx(jnp.argmin(error), population)
+        descent_state = tree_at(lambda x: x.best_individual, descent_state, best_individual)
         return descent_state, jnp.array([error_mean, error_min, error_max])
     
 
@@ -365,7 +366,7 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
                                                      temperature = self.temperature)
         descent_info = self.descent_info
         
-        trace_error = self.calculate_error_population(population, measurement_info, descent_info)
+        trace_error, _ = self.calculate_error_population(population, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(best_individual = self.get_individual_from_idx(jnp.argmin(trace_error), population), 
                                                        key=self.key)
         descent_state = self.descent_state
@@ -431,7 +432,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
             population_amp, population_phase = population_amp_or_phase, population
 
         population_eval = self.merge_population_from_amp_and_phase(population_amp, population_phase)
-        fitness = self.calculate_error_population(population_eval, measurement_info, descent_info)
+        fitness, _ = self.calculate_error_population(population_eval, measurement_info, descent_info)
         state, _ = solver.tell(key_tell, population, fitness, state, params)
         population, state = solver.ask(key_ask_2, state, params)
 
@@ -487,7 +488,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
 
         class_str = str(self.solver)
         if class_str.split(".")[2]=="population_based":
-            fitness = self.calculate_error_population(population, self.measurement_info, self.descent_info)
+            fitness, _ = self.calculate_error_population(population, self.measurement_info, self.descent_info)
 
             population_amp, population_phase = self.split_population_in_amp_and_phase(population)
 
@@ -561,321 +562,6 @@ class EvosaxBASE(GeneralOptimizationBASE):
 
 
 
-
-
-
-
-
-
-class LSFBASE(GeneralOptimizationBASE):
-    # maybe there is an issue here. 
-    # In one iteration all bisection steps are done first on the pulse and only then on the gate. Maybe this should be alternating?
-
-    """
-    Implements a version of the Linesearch FROG Algorithm (LSF). Despite its name the algorithm is NOT restricted to FROG. 
-
-    The algorithm is not implemented for the optimization of parametrized populations. Instead a population is always evaluated on the time/frequency axis
-    and thus optimized in its discretized form.
-
-
-    C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
-
-    Attributes:
-        number_of_bisection_iterations (int): as the name says
-        random_direction_mode (str): can be random or continuous
-        ratio_points_for_continuous (int): smaller value means more randomness/eratic
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self._name = "LSF"
-
-        self.number_of_bisection_iterations = 12
-
-        self.random_direction_mode = "random"
-        self.ratio_points_for_continuous = 0.25
-
-        self.boundary = 1 
-
-    
-
-    def get_random_values(self, key, shape, minval, maxval, descent_info):
-        """ LSF requires random directions. These are produced here. """
-        mode = descent_info.random_direction_mode
-        ratio_points_for_continuous = descent_info.ratio_points_for_continuous
-
-        if mode=="random":
-            values = jax.random.uniform(key, shape, minval=minval, maxval=maxval)
-
-        elif mode=="continuous":
-            x_new = jnp.linspace(0, 1, shape[0])
-            N = int(ratio_points_for_continuous*shape[0])
-
-            key1, key2 = jax.random.split(key, 2)
-            x = jnp.sort(jax.random.choice(key1, x_new, (N, ), replace=False))
-            points = jax.random.uniform(key2, (N, ), minval=minval, maxval=maxval)
-
-            values = do_interpolation_1d(x_new, x, points)
-            values = values/jnp.max(jnp.abs(values))*jnp.maximum(jnp.abs(minval), jnp.abs(maxval))
-        else:
-            raise NotImplementedError(f"random_direction_mode needs to be random or continuous. Not {mode}")
-
-        return values
-    
-
-
-    def get_search_direction_individual(self, keys, individual, measurement_info, descent_info):
-        """ Creates a pytree with random search directions for one individual. """
-        key1, key2 = keys.pulse
-        direction = MyNamespace(pulse=None, gate=None)
-
-        pulse = individual.pulse
-        shape_pulse = jnp.shape(pulse)
-        d_pulse_re = self.get_random_values(key1, shape_pulse, -1, 1, descent_info)
-        d_pulse_im = self.get_random_values(key2, shape_pulse, -1, 1, descent_info)
-        d = d_pulse_re + 1j*d_pulse_im
-        direction_pulse = d/jnp.linalg.norm(d)
-        direction = tree_at(lambda x: x.pulse, direction, direction_pulse, is_leaf=lambda x: x is None)
-
-        if measurement_info.doubleblind==True:
-            key3, key4 = keys.gate
-
-            gate = individual.gate
-            shape_gate = jnp.shape(gate)
-            d_gate_re = self.get_random_values(key3, shape_gate, -1, 1, descent_info)
-            d_gate_im = self.get_random_values(key4, shape_gate, -1, 1, descent_info)
-            d = d_gate_re + 1j*d_gate_im
-            direction_gate = d/jnp.linalg.norm(d)
-            direction = tree_at(lambda x: x.gate, direction, direction_gate, is_leaf=lambda x: x is None)
-
-        return direction
-
-
-
-    def get_search_direction(self, key, population, measurement_info, descent_info):
-        """ Creates a pytree with random search directions for an entire population. """
-        leaves, treedef = jax.tree.flatten(population)
-        keys = jax.random.split(key, len(leaves))
-        keys = [jax.random.split(keys[i], jnp.shape(leaves[i])[0]*2).reshape(jnp.shape(leaves[i])[0], 2, 2) for i in range(len(leaves))]
-        key_tree = jax.tree.unflatten(treedef, keys)
-        return jax.vmap(self.get_search_direction_individual, in_axes=(0, 0, None, None))(key_tree, population, measurement_info, descent_info)
-
-
-
-
-    def get_scalars(self, direction, signal, descent_info):
-        """ Calculates scalars to identify the min/max of a search direction. """
-        # solve jnp.abs(signal + s*direction)**2 = jnp.abs(boundary)**2
-        p = 2*jnp.real(signal*jnp.conjugate(direction))/(jnp.abs(direction)**2+1e-9)
-        q = (jnp.abs(signal)**2 - jnp.abs(descent_info.boundary)**2)/(jnp.abs(direction)**2+1e-9)
-
-        diskriminante = p**2/4 - q
-        diskriminante = jnp.maximum(diskriminante, 0)
-        s1 = -p/2 - jnp.sqrt(diskriminante)
-        s2 = -p/2 + jnp.sqrt(diskriminante)
-        return jnp.max(s1, axis=1)[:, jnp.newaxis], jnp.min(s2, axis=1)[:, jnp.newaxis]
-
-
-
-
-    def bisection_step_logic_0(self, El, Em, Er, signal):
-        return Em, Er
-
-    def bisection_step_logic_1(self, El, Em, Er, signal):
-        dl = jnp.linalg.norm(signal - El)
-        dr = jnp.linalg.norm(signal - Er)
-
-        x=jnp.sign(dr-dl)
-        condition=(x+1)//2
-        El = El*condition + Em*(1-condition)
-        Er = Em*condition + Er*(1-condition)
-        return El, Er
-
-    def bisection_step_logic_2(self, El, Em, Er, signal):
-        return El, Em
-    
-
-    def bisection_step(self, El, Er, population, measurement_info, descent_info, pulse_or_gate):
-        """ Does one bisection step of the LSF algorithm. """
-
-        Em = (El + Er)/2
-        E_arr=jnp.array([El, Em, Er])
-        
-        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
-        idx = jnp.argmax(error_arr, axis=0)
-
-        El, Er = jax.vmap(jax.lax.switch, in_axes=(0, None, 0, 0, 0, None))(idx, [self.bisection_step_logic_0, 
-                                                                                  self.bisection_step_logic_1, 
-                                                                                  self.bisection_step_logic_2], El, Em, Er, getattr(population, pulse_or_gate))
-        return (El, Er), None
-    
-
-
-
-    def do_bisection_search(self, direction, population, measurement_info, descent_info, pulse_or_gate):
-        """ 
-        Performs one bisection search to find the minimum along a given search direction. 
-        The number of iterations is set through self.number_of_bisection_iterations
-        """
-        s1, s2 = self.get_scalars(direction, getattr(population, pulse_or_gate), descent_info)
-
-        El = getattr(population, pulse_or_gate) + s1*direction
-        Er = getattr(population, pulse_or_gate) + s2*direction
-        
-        no_iterations = descent_info.number_of_bisection_iterations
-        do_bisection_step = Partial(self.bisection_step, population=population, measurement_info=measurement_info, 
-                                    descent_info=descent_info, pulse_or_gate=pulse_or_gate)
-        
-        do_step = Partial(scan_helper, actual_function=do_bisection_step, number_of_args=2, number_of_xs=0)
-        E_arr, _ = jax.lax.scan(do_step, (El, Er), length=no_iterations) 
-        E_arr = jnp.array(E_arr)
-
-        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
-        idx = jnp.argmin(error_arr, axis=0)
-        return jax.vmap(jax.lax.switch, in_axes=(0, None, 0))(idx, [lambda x: x[0], lambda x: x[1]], jnp.transpose(E_arr, axes=(1,0,2)))
-
-
-
-
-    def search_along_direction(self, direction, population, measurement_info, descent_info):
-        """ Performs a bisection search along one direction for pulse and the for gate. """
-        direction_pulse = direction.pulse
-        population_pulse = self.do_bisection_search(direction_pulse, population, measurement_info, descent_info, "pulse")
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
-        
-        if measurement_info.doubleblind==True:
-            direction_gate=direction.gate
-            population_gate = self.do_bisection_search(direction_gate, population, measurement_info, descent_info, "gate")
-            population = tree_at(lambda x: x.gate, population, population_gate)
-
-        return population
-    
-    
-
-    def make_population_bisection_search(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
-        if pulse_or_gate=="pulse":
-            pulse_arr, gate_arr = E_arr, population.gate
-
-        elif pulse_or_gate=="gate":
-            pulse_arr, gate_arr = population.pulse, E_arr
-        else:
-            raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
-        return MyNamespace(pulse=pulse_arr, gate=gate_arr)
-
-
-    def calculate_error(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
-        """ 
-        Calculates the trace error. Since pulse and gate are optimized independently the population as provided to calculate_error_individual() 
-        needs to be constructed from the current population and the fields in the cureent optimization.
-        """
-        population = self.make_population_bisection_search(E_arr, population, measurement_info, descent_info, pulse_or_gate)
-        error_arr = jax.vmap(self.calculate_error_individual, 
-                             in_axes=(0, None, None))(population, measurement_info, descent_info)
-        return error_arr
-    
-
-
-
-
-    def step(self, descent_state, measurement_info, descent_info):
-        """
-        Performs one step of the LSF-algorithm.
-
-        Args:
-            descent_state: Pytree, 
-            measurement_info: Pytree,
-            descent_info: Pytree,
-
-        Returns:
-            tuple[Pytree, jnp.array], the updated descent state, errors of the current population
-
-        """
-
-        population = descent_state.population
-        key, subkey = jax.random.split(descent_state.key, 2)
-        descent_state = tree_at(lambda x: x.key, descent_state, key)
-        
-        direction = self.get_search_direction(subkey, population, measurement_info, descent_info)
-        population = self.search_along_direction(direction, population, measurement_info, descent_info)
-
-        error_arr = self.calculate_error_population(population, measurement_info, descent_info)
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
-        return descent_state, error_arr.reshape(-1,1)
-    
-
-
-
-    def initialize_run(self, population):
-        """
-        Prepares all provided data and parameters for the reconstruction.
-        Here the final shape/structure of descent_state, measurement_info and descent_info are determined. 
-
-        Args:
-            population: Pytree, the initial guess as created by self.create_initial_population()
-        
-        Returns:
-            tuple[Pytree, Callable], the initial descent state, the step-function of the algorithm.
-
-        """
-
-        if self.descent_info.amp_type!="continuous" or self.descent_info.phase_type!="continuous":
-            print("LSF is only implemented for amp_type=discrete, phase_type=discrete and converts the populations accordingly.")
-
-        self.initialize_general_optimizer(population)
-        population = self.convert_population(population, self.measurement_info, self.descent_info)
-        population_pulse = jax.vmap(lambda x: x/jnp.linalg.norm(x))(population.pulse)
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
-
-        assert (0 < self.ratio_points_for_continuous < 1) | (self.random_direction_mode!="continuous")
-
-        measurement_info = self.measurement_info
-        self.descent_info = self.descent_info.expand(number_of_bisection_iterations = self.number_of_bisection_iterations,
-                                                     ratio_points_for_continuous = self.ratio_points_for_continuous,
-                                                     random_direction_mode = self.random_direction_mode,
-                                                     boundary = self.boundary)
-        descent_info = self.descent_info
-
-        self.descent_state = tree_at(lambda x: x.population, self.descent_state, population)
-        self.descent_state = self.descent_state.expand(key = self.key)
-        descent_state = self.descent_state
-
-        do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
-        do_step = Partial(scan_helper, actual_function=do_step, number_of_args=1, number_of_xs=0)
-        return descent_state, do_step
-
-
-
-
-
-    def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
-        """ Some custom post-processing since the optimization is done in the explicit discretized form. """
-        sk, rn = measurement_info.sk, measurement_info.rn
-        
-        if idx==None:
-            idx = self.get_idx_best_individual(descent_state)
-
-        individual = self.get_individual_from_idx(idx, descent_state.population)
-
-        pulse_t = individual.pulse[0]
-        gate_t = individual.gate[0]
-        pulse_f = self.fft(pulse_t, sk, rn) 
-        gate_f = self.fft(gate_t, sk, rn) 
-        return pulse_t, gate_t, pulse_f, gate_f
-    
-
-
-
-
-
-
-
-
-
-
-
-
 class AutoDiffBASE(GeneralOptimizationBASE):
     """
     Employs the optimistix package to perform the optimization via Automatic-Differentiation.
@@ -911,10 +597,10 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
     def loss_function(self, individual, measurement_info, descent_info):
         """ Wraps around self.calculate_error_individual() to return the error of the current guess. """
-        pulse = self.make_pulse_from_individual(individual, measurement_info, descent_info, "pulse")
+        pulse = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "pulse")
 
         if measurement_info.doubleblind==True:
-            gate = self.make_pulse_from_individual(individual, measurement_info, descent_info, "gate")
+            gate = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "gate")
         else:
             gate = pulse
             
@@ -1032,8 +718,6 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         
         if solver.__class__.__module__.split(".")[0]=="optax":
             solver=optimistix.OptaxMinimiser(solver, rtol=1, atol=1)
-        # else:
-        #     solver=solver(rtol=1, atol=1)
 
 
         args = None

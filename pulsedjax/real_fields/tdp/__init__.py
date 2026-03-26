@@ -1,2 +1,2 @@
-from .classical_algorithms_tdp_real_fields import LSGPA, CPCGPA, GeneralizedProjection, PtychographicIterativeEngine, COPRA
-from .general_algorithms_tdp_real_fields import DifferentialEvolution, Evosax, LSF, AutoDiff
+from .classical_algorithms_tdp_real_fields import LSGPA, CPCGPA, GeneralizedProjection, PtychographicIterativeEngine, COPRA, LSF
+from .general_algorithms_tdp_real_fields import DifferentialEvolution, Evosax, AutoDiff

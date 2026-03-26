@@ -116,7 +116,7 @@ jax.tree_util.register_pytree_node(MyNamespace, flatten_MyNamespace, unflatten_M
 
 def run_scan(do_scan, carry, no_iterations):
     """
-    Run a solver iteratively using lax.scan with or without jax.jit.
+    Run a solver iteratively using lax.scan with jax.jit.
 
     Args:
         do_scan (Callable): the callable needs to take carry its argument

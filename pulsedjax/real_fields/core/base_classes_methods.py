@@ -188,34 +188,37 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
         cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
         frogmethod = measurement_info.nonlinear_method
 
-        pulse, gate = individual.pulse, individual.gate
+        pulse_f, gate_f = individual.pulse, individual.gate
 
-        pulse, _ = self.interpolate_signal_t(pulse, measurement_info, "main", "big")
-        if doubleblind==True:
-            gate, _ = self.interpolate_signal_t(gate, measurement_info, "main", "big")
+        pulse_f = self.interpolate_signal_f(pulse_f, measurement_info, "main", "big")
+        pulse_t = self.ifft(pulse_f, measurement_info.sk_big, measurement_info.rn_big)
+        
 
-
-        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr, time_big)
 
         if cross_correlation==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(measurement_info.gate, frequency_big, tau_arr, time_big)
+            gate_t = measurement_info.gate
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency_big, tau_arr, time_big)
+            gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
+            gate_t = self.ifft(gate_f, measurement_info.sk_big, measurement_info.rn_big)
+
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         else:
-            gate_pulse_shifted = None
+            gate_pulse_shifted, gate_t = None, None
             gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
 
 
         if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
+            signal_t = jnp.real(pulse_t + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse_t + pulse_t_shifted, frogmethod)
         elif interferometric==True:
-            signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
+            signal_t = jnp.real(pulse_t + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse_t + gate_pulse_shifted, frogmethod)
         else:
-            signal_t = jnp.real(pulse)*gate_shifted
+            signal_t = jnp.real(pulse_t)*gate_shifted
 
         signal_t, signal_f = self.apply_mask(signal_t, measurement_info)
         pulse_t_shifted = jnp.real(pulse_t_shifted)
@@ -227,7 +230,8 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
                                signal_f = signal_f,
                                pulse_t_shifted = pulse_t_shifted, 
                                gate_shifted = gate_shifted, 
-                               gate_pulse_shifted = gate_pulse_shifted)
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = jnp.real(pulse_t))
         return signal_t
     
 
@@ -273,37 +277,39 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTD
         frogmethod = measurement_info.nonlinear_method
         sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
 
-        pulse, gate = individual.pulse, individual.gate
-
-        pulse, _ = self.interpolate_signal_t(pulse, measurement_info, "main", "big")
-        if doubleblind==True:
-            gate, _ = self.interpolate_signal_t(gate, measurement_info, "main", "big")
+        pulse_f, gate_f = individual.pulse, individual.gate
+        pulse_f = self.interpolate_signal_f(pulse_f, measurement_info, "main", "big")
+        pulse_t = self.ifft(pulse_f, sk_big, rn_big)
 
 
-        pulse_t_shifted = self.calculate_shifted_signal(pulse, frequency_big, tau_arr, time_big)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr, time_big)
 
         if cross_correlation==True:
-            gate = self.apply_spectral_filter(measurement_info.gate, measurement_info.spectral_filter, sk_big, rn_big)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency_big, tau_arr, time_big)
+            # might break
+            gate_t = self.apply_spectral_filter(measurement_info.gate, measurement_info.spectral_filter, sk_big, rn_big)
+            
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
-            gate = self.apply_spectral_filter(gate, measurement_info.spectral_filter, sk_big, rn_big)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate, frequency_big, tau_arr, time_big)
+            gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
+            gate_t = self.ifft(gate_f, sk_big, rn_big)
+            gate_t = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter, sk_big, rn_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         else:
-            gate_pulse_shifted = None
+            gate_pulse_shifted, gate_t = None, None
             pulse_t_shifted = self.apply_spectral_filter(pulse_t_shifted, measurement_info.spectral_filter, sk_big, rn_big)
             gate_shifted = calculate_gate_with_Real_Fields(pulse_t_shifted, frogmethod)
 
 
         if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = jnp.real(pulse + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse + pulse_t_shifted, frogmethod)
+            signal_t = jnp.real(pulse_t + pulse_t_shifted)*calculate_gate_with_Real_Fields(pulse_t + pulse_t_shifted, frogmethod)
         elif interferometric==True:
-            signal_t = jnp.real(pulse + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse + gate_pulse_shifted, frogmethod)
+            signal_t = jnp.real(pulse_t + gate_pulse_shifted)*calculate_gate_with_Real_Fields(pulse_t + gate_pulse_shifted, frogmethod)
         else:
-            signal_t = jnp.real(pulse)*gate_shifted
+            signal_t = jnp.real(pulse_t)*gate_shifted
 
         signal_t, signal_f = self.apply_mask(signal_t, measurement_info)
         pulse_t_shifted = jnp.real(pulse_t_shifted)
@@ -315,7 +321,8 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTD
                                signal_f = signal_f,
                                pulse_t_shifted = pulse_t_shifted, 
                                gate_shifted = gate_shifted, 
-                               gate_pulse_shifted = gate_pulse_shifted)
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = jnp.real(pulse_t))
         return signal_t
     
 
@@ -358,18 +365,17 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesRealFields, RetrievePu
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
         """
 
-        pulse = individual.pulse
-        pulse = do_interpolation_1d(measurement_info.frequency_big, measurement_info.frequency, pulse, method="linear")
+        pulse_f = individual.pulse
+        pulse_f = self.interpolate_signal_f(pulse_f, measurement_info, "main", "big")
 
-        pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse, phase_matrix, measurement_info.sk_big, measurement_info.rn_big)
+        pulse_t_disp, phase_matrix = self.get_dispersed_pulse_t(pulse_f, phase_matrix, measurement_info.sk_big, measurement_info.rn_big)
         gate_disp = calculate_gate_with_Real_Fields(pulse_t_disp, measurement_info.nonlinear_method)
         signal_t = jnp.real(pulse_t_disp)*gate_disp
 
         signal_t, signal_f = self.apply_mask(signal_t, measurement_info)
-        pulse_t_disp = jnp.real(pulse_t_disp)
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f,
-                               pulse_t_disp = pulse_t_disp, 
+                               pulse_t_disp = jnp.real(pulse_t_disp), 
                                gate_disp = gate_disp)
         return signal_t
 
@@ -418,20 +424,22 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
         nonlinear_method = measurement_info.nonlinear_method
 
-        pulse = individual.pulse
-        pulse, _ = self.interpolate_signal_t(pulse, measurement_info, "main", "big")
+        pulse_f = individual.pulse
+        pulse_f = self.interpolate_signal_f(pulse_f, measurement_info, "main", "big")
+        pulse_t = self.ifft(pulse_f, sk_big, rn_big)
 
         if measurement_info.cross_correlation==True:
-            gate = measurement_info.gate
+            gate_t = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
-            gate = individual.gate
-            gate, _ = self.interpolate_signal_t(gate, measurement_info, "main", "big")
+            gate_f = individual.gate
+            gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
+            gate_t = self.ifft(gate_f, sk_big, rn_big)
 
         else:
-            gate = pulse
+            gate_t = pulse_t
 
-        gate1, gate2 = self.apply_spectral_filter(gate, measurement_info.spectral_filter1, 
+        gate1, gate2 = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter1, 
                                                   measurement_info.spectral_filter2, sk_big, rn_big)
             
         gate2_shifted = self.calculate_shifted_signal(gate2, frequency_big, tau_arr, time_big)
@@ -440,14 +448,14 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
-        signal_t = jnp.real(pulse)*gate
+        signal_t = jnp.real(pulse_t)*gate
 
         signal_t, signal_f = self.apply_mask(signal_t, measurement_info)
-        gate_pulses = jnp.real(gate_pulses)
         signal_t = MyNamespace(signal_t=signal_t, 
                                signal_f=signal_f, 
-                               gate_pulses=gate_pulses, 
-                               gate_shifted=gate)
+                               gate_pulses=jnp.real(gate_pulses), 
+                               gate_shifted=gate,
+                               pulse_t = jnp.real(pulse_t))
         return signal_t
 
 
@@ -494,33 +502,35 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         sk_big, rn_big = measurement_info.sk_big, measurement_info.rn_big
         nonlinear_method = measurement_info.nonlinear_method
 
-        pulse_t = individual.pulse
-        pulse_t, _ = self.interpolate_signal_t(pulse_t, measurement_info, "main", "big")
+        pulse_f = individual.pulse
+        pulse_f = self.interpolate_signal_f(pulse_f, measurement_info, "main", "big")
+        pulse_t = self.ifft(pulse_f, sk_big, rn_big)
 
         if measurement_info.cross_correlation==True:
-            gate_pulse = measurement_info.gate
+            gate_t = measurement_info.gate
 
         elif measurement_info.doubleblind==True:
-            gate_pulse = individual.gate
-            gate_pulse, _ = self.interpolate_signal_t(gate_pulse, measurement_info, "main", "big")
+            gate_f = individual.gate
+            gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
+            gate_t = self.ifft(gate_f, sk_big, rn_big)
         else:
-            gate_pulse = pulse_t
+            gate_t = pulse_t
 
-        gate_disp = self.apply_phase(gate_pulse, measurement_info, sk_big, rn_big) 
+        gate_disp = self.apply_phase(gate_t, measurement_info, sk_big, rn_big) 
 
         tau = measurement_info.tau_interferometer
-        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency_big, jnp.asarray([tau]), time_big)
+        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency_big, jnp.asarray([tau]), time_big)
 
-        gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
+        gate_pulses = jnp.squeeze(gate_t_shifted) + gate_disp
         gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency_big, tau_arr, time_big)
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
         signal_t = jnp.real(pulse_t)*gate
 
         signal_t, signal_f = self.apply_mask(signal_t, measurement_info)
-        gate_pulses = jnp.real(gate_pulses)
         signal_t = MyNamespace(signal_t=signal_t, 
                                signal_f=signal_f, 
-                               gate_pulses=gate_pulses, 
-                               gate_shifted=gate)
+                               gate_pulses=jnp.real(gate_pulses), 
+                               gate_shifted=gate,
+                               pulse_t = jnp.real(pulse_t))
         return signal_t

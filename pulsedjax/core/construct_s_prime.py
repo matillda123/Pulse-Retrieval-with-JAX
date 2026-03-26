@@ -6,7 +6,7 @@ from equinox import tree_at
 from functools import partial as Partial
 
 
-from pulsedjax.utilities import scan_helper, MyNamespace, do_fft, do_ifft, project_onto_intensity, calculate_trace
+from pulsedjax.utilities import scan_helper, MyNamespace, do_ifft, project_onto_intensity, calculate_trace
 from pulsedjax.core.stepsize import adaptive_step_size
 
 
@@ -122,35 +122,6 @@ def calculate_r_error(trace, measured_trace, mu, descent_info):
 
 
 
-# def calc_r_error_for_linesearch(gamma, linesearch_info, measurement_info, descent_info):
-#     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
-    
-#     descent_direction, mu = linesearch_info.descent_direction, linesearch_info.mu
-#     signal_t = linesearch_info.signal_t
-
-#     signal_t_new = signal_t + gamma*descent_direction
-#     trace = calculate_trace(do_fft(signal_t_new, sk, rn))
-#     error = calculate_r_error(trace, measured_trace, mu, descent_info)
-#     return error
-
-
-# def calc_r_grad_for_linesearch(gamma, linesearch_info, measurement_info, descent_info):
-#     measured_trace, sk, rn = measurement_info.measured_trace, measurement_info.sk, measurement_info.rn 
-#     weights = descent_info.s_prime_params.weights
-    
-#     descent_direction, mu = linesearch_info.descent_direction, linesearch_info.mu
-#     signal_t = linesearch_info.signal_t
-
-#     signal_t_new = signal_t + gamma*descent_direction
-#     signal_f = do_fft(signal_t_new, sk, rn)
-
-#     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
-#                       "intensity": calculate_r_gradient_intensity}
-    
-#     gradient = calc_r_grad_dict[descent_info.s_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
-#     return gradient
-
-
 
 def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, sk, rn, descent_info, local_or_global):
     """ One iteration of the iterative descent based calculation of signal_t_new/S_prime. """
@@ -163,16 +134,6 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, sk, rn, desce
     descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, descent_info.xi, 
                                               MyNamespace(), MyNamespace(order="pade_10", factor=-1), 
                                               None, "_global")
-
-    # Is removed because it makes usage more complicated. 
-    # if (descent_info.linesearch_params.use_linesearch=="backtracking" or descent_info.linesearch_params.use_linesearch=="wolfe") and local_or_global=="_global":
-    #     pk_dot_gradient = jnp.sum(jnp.real(jnp.vecdot(descent_direction, gradient)))
-    #     linesearch_info = MyNamespace(signal_t=signal_t, descent_direction=descent_direction, error=r_error, 
-    #                                 pk_dot_gradient=pk_dot_gradient, mu=mu)
-        
-    #     gamma = do_linesearch(linesearch_info, measurement_info, descent_info, 
-    #                           Partial(calc_r_error_for_linesearch, descent_info=descent_info), 
-    #                           Partial(calc_r_grad_for_linesearch, descent_info=descent_info), local_or_global)
     
     signal_t_new = signal_t.signal_t + gamma*descent_direction
     signal_t = tree_at(lambda x: x.signal_t, signal_t, signal_t_new)

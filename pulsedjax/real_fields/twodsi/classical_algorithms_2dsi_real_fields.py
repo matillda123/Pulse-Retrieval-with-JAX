@@ -1,7 +1,7 @@
 from pulsedjax.real_fields.core.base_classes_methods import RetrievePulses2DSIwithRealFields
 from pulsedjax.twodsi import (GeneralizedProjection as _GeneralizedProjection, 
                             PtychographicIterativeEngine as _PtychographicIterativeEngine, 
-                            COPRA as _COPRA)
+                            COPRA as _COPRA, LSF as _LSF)
 
 from equinox import tree_at
 import jax.numpy as jnp
@@ -110,3 +110,15 @@ class COPRA(RetrievePulses2DSIwithRealFields, _COPRA):
         descent_direction = self.interpolate_signal_f(descent_direction, measurement_info, "big", "main")
         return descent_direction, newton_state
     
+
+
+
+
+
+
+class LSF(RetrievePulses2DSIwithRealFields, _LSF):
+    __doc__ = _LSF.__doc__
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter1, spectral_filter2, cross_correlation=False, f_range_fields=(None, None), f_range_pulse=(None, None), f_max_all_fields=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, **kwargs)
+        self._post_init()
