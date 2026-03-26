@@ -15,6 +15,9 @@ class pulsedjax_testing:
     Central objct used for testing. In order to add new methods or algorithms the class-methods 
     make_method_kwargs() and/or make_run_kwargs_...() have to be modified. Maybe some other methods as well 
     depending on the options allowed in the method/algorithm.
+
+    The goal of these test is just that the final algorithms actually run. 
+    There is no check if the results are actually sensible.
     
     """
     def __init__(self, method, algorithm, real_fields=False):
@@ -378,6 +381,9 @@ class pulsedjax_testing:
 def run_test(i, method, algorithm, real_fields=False):
     """
     Is called to perform test with inputs no. i for a pair of method and algorithms.
+
+    The goal of these test is just that the final algorithms actually run. 
+    There is no check if the results are actually sensible.
     """
     test = pulsedjax_testing(method, algorithm, real_fields)
     m_parameters = test.make_m_parameters(i, method)

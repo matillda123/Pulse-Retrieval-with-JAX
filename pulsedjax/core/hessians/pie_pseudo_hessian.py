@@ -72,6 +72,8 @@ def PIE_get_full_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_t
 
     elif pulse_or_gate=="chirpscan":
         phase_matrix = transform_arr
+
+        # this einsum for H seems wrong, should one really sum over m?
         H = jnp.einsum("kn,Nmn,jn -> Nkj", Dkn, phase_matrix, Dkn.conj())
         hessian_all_m = jnp.einsum("Nju,un,Nmu,Nmi,in,Nki,Nmn -> Nmkj", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
     

@@ -89,6 +89,13 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
+            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+            trace = calculate_trace(signal_t.signal_f)
+            mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+            signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
+                                                            measurement_info, descent_info, "_global", 
+                                                            axes=(0,None,0,None,None,None))
+        
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
             population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)

@@ -6,7 +6,7 @@ import refractiveindex
 import jax
 import jax.numpy as jnp
 
-from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, calculate_trace_error, center_signal, project_onto_amplitude
+from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, center_signal, project_onto_amplitude
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
 from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase, _eval_refractive_index
 
@@ -65,6 +65,14 @@ class RetrievePulses:
         central_frequency_pulse, central_frequency_gate = central_frequency
         self.central_frequency = MyNamespace(pulse=central_frequency_pulse, gate=central_frequency_gate)
 
+        # central frequency is needed in order to remove group delay from material dispersion
+        # this could/should be moved into checks in run -> because central_f is evaluated from optionally provided spectra
+        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulsesVAMPIRE)):
+            if (self.central_frequency.pulse==None and self.cross_correlation==False and self.doubleblind==False):
+                raise ValueError("You need to provide a central_frequency for the pulse.")
+            elif (self.central_frequency.gate==None and (self.cross_correlation==True or self.doubleblind==True)):
+                raise ValueError("You need to provide a central_frequency for the gate.")
+
 
         if nonlinear_method=="shg":
             self.factor = 2
@@ -96,17 +104,6 @@ class RetrievePulses:
 
         self.update_PRNG_key(self.prng_seed)
 
-
-
-        if isinstance(self, (RetrievePulsesCHIRPSCAN, RetrievePulsesVAMPIRE)):
-            if (self.measurement_info.central_frequency.pulse==None and 
-                self.measurement_info.cross_correlation==False and 
-                self.measurement_info.doubleblind==False):
-                raise ValueError("You need to provide a central_frequency for the pulse.")
-            elif (self.measurement_info.central_frequency.gate==None and 
-                (self.measurement_info.cross_correlation==True or
-                self.measurement_info.doubleblind==True)):
-                raise ValueError("You need to provide a central_frequency for the gate.")
             
 
 
@@ -261,20 +258,32 @@ class RetrievePulses:
 
 
 
-    def get_individual_from_idx(self, idx, population): # this probably doesnt work for general optimization algorithms
+    def get_individual_from_idx(self, idx, population):
         individual = jax.tree.map(lambda x: x[jnp.newaxis, idx], population)
         return individual
 
 
-    def get_idx_best_individual(self, descent_state):
-        """ Calculates trace error for whole population. Returns the idx of the individual with the smallest error."""
-        measurement_info, descent_info = self.measurement_info, self.descent_info 
-
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
-        idx = jnp.nanargmin(trace_error)
+    def _get_idx_individual(self, descent_state, idx_func):
+        """ Calculates the error for a population. Returns the index of the worst individual. """
+        error_arr = self.calculate_error_population(descent_state, self.measurement_info, self.descent_info)
+        idx = idx_func(error_arr)
         return idx
+    
+
+    def get_idx_best_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of the fittest individual. """
+        return self._get_idx_individual(descent_state, jnp.nanargmin)
+    
+
+    def get_idx_worst_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of the worst individual. """
+        return self._get_idx_individual(descent_state, jnp.nanargmax)
+
+
+    def get_idx_average_individual(self, descent_state):
+        """ Calculates the error for a population. Returns the index of an average individual. """
+        get_mean_idx = lambda x: jnp.nanargmin(jnp.abs(x - jnp.nanmean(x)))
+        return self._get_idx_individual(descent_state, get_mean_idx)
     
 
 

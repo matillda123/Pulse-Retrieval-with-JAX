@@ -356,7 +356,7 @@ class MakeTrace(MakePulseBase):
 def interpolate_spectrum(frequency, pulse_f, N):
     spectrum = jnp.abs(pulse_f)**2
 
-    idx=np.where(spectrum/jnp.max(spectrum)>1e-5)
+    idx = np.where(spectrum/jnp.max(spectrum)>1e-5)
     idx_1 = np.sort(idx)[0]
     idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
     

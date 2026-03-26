@@ -7,15 +7,15 @@ from pulsedjax.utilities import MyNamespace
 
 
 # the two loops need to have differing counting directions
-# because of this its easier to scan over index and not over element
+# because of this it seems easier to scan over index and not over element
 def backward_loop(q, i, rho, s, y):
-    """ Constructing the LBFGS direction without materializing the inverse newton is done through nested vector-operations. """
+    """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-multiplications. """
     alpha = rho[i]*jnp.vdot(s[i], q)
     q = q - alpha*y[i]
     return q, alpha
 
 def forward_loop(r, i, alpha, rho, s, y):
-    """ Constructing the LBFGS direction without materializing the inverse newton is done through nested vector-operations. """
+    """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-multiplications. """
     beta = rho[i]*jnp.vdot(y[i], r)
     r = r + s[i] * (alpha[i] - beta)
     return r, None
@@ -59,7 +59,8 @@ def do_lbfgs(grad_current, lbfgs_state, descent_info):
     s = -1*step_size_prev*newton_direction_prev
     y = grad_current - grad_prev
 
-    rho = 1/jnp.real(jnp.vecdot(y,s) + 1e-14)
+    ys = jnp.vecdot(y,s)
+    rho = 1/jnp.real(ys + jnp.sign(ys)*1e-14)
     rho = jnp.maximum(rho, 0) # ignore iterations with negative curvature
 
     newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, descent_info.newton)
