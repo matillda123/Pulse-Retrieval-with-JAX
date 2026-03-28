@@ -215,7 +215,7 @@ class pulsedjax_testing:
 
 
     def make_run_and_population_kwargs(self, i, algorithm):
-        if any([algorithm == i for i in (self.DE, self.Evosax, self.LSF, self.AutoDiff)]):
+        if any([algorithm == i for i in (self.DE, self.Evosax, self.AutoDiff)]):
             run_kwargs = self.make_run_kwargs_general(i, algorithm)
             population_kwargs = self.make_population_kwargs_general(i)
         else:

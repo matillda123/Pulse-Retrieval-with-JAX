@@ -410,8 +410,8 @@ def calc_Z_error_pseudo_hessian_all_m(pulse_t, pulse_t_shifted, gate_shifted, de
 
 
 
-def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, tau_arr, measurement_info, 
-                                        newton_state, newton_info, full_or_diagonal, pulse_or_gate):
+def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_shifted, signal_t, signal_t_new, tau_arr, 
+                                        descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
     
     """
     Calculates the pseudo-newton direction for the Z-error of a FROG measurement.
@@ -425,9 +425,9 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_s
         signal_t (jnp.array): the current signal field
         signal_t_new (jnp.array): the current signal field projected onto the measured intensity
         tau_arr (jnp.array): the time delays
-        measurement_info (Pytree): contains measurement data and parameters
-        newton_state (Pytree): contains the current state of the hessian calculation, e.g. the previous newton direction
-        newton_info (Pytree): contains parameters for the pseudo-newton direction calculation
+        descent_state (pytree):
+        measurement_info (pytree):
+        descent_info (pytree):
         full_or_diagonal (str): calculate using the full or diagonal pseudo hessian?
         pulse_or_gate (str): whether the direction is calculated for the pulse or the gate-pulse
 
@@ -437,16 +437,25 @@ def get_pseudo_newton_direction_Z_error(grad_m, pulse_t, pulse_t_shifted, gate_s
     """
 
 
-    lambda_lm = newton_info.lambda_lm
-    solver = newton_info.linalg_solver
-    newton_direction_prev = getattr(newton_state, pulse_or_gate).newton_direction_prev  
-    deltaS = signal_t_new-signal_t
+    lambda_lm = descent_info.newton.lambda_lm
+    solver = descent_info.newton.linalg_solver
+    newton_direction_prev = getattr(descent_state.newton, pulse_or_gate).newton_direction_prev  
+    deltaS = signal_t_new - signal_t
 
     # vmap over population here -> only for small populations since memory will explode. 
     calc_hessian = Partial(calc_Z_error_pseudo_hessian_all_m, is_tdp=False)
-    hessian_m=jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,None,None,None))(pulse_t, pulse_t_shifted, gate_shifted, deltaS, 
+    hessian_m = jax.vmap(calc_hessian, in_axes=(0,0,0,0,0,None,None,None))(pulse_t, pulse_t_shifted, gate_shifted, deltaS, 
                                                                         tau_arr, measurement_info, full_or_diagonal, pulse_or_gate)
-    
+
+    # for direct phase optimizatoin
+    if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+        if full_or_diagonal=="full":
+            hessian_m = hessian_m*spectral_amplitude[None,None,None,:]*spectral_amplitude[None,None,:,None]
+
+        elif full_or_diagonal=="diagonal":
+            hessian_m = hessian_m*spectral_amplitude[None,None,:]**2 # square because n=p
+
     return calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)
 
         

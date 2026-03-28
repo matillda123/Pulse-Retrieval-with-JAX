@@ -144,20 +144,15 @@ class GeneralizedProjection(RetrievePulsesVAMPIREwithRealFields, _GeneralizedPro
 
 
     
-    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
-        population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
 
-        grad = super().calculate_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
+        grad = super().calculate_Z_gradient_individual(signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
 
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        pulse, _ = self.interpolate_signal_t(descent_state.population.pulse, measurement_info, "main", "big")
-        descent_state = tree_at(lambda x: x.population.pulse, descent_state, jnp.real(pulse))
 
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t_new, signal_t, tau_arr, 
                                                                                descent_state, measurement_info, descent_info, 
@@ -182,27 +177,19 @@ class PtychographicIterativeEngine(RetrievePulsesVAMPIREwithRealFields, _Ptychog
         
 
 
-    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
 
-        if pulse_or_gate=="gate":
-            pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
-            population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-
-        grad_U = super().calculate_PIE_descent_direction_m(signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate)
+        grad_U = super().calculate_PIE_descent_direction_m(signal_t, signal_t_new, tau, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_U, _ = self.interpolate_signal_t(grad_U, measurement_info, "big", "main")
         return grad_U
     
 
-    def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
+    def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, local_or_global_state, measurement_info, descent_info, 
                                        pulse_or_gate, local_or_global):
         """ Calculates the newton direction for a population. """
 
-        if pulse_or_gate=="gate":
-            pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
-            population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-
-        descent_direction, newton_state = super().calculate_PIE_newton_direction(grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, pulse_or_gate, local_or_global)
+        descent_direction, newton_state = super().calculate_PIE_newton_direction(grad, signal_t, tau_arr, measured_trace, local_or_global_state, measurement_info, descent_info, pulse_or_gate, local_or_global)
         descent_direction, _ = self.interpolate_signal_t(descent_direction, measurement_info, "big", "main")
         return descent_direction, newton_state
 
@@ -221,28 +208,22 @@ class COPRA(RetrievePulsesVAMPIREwithRealFields, _COPRA):
                          cross_correlation=cross_correlation, f_range_fields=f_range_fields, f_range_pulse=f_range_pulse, f_max_all_fields=f_max_all_fields, **kwargs)
 
 
-    def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+    def get_Z_gradient_individual(self, signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-
-        pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
-        population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
             
-        grad = super().get_Z_gradient_individual(signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate)
+        grad = super().get_Z_gradient_individual(signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate)
         return self.interpolate_signal_f(grad, measurement_info, "big", "main")
 
 
 
-    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
+    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, local_or_global_state, measurement_info, descent_info, 
                                            full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
 
         # the hessian will be inverted on frequency_big 
 
-        pulse, _ = self.interpolate_signal_t(population.pulse, measurement_info, "main", "big")
-        population = tree_at(lambda x: x.pulse, population, jnp.real(pulse))
-
         descent_direction, newton_state = super().calculate_Z_newton_direction(grad, signal_t, signal_t_new, tau_arr, 
-                                                                               population, local_or_global_state, 
+                                                                               local_or_global_state, 
                                                                                measurement_info, descent_info, 
                                                                                full_or_diagonal, pulse_or_gate)
         

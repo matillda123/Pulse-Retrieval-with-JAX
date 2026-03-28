@@ -589,23 +589,29 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         self.r_local_method = None
 
+
+    def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
+        pulse_f = getattr(individual, pulse_or_gate)
+        pulse_f = pulse_f + gamma*descent_direction
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
+        return individual
+
     
-    def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
+    def update_population(self, population, gamma, descent_direction, pulse_or_gate):
         """ Applies the descent based update to the population. """
-        population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
-        return population
+        return self.update_individual(population, gamma[:,None], descent_direction, pulse_or_gate)
         
 
     
-    def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, descent_info, pulse_or_gate):
+    def get_Z_gradient(self, signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the Z-error gradient for the entire population. """
-        grad = jax.vmap(self.calculate_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, 
+        grad = jax.vmap(self.calculate_Z_gradient_individual, in_axes=(0,0,0,None,None))(signal_t, signal_t_new, 
                                                                                            transform_arr, measurement_info, 
                                                                                            pulse_or_gate)
         
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            pulse_f = getattr(population, pulse_or_gate)
-            grad = grad*jnp.abs(pulse_f)[:,jnp.newaxis,:]
+            grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return grad
 
@@ -617,7 +623,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
        
         transform_arr = measurement_info.transform_arr
 
-        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        individual = self.update_individual(individual, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         Z_error_new = calculate_Z_error(signal_t.signal_t, signal_t_new)
         return Z_error_new
@@ -629,13 +635,12 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         transform_arr = measurement_info.transform_arr
 
-        individual = self.update_individual(individual, gamma, descent_direction, measurement_info, pulse_or_gate)
+        individual = self.update_individual(individual, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        grad = self.calculate_Z_gradient_individual(signal_t, signal_t_new, individual, transform_arr, measurement_info, pulse_or_gate)
+        grad = self.calculate_Z_gradient_individual(signal_t, signal_t_new, transform_arr, measurement_info, pulse_or_gate)
         
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            pulse_f = getattr(individual, pulse_or_gate)
-            grad = grad*jnp.abs(pulse_f)[:,jnp.newaxis,:]
+            grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return jnp.sum(grad, axis=0)
 
@@ -647,13 +652,13 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         The step size is determined via a fixed/adaptive step size, a backtracking or a zoom linesearch.
         """       
 
-        newton_info, conjugate_gradients = descent_info.newton._global, getattr(descent_info.conjugate_gradients, "_global")
+        newton_info, conjugate_gradients = descent_info.newton._global, descent_info.conjugate_gradients._global
 
         population = descent_state.population
         transform_arr = measurement_info.transform_arr
         transform_arr = jnp.broadcast_to(transform_arr, (descent_info.population_size, ) + jnp.shape(transform_arr))
 
-        grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, descent_info, pulse_or_gate)
+        grad = self.get_Z_gradient(signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
 
 
@@ -684,8 +689,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
                                                                                                                     pulse_or_gate, "_global")
 
         if descent_info.linesearch_params.linesearch!=False:
-            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            # cann probably be vecdot instead of vmap
+            #pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
             
             linesearch_info=MyNamespace(population=population, descent_direction=descent_direction, signal_t_new=signal_t_new, 
                                         error=Z_error, pk_dot_gradient=pk_dot_gradient)
@@ -695,19 +700,13 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
                                                                              Partial(self.calc_Z_grad_for_linesearch, descent_info=descent_info, 
                                                                                      pulse_or_gate=pulse_or_gate), "_global")
         else:
-            gamma = descent_info.gamma._global
-            if jnp.size(gamma)==1:
-                gamma = jnp.broadcast_to(gamma, (descent_info.population_size, ))
-            elif jnp.size(gamma)==descent_info.population_size:
-                pass
-            else:
-                raise ValueError(f"Size of gamma has to be 1 or the population size. Not {jnp.size(gamma)}")
+            gamma = jnp.broadcast_to(descent_info.gamma._global, (descent_info.population_size))
 
         if newton_info=="lbfgs":
             lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
             descent_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), descent_state, lbfgs_state)
 
-        population = self.update_population(population, gamma, descent_direction, measurement_info, pulse_or_gate) 
+        population = self.update_population(population, gamma, descent_direction, pulse_or_gate) 
         return population
     
 
@@ -887,21 +886,27 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         return U
 
 
+
+    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
+        sk, rn = measurement_info.sk, measurement_info.rn
+        
+        signal_f = getattr(individual, pulse_or_gate)
+        signal_t = self.ifft(signal_f, sk, rn)
+        signal_t = signal_t + gamma*descent_direction
+        signal_f = self.fft(signal_t, sk, rn)
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
+        return individual
+
+
     def update_population(self, population, gamma, descent_direction, measurement_info, pulse_or_gate):
         """ Applies the PIE update to the population. """
-        population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None))(population, gamma, descent_direction, measurement_info, pulse_or_gate)
-        return population
-    
+        return self.update_individual(population, gamma[:,None], descent_direction, measurement_info, pulse_or_gate)
 
 
-    def calculate_PIE_descent_direction(self, population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction(self, signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the descent direction based on the PIE version. """
-        get_descent_direction = Partial(self.calculate_PIE_descent_direction_m, pie_method=pie_method, 
-                                        measurement_info=measurement_info, 
-                                        descent_info=descent_info, pulse_or_gate=pulse_or_gate)
-
-        grad_U = get_descent_direction(signal_t, signal_t_new, transform_arr, measured_trace, population)
-        return grad_U
+        return self.calculate_PIE_descent_direction_m(signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
 
 
 
@@ -932,7 +937,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                          measurement_info, descent_info, local_or_global)
         
         # None, is the correct choice since it yields the steepest descent direction of pie
-        grad_U = self.calculate_PIE_descent_direction(individual, signal_t, signal_t_new, transform_arr, measured_trace, None, 
+        grad_U = self.calculate_PIE_descent_direction(signal_t, signal_t_new, transform_arr, None, 
                                                              measurement_info, descent_info, pulse_or_gate)
         return jnp.sum(grad_U, axis=0)
     
@@ -964,11 +969,11 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         conjugate_gradients = getattr(descent_info.conjugate_gradients, local_or_global)
         newton_info = getattr(descent_info.newton, local_or_global)
 
-        grad_U = jax.vmap(self.calculate_PIE_descent_direction, in_axes=(0,0,0,0,0,None,None,None,None))(population, signal_t, signal_t_new, transform_arr, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate)
+        grad_U = jax.vmap(self.calculate_PIE_descent_direction, in_axes=(0,0,0,None,None,None,None))(signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad_U, axis=1)
 
         if newton_info=="diagonal" or (newton_info=="full" and pulse_or_gate=="pulse"):
-            descent_direction, newton_state = self.calculate_PIE_newton_direction(grad_U, signal_t, transform_arr, measured_trace, population, local_or_global_state, 
+            descent_direction, newton_state = self.calculate_PIE_newton_direction(grad_U, signal_t, transform_arr, measured_trace, local_or_global_state, 
                                                                                    measurement_info, descent_info, pulse_or_gate, local_or_global)
             local_or_global_state = tree_at(lambda x: getattr(x.newton, pulse_or_gate), local_or_global_state, newton_state)
 
@@ -997,8 +1002,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
 
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
-            pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            # this could be a vecdot instead of vmap i think -> needs testing though
+            #pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            pk_dot_gradient=jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
 
             linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
                                         pk_dot_gradient=pk_dot_gradient, error=pie_error,
@@ -1011,14 +1016,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                                                 local_or_global)
             
         else:
-            gamma = jnp.broadcast_to(getattr(descent_info.gamma, local_or_global), (descent_info.population_size, ))
-            if jnp.size(gamma)==1:
-                gamma = jnp.broadcast_to(gamma, (descent_info.population_size, ))
-            elif jnp.size(gamma)==descent_info.population_size:
-                pass
-            else:
-                raise ValueError(f"Size of {local_or_global} gamma has to be 1 or the population size. Not {jnp.size(gamma)}")
-
+            gamma = jnp.broadcast_to(getattr(descent_info.gamma, local_or_global), descent_info.population_size)
 
         if newton_info=="lbfgs":
             lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
@@ -1268,25 +1266,31 @@ class COPRABASE(ClassicAlgorithmsBASE):
         self.global_adaptive_scaling = "linear"
 
 
+    def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
+        """ Updates an individual based on a descent direction and a step size. """
 
-    def update_population(self, population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
+        signal_f = getattr(individual, pulse_or_gate)
+        signal_f = signal_f + gamma*descent_direction
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
+        return individual
+
+
+    def update_population(self, population, gamma, descent_direction, pulse_or_gate):
         """ Applies the a descent based update to the population. """
-        population = jax.vmap(self.update_individual, in_axes=(0,0,0,None,None,None))(population, gamma, descent_direction, 
-                                                                                      measurement_info, descent_info, pulse_or_gate)
-        return population
+        return self.update_individual(population, gamma[:,None], descent_direction, pulse_or_gate)
     
 
     
 
-    def get_Z_gradient(self, signal_t, signal_t_new, population, transform_arr, measurement_info, descent_info, pulse_or_gate):
+    def get_Z_gradient(self, signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the Z-error gradient for the current population. """
-        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,0,None,None))(signal_t, signal_t_new, population, 
+        grad = jax.vmap(self.get_Z_gradient_individual, in_axes=(0,0,0,None,None))(signal_t, signal_t_new, 
                                                                                      transform_arr, measurement_info, 
                                                                                      pulse_or_gate)
         
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate) == True:
-            pulse_f = getattr(population, pulse_or_gate)
-            grad = grad*jnp.abs(pulse_f)[:,jnp.newaxis,:]
+            grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return grad
 
@@ -1298,7 +1302,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         transform_arr = linesearch_info.transform_arr
         signal_t_new, descent_direction = linesearch_info.signal_t_new, linesearch_info.descent_direction
 
-        individual = self.update_individual(linesearch_info.population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        individual = self.update_individual(linesearch_info.population, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         error = calculate_Z_error(signal_t.signal_t, signal_t_new)
         return error
@@ -1310,14 +1314,12 @@ class COPRABASE(ClassicAlgorithmsBASE):
         transform_arr = linesearch_info.transform_arr
         signal_t_new, descent_direction = linesearch_info.signal_t_new, linesearch_info.descent_direction
 
-        individual = self.update_individual(linesearch_info.population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        individual = self.update_individual(linesearch_info.population, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        
-        grad = self.get_Z_gradient_individual(signal_t, signal_t_new, individual, transform_arr, measurement_info, pulse_or_gate)
+        grad = self.get_Z_gradient_individual(signal_t, signal_t_new, transform_arr, measurement_info, pulse_or_gate)
         
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate) == True:
-            pulse_f = getattr(individual, pulse_or_gate)
-            grad = grad*jnp.abs(pulse_f)[:,jnp.newaxis,:]
+            grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return jnp.sum(grad, axis=0)
     
@@ -1334,19 +1336,19 @@ class COPRABASE(ClassicAlgorithmsBASE):
         The step size is determined via a fixed/adaptive step size, a backtracking or a zoom linesearch.
         """
         
-        gamma, newton_info = getattr(descent_info.gamma, local_or_global), getattr(descent_info.newton, local_or_global)
+        newton_info = getattr(descent_info.newton, local_or_global)
         conjugate_gradients = getattr(descent_info.conjugate_gradients, local_or_global)
         
         if local_or_global=="_global":
             shape = (descent_info.population_size, ) + jnp.shape(transform_arr)
             transform_arr = jnp.broadcast_to(transform_arr, shape)
 
-        grad = self.get_Z_gradient(signal_t, signal_t_new, population, transform_arr, measurement_info, descent_info, pulse_or_gate)
+        grad = self.get_Z_gradient(signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate)
         grad_sum = jnp.sum(grad, axis=1)
 
         if newton_info=="diagonal" or newton_info=="full":
-            descent_direction, newton_state = self.get_Z_newton_direction(grad, signal_t, signal_t_new, transform_arr, population, local_or_global_state, 
-                                                                                       measurement_info, descent_info, newton_info, pulse_or_gate)
+            descent_direction, newton_state = self.get_Z_newton_direction(grad, signal_t, signal_t_new, transform_arr, local_or_global_state, 
+                                                                          measurement_info, descent_info, newton_info, pulse_or_gate)
 
             local_or_global_state = tree_at(lambda x: getattr(x.newton, pulse_or_gate), local_or_global_state, newton_state)
 
@@ -1373,8 +1375,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                                                                                             adaptive_scaling_info,
                                                                                                                             pulse_or_gate, local_or_global)
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
-            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            # also vecdot here 
+            #pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
             
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 
                                         pk_dot_gradient=pk_dot_gradient, transform_arr=transform_arr)
@@ -1385,19 +1387,14 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                                             Partial(self.calc_Z_grad_for_linesearch, descent_info=descent_info, 
                                                                                     pulse_or_gate=pulse_or_gate), local_or_global)
         else:
-            if jnp.size(gamma)==1:
-                gamma = jnp.broadcast_to(gamma, (descent_info.population_size, ))
-            elif jnp.size(gamma)==descent_info.population_size:
-                pass
-            else:
-                raise ValueError(f"Size of {local_or_global} gamma has to be 1 or the population size. Not {jnp.size(gamma)}")
-            
+            gamma = jnp.broadcast_to(getattr(descent_info.gamma, local_or_global), descent_info.population_size)
+
 
         if newton_info=="lbfgs":
             lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
             local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), local_or_global_state, lbfgs_state)
 
-        population = self.update_population(population, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate)
+        population = self.update_population(population, gamma, descent_direction, pulse_or_gate)
         return local_or_global_state, population
     
 

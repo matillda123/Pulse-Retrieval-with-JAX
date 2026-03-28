@@ -98,6 +98,13 @@ class AlgorithmsBASE:
     
 
 
+
+    def apply_spectrum(self, pulse, spectral_amplitude, eta):
+        spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
+        pulse = project_onto_amplitude(pulse, spectral_amplitude)
+        return pulse
+    
+
     def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
         """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
         population = descent_state.population
@@ -154,13 +161,14 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", "LSF"]
+            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", 
+                          "GeneralizedProjection", "COPRA", "LSF"]
 
-            if any([self._name==name for name in names_list])==True: # COPRA and GP may/could be placed here with some work?
+            if any([self._name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
 
-            elif self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
+            elif self._name=="PtychographicIterativeEngine":
                 self._local_step = self.local_step
                 self._global_step = self.global_step
                 self.local_step = Partial(self.do_step_and_apply_spectral_amplitude, do_step=self._local_step)
@@ -172,14 +180,6 @@ class AlgorithmsBASE:
 
             self.spectrum_is_being_used = True
             return self
-        
-
-    def apply_spectrum(self, pulse, spectral_amplitude, eta):
-        spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
-        pulse = project_onto_amplitude(pulse, spectral_amplitude)
-        return pulse
-
-
 
 
 

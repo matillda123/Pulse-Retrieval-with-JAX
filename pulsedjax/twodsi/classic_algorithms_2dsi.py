@@ -194,7 +194,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
         super().__init__(delay, frequency, measured_trace, nonlinear_method,  spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, **kwargs)
 
 
-    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
@@ -203,19 +203,10 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulses2DSI):
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, 
-                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
-                                                                         descent_state.newton, descent_info.newton, full_or_diagonal, pulse_or_gate)
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, 
+                                                                         descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
 
-
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
-        """ Updates an individual based on a descent direction and step size."""
-
-        pulse_f = getattr(individual, pulse_or_gate)
-        pulse_f = pulse_f + gamma*descent_direction
-
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
-        return individual
 
 
 
@@ -241,7 +232,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
     #     pass
 
 
-    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for a given shift. """
         alpha = descent_info.alpha
         difference_signal_t = signal_t_new - signal_t.signal_t
@@ -252,23 +243,11 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         return grad*U
     
 
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
-        """ Updates an individual based on a descent direction and step size. """
-        sk, rn = measurement_info.sk, measurement_info.rn
-        signal_f = getattr(individual, pulse_or_gate)
-        signal_t = self.ifft(signal_f, sk, rn)
-        signal_t = signal_t + gamma*descent_direction
-        signal_f = self.fft(signal_t, sk, rn)
-
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
-        return individual
-
-
     # def get_gate_probe_for_hessian(self, pulse_t, gate_pulse_shifted, nonlinear_method):
     #     pass
 
 
-    def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, population, local_or_global_state, measurement_info, descent_info, 
+    def calculate_PIE_newton_direction(self, grad, signal_t, tau_arr, measured_trace, local_or_global_state, measurement_info, descent_info, 
                                        pulse_or_gate, local_or_global):
         
         """ Calculates the PIE newton direction for a population. """
@@ -298,32 +277,22 @@ class COPRA(COPRABASE, RetrievePulses2DSI):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, spectral_filter1=spectral_filter1, spectral_filter2=spectral_filter2, cross_correlation=cross_correlation, **kwargs)
 
 
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        """ Updates an individual via a descent direction and a step size. """
-
-        signal_f = getattr(individual, pulse_or_gate)
-        signal_f = signal_f + gamma*descent_direction
-
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
-        return individual
 
 
-
-    def get_Z_gradient_individual(self, signal_t, signal_t_new, population, tau_arr, measurement_info, pulse_or_gate):
+    def get_Z_gradient_individual(self, signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
 
-    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, population, local_or_global_state, measurement_info, descent_info, 
+    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, local_or_global_state, measurement_info, descent_info, 
                                            full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
         
-        newton_state = local_or_global_state.newton
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.gate_pulses, signal_t.gate_shifted, 
-                                                                         signal_t.signal_t, signal_t_new, tau_arr, measurement_info, 
-                                                                         newton_state, descent_info.newton, full_or_diagonal, pulse_or_gate)
+                                                                         signal_t.signal_t, signal_t_new, tau_arr, 
+                                                                         local_or_global_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
         return descent_direction, newton_state
     
 

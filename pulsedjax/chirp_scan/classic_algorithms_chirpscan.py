@@ -234,7 +234,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
         super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
-    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
+    def calculate_Z_gradient_individual(self, signal_t, signal_t_new, phase_matrix, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return grad 
@@ -244,15 +244,8 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesCHIRPSCAN):
         """ Calculates the Z-error newton direction for a population. """
 
         descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, 
-                                                                        measurement_info, descent_state.newton, descent_info.newton, full_or_diagonal)
+                                                                        descent_state, measurement_info, descent_info, full_or_diagonal)
         return descent_direction, newton_state
-    
-
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
-        """ Updates an individual based on a descent direction and a step size. """
-        pulse = individual.pulse + gamma*descent_direction
-        individual = tree_at(lambda x: x.pulse, individual, pulse)
-        return individual
 
 
 
@@ -282,7 +275,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 
-    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, measured_trace, population, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, phase_matrix_m, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for a given shift. """
         alpha = descent_info.alpha
 
@@ -297,19 +290,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, pulse_or_gate):
-        """ Updates an individual based on a descent direction and a step size. """
-        sk, rn = measurement_info.sk, measurement_info.rn
-        
-        pulse_t = self.ifft(individual.pulse, sk, rn)
-        pulse_t = pulse_t + gamma*descent_direction
-        pulse = self.fft(pulse_t, sk, rn)
-
-        individual = tree_at(lambda x: x.pulse, individual, pulse)
-        return individual
-    
-
-    def calculate_PIE_newton_direction(self, grad, signal_t, phase_matrix, measured_trace, population, local_or_global_state, measurement_info, 
+    def calculate_PIE_newton_direction(self, grad, signal_t, phase_matrix, measured_trace, local_or_global_state, measurement_info, 
                                                 descent_info, pulse_or_gate, local_or_global):
         """ Calculates the PIE newton direction for a population. """
         
@@ -341,34 +322,20 @@ class COPRA(COPRABASE, RetrievePulsesCHIRPSCAN):
         super().__init__(theta, frequency, measured_trace, nonlinear_method, phase_type=phase_type, chirp_parameters=chirp_parameters, **kwargs)
 
 
-    def update_individual(self, individual, gamma, descent_direction, measurement_info, descent_info, pulse_or_gate):
-        """ Updates an individual based on a desent direction and a step size. """
-        pulse = individual.pulse + gamma*descent_direction
-        individual = tree_at(lambda x: x.pulse, individual, pulse)
-        return individual
 
-
-    def get_Z_gradient_individual(self, signal_t, signal_t_new, population, phase_matrix, measurement_info, pulse_or_gate):
+    def get_Z_gradient_individual(self, signal_t, signal_t_new, phase_matrix, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
         grad = calculate_Z_gradient(signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info)
         return grad
 
 
-    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, phase_matrix, population, local_or_global_state, measurement_info, descent_info, 
+    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, phase_matrix, local_or_global_state, measurement_info, descent_info, 
                                            full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        newton_state = local_or_global_state.newton
-        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, measurement_info, 
-                                                                         newton_state, descent_info.newton, full_or_diagonal)
+        
+        descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t_disp, signal_t.signal_t, signal_t_new, phase_matrix, 
+                                                                              local_or_global_state, measurement_info, descent_info, full_or_diagonal)
         return descent_direction, newton_state
-
-
-
-
-
-
-
 
 
 
