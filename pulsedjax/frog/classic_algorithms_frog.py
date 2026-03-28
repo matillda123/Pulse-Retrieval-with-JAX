@@ -225,15 +225,20 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         """ For reconstruction of the gate-pulse the gradient depends on the nonlinear method. """
         if nonlinear_method=="shg":
             pass
+
         elif nonlinear_method=="thg":
             grad_all_m = grad_all_m*jnp.conjugate(2*gate_pulse_shifted)
+
         elif nonlinear_method=="pg":
             grad_all_m = grad_all_m*gate_pulse_shifted
+
         elif nonlinear_method=="sd":
             grad_all_m = jnp.conjugate(grad_all_m*2*gate_pulse_shifted)
+
         elif nonlinear_method[-2:]=="hg":
             n = int(nonlinear_method[0])
             grad_all_m = grad_all_m*jnp.conjugate((n-1)*gate_pulse_shifted**(n-2))
+
         else:
             raise NotImplementedError(f"nonlinear_method={nonlinear_method} is not available.")
 
@@ -241,10 +246,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
 
 
-    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, measured_trace, pie_method, measurement_info, descent_info, pulse_or_gate):
+    def calculate_PIE_descent_direction_m(self, signal_t, signal_t_new, tau, pie_method, measurement_info, descent_info, pulse_or_gate):
         """ Calculates the PIE direction for pulse or gate-pulse for a given shift. """
         alpha = descent_info.alpha
-
         difference_signal_t = signal_t_new - signal_t.signal_t
 
         if pulse_or_gate=="pulse":
@@ -261,6 +265,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
             grad = self.modify_grad_for_gate_pulse(grad, signal_t.gate_pulse_shifted, measurement_info.nonlinear_method)
             grad_U = self.reverse_transform_grad(grad*U, tau, measurement_info)
 
+        else:
+            raise ValueError
+
         return grad_U
     
 
@@ -269,15 +276,20 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         """ For the reconstruction of the gate pulse, the probe depends on the nonlinear method for the hessian calculation. """
         if nonlinear_method=="shg":
             probe = pulse_t
+
         elif nonlinear_method=="thg":
             probe = pulse_t*2*gate_pulse_shifted
+
         elif nonlinear_method=="pg":
             probe = pulse_t*jnp.conjugate(gate_pulse_shifted)
+
         elif nonlinear_method=="sd":
             probe = jnp.conjugate(pulse_t)*2*gate_pulse_shifted
+
         elif nonlinear_method[-2:]=="hg":
             n = int(nonlinear_method[0])
             probe = pulse_t*(n-1)*gate_pulse_shifted**(n-2)
+
         else:
              raise NotImplementedError(f"nonlinear_method={nonlinear_method} is not available.")
 

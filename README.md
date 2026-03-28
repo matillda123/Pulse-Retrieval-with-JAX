@@ -13,7 +13,8 @@ The documentation is available [here](https://pulse-retrieval-with-jax.readthedo
 
 ## Overview  
 Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE. 
-For each method SHG, THG, PG/TG and SD as well as cross-correlation retrievals are implemented (with some exceptions). Doubleblind retrievals are implemented as well, however usually these suffer from serious convergence issues. For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
+For each method SHG, THG, PG/TG and SD as well as cross-correlation retrievals are implemented (with some exceptions). Doubleblind retrievals are implemented as well, however usually these suffer from serious convergence issues, unless additional constraints are enforced. These can be provided through measured spectra of the pulse and gate-pulse. 
+For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
 
 On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid. In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once.  
 
