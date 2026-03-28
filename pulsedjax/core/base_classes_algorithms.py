@@ -44,7 +44,6 @@ class AlgorithmsBASE:
         """ Applies calculate_signal_t to a whole population via jax.vmap """
         transform_arr = measurement_info.transform_arr
         population = descent_state.population
-        #signal_t = jax.tree.map(lambda x: self.calculate_signal_t(x, transform_arr, measurement_info), population)
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,None,None))(population, transform_arr, measurement_info)
         return signal_t
 
@@ -84,7 +83,11 @@ class AlgorithmsBASE:
 
 
     def run(self, init_vals, no_iterations=1, **kwargs):
-        """ This function is invoked by most solvers to perform the iterative reconstruction. """
+        """ 
+        This function is invoked by most solvers to perform the iterative reconstruction. 
+        Excpetions to this are PtychographicIterativeEngine and COPRA. These invoke run_scan() twice in order to 
+        perform a local and global optimization phase. 
+        """
         
         self.do_checks_before_running(**kwargs)
 
@@ -98,8 +101,7 @@ class AlgorithmsBASE:
     def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
         """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
         population = descent_state.population
-        sk, rn = measurement_info.sk, measurement_info.rn
-        eta = measurement_info.eta_spectral_amplitude
+        eta = descent_info.eta_spectral_amplitude
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
             norm_pulse = jnp.linalg.norm(population.pulse, axis=-1)
@@ -190,13 +192,11 @@ class AlgorithmsBASE:
             value = mydict[key]
 
             if isinstance(value, MyNamespace):
-                myoutput[key] = "MyNamespace( ... )" #value.__repr__()
+                myoutput[key] = "MyNamespace( ... )"
             else:
                 if isinstance(value, (jax.Array, tuple, list, np.ndarray)):
-                    #myoutput.append([key, jnp.shape(jnp.asarray(value)), value.dtype])
                     myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
                 else:
-                    #myoutput.append([key, value, value.dtype])
                     try:
                         myoutput[key] = [value, value.dtype]
                     except:
@@ -244,7 +244,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         r_newton (bool): enables/diables the use of the diagonal hessian if r_method=iteration
         r_weights (float, jnp.array): allows the weigthing of residuals
         r_no_iterations (int): the number of iterations if r_method=iteration
-        r_step_scaling (str): the type of adpative step-size scaling to use if r_method=iteration
 
         xi (float): a damping coefficient for adaptive step-sizes, avoids division by zero
         local_adaptive_scaling (bool, str): enables/disables adaptive step sized in local iterations. Can be one of False, pade_10 (linear), pade_20 (nonlinear),
@@ -530,6 +529,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
     
     def calculate_error_population(self, population, measurement_info, descent_info):
+        """ What the names says. Returns the errors and the population. """
         signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)        
         trace = calculate_trace(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)

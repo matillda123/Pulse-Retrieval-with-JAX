@@ -95,9 +95,9 @@ def zoom_phase(current_vals, bracket, linesearch_info, linesearch_params):
 def zoom_linesearch(linesearch_state, error_func, grad_func, linesearch_params, linesearch_info, measurement_info):
     """
     Perform one iteration of an zoom linesearch. Works in two phases. In the first phase an interval containing a minimum is 
-    located by doubling of the step size and observation of the behavior of the error and error-gradient. 
+    located by increasing the step size and observation of the behavior of the error and error-gradient. 
     If a suitable interval has been located the minimum is approximated/found through successive cubic interpolation.
-    The search terminates if the Armijo- and Wolfe conditions are met.
+    The search terminates if the Armijo- and Wolfe conditions are met or one runs out of iterations.
 
     Args:
         linesearch_state (Pytree): contains information on the current state of the linesearch

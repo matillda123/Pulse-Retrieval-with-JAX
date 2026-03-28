@@ -91,9 +91,9 @@ class RetrievePulses:
                                             interferometric = self.interferometric,
                                             cross_correlation = self.cross_correlation,
                                             doubleblind = self.doubleblind,
-                                            eta_spectral_amplitude = self.eta_spectral_amplitude,
                                             transfer_function = self.transfer_function)
-        self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False))
+        self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False),
+                                        eta_spectral_amplitude = self.eta_spectral_amplitude)
         self.descent_state = MyNamespace()
 
         self.key = None

@@ -157,7 +157,7 @@ class LSGPABASE(ClassicAlgorithmsBASE):
     def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, **kwargs):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "LSGPA is not intended for interferometric measurements."
-        #assert self.doubleblind==False, "LSGPA is not intended for doubelblind."
+        assert self.doubleblind==False or nonlinear_method=="shg", "LSGPA doesnt work with doubleblind unless its SHG."
 
         self._name = "LSGPA"
 
@@ -1661,6 +1661,19 @@ class LSFBASE(ClassicAlgorithmsBASE):
         self.boundary = 1 
 
 
+    def project_onto_measured_spectrum(self, pulse_f, spectral_amplitude, eta):
+        """ Projects onto measured spectrum by dividing the current spectral amplitude out. """
+        amp_f = jnp.abs(pulse_f)
+        max_val = jnp.max(amp_f)
+
+        spectral_amplitude = (1-eta)*amp_f + eta*spectral_amplitude
+
+        phase_like = pulse_f/(amp_f + 1e-15) # avoid division by zero
+        pulse_f = spectral_amplitude*phase_like
+        pulse_f = pulse_f*max_val/jnp.max(spectral_amplitude) # rescaling to input magnitude
+        return pulse_f
+
+
     def get_random_values(self, key, shape, minval, maxval, descent_info):
         """ LSF requires random directions. These are produced here. """
         mode = descent_info.random_direction_mode
@@ -1691,8 +1704,7 @@ class LSFBASE(ClassicAlgorithmsBASE):
         key1, key2 = keys.pulse
         direction = MyNamespace(pulse=None, gate=None)
 
-        pulse = individual.pulse
-        shape_pulse = jnp.shape(pulse)
+        shape_pulse = jnp.shape(individual.pulse)
         d_pulse_re = self.get_random_values(key1, shape_pulse, -1, 1, descent_info)
         d_pulse_im = self.get_random_values(key2, shape_pulse, -1, 1, descent_info)
         d = d_pulse_re + 1j*d_pulse_im
@@ -1702,8 +1714,7 @@ class LSFBASE(ClassicAlgorithmsBASE):
         if measurement_info.doubleblind==True:
             key3, key4 = keys.gate
 
-            gate = individual.gate
-            shape_gate = jnp.shape(gate)
+            shape_gate = jnp.shape(individual.gate)
             d_gate_re = self.get_random_values(key3, shape_gate, -1, 1, descent_info)
             d_gate_im = self.get_random_values(key4, shape_gate, -1, 1, descent_info)
             d = d_gate_re + 1j*d_gate_im
@@ -1728,8 +1739,8 @@ class LSFBASE(ClassicAlgorithmsBASE):
     def get_scalars(self, direction, signal, descent_info):
         """ Calculates scalars to identify the min/max of a search direction. """
         # solve jnp.abs(signal + s*direction)**2 = jnp.abs(boundary)**2
-        p = 2*jnp.real(signal*jnp.conjugate(direction))/(jnp.abs(direction)**2+1e-9)
-        q = (jnp.abs(signal)**2 - jnp.abs(descent_info.boundary)**2)/(jnp.abs(direction)**2+1e-9)
+        p = 2*jnp.real(signal*jnp.conjugate(direction))/(jnp.abs(direction)**2 + 1e-9)
+        q = (jnp.abs(signal)**2 - jnp.abs(descent_info.boundary)**2)/(jnp.abs(direction)**2 + 1e-9)
 
         diskriminante = p**2/4 - q
         diskriminante = jnp.maximum(diskriminante, 0)
@@ -1747,8 +1758,8 @@ class LSFBASE(ClassicAlgorithmsBASE):
         dl = jnp.linalg.norm(signal - El)
         dr = jnp.linalg.norm(signal - Er)
 
-        x=jnp.sign(dr-dl)
-        condition=(x+1)//2
+        x = jnp.sign(dr-dl)
+        condition = (x+1)//2
         El = El*condition + Em*(1-condition)
         Er = Em*condition + Er*(1-condition)
         return El, Er
@@ -1757,89 +1768,91 @@ class LSFBASE(ClassicAlgorithmsBASE):
         return El, Em
     
 
-    def bisection_step(self, El, Er, population, measurement_info, descent_info, pulse_or_gate):
+    def bisection_step(self, El, Er, descent_state, measurement_info, descent_info, pulse_or_gate):
         """ Does one bisection step of the LSF algorithm. """
+
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+            spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+            eta = descent_info.eta_spectral_amplitude
+            El = self.project_onto_measured_spectrum(El, spectral_amplitude, eta)
+            Er = self.project_onto_measured_spectrum(Er, spectral_amplitude, eta)
 
         Em = (El + Er)/2
         E_arr = jnp.array([El, Em, Er])
 
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            E_arr = getattr(measurement_info.spectral_amplitude, pulse_or_gate)*E_arr/jnp.abs(E_arr)
-
-        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
+        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, descent_state, measurement_info, descent_info, pulse_or_gate)
         idx = jnp.argmax(error_arr, axis=0)
 
-        El, Er = jax.vmap(jax.lax.switch, in_axes=(0, None, 0, 0, 0, None))(idx, [self.bisection_step_logic_0, 
-                                                                                  self.bisection_step_logic_1, 
-                                                                                  self.bisection_step_logic_2], El, Em, Er, getattr(population, pulse_or_gate))
+        El, Er = jax.vmap(jax.lax.switch, in_axes=(0, None, 0, 0, 0, None))(idx, 
+                                                                            [self.bisection_step_logic_0, 
+                                                                             self.bisection_step_logic_1, 
+                                                                             self.bisection_step_logic_2], 
+                                                                            El, Em, Er, 
+                                                                            getattr(descent_state.population, pulse_or_gate)
+                                                                            )
         return (El, Er), None
     
 
 
 
-    def do_bisection_search(self, direction, population, measurement_info, descent_info, pulse_or_gate):
+    def do_bisection_search(self, direction, descent_state, measurement_info, descent_info, pulse_or_gate):
         """ 
         Performs one bisection search to find the minimum along a given search direction. 
         The number of iterations is set through self.number_of_bisection_iterations
         """
-        s1, s2 = self.get_scalars(direction, getattr(population, pulse_or_gate), descent_info)
+        s1, s2 = self.get_scalars(direction, getattr(descent_state.population, pulse_or_gate), descent_info)
 
-        El = getattr(population, pulse_or_gate) + s1*direction
-        Er = getattr(population, pulse_or_gate) + s2*direction
-        
+        El = getattr(descent_state.population, pulse_or_gate) + s1*direction
+        Er = getattr(descent_state.population, pulse_or_gate) + s2*direction
+
         no_iterations = descent_info.number_of_bisection_iterations
-        do_bisection_step = Partial(self.bisection_step, population=population, measurement_info=measurement_info, 
+        do_bisection_step = Partial(self.bisection_step, descent_state=descent_state, measurement_info=measurement_info, 
                                     descent_info=descent_info, pulse_or_gate=pulse_or_gate)
         
         do_step = Partial(scan_helper, actual_function=do_bisection_step, number_of_args=2, number_of_xs=0)
         E_arr, _ = jax.lax.scan(do_step, (El, Er), length=no_iterations) 
         E_arr = jnp.array(E_arr)
 
-        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, population, measurement_info, descent_info, pulse_or_gate)
+        error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, descent_state, measurement_info, descent_info, pulse_or_gate)
         idx = jnp.argmin(error_arr, axis=0)
         return jax.vmap(jax.lax.switch, in_axes=(0, None, 0))(idx, [lambda x: x[0], lambda x: x[1]], jnp.transpose(E_arr, axes=(1,0,2)))
 
 
 
 
-    def search_along_direction(self, direction, population, measurement_info, descent_info):
+    def search_along_direction(self, direction, descent_state, measurement_info, descent_info):
         """ Performs a bisection search along one direction for pulse and the for gate. """
-        direction_pulse = direction.pulse
-        population_pulse = self.do_bisection_search(direction_pulse, population, measurement_info, descent_info, "pulse")
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
+        population_pulse = self.do_bisection_search(direction.pulse, descent_state, measurement_info, descent_info, "pulse")
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
         
         if measurement_info.doubleblind==True:
-            direction_gate=direction.gate
-            population_gate = self.do_bisection_search(direction_gate, population, measurement_info, descent_info, "gate")
-            population = tree_at(lambda x: x.gate, population, population_gate)
+            population_gate = self.do_bisection_search(direction.gate, descent_state, measurement_info, descent_info, "gate")
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
-        return population
+        return descent_state
     
     
 
-    def make_population_bisection_search(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
-        if pulse_or_gate=="pulse":
-            pulse_arr, gate_arr = E_arr, population.gate
-        elif pulse_or_gate=="gate":
-            pulse_arr, gate_arr = population.pulse, E_arr
-        else:
-            raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
+    def make_population_bisection_search(self, E_arr, population, pulse_or_gate):
+        temp_dict = {"pulse": (E_arr, population.gate),
+                     "gate": (population.pulse, E_arr)}
+        
+        pulse_arr, gate_arr = temp_dict[pulse_or_gate]
         return MyNamespace(pulse=pulse_arr, gate=gate_arr)
 
 
 
 
-    def calculate_error(self, E_arr, population, measurement_info, descent_info, pulse_or_gate):
+    def calculate_error(self, E_arr, descent_state, measurement_info, descent_info, pulse_or_gate):
         """ 
         Calculates the trace error. Since pulse and gate are optimized independently the population as provided to calculate_error_individual() 
         needs to be constructed from the current population and the fields in the cureent optimization.
         """
-        population = self.make_population_bisection_search(E_arr, population, measurement_info, descent_info, pulse_or_gate)
+        population = self.make_population_bisection_search(E_arr, descent_state.population, pulse_or_gate)
         signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)
         trace = calculate_trace(signal_t.signal_f)
-        return jnp.sum(jnp.abs(trace-measurement_info.measured_trace)**2, axis=(1,2))
-    
-
+        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        return error_arr
 
 
 
@@ -1862,14 +1875,11 @@ class LSFBASE(ClassicAlgorithmsBASE):
         descent_state = tree_at(lambda x: x.key, descent_state, key)
         
         direction = self.get_search_direction(subkey, population, measurement_info, descent_info)
-        population = self.search_along_direction(direction, population, measurement_info, descent_info)
+        descent_state = self.search_along_direction(direction, descent_state, measurement_info, descent_info)
 
-        error_arr, _ = self.calculate_error_population(population, measurement_info, descent_info)
-
-        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)        
-        trace = calculate_trace(signal_t.signal_f)
-        error_arr = jnp.sum(jnp.abs(trace - measurement_info.measured_trace)**2, axis=(1,2))
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
+        trace = calculate_trace(signal_t.signal_f)        
+        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
         return descent_state, error_arr.reshape(-1,1)
     
 
@@ -1897,6 +1907,8 @@ class LSFBASE(ClassicAlgorithmsBASE):
                                                      boundary = self.boundary)
         descent_info = self.descent_info
 
+        # this normalizatoin seems to be needed, i guess the calculation of s1, s2 is faulty otherwise
+        population = jax.tree.map(lambda x: x/jnp.linalg.norm(x,axis=-1)[:,None], population)
         self.descent_state = self.descent_state.expand(population = population,
                                                        key = self.key)
         descent_state = self.descent_state
