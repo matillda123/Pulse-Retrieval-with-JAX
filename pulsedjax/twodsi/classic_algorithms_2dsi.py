@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+import jax
 from functools import partial as Partial
 
 from equinox import tree_at
@@ -111,9 +112,10 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
     def calc_error_of_reconstruction(self, descent_state, measurement_info, descent_info):
         """ Calculates the error of the reconstruction. """
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        # if population is larger than one this may cause an error or bug ? 
-        trace_error = calculate_trace_error(trace, measurement_info.measured_trace)
+        
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
         return trace_error
     
 
@@ -252,10 +254,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         
         """ Calculates the PIE newton direction for a population. """
         
-        newton_direction_prev = getattr(local_or_global_state.newton, pulse_or_gate).newton_direction_prev
         probe = signal_t.gate_shifted
-
-        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, newton_direction_prev, 
+        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, local_or_global_state, 
                                                                      measurement_info, descent_info, pulse_or_gate, local_or_global)
         return descent_direction, newton_state
     

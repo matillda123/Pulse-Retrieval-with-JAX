@@ -131,10 +131,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         
         """ Calculates the PIE newton direction for a population. """
         
-        newton_direction_prev = getattr(local_or_global_state.newton, pulse_or_gate).newton_direction_prev
         probe = signal_t.gate_shifted
-
-        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, newton_direction_prev, 
+        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, local_or_global_state, 
                                                                      measurement_info, descent_info, pulse_or_gate, local_or_global)
         return descent_direction, newton_state
     

@@ -467,59 +467,52 @@ def project_onto_amplitude(signal_f, measured_amplitude):
 
 
 
+def calculate_mu(trace, measured_trace):
+    """ Calculates scaling factor between measured intensity and intensity of current guess. """
+    return jnp.sum(trace*measured_trace)/(jnp.sum(trace**2) + 1e-15)
 
 
-def calculate_trace(signal_f):
-    """ Calculates intensity from a complex signal. """
+
+def calculate_mu_f(trace, measured_trace):
+    """ Calculates calibration curve between measured intensity and intensity of current guess. """
+    return jnp.sum(trace*measured_trace, axis=0)/(jnp.sum(trace**2,axis=0) + 1e-15)
+
+
+
+def calculate_trace(signal_f, measured_trace, measurement_info, descent_info, local_or_global):
+    """ 
+    Calculates intensity from a complex signal. As well as the calibration factor/curve. 
+    Needs to be vmapped in order to apply to a population.
+    """
     trace = jnp.abs(signal_f)**2
-    return trace
 
-
-
-def _calculate_trace(signal_f, measurement_info, descent_info): # this needs to be vmapped over 
-    """ Calculates intensity from a complex signal. """
-    trace = jnp.abs(signal_f)**2
-
-    if descent_info.optimize_calibration_curve==True:
-        mu = calculate_mu_f(trace, measurement_info.measured_trace)
+    if descent_info.calibration_curve_is_provided==True:
+        mu = measurement_info.calibration_curve
     else:
-        mu = calculate_mu(trace, measurement_info.measured_trace)
+        # mu_f should probably only be used in global iterations
+        if descent_info.calibration_curve.optimize==True and local_or_global=="_global":
+            eta = descent_info.calibration_curve.eta
+            # here iterative update of mu, needs previous mu i guess -> descent state like input needed
+            pass
+        else:
+            mu = calculate_mu(trace, measured_trace)
 
     return trace, mu
 
 
 
-def calculate_mu(trace, measured_trace):
-    """ Calculates scaling factor between measured intensity and intensity of current guess. """
-    N = jnp.max(trace) # needed in cases where norm is very small
-    trace = trace/N
-    measured_trace = measured_trace/N
-    return jnp.sum(trace*measured_trace)/(jnp.sum(trace**2) + 1e-15)
-
-
-def calculate_mu_f(trace, measured_trace):
-    """ 
-    Calculates scaling factor between measured intensity and intensity of current guess along the freqeuncy axis.
-    Thus this frequency dependent mu is essentially a calibration curve.
-    """
-    N = jnp.max(trace) # needed in cases where norm is very small
-    trace = trace/N
-    measured_trace = measured_trace/N
-    return jnp.sum(trace*measured_trace, axis=0)/(jnp.sum(trace**2, axis=0) + 1e-15)
-
-
-def calculate_trace_error(trace, measured_trace):
+def calculate_trace_error(mu, trace, measured_trace):
     """ 
     Calculates the mean of the squared L2-Norm between the measured intensity and intensity of the current guess.
     With the current guess being scaled by mu.
     """
-    mu = calculate_mu(trace, measured_trace)
     return jnp.mean(jnp.abs(measured_trace - mu*trace)**2)
+
 
 
 def calculate_Z_error(signal_t, signal_t_new):
     """ Calculates the squared L2-Norm between the complex signal fields in the time domain before and after projection onto the measured signal. """
-    deltaS = signal_t_new-signal_t
+    deltaS = signal_t_new - signal_t
     return jnp.sum(jnp.abs(deltaS)**2)
 
 

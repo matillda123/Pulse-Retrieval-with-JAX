@@ -79,25 +79,18 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         population = descent_state.population
         
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,None,0,None,None,None))
         
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
         population_pulse = self.update_pulse(population.pulse, signal_t_new, signal_t.gate_shifted, measurement_info, descent_info)
         population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
-        if measurement_info.doubleblind==True:
-            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-            trace = calculate_trace(signal_t.signal_f)
-            mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-            signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
-                                                            measurement_info, descent_info, "_global", 
-                                                            axes=(0,None,0,None,None,None))
-        
+        if measurement_info.doubleblind==True:    
             population_gate = self.update_gate(population.gate, signal_t_new, signal_t.pulse_t_shifted, measurement_info, descent_info)
             population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
@@ -123,7 +116,8 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         s_prime_params = initialize_S_prime_params(self)
         self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
                                                      xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
+                                                     calibration_curve=MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population=population)
@@ -301,8 +295,6 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
                                        pulse_or_gate, local_or_global):
         """ Calculates the newton direction for a population. """
         
-        newton_direction_prev = getattr(local_or_global_state.newton, pulse_or_gate).newton_direction_prev
-        
         if pulse_or_gate=="pulse":
             probe = signal_t.gate_shifted
 
@@ -313,7 +305,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         else:
             raise ValueError
 
-        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, newton_direction_prev, 
+        descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, probe, signal_t.signal_f, tau_arr, measured_trace, local_or_global_state, 
                                                                      measurement_info, descent_info, pulse_or_gate, local_or_global)
         return descent_direction, newton_state
     

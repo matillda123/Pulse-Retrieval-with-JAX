@@ -71,8 +71,9 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu,trace, measurement_info.measured_trace)
 
         descent_state = tree_at(lambda x: x.phases, descent_state, phase_prime)
         descent_state = tree_at(lambda x: x.traces, descent_state, trace)
@@ -104,7 +105,8 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
             self.integration_method = "euler_maclaurin"
         self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
                                                      integration_order = self.integration_order,
-                                                     gamma = self.global_gamma)
+                                                     gamma = self.global_gamma,
+                                                     calibration_curve=MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
 
@@ -176,13 +178,12 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         measured_trace = measurement_info.measured_trace
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,None,0,None,None,None))
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
         
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)
 
@@ -209,7 +210,8 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         s_prime_params = initialize_S_prime_params(self)
         self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
                                                      xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
+                                                     calibration_curve = MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population = population)
@@ -293,11 +295,9 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
     def calculate_PIE_newton_direction(self, grad, signal_t, phase_matrix, measured_trace, local_or_global_state, measurement_info, 
                                                 descent_info, pulse_or_gate, local_or_global):
         """ Calculates the PIE newton direction for a population. """
-        
-        newton_direction_prev = local_or_global_state.newton.pulse.newton_direction_prev
 
         descent_direction, newton_state = PIE_get_pseudo_newton_direction(grad, signal_t.gate_disp, signal_t.signal_f, phase_matrix, measured_trace, 
-                                                                     newton_direction_prev, measurement_info, descent_info, "chirpscan", local_or_global)
+                                                                     local_or_global_state, measurement_info, descent_info, "chirpscan", local_or_global)
         return descent_direction, newton_state
 
 

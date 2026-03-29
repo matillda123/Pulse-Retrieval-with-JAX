@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import c as c0
 import refractiveindex
+from functools import partial as Partial
 
 import jax
 import jax.numpy as jnp
@@ -58,7 +59,10 @@ class RetrievePulses:
         else: 
             raise ValueError(f"cross_correlation can only take one of doubleblind, True or False. Got {self.cross_correlation}") 
 
-        self.transfer_function = None
+        self.calibration_curve_is_provided = False
+        self.calibration_curve = None
+        self.optimize_calibration_curve = False
+
         self.eta_spectral_amplitude = eta_spectral_amplitude
 
         # central frequency will be overwritten if spectra are provided
@@ -91,9 +95,9 @@ class RetrievePulses:
                                             interferometric = self.interferometric,
                                             cross_correlation = self.cross_correlation,
                                             doubleblind = self.doubleblind,
-                                            transfer_function = self.transfer_function)
+                                            calibration_curve = self.calibration_curve)
         self.descent_info = MyNamespace(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False),
-                                        eta_spectral_amplitude = self.eta_spectral_amplitude)
+                                        calibration_curve_is_provided = self.calibration_curve_is_provided)
         self.descent_state = MyNamespace()
 
         self.key = None
@@ -132,7 +136,7 @@ class RetrievePulses:
 
 
 
-    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
+    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate, eta=1):
         """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
         frequency = self.frequency
 
@@ -155,6 +159,8 @@ class RetrievePulses:
             raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
         
         self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
+        self.eta_spectral_amplitude = eta
+        self.descent_info = self.descent_info.epand(eta_spectral_amplitude = self.eta_spectral_amplitude)
         return spectral_amplitude
     
 
@@ -168,10 +174,12 @@ class RetrievePulses:
     
 
 
-    def get_transfer_function(self, frequency, transfer_function):
-        self.transfer_function = do_interpolation_1d(self.frequency, frequency, transfer_function)
-        self.measurement_info = self.measurement_info.expand(transfer_function = self.transfer_function)
-        return self.transfer_function
+    def get_calibration_curve(self, frequency, calibration_curve):
+        self.calibration_curve = do_interpolation_1d(self.frequency, frequency, calibration_curve)
+        self.measurement_info = self.measurement_info.expand(calibration_curve = self.calibration_curve)
+        self.calibration_curve_is_provided = True
+        self.descent_info = self.descent_info.expand(calibration_curve_is_provided = self.calibration_curve_is_provided)
+        return self.calibration_curve
         
 
 
@@ -332,8 +340,9 @@ class RetrievePulses:
         transform_arr = self.measurement_info.transform_arr
     
         signal_t = self.calculate_signal_t(individual, transform_arr, self.measurement_info)
-        trace = calculate_trace(signal_t.signal_f)
-        return trace
+        _calculate_trace = Partial(calculate_trace, measured_trace=self.measurement_info.measured_trace, measurement_info=self.measurement_info, descent_info=self.descent_info, local_or_global="_global")
+        trace, mu = _calculate_trace(signal_t.signal_f)
+        return mu*trace
     
 
 

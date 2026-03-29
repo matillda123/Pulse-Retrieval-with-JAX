@@ -27,7 +27,6 @@ class AlgorithmsBASE:
         super().__init__(*args, **kwargs)
 
         self.spectrum_is_being_used = False
-
         self._name = "AlgorithmsBASE"
 
 
@@ -530,9 +529,10 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
     
     def calculate_error_population(self, population, measurement_info, descent_info):
         """ What the names says. Returns the errors and the population. """
-        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)        
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)    
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")    
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
         return trace_error, population
     
 

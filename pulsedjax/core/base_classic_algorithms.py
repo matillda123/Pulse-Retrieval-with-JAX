@@ -146,7 +146,8 @@ def initialize_descent_info(optimizer):
                                                  adaptive_scaling = MyNamespace(_local=MyNamespace(order=optimizer.local_adaptive_scaling, 
                                                                                                    factor=optimizer.local_adaptive_scaling_factor), 
                                                                                 _global=MyNamespace(order=optimizer.global_adaptive_scaling, 
-                                                                                                    factor=optimizer.global_adaptive_scaling_factor)))
+                                                                                                    factor=optimizer.global_adaptive_scaling_factor)),
+                                                calibration_curve = MyNamespace(optimize=optimizer.optimize_calibration_curve, eta=None))
     return descent_info
 
 
@@ -212,26 +213,18 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         measured_trace = measurement_info.measured_trace
         
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, 
                                                          mu, measurement_info, descent_info, "_global", 
                                                          axes=(0,None,0,None,None,None))
     
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
         population_pulse = self.update_pulse(signal_t_new, signal_t.gate_shifted, measurement_info)
         population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
-            # signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-            # trace = calculate_trace(signal_t.signal_f)
-            # mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
-            # signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, 
-            #                                                 mu, measurement_info, descent_info, "_global", 
-            #                                                 axes=(0,None,0,None,None,None))
-
-            # maybe one needs to use pulse_t and undo shift afterwards -> basically pie 
             population_gate = self.update_gate(signal_t_new, signal_t.pulse_t_shifted, measurement_info)
             population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
@@ -257,7 +250,8 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         s_prime_params = initialize_S_prime_params(self)
         self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
                                                      xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
+                                                     calibration_curve = MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
         self.descent_state = self.descent_state.expand(population=population)
@@ -503,9 +497,11 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         population, iteration = descent_state.population, descent_state.iteration
 
         signal_t = jax.vmap(self.calculate_signal_t_using_opf, in_axes=(0,None,None,None))(population, iteration, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
 
+        # here mu is not used -> maybe it should be?
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, 1, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,None,None,None,None,None))
@@ -547,7 +543,8 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
                                                      antialias = self.antialias,
                                                      s_prime_params = s_prime_params,
                                                      xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma))
+                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
+                                                     calibration_curve = MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
         # population is converted to time domain
@@ -571,8 +568,8 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         individual = MyNamespace(pulse=individual.pulse, pulse_prime=individual.pulse, 
                                  gate=individual.gate, gate_prime=individual.gate)
         signal_t = self.calculate_signal_t_using_opf(individual, iteration, self.measurement_info, self.descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        return trace
+        trace, mu = calculate_trace(signal_t.signal_f, self.measurement_info.measured_trace, self.measurement_info, self.descent_info, "_global")
+        return mu*trace
 
 
 
@@ -780,19 +777,18 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
         measured_trace = measurement_info.measured_trace
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,None,0,None,None,None))
         descent_state = self.do_descent_Z_error(descent_state, signal_t_new, measurement_info, descent_info)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu,trace, measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
     
@@ -1042,8 +1038,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
     def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
         """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
         signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(jnp.abs(signal_t.signal_f), jnp.sqrt(jnp.abs(trace_line)))
-        signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, mu, 
+        signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, descent_state._local.mu, 
                                                          measurement_info, descent_info, "_local", 
                                                          axes=(0,0,0,None,None,None))
         pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_t.signal_f, trace_line)
@@ -1057,8 +1052,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         if measurement_info.doubleblind==True:
             signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
-            mu = jax.vmap(calculate_mu, in_axes=(0,None))(jnp.abs(signal_t.signal_f), jnp.sqrt(jnp.abs(trace_line)))
-            signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, mu, 
+            signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, descent_state._local.mu, 
                                                             measurement_info, descent_info, "_local", 
                                                             axes=(0,0,0,None,None,None))
             pie_error = jax.vmap(self.calculate_PIE_error, in_axes=(0,None))(signal_t.signal_f, trace_line)
@@ -1088,18 +1082,21 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
-
-        transform_arr, measured_trace, descent_state = self.shuffle_data_along_m(descent_state, measurement_info, descent_info)
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        local_mu = jax.vmap(calculate_mu, in_axes=(0,None))(jnp.abs(signal_t.signal_f), jnp.sqrt(jnp.abs(measured_trace)))
+        descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
 
         local_iteration = Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
         local_iteration = Partial(scan_helper, actual_function=local_iteration, number_of_args=1, number_of_xs=2)
 
+        transform_arr, measured_trace, descent_state = self.shuffle_data_along_m(descent_state, measurement_info, descent_info)
         descent_state, _ = jax.lax.scan(local_iteration, descent_state, (transform_arr, measured_trace))
 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measurement_info.measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_local")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
     
@@ -1157,8 +1154,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0, None))(trace, measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
 
@@ -1455,10 +1453,10 @@ class COPRABASE(ClassicAlgorithmsBASE):
         Returns:
             tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
         """
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_local")
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        local_mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        trace, local_mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
 
         one_local_iteration = Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
@@ -1469,8 +1467,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
     
@@ -1493,10 +1491,10 @@ class COPRABASE(ClassicAlgorithmsBASE):
         """
 
         measured_trace = measurement_info.measured_trace
-
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                          measurement_info, descent_info, "_global", 
                                                          axes=(0,None,0,None,None,None))
@@ -1511,8 +1509,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         if measurement_info.doubleblind==True:
             signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-            trace = calculate_trace(signal_t.signal_f)
-            mu = jax.vmap(calculate_mu, in_axes=(0,None))(trace, measured_trace)
+            trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
             signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
                                                             measurement_info, descent_info, "_global", 
                                                             axes=(0,None,0,None,None,None))
@@ -1522,13 +1519,13 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                          descent_info, "gate", "_global")
             
             population = normalize_population(population, measurement_info, "gate")
-            descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
             
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measured_trace)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
 
         return descent_state, trace_error.reshape(-1,1)
     
@@ -1848,8 +1845,9 @@ class LSFBASE(ClassicAlgorithmsBASE):
         """
         population = self.make_population_bisection_search(E_arr, descent_state.population, pulse_or_gate)
         signal_t = self.generate_signal_t(MyNamespace(population=population), measurement_info, descent_info)
-        trace = calculate_trace(signal_t.signal_f)
-        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_local")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
         return error_arr
 
 
@@ -1876,8 +1874,9 @@ class LSFBASE(ClassicAlgorithmsBASE):
         descent_state = self.search_along_direction(direction, descent_state, measurement_info, descent_info)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
-        trace = calculate_trace(signal_t.signal_f)        
-        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,None))(trace, measurement_info.measured_trace)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        error_arr = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
         return descent_state, error_arr.reshape(-1,1)
     
 
@@ -1902,7 +1901,8 @@ class LSFBASE(ClassicAlgorithmsBASE):
         self.descent_info = self.descent_info.expand(number_of_bisection_iterations = self.number_of_bisection_iterations,
                                                      ratio_points_for_continuous = self.ratio_points_for_continuous,
                                                      random_direction_mode = self.random_direction_mode,
-                                                     boundary = self.boundary)
+                                                     boundary = self.boundary,
+                                                     calibration_curve = MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
         descent_info = self.descent_info
 
         # this normalizatoin seems to be needed, i guess the calculation of s1, s2 is faulty otherwise
