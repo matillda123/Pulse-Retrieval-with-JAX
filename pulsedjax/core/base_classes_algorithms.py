@@ -27,6 +27,10 @@ class AlgorithmsBASE:
         super().__init__(*args, **kwargs)
 
         self.spectrum_is_being_used = False
+
+        self.local_optimize_calibration_curve = False
+        self.global_optimize_calibration_curve = False
+        
         self._name = "AlgorithmsBASE"
 
 
@@ -76,6 +80,19 @@ class AlgorithmsBASE:
             if (self.descent_info.measured_spectrum_is_provided.pulse==False or 
                 self.descent_info.measured_spectrum_is_provided.gate==False):
                 print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
+
+
+        if self.local_optimize_calibration_curve==True:
+            print("Retrieval of the trace calibration in local iterations doesn work nicely.")
+            
+        if self.global_optimize_calibration_curve==True:
+            if self.descent_info.measured_spectrum_is_provided.pulse==False:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the pulse.")
+
+            if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
+
+
 
 
 
@@ -161,13 +178,15 @@ class AlgorithmsBASE:
             return self
         else:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", 
-                          "GeneralizedProjection", "COPRA", "LSF"]
+                          #"GeneralizedProjection", "COPRA", # was removed because of calibration curve optimization
+                          # maybe there needs to be a rule here that enforces projection if calibration curve is optimized
+                          "LSF"]
 
             if any([self._name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
                 pass
 
-            elif self._name=="PtychographicIterativeEngine":
+            elif self._name=="PtychographicIterativeEngine" or self._name=="COPRA":
                 self._local_step = self.local_step
                 self._global_step = self.global_step
                 self.local_step = Partial(self.do_step_and_apply_spectral_amplitude, do_step=self._local_step)

@@ -61,7 +61,6 @@ class RetrievePulses:
 
         self.calibration_curve_is_provided = False
         self.calibration_curve = None
-        self.optimize_calibration_curve = False
 
         self.eta_spectral_amplitude = eta_spectral_amplitude
 
@@ -160,7 +159,7 @@ class RetrievePulses:
         
         self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
         self.eta_spectral_amplitude = eta
-        self.descent_info = self.descent_info.epand(eta_spectral_amplitude = self.eta_spectral_amplitude)
+        self.descent_info = self.descent_info.expand(eta_spectral_amplitude = self.eta_spectral_amplitude)
         return spectral_amplitude
     
 

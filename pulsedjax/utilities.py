@@ -489,11 +489,8 @@ def calculate_trace(signal_f, measured_trace, measurement_info, descent_info, lo
     if descent_info.calibration_curve_is_provided==True:
         mu = measurement_info.calibration_curve
     else:
-        # mu_f should probably only be used in global iterations
-        if descent_info.calibration_curve.optimize==True and local_or_global=="_global":
-            eta = descent_info.calibration_curve.eta
-            # here iterative update of mu, needs previous mu i guess -> descent state like input needed
-            pass
+        if getattr(descent_info.optimize_calibration_curve, local_or_global)==True:
+            mu = calculate_mu_f(trace, measured_trace)
         else:
             mu = calculate_mu(trace, measured_trace)
 

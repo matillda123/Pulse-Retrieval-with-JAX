@@ -52,20 +52,17 @@ def calculate_r_newton_diagonal_amplitude(trace, measured_trace):
 
 
 def calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info):
-    trace = calculate_trace(signal_f)
-
     calc_r_newton_diag_dict={"amplitude": calculate_r_newton_diagonal_amplitude,
                               "intensity": calculate_r_newton_diagonal_intensity}
     
     # r_gradient is correct here, no need for extra r_newton with amp/int
-    hessian = calc_r_newton_diag_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace)
+    hessian = calc_r_newton_diag_dict[descent_info.s_prime_params.r_gradient](jnp.abs(signal_f)**2, measured_trace)
     return hessian
 
 
 
 def calculate_r_gradient_intensity(signal_f, mu, measured_trace, weights, sk, rn):
-    trace = calculate_trace(signal_f)
-    grad_r = -4*mu*do_ifft(signal_f*(measured_trace - mu*trace)*weights**2, sk, rn)
+    grad_r = -4*mu*do_ifft(signal_f*(measured_trace - mu*jnp.abs(signal_f)**2)*weights**2, sk, rn)
     return grad_r 
 
 
@@ -127,9 +124,8 @@ def calculate_S_prime_iterative_step(signal_t, measured_trace, mu, sk, rn, desce
     """ One iteration of the iterative descent based calculation of signal_t_new/S_prime. """
     gamma = getattr(descent_info.gamma, local_or_global)
 
-    trace = calculate_trace(signal_t.signal_f)
     descent_direction, gradient = calculate_r_descent_direction(signal_t.signal_f, mu, measured_trace, sk, rn, descent_info)
-    r_error = calculate_r_error(trace, measured_trace, mu, descent_info)
+    r_error = calculate_r_error(jnp.abs(signal_t.signal_f)**2, measured_trace, mu, descent_info)
 
     descent_direction, _ = adaptive_step_size(r_error, gradient, descent_direction, descent_info.xi, 
                                               MyNamespace(), MyNamespace(order="pade_10", factor=-1), 
