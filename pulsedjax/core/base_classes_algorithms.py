@@ -5,7 +5,7 @@ import numpy as np
 from functools import partial as Partial
 from equinox import tree_at
 
-from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, get_com, project_onto_amplitude, calculate_trace_error
+from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, calculate_trace, run_scan, project_onto_amplitude, calculate_trace_error, initialize_mu
 from pulsedjax.core.bsplines_1d import get_prefactor, get_M, make_bsplines
 from pulsedjax.core.create_population import create_population_general, create_population_classic
 from pulsedjax.core.construct_s_prime import calculate_S_prime
@@ -27,6 +27,7 @@ class AlgorithmsBASE:
         super().__init__(*args, **kwargs)
 
         self.spectrum_is_being_used = False
+        self.eta_spectral_amplitude = 1
 
         self.local_optimize_calibration_curve = False
         self.global_optimize_calibration_curve = False
@@ -552,9 +553,12 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")    
         trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
-        return trace_error, population
+        return trace_error, mu, population
     
 
+    # this might be a good idea
+    # def initialize_classical_algorithm(self, population):
+    #     pass
     
 
 
@@ -825,8 +829,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         """ Generates a trace for a given individual. Calls the method specific function for calculating the nonlinear signal fields. """
         
         signal_t = self.calculate_signal_t(individual, measurement_info.transform_arr, measurement_info)
-        trace = calculate_trace(signal_t.signal_f)
-        return trace
+        trace, mu = calculate_trace(signal_t.signal_f, measurement_info.measured_trace, measurement_info, descent_info, "_global")
+        return trace, mu
     
 
     def trace_error(self, trace, measured_trace):
@@ -843,9 +847,15 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         measured_trace = measurement_info.measured_trace
         error_metric = descent_info.error_metric
 
-        trace = self.construct_trace(individual, measurement_info, descent_info)
+        trace, mu = self.construct_trace(individual, measurement_info, descent_info)
+
+        if descent_info.optimize_calibration_curve._global==True:
+            trace = mu*trace
+        else:
+            pass
+
         trace_error = error_metric(trace, measured_trace)
-        return trace_error
+        return trace_error, mu
             
     
 
@@ -853,8 +863,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
     def calculate_error_population(self, population, measurement_info, descent_info):
         """ Calls jax.vmap over calculate_error_individual() for an entire population. """
         population = self.get_pulses_f_from_population(population, measurement_info, descent_info)
-        error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
-        return error_arr, population
+        error_arr, mu = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
+        return error_arr, mu, population
     
 
 
@@ -878,8 +888,12 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         
         measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace))
         self.measurement_info = self.measurement_info.expand(measured_trace = measured_trace)
-        self.descent_info = self.descent_info.expand(error_metric = self.error_metric)
-        self.descent_state = self.descent_state.expand(population = population)
+        self.descent_info = self.descent_info.expand(error_metric = self.error_metric,
+                                                     optimize_calibration_curve = MyNamespace(_local=None, 
+                                                                                              _global=self.global_optimize_calibration_curve))
+        _, init_mu_global = initialize_mu(self, self.measurement_info, self.descent_info)
+        self.descent_state = self.descent_state.expand(population = population,
+                                                       mu = init_mu_global)
 
        
 

@@ -8,7 +8,7 @@ from equinox import tree_at
 import equinox
 import optimistix
 
-from pulsedjax.utilities import scan_helper, scan_helper_equinox, optimistix_helper_loss_function, MyNamespace, do_interpolation_1d
+from pulsedjax.utilities import scan_helper, scan_helper_equinox, optimistix_helper_loss_function, MyNamespace
 from pulsedjax.core.base_classes_algorithms import GeneralOptimizationBASE
 
 
@@ -256,7 +256,7 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
 
 
 
-    def select_population(self, key, selection_mechanism, error_parent, error_trial, population_parent, population_trial, descent_info):
+    def select_population(self, key, selection_mechanism, error_parent, error_trial, population_parent, population_trial, mu_parent, mu_trial, descent_info):
         """
         Performs the evolutionary selection process for two populations. Currently selection_mechanism can be greedy or global.
 
@@ -266,20 +266,20 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
         """
 
         if selection_mechanism=="greedy":
-            trial_smaller = (jnp.sign(error_parent - error_trial)+1)//2
-            leaves, treedef = jax.tree.flatten(population_parent)
-            trial_smaller_leaves = [trial_smaller[:, jnp.newaxis] for _ in range(len(leaves))]
-            trial_smaller_tree = jax.tree.unflatten(treedef, trial_smaller_leaves)
-
+            trial_smaller = (jnp.sign(error_parent - error_trial)+1)//2 # maps to bool-array, true if error_trial < error_parent
             error = error_trial*trial_smaller + error_parent*(1 + (-1)*trial_smaller)
+            mu = mu_trial*trial_smaller + mu_parent*(1 + (-1)*trial_smaller)
+            
+            # leaves, treedef = jax.tree.flatten(population_parent)
+            # trial_smaller_leaves = [trial_smaller[:, jnp.newaxis] for _ in range(len(leaves))]
+            # trial_smaller_tree = jax.tree.unflatten(treedef, trial_smaller_leaves)
+            # tree.map should do the same 
+            trial_smaller_tree = jax.tree.map(lambda x: trial_smaller[:, jnp.newaxis], population_parent)
+
             population = population_trial*trial_smaller_tree + population_parent*(1 + (-1)*trial_smaller_tree)
 
         elif selection_mechanism=="global":
             N, temperature = descent_info.population_size, descent_info.temperature
-
-            leaves_parent, treedef = jax.tree.flatten(population_parent)
-            leaves_trial, treedef = jax.tree.flatten(population_trial)
-            leaves_merged = [jnp.vstack((leaves_parent[i], leaves_trial[i])) for i in range(len(leaves_parent))]  # this can maybe be done with tree.map?
 
             error_merged = jnp.hstack((error_parent, error_trial))
             idx = jnp.argsort(error_merged)
@@ -288,13 +288,24 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
             idx_selected = jax.random.choice(key, idx, (N, ), replace=False, p=p_arr)
             error = error_merged[idx_selected]
 
-            leaves_selected = [leaves_merged[i][idx_selected] for i in range(len(leaves_parent))]
-            population = jax.tree.unflatten(treedef, leaves_selected)
+            mu_merged = jnp.hstack((mu_parent, mu_trial))
+            mu = mu_merged[idx_selected]
+
+            # leaves_parent, treedef = jax.tree.flatten(population_parent)
+            # leaves_trial, treedef = jax.tree.flatten(population_trial)
+            # leaves_merged = [jnp.vstack((leaves_parent[i], leaves_trial[i])) for i in range(len(leaves_parent))]  # this can maybe be done with tree.map?
+
+            # leaves_selected = [leaves_merged[i][idx_selected] for i in range(len(leaves_parent))]
+            # population = jax.tree.unflatten(treedef, leaves_selected)
+
+            # tree.map should do the same 
+            population = jax.tree.map(lambda x,y: jnp.vstack((x,y))[idx_selected], population_parent, population_trial)
+
             
         else:
             raise NotImplementedError(f"Only greedy and global are available as selection_mechanism. Not {selection_mechanism}")
         
-        return population, error
+        return population, error, mu
     
     
 
@@ -325,10 +336,10 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
         mutant_population = self.do_mutation(mutation_strategy, mutation_rate, best_individual, parent_population, key1)
         trial_population = self.do_crossover(crossover_strategy, crossover_rate, parent_population, mutant_population, key2)
 
-        trace_error_parents, _ = self.calculate_error_population(parent_population, measurement_info, descent_info)
-        trace_error_trial, _ = self.calculate_error_population(trial_population, measurement_info, descent_info)
+        trace_error_parents, mu_parents, _ = self.calculate_error_population(parent_population, measurement_info, descent_info)
+        trace_error_trial, mu_trial, _ = self.calculate_error_population(trial_population, measurement_info, descent_info)
 
-        population, error = self.select_population(key3, selection_mechanism, trace_error_parents, trace_error_trial, parent_population, trial_population, descent_info)
+        population, error, mu = self.select_population(key3, selection_mechanism, trace_error_parents, trace_error_trial, parent_population, trial_population, mu_parents, mu_trial, descent_info)
 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         error_mean = jnp.nanmean(error)
@@ -337,6 +348,7 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
 
         best_individual = self.get_individual_from_idx(jnp.argmin(error), population)
         descent_state = tree_at(lambda x: x.best_individual, descent_state, best_individual)
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, jnp.array([error_mean, error_min, error_max])
     
 
@@ -366,7 +378,7 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
                                                      temperature = self.temperature)
         descent_info = self.descent_info
         
-        trace_error, _ = self.calculate_error_population(population, measurement_info, descent_info)
+        trace_error, mu, _ = self.calculate_error_population(population, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(best_individual = self.get_individual_from_idx(jnp.argmin(trace_error), population), 
                                                        key=self.key)
         descent_state = self.descent_state
@@ -432,12 +444,13 @@ class EvosaxBASE(GeneralOptimizationBASE):
             population_amp, population_phase = population_amp_or_phase, population
 
         population_eval = self.merge_population_from_amp_and_phase(population_amp, population_phase)
-        fitness, _ = self.calculate_error_population(population_eval, measurement_info, descent_info)
+        fitness, mu, _ = self.calculate_error_population(population_eval, measurement_info, descent_info)
         state, _ = solver.tell(key_tell, population, fitness, state, params)
         population, state = solver.ask(key_ask_2, state, params)
 
         descent_state = tree_at(lambda x: getattr(x.evosax.state, amp_or_phase), descent_state, state)
         descent_state = tree_at(lambda x: x.key, descent_state, key)
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, population, fitness
 
 
@@ -488,7 +501,7 @@ class EvosaxBASE(GeneralOptimizationBASE):
 
         class_str = str(self.solver)
         if class_str.split(".")[2]=="population_based":
-            fitness, _ = self.calculate_error_population(population, self.measurement_info, self.descent_info)
+            fitness, mu, _ = self.calculate_error_population(population, self.measurement_info, self.descent_info)
 
             population_amp, population_phase = self.split_population_in_amp_and_phase(population)
 
@@ -591,6 +604,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         if descent_info.phase_type=="polynomial" or descent_info.phase_type=="sinusoidal":
             return phase
         else:
+            print("maybe there should be a flag to disable this.")
             return jnp.cumsum(phase)*measurement_info.df
 
 
@@ -604,23 +618,23 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         else:
             gate = pulse
             
-        trace_error = self.calculate_error_individual(MyNamespace(pulse=pulse, gate=gate), measurement_info, descent_info)
-        return trace_error
+        trace_error, mu = self.calculate_error_individual(MyNamespace(pulse=pulse, gate=gate), measurement_info, descent_info)
+        return trace_error, mu
     
 
 
     def loss_function_amp(self, individual_amp, individual_phase, measurement_info, descent_info):
         """ Helper to fascilliate optimization with respect to the amplitude only. """
         individual = self.merge_population_from_amp_and_phase(individual_amp, individual_phase)
-        trace_error = self.loss_function(individual, measurement_info, descent_info)
-        return trace_error
+        trace_error, mu = self.loss_function(individual, measurement_info, descent_info)
+        return trace_error, mu
     
 
     def loss_function_phase(self, individual_phase, individual_amp, measurement_info, descent_info):
         """ Helper to fascilliate optimization with respect to the phase only. """
         individual = self.merge_population_from_amp_and_phase(individual_amp, individual_phase)
-        trace_error = self.loss_function(individual, measurement_info, descent_info)
-        return trace_error
+        trace_error, mu = self.loss_function(individual, measurement_info, descent_info)
+        return trace_error, mu
     
 
 
@@ -641,24 +655,28 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         if descent_info.alternating_optimization==False:
             population, optimistix_state = descent_state.population, descent_state.optimistix_state
-            population, optimistix_state, error = self.optimistix_step(population, optimistix_state)
+            population, optimistix_state, aux = self.optimistix_step(population, optimistix_state)
+            error, mu = aux
 
             descent_state = tree_at(lambda x: x.population, descent_state, population)
             descent_state = tree_at(lambda x: x.optimistix_state, descent_state, optimistix_state)
+            descent_state = tree_at(lambda x: x.mu, descent_state, mu)
 
         elif descent_info.alternating_optimization==True:
             population, optimistix_state_amp, optimistix_state_phase = descent_state.population, descent_state.optimistix_state_amp, descent_state.optimistix_state_phase
 
             population_amp, population_phase = self.split_population_in_amp_and_phase(population)
             
-            population_amp, optimistix_state_amp, error_amp = self.optimistix_step_amp(population_amp, population_phase, optimistix_state_amp)
-            population_phase, optimistix_state_phase, error = self.optimistix_step_phase(population_phase, population_amp, optimistix_state_phase)
-            
+            population_amp, optimistix_state_amp, aux = self.optimistix_step_amp(population_amp, population_phase, optimistix_state_amp)
+            population_phase, optimistix_state_phase, aux = self.optimistix_step_phase(population_phase, population_amp, optimistix_state_phase)
+            error, mu = aux
+
             population = self.merge_population_from_amp_and_phase(population_amp, population_phase)
 
             descent_state = tree_at(lambda x: x.population, descent_state, population)
             descent_state = tree_at(lambda x: x.optimistix_state_amp, descent_state, optimistix_state_amp)
             descent_state = tree_at(lambda x: x.optimistix_state_phase, descent_state, optimistix_state_phase)
+            descent_state = tree_at(lambda x: x.mu, descent_state, mu)
             
         else:
             raise ValueError(f"alternating_optimization needs to be True/False. Not {descent_info.alternating_optimization}")
@@ -723,7 +741,14 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         args = None
         options = dict(jac="bwd")
         f_struct = jax.ShapeDtypeStruct((), jnp.float32)
-        aux_struct = jax.ShapeDtypeStruct((), jnp.float32)
+
+        # population_size is not needed in these shape, since i am vmapping over optimistix_step
+        if descent_info.optimize_calibration_curve._global==True:
+            aux_shape = (jnp.shape(measurement_info.measured_trace)[-1], )
+        else:
+            aux_shape = ()
+        aux_struct = (jax.ShapeDtypeStruct((), jnp.float32),
+                      jax.ShapeDtypeStruct(aux_shape, jnp.float32))
         tags = frozenset()
 
         population = descent_state.population

@@ -39,12 +39,10 @@ class RetrievePulses:
     """
 
     def __init__(self, nonlinear_method, *args, cross_correlation=False, interferometric=False, seed=None, 
-                 central_frequency=(None,None), eta_spectral_amplitude=1, **kwargs):
+                 central_frequency=(None,None), **kwargs):
         super().__init__(*args, **kwargs)
 
-        assert 0 < eta_spectral_amplitude <= 1
         assert len(central_frequency) == 2
-
 
         self.nonlinear_method = nonlinear_method
         self.f0 = 0
@@ -61,8 +59,6 @@ class RetrievePulses:
 
         self.calibration_curve_is_provided = False
         self.calibration_curve = None
-
-        self.eta_spectral_amplitude = eta_spectral_amplitude
 
         # central frequency will be overwritten if spectra are provided
         central_frequency_pulse, central_frequency_gate = central_frequency
@@ -135,7 +131,7 @@ class RetrievePulses:
 
 
 
-    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate, eta=1):
+    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
         """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
         frequency = self.frequency
 
@@ -158,8 +154,6 @@ class RetrievePulses:
             raise ValueError(f"pulse_or_gate needs to be pulse or gate. Not {pulse_or_gate}")
         
         self.measurement_info = self.measurement_info.expand(central_frequency = self.central_frequency)
-        self.eta_spectral_amplitude = eta
-        self.descent_info = self.descent_info.expand(eta_spectral_amplitude = self.eta_spectral_amplitude)
         return spectral_amplitude
     
 
@@ -269,7 +263,7 @@ class RetrievePulses:
 
     def _get_idx_individual(self, population, idx_func):
         """ Calculates the error for a population. Returns the index of the worst individual. And the population """
-        error_arr, population = self.calculate_error_population(population, self.measurement_info, self.descent_info)
+        error_arr, mu, population = self.calculate_error_population(population, self.measurement_info, self.descent_info)
         idx = idx_func(error_arr)
         return idx, population
     
@@ -351,6 +345,10 @@ class RetrievePulses:
         error_arr = jnp.squeeze(error_arr)
         self.descent_state = descent_state
 
+        if self._name=="PtychographicIterativeEngine" or self._name=="COPRA":
+            mu = descent_state._global.mu
+        else:
+            mu = descent_state.mu
         pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
         
         # if self.descent_info.measured_spectrum_is_provided.pulse==True and self.measurement_info.eta_spectral_amplitude==1:
@@ -396,7 +394,7 @@ class RetrievePulses:
         final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp = frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
-                                 error_arr=error_arr)
+                                 error_arr=error_arr, mu=mu)
         return final_result
     
     

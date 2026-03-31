@@ -6,9 +6,9 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesFROG 
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu
 
-from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_mu, calculate_trace_error, do_interpolation_1d
+from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_trace_error, do_interpolation_1d
 
 from pulsedjax.core.gradients.frog_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.frog_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -95,6 +95,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
             population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, trace_error.reshape(-1,1)
 
 
@@ -117,10 +118,13 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
                                                      xi = self.xi,
                                                      gamma = MyNamespace(_local=None, _global=self.global_gamma),
-                                                     calibration_curve=MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
+                                                     optimize_calibration_curve=MyNamespace(_local=None, _global=self.global_optimize_calibration_curve),
+                                                     eta_spectral_amplitude = self.eta_spectral_amplitude)
         descent_info = self.descent_info
 
-        self.descent_state = self.descent_state.expand(population=population)
+        _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
+        self.descent_state = self.descent_state.expand(population=population,
+                                                       mu=init_mu_global)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)

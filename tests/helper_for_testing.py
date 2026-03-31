@@ -143,6 +143,9 @@ class pulsedjax_testing:
         options_r_error = ["intensity", "intensity", "amplitude", "amplitude", "intensity"]
         options_r_error_newton = [False, True, True, False, False]
 
+        options_calibration_curve_local = [True, False, False, True, False]
+        options_calibration_curve_global = [False, True, False, True, False]
+
         if self.real_fields==True:
             options_newton = [False, "lbfgs", False, False, "lbfgs"]
 
@@ -153,7 +156,9 @@ class pulsedjax_testing:
                         global_newton = options_newton[i],
                         r_global_method = options_s_prime_method[i],
                         r_gradient = options_r_error[i],
-                        r_newton = options_r_error_newton[i])
+                        r_newton = options_r_error_newton[i],
+                        local_optimize_calibration_curve = options_calibration_curve_local[i],
+                        global_optimize_calibration_curve = options_calibration_curve_global[i])
         
         if algorithm == self.GP:
             run_kwargs_add = dict(no_steps_descent = options_gp_no_steps[i])

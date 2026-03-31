@@ -6,10 +6,10 @@ from functools import partial as Partial
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu
 
 
-from pulsedjax.utilities import MyNamespace, scan_helper, calculate_mu, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d, get_sk_rn
+from pulsedjax.utilities import MyNamespace, scan_helper, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d
 
 from pulsedjax.core.gradients.chirpscan_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.chirpscan_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -77,6 +77,7 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
 
         descent_state = tree_at(lambda x: x.phases, descent_state, phase_prime)
         descent_state = tree_at(lambda x: x.traces, descent_state, trace)
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, trace_error.reshape(-1,1)
     
     
@@ -106,14 +107,16 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
                                                      integration_order = self.integration_order,
                                                      gamma = self.global_gamma,
-                                                     calibration_curve=MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
+                                                     optimize_calibration_curve=MyNamespace(_local=None, _global=self.global_optimize_calibration_curve),
+                                                     eta_spectral_amplitude=self.eta_spectral_amplitude)
         descent_info = self.descent_info
 
-
+        _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population = population,
                                                        phases = jnp.zeros(jnp.shape(population.pulse), dtype=jnp.complex64),
                                                        traces = jnp.broadcast_to(measurement_info.measured_trace, 
-                                                                                 (jnp.shape(population.pulse)[0],) + jnp.shape(measurement_info.measured_trace)))
+                                                                                 (jnp.shape(population.pulse)[0],) + jnp.shape(measurement_info.measured_trace)),
+                                                        mu = init_mu_global)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -188,6 +191,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         pulse = jax.vmap(self.update_pulse, in_axes=(0,0,None,None,None,None))(signal_t_new, signal_t.gate_disp, phase_matrix, nonlinear_method, sk, rn)
 
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, pulse)
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, trace_error.reshape(-1,1)
     
 
@@ -211,10 +215,13 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
                                                      xi = self.xi,
                                                      gamma = MyNamespace(_local=None, _global=self.global_gamma),
-                                                     calibration_curve = MyNamespace(optimize=self.optimize_calibration_curve, eta=None))
+                                                     optimize_calibration_curve = MyNamespace(_local=None, _global=self.global_optimize_calibration_curve),
+                                                     eta_spectral_amplitude=self.eta_spectral_amplitude)
         descent_info = self.descent_info
 
-        self.descent_state = self.descent_state.expand(population = population)
+        _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
+        self.descent_state = self.descent_state.expand(population = population,
+                                                       mu = init_mu_global)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)

@@ -29,16 +29,16 @@ class LSGPA(RetrievePulsesVAMPIREwithRealFields, _LSGPA):
         assert self.doubleblind==False
         
 
-    def update_pulse(self, pulse, signal_t_new, gate_shifted, measurement_info, descent_info):
+    def update_pulse(self, signal_t_new, gate_shifted, measurement_info):
         """ Generates an new (maybe improoved) guess for the pulse. """
-        pulse = super().update_pulse(pulse, signal_t_new, gate_shifted, measurement_info, descent_info)
+        pulse = super().update_pulse(signal_t_new, gate_shifted, measurement_info)
         pulse, _ = self.interpolate_signal_t(pulse, measurement_info, "big", "main")
         return pulse
     
     
-    def update_gate(self, gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info):
+    def update_gate(self, signal_t_new, pulse_t_shifted, measurement_info):
         """ Generates an new (maybe improoved) guess for the gate. """
-        gate = super().update_gate(gate, signal_t_new, pulse_t_shifted, measurement_info, descent_info)
+        gate = super().update_gate(signal_t_new, pulse_t_shifted, measurement_info)
         gate, _ = self.interpolate_signal_t(gate, measurement_info, "big", "main")
         return gate
     

@@ -218,13 +218,13 @@ def optimistix_helper_loss_function(input, args, function, no_of_args):
     """
 
     if no_of_args==0:
-        error = function(input)
+        error, aux = function(input)
     elif no_of_args==1:
-        error = function(input, args)
+        error, aux = function(input, args)
     else:
         raise NotImplementedError(f"didnt take care of this case, no_of_args={no_of_args}")
 
-    return error, error
+    return error, (error, aux)
 
 
 
@@ -464,6 +464,23 @@ def project_onto_amplitude(signal_f, measured_amplitude):
     return measured_amplitude*jnp.exp(1j*jnp.angle(signal_f))
 
 
+
+
+
+
+
+def initialize_mu(optimizer, measurement_info, descent_info):
+    shape = (descent_info.population_size, jnp.shape(measurement_info.measured_trace)[-1])
+    if optimizer.local_optimize_calibration_curve==True:
+        mu_init_local = jnp.ones(shape)
+    else:
+        mu_init_local = jnp.ones(shape[0])
+
+    if optimizer.global_optimize_calibration_curve==True:
+        mu_init_global = jnp.ones(shape)
+    else:
+        mu_init_global = jnp.ones(shape[0])
+    return mu_init_local, mu_init_global
 
 
 

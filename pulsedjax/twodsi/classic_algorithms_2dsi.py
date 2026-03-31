@@ -6,8 +6,8 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulses2DSI
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE
-from pulsedjax.utilities import scan_helper, center_signal, do_interpolation_1d, integrate_signal_1D, calculate_trace, calculate_trace_error
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_mu
+from pulsedjax.utilities import MyNamespace, scan_helper, center_signal, do_interpolation_1d, integrate_signal_1D, calculate_trace, calculate_trace_error
 
 from pulsedjax.core.gradients.twodsi_z_error_gradients import calculate_Z_gradient
 from pulsedjax.core.hessians.twodsi_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
@@ -116,7 +116,7 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
         trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
-        return trace_error
+        return trace_error, mu
     
 
 
@@ -134,7 +134,8 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
 
         """
         descent_state = self.reconstruct_2dsi_1dfft(descent_state, measurement_info, descent_info)
-        trace_error = self.calc_error_of_reconstruction(descent_state, measurement_info, descent_info)
+        trace_error, mu = self.calc_error_of_reconstruction(descent_state, measurement_info, descent_info)
+        descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, jnp.asarray([trace_error, trace_error])
 
     
@@ -167,14 +168,18 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
             
         self.descent_info = self.descent_info.expand(integration_method = self.integration_method, 
                                                      integration_order = self.integration_order,
-                                                     windowing = a0_dict[self.windowing])
+                                                     windowing = a0_dict[self.windowing],
+                                                     optimize_calibration_curve = MyNamespace(_local=None, _global=self.global_optimize_calibration_curve),
+                                                     eta_spectral_amplitude=self.eta_spectral_amplitude)
         
         descent_info = self.descent_info
         
+        _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
         init_arr = jnp.zeros(jnp.size(self.measurement_info.frequency))
         self.descent_state = self.descent_state.expand(population = population, 
                                                        group_delay = init_arr, 
-                                                       spectral_phase = init_arr)
+                                                       spectral_phase = init_arr,
+                                                       mu=init_mu_global)
 
         do_scan = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
         do_scan = Partial(scan_helper, actual_function=do_scan, number_of_args=1, number_of_xs=0)
