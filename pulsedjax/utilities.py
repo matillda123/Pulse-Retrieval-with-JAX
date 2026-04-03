@@ -456,12 +456,15 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
 
 def project_onto_intensity(signal_f, measured_intensity):
     """ Project the current complex guess signal onto the measured intensity. """
-    return jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)*jnp.exp(1j*jnp.angle(signal_f))
+    #return jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)*jnp.exp(1j*jnp.angle(signal_f))
+    return signal_f/(jnp.abs(signal_f)+1e-15)*jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)
 
 
 def project_onto_amplitude(signal_f, measured_amplitude):
     """ Project the current complex guess signal onto the measured amplitude. """
-    return measured_amplitude*jnp.exp(1j*jnp.angle(signal_f))
+    #return measured_amplitude*jnp.exp(1j*jnp.angle(signal_f))
+    return signal_f/(jnp.abs(signal_f)+1e-15)*measured_amplitude
+
 
 
 
@@ -484,15 +487,27 @@ def initialize_mu(optimizer, measurement_info, descent_info):
 
 
 
-def calculate_mu(trace, measured_trace):
+def _calculate_mu(trace, measured_trace):
     """ Calculates scaling factor between measured intensity and intensity of current guess. """
     return jnp.sum(trace*measured_trace)/(jnp.sum(trace**2) + 1e-15)
 
 
 
-def calculate_mu_f(trace, measured_trace):
+def _calculate_mu_f(trace, measured_trace):
     """ Calculates calibration curve between measured intensity and intensity of current guess. """
     return jnp.sum(trace*measured_trace, axis=0)/(jnp.sum(trace**2,axis=0) + 1e-15)
+
+
+
+def calculate_mu(trace, measured_trace, measurement_info, descent_info, local_or_global):
+    if descent_info.calibration_curve_is_provided==True:
+        mu = measurement_info.calibration_curve
+    else:
+        if getattr(descent_info.optimize_calibration_curve, local_or_global)==True:
+            mu = _calculate_mu_f(trace, measured_trace)
+        else:
+            mu = _calculate_mu(trace, measured_trace)
+    return mu
 
 
 
@@ -502,15 +517,7 @@ def calculate_trace(signal_f, measured_trace, measurement_info, descent_info, lo
     Needs to be vmapped in order to apply to a population.
     """
     trace = jnp.abs(signal_f)**2
-
-    if descent_info.calibration_curve_is_provided==True:
-        mu = measurement_info.calibration_curve
-    else:
-        if getattr(descent_info.optimize_calibration_curve, local_or_global)==True:
-            mu = calculate_mu_f(trace, measured_trace)
-        else:
-            mu = calculate_mu(trace, measured_trace)
-
+    mu = calculate_mu(trace, measured_trace, measurement_info, descent_info, local_or_global)
     return trace, mu
 
 

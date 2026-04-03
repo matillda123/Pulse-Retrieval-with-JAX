@@ -61,24 +61,25 @@ def calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info):
 
 
 
-def calculate_r_gradient_intensity(signal_f, mu, measured_trace, weights, sk, rn):
-    grad_r = -4*mu*do_ifft(signal_f*(measured_trace - mu*jnp.abs(signal_f)**2)*weights**2, sk, rn)
+def calculate_r_gradient_intensity(signal_f, measured_trace, weights, sk, rn):
+    grad_r = -4*do_ifft(signal_f*(measured_trace - jnp.abs(signal_f)**2)*weights**2, sk, rn)
     return grad_r 
 
 
-def calculate_r_gradient_amplitude(signal_f, mu, measured_trace, weights, sk, rn):
-    grad_r = -4*mu*do_ifft((jnp.sqrt(measured_trace)*jnp.exp(1j*jnp.angle(signal_f))-mu*signal_f)*weights, sk, rn)
+def calculate_r_gradient_amplitude(signal_f, measured_trace, weights, sk, rn):
+    signal_f_new = jnp.sqrt(measured_trace)*jnp.exp(1j*jnp.angle(signal_f))
+    grad_r = -4*do_ifft((signal_f_new - signal_f)*weights, sk, rn)
     return grad_r
 
 
 
-def calculate_r_gradient(signal_f, mu, measured_trace, sk, rn, descent_info):
+def calculate_r_gradient(signal_f, measured_trace, sk, rn, descent_info):
     weights = descent_info.s_prime_params.weights
 
     calc_r_grad_dict={"amplitude": calculate_r_gradient_amplitude,
                       "intensity": calculate_r_gradient_intensity}
     
-    gradient = calc_r_grad_dict[descent_info.s_prime_params.r_gradient](signal_f, mu, measured_trace, weights, sk, rn)
+    gradient = calc_r_grad_dict[descent_info.s_prime_params.r_gradient](signal_f, measured_trace, weights, sk, rn)
     return gradient
 
 
@@ -88,7 +89,8 @@ def calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_
     Uses either gradient descent or newtons method with the diagonal approximation. 
     The error-functions can be based on intensity or amplitude based residuals. 
     """
-    gradient = calculate_r_gradient(signal_f, mu, measured_trace, sk, rn, descent_info)
+    measured_trace = measured_trace/(mu + 1e-15)
+    gradient = calculate_r_gradient(signal_f, measured_trace, sk, rn, descent_info)
 
     if descent_info.s_prime_params.r_newton!=False:
         hessian = calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info)
@@ -103,18 +105,20 @@ def calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_
 
 
 
-def calculate_r_error_intensity(trace, measured_trace, mu):
-    return jnp.sum(jnp.abs(measured_trace - mu*trace)**2)
+def calculate_r_error_intensity(trace, measured_trace):
+    return jnp.sum(jnp.abs(measured_trace - trace)**2)
 
 
-def calculate_r_error_amplitude(trace, measured_trace, mu):
-    return jnp.sum(jnp.abs(jnp.sign(measured_trace)*jnp.sqrt(jnp.abs(measured_trace)) - mu*jnp.sqrt(trace))**2)
+def calculate_r_error_amplitude(trace, measured_trace):
+    return jnp.sum(jnp.abs(jnp.sign(measured_trace)*jnp.sqrt(jnp.abs(measured_trace)) - jnp.sqrt(trace))**2)
 
 
 def calculate_r_error(trace, measured_trace, mu, descent_info):
+    measured_trace = measured_trace/(mu + 1e-15)
+
     r_error_dict={"intensity": calculate_r_error_intensity,
                   "amplitude": calculate_r_error_amplitude}
-    r_error=r_error_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace, mu)
+    r_error=r_error_dict[descent_info.s_prime_params.r_gradient](trace, measured_trace)
     return r_error
 
 

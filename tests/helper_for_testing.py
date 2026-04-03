@@ -364,7 +364,7 @@ class pulsedjax_testing:
         population = myalgorithm.create_initial_population(population_size, **population_kwargs)
 
         if myalgorithm.cross_correlation==True:
-            gate = myalgorithm.get_gate_pulse(m_parameters.spectra.pulse[0], m_parameters.spectra.pulse[1])
+            myalgorithm.get_gate_pulse(m_parameters.spectra.pulse[0], m_parameters.spectra.pulse[1])
 
         if a_parameters.use_spectra==True:
             frequency_spectrum_pulse, spectrum_pulse = m_parameters.spectra.pulse[0], m_parameters.spectra.pulse[1]
@@ -387,8 +387,8 @@ def run_test(i, method, algorithm, real_fields=False):
     """
     Is called to perform test with inputs no. i for a pair of method and algorithms.
 
-    The goal of these test is just that the final algorithms actually run. 
-    There is no check if the results are actually sensible.
+    The goal of these tests is just that the final algorithms actually run. 
+    They are not checking if the results are actually sensible.
     """
     test = pulsedjax_testing(method, algorithm, real_fields)
     m_parameters = test.make_m_parameters(i, method)

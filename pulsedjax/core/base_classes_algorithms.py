@@ -84,7 +84,15 @@ class AlgorithmsBASE:
 
 
         if self.local_optimize_calibration_curve==True:
-            print("Retrieval of the trace calibration in local iterations doesn work nicely.")
+            if self.descent_info.measured_spectrum_is_provided.pulse==False:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the pulse.")
+
+            if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
+
+            if self.r_local_method!="iteration":
+                print("Calibration curve optimization appears only to be working nicely with r_local_method=iteration. Projections seem to get stuck in a local minima.")
+
             
         if self.global_optimize_calibration_curve==True:
             if self.descent_info.measured_spectrum_is_provided.pulse==False:
@@ -92,6 +100,9 @@ class AlgorithmsBASE:
 
             if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
                 print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
+
+            if self.r_global_method!="iteration":
+                print("Calibration curve optimization appears only to be working nicely with r_global_method=iteration. Projections seem to get stuck in a local minima.")
 
 
 
@@ -117,33 +128,32 @@ class AlgorithmsBASE:
 
 
     def apply_spectrum(self, pulse, spectral_amplitude, eta):
+        norm_in = jnp.linalg.norm(pulse, axis=-1)
         spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
         pulse = project_onto_amplitude(pulse, spectral_amplitude)
-        return pulse
+        norm_out = jnp.linalg.norm(pulse, axis=-1)
+        return pulse*(norm_in/norm_out)[:,None]
     
 
     def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
         """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
+        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
+        
+        
         population = descent_state.population
         eta = descent_info.eta_spectral_amplitude
         
         if descent_info.measured_spectrum_is_provided.pulse==True:
-            norm_pulse = jnp.linalg.norm(population.pulse, axis=-1)
-            pulse = jax.vmap(self.apply_spectrum, in_axes=(0,None,None))(population.pulse, 
-                                                                         measurement_info.spectral_amplitude.pulse, eta)
-            
-            pulse = pulse/jnp.linalg.norm(pulse,axis=-1)[:,jnp.newaxis]*norm_pulse[:,jnp.newaxis]
-            population = tree_at(lambda x: x.pulse, population, pulse)
+            _apply_spectrum = Partial(self.apply_spectrum, spectral_amplitude=measurement_info.spectral_amplitude.pulse, eta=eta)
+            population_pulse = jax.tree.map(_apply_spectrum, population.pulse)
+            population = tree_at(lambda x: x.pulse, population, population_pulse)
 
         if descent_info.measured_spectrum_is_provided.gate==True:
-            norm_gate = jnp.linalg.norm(population.gate, axis=-1)
-            gate = jax.vmap(self.apply_spectrum, in_axes=(0,None,None))(population.gate, 
-                                                                        measurement_info.spectral_amplitude.gate, eta)
-            gate = gate/jnp.linalg.norm(gate,axis=-1)[:,jnp.newaxis]*norm_gate[:,jnp.newaxis]
-            population = tree_at(lambda x: x.gate, population, gate)
+            _apply_spectrum = Partial(self.apply_spectrum, spectral_amplitude=measurement_info.spectral_amplitude.gate, eta=eta)
+            population_gate = jax.tree.map(_apply_spectrum, population.gate)
+            population = tree_at(lambda x: x.gate, population, population_gate)
             
         descent_state = tree_at(lambda x: x.population, descent_state, population)
-        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
         return descent_state, trace_error
 
 
@@ -818,7 +828,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="gate")
             gate_f_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
         else:
-            gate_f_arr = None # pulse_f_arr
+            gate_f_arr = None
 
         return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr)
     
@@ -835,8 +845,6 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
     def trace_error(self, trace, measured_trace):
         """ The least squares error. """
-        # if measured trace is big, the compiler complains about constant-folding time
-        #measured_trace = measured_trace/jnp.max(jnp.abs(measured_trace))
         trace = trace/jnp.max(jnp.abs(trace))
         return jnp.mean(jnp.abs(trace - measured_trace)**2)
 
@@ -869,22 +877,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
 
 
-
     def initialize_general_optimizer(self, population):
         """ A common initialization step for all general solvers. """
-
-        # is being done when spectra are provided
-        # if self.descent_info.measured_spectrum_is_provided.pulse==True:
-        #     spectrum = self.measurement_info.spectral_amplitude.pulse
-        #     idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-        #     self.measurement_info = tree_at(lambda x: x.central_frequency.pulse, self.measurement_info, 
-        #                                     self.frequency[int(idx)], is_leaf=lambda x: x is None)
-
-        # if self.descent_info.measured_spectrum_is_provided.gate==True:
-        #     spectrum = self.measurement_info.spectral_amplitude.gate
-        #     idx = get_com(spectrum, jnp.arange(jnp.size(spectrum)))
-        #     self.measurement_info = tree_at(lambda x: x.central_frequency.gate, self.measurement_info, 
-        #                                     self.frequency[int(idx)], is_leaf=lambda x: x is None)
         
         measured_trace = self.measurement_info.measured_trace/jnp.max(jnp.abs(self.measurement_info.measured_trace))
         self.measurement_info = self.measurement_info.expand(measured_trace = measured_trace)
@@ -894,30 +888,3 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         _, init_mu_global = initialize_mu(self, self.measurement_info, self.descent_info)
         self.descent_state = self.descent_state.expand(population = population,
                                                        mu = init_mu_global)
-
-       
-
-
-
-    # def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
-    #     """ Post-processing to evaluate parametrized individuals. """
-    #     sk, rn = measurement_info.sk, measurement_info.rn
-
-    #     population = self.get_pulses_f_from_population(descent_state.population, measurement_info, descent_info)
-    #     error_arr = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
-        
-    #     if idx==None:
-    #         idx = jnp.argmin(error_arr)
-
-    #     individual = self.get_individual_from_idx(idx, population)
-    #     pulse_f = individual.pulse[0]
-    #     pulse_t = self.ifft(pulse_f, sk, rn)
-
-    #     if measurement_info.doubleblind==True:
-    #         gate_f = individual.gate[0]
-    #         gate_t = self.ifft(gate_f, sk, rn)
-    #     else:
-    #         gate_t, gate_f = pulse_t, pulse_f
-
-    #     return pulse_t, gate_t, pulse_f, gate_f
-    

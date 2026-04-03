@@ -7,7 +7,7 @@ from functools import partial as Partial
 import jax
 import jax.numpy as jnp
 
-from pulsedjax.utilities import MyNamespace, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, center_signal, project_onto_amplitude
+from pulsedjax.utilities import MyNamespace, get_com, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, center_signal, project_onto_amplitude
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
 from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase, _eval_refractive_index
 
@@ -186,13 +186,16 @@ class RetrievePulses:
 
         trace = trace/jnp.max(trace)
         measured_trace = measured_trace/jnp.max(measured_trace)
-        trace_difference = measured_trace-trace
+        trace_difference = (measured_trace - trace)#/(measured_trace + trace)
+        #trace = trace/jnp.max(trace)
+        #measured_trace = measured_trace/jnp.max(measured_trace)
 
         fig=plt.figure(figsize=(22,16))
         ax1=plt.subplot(2,3,1)
         ax1.plot(time, np.abs(pulse_t), label="Amplitude")
         ax1.set_xlabel(r"Time [arb. u.]")
         ax1.legend(loc=2)
+        ax1.set_title("Pulse Time-Domain")
 
         ax2 = ax1.twinx()
         ax2.plot(time, np.unwrap(np.angle(pulse_t))*1/np.pi, c="tab:orange", label="Phase")
@@ -212,6 +215,7 @@ class RetrievePulses:
         ax1.plot(frequency,jnp.abs(pulse_f), label="Amplitude")
         ax1.set_xlabel(r"Frequency [arb. u.]")
         ax1.legend(loc=2)
+        ax1.set_title("Pulse Frequency-Domain")
 
         ax2 = ax1.twinx()
         ax2.plot(frequency, jnp.unwrap(jnp.angle(pulse_f))*1/np.pi, c="tab:orange", label="Phase")
@@ -237,22 +241,42 @@ class RetrievePulses:
         plt.pcolormesh(x_arr, frequency_exp, measured_trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
-        plt.title("Measured")
+        plt.title("Measured Trace")
 
         plt.subplot(2,3,5)
         plt.pcolormesh(x_arr, frequency_exp, trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
-        plt.title("Retrieved")
+        plt.title("Retrieved Trace")
 
         plt.subplot(2,3,6)
         plt.pcolormesh(x_arr, frequency_exp, trace_difference.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.colorbar()
-        plt.title("Difference")
+        plt.title("Normalized Difference Traces")
 
+        plt.tight_layout()
         plt.show()
+
+
+
+        local_or_global=None
+
+        if self.descent_info.optimize_calibration_curve._local==True:
+            local_or_global="_local"
+
+        if self.descent_info.optimize_calibration_curve._global==True:
+            local_or_global="_global"
+
+        if local_or_global!=None:
+            fig=plt.figure()
+            plt.plot(frequency_exp, getattr(final_result.mu, local_or_global))
+            plt.xlabel("Frequency [PHz]")
+            plt.ylabel("Scaling Factor [arb.u.]")
+            plt.title("Calibration Curve")
+            plt.tight_layout()
+            plt.show()
 
 
 
@@ -308,80 +332,66 @@ class RetrievePulses:
         else:
             gate_t, gate_f = pulse_t, pulse_f
 
-        return pulse_t, gate_t, pulse_f, gate_f
+        return pulse_t, gate_t, pulse_f, gate_f, idx
     
 
 
 
 
-    def post_process_center_pulse_and_gate(self, pulse_t, gate_t):
+    def post_process_center_pulse_and_gate(self, pulse_t, gate_t, pulse_f, gate_f):
         """ This essentially removes the linear phase. But only approximately since no fits are done. """
-        sk, rn = self.measurement_info.sk, self.measurement_info.rn
 
+        sk, rn = self.measurement_info.sk, self.measurement_info.rn
         pulse_t = center_signal(pulse_t)
         gate_t = center_signal(gate_t)
+        pulse_f_new, gate_f_new = self.fft(pulse_t, sk, rn), self.fft(gate_t, sk, rn)
 
-        pulse_f = self.fft(pulse_t, sk, rn)
-        gate_f = self.fft(gate_t, sk, rn)
+        if self.descent_info.measured_spectrum_is_provided.pulse==True and self.eta_spectral_amplitude==1:
+            amp_f_pulse = self.measurement_info.spectral_amplitude.pulse
+        else:
+            amp_f_pulse = jnp.abs(pulse_f)
 
+        if self.descent_info.measured_spectrum_is_provided.gate==True and self.eta_spectral_amplitude==1:
+            amp_f_gate = self.measurement_info.spectral_amplitude.gate
+        else:
+            amp_f_gate = jnp.abs(gate_f)
+
+        pulse_f = project_onto_amplitude(pulse_f_new, amp_f_pulse)
+        gate_f = project_onto_amplitude(gate_f_new, amp_f_gate)
+
+        pulse_t, gate_t = self.ifft(pulse_f, sk, rn), self.ifft(gate_f, sk, rn)
         return pulse_t, gate_t, pulse_f, gate_f
     
     
 
-    def post_process_create_trace(self, individual):
+    def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
         """ Post processing to get the final trace """
-        transform_arr = self.measurement_info.transform_arr
+
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace = jax.vmap(lambda x,y: x*y)(mu, trace)
+        return trace[idx]
     
-        signal_t = self.calculate_signal_t(individual, transform_arr, self.measurement_info)
-        _calculate_trace = Partial(calculate_trace, measured_trace=self.measurement_info.measured_trace, measurement_info=self.measurement_info, descent_info=self.descent_info, local_or_global="_global")
-        trace, mu = _calculate_trace(signal_t.signal_f)
-        return mu*trace
-    
 
 
 
-    def post_process(self, descent_state, error_arr): # this is to complicated
+    def post_process(self, descent_state, error_arr):
         """ Creates the final_result object from the final descent_state. """
         error_arr = jnp.squeeze(error_arr)
         self.descent_state = descent_state
 
-        if self._name=="PtychographicIterativeEngine" or self._name=="COPRA":
-            mu = descent_state._global.mu
-        else:
-            mu = descent_state.mu
-        pulse_t, gate_t, pulse_f, gate_f = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
+        pulse_t, gate_t, pulse_f, gate_f, idx = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
+        pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t, pulse_f, gate_f)
         
-        # if self.descent_info.measured_spectrum_is_provided.pulse==True and self.measurement_info.eta_spectral_amplitude==1:
-        #     pulse_f_amp = self.measurement_info.spectral_amplitude.pulse
-        # else:
-        #     pulse_f_amp = jnp.abs(pulse_f)
-
-        # if self.measurement_info.doubleblind==True:
-        #     if self.descent_info.measured_spectrum_is_provided.gate==True and self.measurement_info.eta_spectral_amplitude==1:
-        #         gate_f_amp = self.measurement_info.spectral_amplitude.gate
-        #     else:
-        #         gate_f_amp = jnp.abs(gate_f)
-        # else:
-        #     gate_f_amp = pulse_f_amp
-        
-
-        if self.measurement_info.cross_correlation==True:
-            pass
-        else:
-            pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t)
-
-            # pulse_f = project_onto_amplitude(pulse_f, pulse_f_amp)
-            # pulse_t = self.ifft(pulse_f, self.measurement_info.sk, self.measurement_info.rn)
-
-            # gate_f = project_onto_amplitude(gate_f, gate_f_amp)
-            # gate_t = self.ifft(gate_f, self.measurement_info.sk, self.measurement_info.rn)
-                
-
+        trace = self.post_process_create_trace(descent_state, self.measurement_info, self.descent_info, idx)
         measured_trace = self.measurement_info.measured_trace
-        measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
-        
-        trace = self.post_process_create_trace(MyNamespace(pulse=pulse_f, gate=gate_f))
-        trace = trace/jnp.linalg.norm(trace)
+
+        if self._name=="PtychographicIterativeEngine" or self._name=="COPRA":
+            local_mu, global_mu = descent_state._local.mu[idx], descent_state._global.mu[idx]
+        else:
+            local_mu, global_mu = None, descent_state.mu[idx]
+
 
         x_arr = self.measurement_info.x_arr
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
@@ -394,7 +404,7 @@ class RetrievePulses:
         final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp = frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
-                                 error_arr=error_arr, mu=mu)
+                                 error_arr=error_arr, mu=MyNamespace(_local=local_mu, _global=global_mu))
         return final_result
     
     
