@@ -113,8 +113,7 @@ def initialize_S_prime_params(optimizer):
                                  _global=optimizer.r_global_method, 
                                  number_of_iterations=optimizer.r_no_iterations, 
                                  r_gradient=optimizer.r_gradient, 
-                                 r_newton=optimizer.r_newton, 
-                                 weights=optimizer.r_weights)
+                                 r_newton=optimizer.r_newton)
     return s_prime_params
 
 
@@ -1021,14 +1020,6 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         grad_sum = jnp.sum(grad_U, axis=1)
 
 
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
-            grad_sum = self.fft(grad_sum, measurement_info.sk, measurement_info.rn)
-            grad_sum = grad_sum*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
-            grad_sum = self.ifft(grad_sum, measurement_info.sk, measurement_info.rn)
-
-
-
-
         if newton_info=="diagonal" or newton_info=="full":
             measured_trace_for_newton = jax.vmap(lambda x,y: x/y)(measured_trace, local_or_global_state.mu)
             descent_direction, newton_state = self.calculate_PIE_newton_direction(grad_U, signal_t, transform_arr, measured_trace_for_newton, local_or_global_state, 
@@ -1065,13 +1056,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
 
         descent_direction = self.fft(descent_direction, measurement_info.sk, measurement_info.rn)
-        # if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
-        #     #pulse_f = getattr(population, pulse_or_gate)
-        #     #descent_direction = descent_direction*jnp.abs(pulse_f)
-        #     descent_direction = descent_direction*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
-
-
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
+            descent_direction = descent_direction*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
 
 
@@ -1353,7 +1340,6 @@ class COPRABASE(ClassicAlgorithmsBASE):
     def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
         """ Updates an individual based on a descent direction and a step size. """
 
-        # apparently this is fine for phase-factor optimization
         signal_f = getattr(individual, pulse_or_gate)
         signal_f = signal_f + gamma*descent_direction
         individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
@@ -1537,9 +1523,9 @@ class COPRABASE(ClassicAlgorithmsBASE):
         """
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_local")
 
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace, local_mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
-        descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
+        # signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        # trace, local_mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        # descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
 
         one_local_iteration = Partial(self.local_iteration, measurement_info=measurement_info, descent_info=descent_info)
         one_local_iteration = Partial(scan_helper, actual_function=one_local_iteration, number_of_args=1, number_of_xs=2)
@@ -1548,10 +1534,11 @@ class COPRABASE(ClassicAlgorithmsBASE):
         descent_state, _ = jax.lax.scan(one_local_iteration, descent_state, (transform_arr, measured_trace))
 
 
-        #signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
-        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        trace, local_mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(local_mu, trace, measurement_info.measured_trace)
 
+        descent_state = tree_at(lambda x: x._local.mu, descent_state, local_mu)
         return descent_state, trace_error.reshape(-1,1)
     
 
@@ -1606,7 +1593,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
 
         #signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        #trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
 
         descent_state = tree_at(lambda x: x._global.mu, descent_state, mu)
@@ -1723,9 +1710,11 @@ class LSFBASE(ClassicAlgorithmsBASE):
     C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
 
     Attributes:
-        number_of_bisection_iterations (int): as the name says
+        no_sectinons (int): number of sections to split the search line into
+        number_of_disection_iterations (int): as the name says
         direction_mode (str): can be random or continuous
         ratio_points_for_continuous (int): smaller value means more randomness/eratic
+        only_allow_improvements (bool): if true, only steps that decrease the error will be accepted
        
     """
 
@@ -1734,12 +1723,29 @@ class LSFBASE(ClassicAlgorithmsBASE):
 
         self._name = "LSF"
 
-        self.number_of_bisection_iterations = 12
+        self.no_sections = 2
+        self.number_of_disection_iterations = 12
 
         self.direction_mode = "random"
         self.ratio_points_for_continuous = 0.25
 
         self.boundary = 1 
+        self.only_allow_improvements = True
+
+
+    def apply_spectrum(self, pulse_f, spectral_amplitude, eta):
+        """ Projects onto measured spectrum by dividing the current spectral amplitude out. """
+        spectral_amplitude = spectral_amplitude/jnp.max(spectral_amplitude)
+
+        norm_in = jnp.max(jnp.abs(pulse_f), axis=-1)[:,None]
+        pulse_f = pulse_f/norm_in
+        phase_factor = pulse_f/jnp.abs(pulse_f)
+        amp_f = (1-eta)*jnp.abs(pulse_f) + eta*spectral_amplitude
+
+        pulse_f_new = amp_f*phase_factor
+        norm_out = jnp.max(jnp.abs(pulse_f_new), axis=-1)[:,None]
+        pulse_f_new = pulse_f_new*norm_in/norm_out
+        return pulse_f_new
 
 
 
@@ -1819,51 +1825,75 @@ class LSFBASE(ClassicAlgorithmsBASE):
         return jnp.max(s1, axis=1)[:, jnp.newaxis], jnp.min(s2, axis=1)[:, jnp.newaxis]
 
 
+    
 
+    def select_new_brackets_N_section(self, E_arr, error_arr, descent_state, pulse_or_gate):
+        """ Selects the two trial-individuals with the lowest errors in order to narrow the search bracket. """
+        idx1 = jnp.argmin(error_arr, axis=0)
+        mask_func = lambda x,y: jnp.where(jnp.arange(jnp.shape(x)[0])==y, jnp.inf, x)
+        error_arr_masked = jax.vmap(mask_func, in_axes=(1,0), out_axes=1)(error_arr, idx1)
+        idx2 = jnp.argmin(error_arr_masked, axis=0)
+        El = jax.vmap(Partial(jnp.take, axis=0), in_axes=(1,0))(E_arr, idx1)
+        Er = jax.vmap(Partial(jnp.take, axis=0), in_axes=(1,0))(E_arr, idx2)
 
-    def bisection_step_logic_0(self, El, Em, Er, signal):
-        return Em, Er
-
-    def bisection_step_logic_1(self, El, Em, Er, signal):
-        dl = jnp.linalg.norm(signal - El)
-        dr = jnp.linalg.norm(signal - Er)
-
-        x = jnp.sign(dr-dl)
-        condition = (x+1)//2
-        El = El*condition + Em*(1-condition)
-        Er = Em*condition + Er*(1-condition)
         return El, Er
 
-    def bisection_step_logic_2(self, El, Em, Er, signal):
-        return El, Em
-    
+
+    def select_new_brackets_bisection(self, E_arr, error_arr, descent_state, pulse_or_gate):
+        """
+        Narrows the search bracket by removing the trial-individual with the largest error or 
+        the one that is the furthest from the trial guess.
+        """
+
+        def bisection_step_logic_0(El, Em, Er, signal):
+            return Em, Er
+
+        def bisection_step_logic_1(El, Em, Er, signal):
+            dl = jnp.linalg.norm(signal - El)
+            dr = jnp.linalg.norm(signal - Er)
+
+            dl_smaller_dr = (dl < dr)
+            El = El*dl_smaller_dr + Em*(1-dl_smaller_dr)
+            Er = Em*dl_smaller_dr + Er*(1-dl_smaller_dr)
+            return El, Er
+
+        def bisection_step_logic_2(El, Em, Er, signal):
+            return El, Em
+
+
+        idx = jnp.argmax(error_arr, axis=0)
+        population = getattr(descent_state.population, pulse_or_gate)
+
+        El, Em, Er = E_arr
+        El, Er = jax.vmap(jax.lax.switch, in_axes=(0, None, 0, 0, 0, None))(idx, 
+                                                                            [bisection_step_logic_0, 
+                                                                             bisection_step_logic_1, 
+                                                                             bisection_step_logic_2], 
+                                                                            El, Em, Er,
+                                                                            population
+                                                                            )
+        return El, Er
+
+
+
+    def generate_E_arr(self, El, Er, n):
+        """ Takes in a range El, Er and disects it into n equal sections. """
+        d = (Er - El)/n
+        E_arr = El[None,:,:] + d[None,:,:]*jnp.arange(n+1)[:,None,None]
+        return E_arr
+
 
     def bisection_step(self, El, Er, descent_state, measurement_info, descent_info, pulse_or_gate):
         """ Does one bisection step of the LSF algorithm. """
 
-        Em = (El + Er)/2
-        E_arr = jnp.array([El, Em, Er])
-
-        population = getattr(descent_state.population, pulse_or_gate)
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
-            eta = descent_info.eta_spectral_amplitude
-            E_arr = jax.vmap(self.apply_spectrum_lsf, in_axes=(0,None,None))(E_arr, spectral_amplitude, eta)
-
-            population = self.apply_spectrum_lsf(population, spectral_amplitude, eta)
-            descent_state = tree_at(lambda x: getattr(x.population, pulse_or_gate), descent_state, population)
-            
-
+        E_arr = self.generate_E_arr(El, Er, descent_info.no_sections)
         error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, descent_state, measurement_info, descent_info, pulse_or_gate)
-        idx = jnp.argmax(error_arr, axis=0)
+        
+        if descent_info.no_sections==2:
+            El, Er = self.select_new_brackets_bisection(E_arr, error_arr, descent_state, pulse_or_gate)
+        else:
+            El, Er = self.select_new_brackets_N_section(E_arr, error_arr, descent_state, pulse_or_gate)
 
-        El, Er = jax.vmap(jax.lax.switch, in_axes=(0, None, 0, 0, 0, None))(idx, 
-                                                                            [self.bisection_step_logic_0, 
-                                                                             self.bisection_step_logic_1, 
-                                                                             self.bisection_step_logic_2], 
-                                                                            El, Em, Er,
-                                                                            population
-                                                                            )
         return (El, Er), None
     
 
@@ -1879,39 +1909,49 @@ class LSFBASE(ClassicAlgorithmsBASE):
         El = getattr(descent_state.population, pulse_or_gate) + s1*direction
         Er = getattr(descent_state.population, pulse_or_gate) + s2*direction
 
-        no_iterations = descent_info.number_of_bisection_iterations
+        no_iterations = descent_info.number_of_disection_iterations
         do_bisection_step = Partial(self.bisection_step, descent_state=descent_state, measurement_info=measurement_info, 
                                     descent_info=descent_info, pulse_or_gate=pulse_or_gate)
         
         do_step = Partial(scan_helper, actual_function=do_bisection_step, number_of_args=2, number_of_xs=0)
         E_arr, _ = jax.lax.scan(do_step, (El, Er), length=no_iterations) 
-        E_arr = jnp.array(E_arr)
 
+        El, Er = E_arr
+        E_arr = self.generate_E_arr(El, Er, descent_info.no_sections)
         error_arr = jax.vmap(self.calculate_error, in_axes=(0, None, None, None, None))(E_arr, descent_state, measurement_info, descent_info, pulse_or_gate)
+        
+        if descent_info.only_allow_improvements==True:
+            # only improvements are accepted if this is active -> may cause stagnation?
+            # it seems very unlikely to truly stagnate in such a high dimensional optimization problem
+            error_arr = jnp.concatenate((error_arr, descent_state.error_arr[None,:]), axis=0)
+            E_arr = jnp.concatenate((E_arr, getattr(descent_state.population, pulse_or_gate)[None,:,:]), axis=0)
+        
         idx = jnp.argmin(error_arr, axis=0)
-        return jax.vmap(jax.lax.switch, in_axes=(0, None, 0))(idx, [lambda x: x[0], lambda x: x[1]], jnp.transpose(E_arr, axes=(1,0,2)))
-
+        population_new = jax.vmap(Partial(jnp.take, axis=0), in_axes=(1,0))(E_arr, idx)
+        return population_new
 
 
 
     def search_along_direction(self, direction, descent_state, measurement_info, descent_info):
         """ Performs a bisection search along one direction for pulse and the for gate. """
 
-        # project direction onto spectrum?
-
-        pulse_or_gate = "pulse"
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
-            eta = descent_info.eta_spectral_amplitude
-            direction_pulse = self.apply_spectrum_lsf(direction.pulse, spectral_amplitude, eta)
+        if descent_info.measured_spectrum_is_provided.pulse==True:
+            direction_pulse = self.apply_spectrum(direction.pulse, measurement_info.spectral_amplitude.pulse, 
+                                                  descent_info.eta_spectral_amplitude)
         else:
             direction_pulse = direction.pulse
             
         population_pulse = self.do_bisection_search(direction_pulse, descent_state, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
         
-        if measurement_info.doubleblind==True:     
-            population_gate = self.do_bisection_search(direction.gate, descent_state, measurement_info, descent_info, "gate")
+        if measurement_info.doubleblind==True:  
+            if descent_info.measured_spectrum_is_provided.gate==True:
+                direction_gate = self.apply_spectrum(direction.gate, measurement_info.spectral_amplitude.gate, 
+                                                     descent_info.eta_spectral_amplitude)
+            else:
+                direction_gate = direction.gate
+
+            population_gate = self.do_bisection_search(direction_gate, descent_state, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
         return descent_state
@@ -1919,6 +1959,7 @@ class LSFBASE(ClassicAlgorithmsBASE):
     
 
     def make_population_bisection_search(self, E_arr, population, pulse_or_gate):
+        """ Combines the trial populations with the current population such that the errors may be computed. """
         temp_dict = {"pulse": (E_arr, population.gate),
                      "gate": (population.pulse, E_arr)}
         
@@ -1940,27 +1981,6 @@ class LSFBASE(ClassicAlgorithmsBASE):
         trace, _ = jax.vmap(_calculate_trace)(signal_t.signal_f)
         error_arr = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(descent_state.mu, trace, measurement_info.measured_trace)
         return error_arr
-
-
-    
-    def get_phase_factor(self, pulse_f):
-        norm_in = jnp.max(jnp.abs(pulse_f), axis=-1)[:,None]
-        pulse_f = pulse_f/norm_in
-        phase_factor = pulse_f/jnp.abs(pulse_f)
-        return phase_factor, norm_in
-
-
-    def apply_spectrum_lsf(self, pulse_f, spectral_amplitude, eta):
-        """ Projects onto measured spectrum by dividing the current spectral amplitude out. """
-        spectral_amplitude = spectral_amplitude/jnp.max(spectral_amplitude)
-
-        phase_factor, norm_in = self.get_phase_factor(pulse_f)
-        amp_f = (1-eta)*jnp.abs(pulse_f) + eta*spectral_amplitude
-
-        pulse_f_new = amp_f*phase_factor
-        norm_out = jnp.max(jnp.abs(pulse_f_new), axis=-1)[:,None]
-        pulse_f_new = pulse_f_new*norm_in/norm_out
-        return pulse_f_new
 
 
 
@@ -1987,13 +2007,13 @@ class LSFBASE(ClassicAlgorithmsBASE):
         population = jax.tree.map(lambda x: x/jnp.linalg.norm(x, axis=-1)[:,None], descent_state.population)
         descent_state = tree_at(lambda x: x.population, descent_state, population)
 
-
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
         trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
         error_arr = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measurement_info.measured_trace)
         
         descent_state = tree_at(lambda x: x.mu, descent_state, mu)
+        descent_state = tree_at(lambda x: x.error_arr, descent_state, error_arr)
         return descent_state, error_arr.reshape(-1,1)
     
 
@@ -2013,27 +2033,28 @@ class LSFBASE(ClassicAlgorithmsBASE):
         """
 
         assert (0 < self.ratio_points_for_continuous < 1) | (self.direction_mode!="continuous")
-        if self.descent_info.measured_spectrum_is_provided.pulse==True or self.descent_info.measured_spectrum_is_provided.gate==True:
-            if self.eta_spectral_amplitude==1:
-                print("In LSF the spectrum should be incorporated carefully. self.eta_spectral_amplitude should be a low number.")
-
+        assert type(self.no_sections)==int, "Number of sections needs to be an int."
+        assert self.no_sections > 1, "Number of sections needs to be greater than one."
 
         measurement_info = self.measurement_info
-        self.descent_info = self.descent_info.expand(number_of_bisection_iterations = self.number_of_bisection_iterations,
+        self.descent_info = self.descent_info.expand(no_sections = self.no_sections,
+                                                     number_of_disection_iterations = self.number_of_disection_iterations,
                                                      ratio_points_for_continuous = self.ratio_points_for_continuous,
                                                      direction_mode = self.direction_mode,
                                                      boundary = self.boundary,
                                                      optimize_calibration_curve = MyNamespace(_local=None,
                                                                                               _global=self.global_optimize_calibration_curve),
-                                                    eta_spectral_amplitude=self.eta_spectral_amplitude)
+                                                    eta_spectral_amplitude=self.eta_spectral_amplitude,
+                                                    only_allow_improvements=self.only_allow_improvements)
         descent_info = self.descent_info
 
-        # this normalization seems to be needed, i guess the calculation of s1, s2 is faulty otherwise
+        # normalization seems to be needed, i guess the calculation of s1, s2 is faulty otherwise
         population = jax.tree.map(lambda x: x/jnp.linalg.norm(x, axis=-1)[:,None], population)
         _, mu_init_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population = population,
                                                        key = self.key, 
-                                                       mu = mu_init_global)
+                                                       mu = mu_init_global,
+                                                       error_arr = jnp.full((descent_info.population_size,), jnp.inf))
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)

@@ -191,7 +191,7 @@ class AlgorithmsBASE:
             names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", 
                           #"GeneralizedProjection", "COPRA", # was removed because of calibration curve optimization
                           # maybe there needs to be a rule here that enforces projection if calibration curve is optimized
-                          "LSF"]
+                          ]
 
             if any([self._name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
@@ -271,7 +271,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         r_global_method (str): chooses the method on the calculation of S_prime in global iterations. Can be projection or iteration.
         r_gradient (str): if r_method=iteration, chooses the type of residual to optimize. Can be amplitude or intensity.
         r_newton (bool): enables/diables the use of the diagonal hessian if r_method=iteration
-        r_weights (float, jnp.array): allows the weigthing of residuals
         r_no_iterations (int): the number of iterations if r_method=iteration
 
         xi (float): a damping coefficient for adaptive step-sizes, avoids division by zero
@@ -311,7 +310,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_global_method = "projection"
         self.r_gradient = "intensity"
         self.r_newton = False
-        self.r_weights = 1.0
         self.r_no_iterations = 1
 
         self.local_adaptive_scaling = False
@@ -394,7 +392,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.xi = damping
         return self
 
-    def set_S_prime_params(self, local_method="projection", global_method="projection", gradient="intensity", newton=False, weights=1.0, no_iterations=1):
+    def set_S_prime_params(self, local_method="projection", global_method="projection", gradient="intensity", newton=False, no_iterations=1):
         """ 
         A helper to set attributes. Sets all attributes which are related to the updating of the signal field (signal_t -> signal_t_new). 
         Will overwrite all attributes and may thus cause some unwanted changes. 
@@ -418,7 +416,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.r_global_method = global_method
         self.r_gradient = gradient
         self.r_newton = newton
-        self.r_weights = weights
         self.r_no_iterations = no_iterations
         return self
 
@@ -569,6 +566,19 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
     # this might be a good idea
     # def initialize_classical_algorithm(self, population):
     #     pass
+
+
+
+    
+    def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
+        """ Post processing to get the final trace """
+
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace = jax.vmap(lambda x,y: x*y)(mu, trace)
+        return trace[idx]
+    
     
 
 
@@ -888,3 +898,21 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         _, init_mu_global = initialize_mu(self, self.measurement_info, self.descent_info)
         self.descent_state = self.descent_state.expand(population = population,
                                                        mu = init_mu_global)
+        
+
+
+
+
+    
+    def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
+        """ Post processing to get the final trace """
+
+        population = self.get_pulses_f_from_population(descent_state.population, measurement_info, descent_info)
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace = jax.vmap(lambda x,y: x*y)(mu, trace)
+        return trace[idx]
+    

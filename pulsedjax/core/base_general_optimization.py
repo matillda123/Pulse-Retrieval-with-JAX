@@ -596,15 +596,15 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         self.solver = solver
         self.alternating_optimization = False
+        self.optimize_group_delay = True
 
 
     def get_phase(self, coefficients, central_f, measurement_info, descent_info):
         """ Wraps around GeneralOptimizationBASE.get_phase() in order to fascilliate the optimization of the group delay. """
         phase = super().get_phase(coefficients, central_f, measurement_info, descent_info)
-        if descent_info.phase_type=="polynomial" or descent_info.phase_type=="sinusoidal":
+        if (descent_info.phase_type=="polynomial" or descent_info.phase_type=="sinusoidal") and descent_info.optimize_group_delay==False:
             return phase
         else:
-            print("maybe there should be a flag to disable this.")
             return jnp.cumsum(phase)*measurement_info.df
 
 
@@ -806,7 +806,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         
         measurement_info = self.measurement_info
 
-        self.descent_info = self.descent_info.expand(alternating_optimization = self.alternating_optimization)
+        self.descent_info = self.descent_info.expand(alternating_optimization = self.alternating_optimization,
+                                                     optimize_group_delay = self.optimize_group_delay)
         descent_info = self.descent_info
 
 

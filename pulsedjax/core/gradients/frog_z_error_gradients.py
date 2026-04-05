@@ -45,7 +45,7 @@ def Z_gradient_nhg(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, 
 
 def Z_gradient_cross_correlation_pulse(deltaS, pulse_t, pulse_t_shifted, gate_shifted, exp_arr, sk, rn, n):
     # gradient with respect to pulse, is the same for all nonlinear methods
-    grad=do_fft(deltaS*jnp.conjugate(gate_shifted), sk, rn)
+    grad = do_fft(deltaS*jnp.conjugate(gate_shifted), sk, rn)
     return -2*grad
 
 

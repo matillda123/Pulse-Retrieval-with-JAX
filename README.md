@@ -1,7 +1,7 @@
 # PulsedJAX: Pulse-Retrieval with JAX
 
-Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.  
-This does not mean that the implemented algorithms are differentiable. (They are probably not.) The point is to take advantage of jax.jit and other Jax-transformations.
+Uses JAX to implement various algorithms for pulse-retrieval in ultrafast optics.  
+This does not mean that the implemented algorithms are differentiable. The point is to take advantage of jax.jit and other JAX-transformations.
 
 
 ## Installation and Documentation
@@ -13,10 +13,10 @@ The documentation is available [here](https://pulse-retrieval-with-jax.readthedo
 
 ## Overview  
 Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE. 
-For each method SHG, THG, PG/TG and SD as well as cross-correlation retrievals are implemented (with some exceptions). Doubleblind retrievals are implemented as well, however usually these suffer from serious convergence issues, unless additional constraints are enforced. These can be provided through measured spectra of the pulse and gate-pulse. 
-For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
+For each method SHG, THG, PG/TG and SD as well as cross-correlation and doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.  
+In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once as well as the retrieval of the calibration curve of the measured trace.
 
-On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid. In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once.  
+On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid. 
 
 
 The available algorithms are: 
@@ -26,8 +26,8 @@ The available algorithms are:
 | Generalized Projection | [K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)](https://doi.org/10.1364/OL.19.002152)  |
 | Ptychographic Iterative Engine | [A. Maiden et al., Optica 4, 736-745 (2017)](https://doi.org/10.1364/OPTICA.4.000736) and [P. Sidorenko et al., Optica 3, 1320-1330 (2016)](https://doi.org/10.1364/OPTICA.3.001320)|
 | Common Pulse Retrieval Algorithm | [N. C. Geib, Optica 6, 495-505 (2019)](https://doi.org/10.1364/OPTICA.6.000495) and [pypret](https://github.com/ncgeib/pypret) |
-| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1)|
 | Linesearch-Frog-Algorithm (for all methods) | [C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)](https://doi.org/10.1364/OE.569606)  |
+| Differential Evolution | [J. Qiang and C. Mitchell (2014)](https://www.osti.gov/biblio/1163659) and [I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)](https://doi.org/10.1016/S0378-4371(00)00218-1)|
 | AD-Solvers ([optax](https://github.com/google-deepmind/optax) and [optimistix](https://github.com/patrick-kidger/optimistix)) | [ DeepMind et al., *The DeepMind JAX Ecosystem* (2020)](https://github.com/google-deepmind/optax) and<br>[J. Rader, T. Lyons and P. Kidger, *Optimistix: modular optimisation in JAX and Equinox*, arXiv:2402.09983 (2024)](https://arxiv.org/abs/2402.09983) |
 | Evolutionary solvers ([evosax](https://github.com/RobertTLange/evosax)) | [R. T. Lange, arXiv 2212.04180 (2022)](https://arxiv.org/abs/2212.04180) |
 

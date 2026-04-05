@@ -186,9 +186,7 @@ class RetrievePulses:
 
         trace = trace/jnp.max(trace)
         measured_trace = measured_trace/jnp.max(measured_trace)
-        trace_difference = (measured_trace - trace)#/(measured_trace + trace)
-        #trace = trace/jnp.max(trace)
-        #measured_trace = measured_trace/jnp.max(measured_trace)
+        trace_difference = (measured_trace - trace)
 
         fig=plt.figure(figsize=(22,16))
         ax1=plt.subplot(2,3,1)
@@ -361,17 +359,6 @@ class RetrievePulses:
 
         pulse_t, gate_t = self.ifft(pulse_f, sk, rn), self.ifft(gate_f, sk, rn)
         return pulse_t, gate_t, pulse_f, gate_f
-    
-    
-
-    def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
-        """ Post processing to get the final trace """
-
-        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
-        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
-        trace = jax.vmap(lambda x,y: x*y)(mu, trace)
-        return trace[idx]
     
 
 

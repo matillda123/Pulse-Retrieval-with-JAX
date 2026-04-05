@@ -168,6 +168,12 @@ class pulsedjax_testing:
             run_kwargs_add = dict(svd = options_pcgpa_svd[i],
                                 constraints = options_pcgpa_constraints[i],
                                 antialias = options_pcgpa_antialias[i])
+        
+        elif algorithm == self.LSF:
+            options_lsf = ["random", "random", "continuous", "continuous", "random"]
+            options_no_sections = [2, 3, 2, 2, 5]
+            run_kwargs = dict(random_direction_mode = options_lsf[i],
+                              no_sections = options_no_sections[i])
         else:
             run_kwargs_add = {}
         
@@ -187,10 +193,6 @@ class pulsedjax_testing:
             from evosax.algorithms import DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC
             options_evo = [DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC]
             run_kwargs = dict(solver = options_evo[i])
-
-        elif algorithm == self.LSF:
-            options_lsf = ["random", "random", "continuous", "continuous", "random"]
-            run_kwargs = dict(random_direction_mode = options_lsf[i])
 
         elif algorithm == self.AutoDiff:
             from optax import adam, lbfgs
