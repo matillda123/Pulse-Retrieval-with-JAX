@@ -90,7 +90,7 @@ def calculate_r_descent_direction(signal_f, mu, measured_trace, sk, rn, descent_
     gradient = calculate_r_gradient(mu, signal_f, measured_trace, sk, rn, descent_info)
 
     if descent_info.s_prime_params.r_newton!=False:
-        measured_trace = measured_trace/(mu + 1e-15)
+        measured_trace = measured_trace/(mu + 1e-9)
         hessian = calculate_r_newton_diagonal(signal_f, measured_trace, sk, rn, descent_info)
         descent_direction = -1*gradient/(hessian[:,jnp.newaxis] + 1e-12)
     else:

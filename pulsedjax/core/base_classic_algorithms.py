@@ -494,7 +494,7 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
 
         population = jax.vmap(self.update_individual, in_axes=(0,0,None,None))(opf, population, measurement_info, descent_info)        
         population = jax.tree.map(lambda x: self.fft(x, measurement_info.sk, measurement_info.rn), population)
-        #population = jax.tree.map(lambda x: x/jnp.linalg.norm(x,axis=-1)[:,None], population)
+        population = jax.tree.map(lambda x: x/jnp.linalg.norm(x,axis=-1)[:,None], population)
         
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x.iteration, descent_state, iteration+1)
@@ -516,10 +516,10 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
             tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
 
         """
-        if self.descent_info.measured_spectrum_is_provided.gate==False or self.nonlinear_method=="shg":
+        if self.descent_info.measured_spectrum_is_provided.gate==True and self.nonlinear_method!="shg":
             print("PCGPA retrieves the gate, not the gate-pulse. Thus providing the spectrum isnt correct.")
 
-        if self.global_optimize_calibration_curve==False:
+        if self.global_optimize_calibration_curve==True:
             print("Calibration curve optimization isnt working in PCGPA.")
 
 
@@ -556,12 +556,12 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
     def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
         """ For PCGP the trace is constructed using the opf. """
         iteration = descent_state.iteration
-        population = jax.tree.map(lambda x: self.ifft(x, measurement_info.sk, measurement_info.rn), population)
+        population = jax.tree.map(lambda x: self.ifft(x, measurement_info.sk, measurement_info.rn), descent_state.population)
 
         signal_t = jax.vmap(self.calculate_signal_t_using_opf, in_axes=(0,None,None,None))(population, iteration, measurement_info, descent_info)
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
         trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
-        trace = mu*trace
+        trace = mu[:,None,None]*trace
         return trace[idx]
 
 
@@ -883,8 +883,6 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         self.alpha = 0.5
         self.pie_method = pie_method
 
-        self.phase_factor_opt = False
-
         # this corresponds to the pie-error
         self.r_gradient = "amplitude"
 
@@ -989,6 +987,11 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         # None, is the correct choice since it yields the steepest descent direction of pie
         grad_U = self.calculate_PIE_descent_direction_m(signal_t, signal_t_new, transform_arr, None, 
                                                         measurement_info, descent_info, pulse_or_gate)
+        
+        grad_U = self.fft(grad_U, measurement_info.sk, measurement_info.rn)
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+            grad_U = grad_U*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+
         return jnp.sum(grad_U, axis=0)
     
 
@@ -1017,11 +1020,16 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         newton_info = getattr(descent_info.newton, local_or_global)
 
         grad_U = self.calculate_PIE_descent_direction(signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
+        
+        grad_U = self.fft(grad_U, measurement_info.sk, measurement_info.rn)
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+            grad_U = grad_U*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+            
         grad_sum = jnp.sum(grad_U, axis=1)
 
 
         if newton_info=="diagonal" or newton_info=="full":
-            measured_trace_for_newton = jax.vmap(lambda x,y: x/y)(measured_trace, local_or_global_state.mu)
+            measured_trace_for_newton = jax.vmap(lambda x,y: x/(y + 1e-9))(measured_trace, local_or_global_state.mu)
             descent_direction, newton_state = self.calculate_PIE_newton_direction(grad_U, signal_t, transform_arr, measured_trace_for_newton, local_or_global_state, 
                                                                                    measurement_info, descent_info, pulse_or_gate, local_or_global)
             local_or_global_state = tree_at(lambda x: getattr(x.newton, pulse_or_gate), local_or_global_state, newton_state)
@@ -1051,20 +1059,9 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                                                                                             pulse_or_gate, local_or_global)
 
 
-
-
-
-
-        descent_direction = self.fft(descent_direction, measurement_info.sk, measurement_info.rn)
-
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
-            descent_direction = descent_direction*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
-
-
-
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
-            #pk_dot_gradient=jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            pk_dot_gradient=jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
+            #pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
 
             linesearch_info=MyNamespace(population=population, signal_t=signal_t, descent_direction=descent_direction, 
                                         pk_dot_gradient=pk_dot_gradient, error=pie_error,
@@ -1082,8 +1079,6 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         if newton_info=="lbfgs":
             lbfgs_state = update_lbfgs_state(lbfgs_state, gamma, grad_sum, descent_direction)
             local_or_global_state = tree_at(lambda x: getattr(x.lbfgs, pulse_or_gate), local_or_global_state, lbfgs_state)
-
-
         
         population = self.update_population(population, gamma, descent_direction, pulse_or_gate)
         return local_or_global_state, population
@@ -1241,8 +1236,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         measurement_info = self.measurement_info
 
         self.descent_info = initialize_descent_info(self).expand(alpha = self.alpha,
-                                                                 pie_method = self.pie_method,
-                                                                 phase_factor_opt = self.phase_factor_opt)
+                                                                 pie_method = self.pie_method)
         descent_info = self.descent_info
 
         shape = jnp.shape(population.pulse)
@@ -1710,7 +1704,7 @@ class LSFBASE(ClassicAlgorithmsBASE):
     C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025) 
 
     Attributes:
-        no_sectinons (int): number of sections to split the search line into
+        no_sections (int): number of sections to split the search line into
         number_of_disection_iterations (int): as the name says
         direction_mode (str): can be random or continuous
         ratio_points_for_continuous (int): smaller value means more randomness/eratic

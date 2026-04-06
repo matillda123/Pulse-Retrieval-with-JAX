@@ -16,7 +16,7 @@ def PIE_get_full_pseudo_hessian_all_m(probe, subelement, transform_arr, time, om
 
         N = jnp.size(time)
         time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
-        Dkn = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
+        Dkn = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
         H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn, phase_matrix, Dkn.conj())
         H = H[:,:,:N,:N]
         hessian_all_m = jnp.einsum("Nmju, un, Nmu, Nmi, in, Nmki, Nmn -> Nmkj", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
@@ -45,7 +45,7 @@ def PIE_get_diagonal_pseudo_hessian_all_m(probe, subelement, transform_arr, time
 
         N = jnp.size(time)
         time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
-        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
+        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
         H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn_new, phase_matrix, Dkn_new.conj())
         H = H[:,:,:N,:N]
         hessian_all_m = jnp.einsum("Nmki, in, Nmi, Nmi, in, Nmik, Nmn -> Nmk", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
@@ -62,7 +62,7 @@ def PIE_get_diagonal_pseudo_hessian_all_m(probe, subelement, transform_arr, time
 
 
 
-def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, full_or_diagonal, pulse_or_gate):
+def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
     """ Just an intermediary to call full or diagonal hessian. """
 
     if measurement_info.real_fields==False:
@@ -72,13 +72,26 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
 
 
     N = jnp.size(time)
-    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))/jnp.sqrt(N)
+    Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
     
     hessian_func_dict = {"full": PIE_get_full_pseudo_hessian_all_m,
                          "diagonal": PIE_get_diagonal_pseudo_hessian_all_m}
     
     hessian_all_m = hessian_func_dict[full_or_diagonal](probe, subelement, transform_arr, time, omega, Dkn, measurement_info, pulse_or_gate)
+    
+    if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
+        spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+
+        if full_or_diagonal=="full":
+            hessian_all_m = jnp.einsum("n, kn, Nmkj, jp, p -> Nmnp", spectral_amplitude, Dkn, hessian_all_m, Dkn.conj(), spectral_amplitude)
+        
+        elif full_or_diagonal=="diagonal":
+            hessian_all_m = jnp.einsum("n, kn, Nmk, kn, n -> Nmn", spectral_amplitude, Dkn, hessian_all_m, Dkn.conj(), spectral_amplitude)
+        
+        else:
+            raise ValueError
+
     return hessian_all_m
 
 
@@ -112,7 +125,7 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
     newton = descent_info.newton
     lambda_lm, solver = newton.lambda_lm, newton.linalg_solver
     full_or_diagonal = getattr(newton, local_or_global)
-    hessian_all_m = PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, full_or_diagonal, pulse_or_gate)
+    hessian_all_m = PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
 
     if pulse_or_gate=="gate" and measurement_info.nonlinear_method=="sd":
         # this should be correct, one can pull the conjugate out, then one gets the same formula

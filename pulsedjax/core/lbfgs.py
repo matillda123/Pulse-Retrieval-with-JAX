@@ -39,19 +39,6 @@ def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, newton_
 
 
 
-
-# def calculate_newton_approximate(B, rho, s, y):
-#     t1 = B @ s
-#     return B + jnp.outer(y, jnp.conjugate(y))*rho - jnp.outer(t1, jnp.conjugate(t1))/(jnp.conjugate(s) @ B @ s), None
-
-
-# def get_newton_approximate_explicitly(rho, s, y):
-#     B_init = jnp.eye(jnp.shape(y)[-1])
-#     B, _ = jax.lax.scan(calculate_newton_approximate, B_init, (rho, s, y))
-#     return B
-
-
-
 def do_lbfgs(grad_current, lbfgs_state, descent_info):
     """ Prepares and calls the LBFGS calculation. """
     grad_prev, newton_direction_prev, step_size_prev = lbfgs_state.grad_prev, lbfgs_state.newton_direction_prev, lbfgs_state.step_size_prev
@@ -60,7 +47,9 @@ def do_lbfgs(grad_current, lbfgs_state, descent_info):
     y = grad_current - grad_prev
 
     ys = jnp.vecdot(y,s)
-    rho = 1/jnp.real(ys + jnp.sign(ys)*1e-14)
+    ys_is_zero = (ys==0)
+    sign_ys = jnp.sign(ys)*(1-ys_is_zero) + 1*ys_is_zero
+    rho = 1/jnp.real(ys + sign_ys*1e-14)
     rho = jnp.maximum(rho, 0) # ignore iterations with negative curvature
 
     newton_direction = calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, descent_info.newton)
