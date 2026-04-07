@@ -172,7 +172,7 @@ class pulsedjax_testing:
         elif algorithm == self.LSF:
             options_lsf = ["random", "random", "continuous", "continuous", "random"]
             options_no_sections = [2, 3, 2, 2, 5]
-            run_kwargs = dict(random_direction_mode = options_lsf[i],
+            run_kwargs_add = dict(direction_mode = options_lsf[i],
                               no_sections = options_no_sections[i])
         else:
             run_kwargs_add = {}

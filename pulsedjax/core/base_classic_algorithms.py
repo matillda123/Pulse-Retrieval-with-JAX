@@ -188,14 +188,23 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         pulse = jnp.sum(signal_t_new*jnp.conjugate(gate_shifted), axis=1)/(jnp.sum(jnp.abs(gate_shifted)**2, axis=1) + _lambda)
         return self.fft(pulse, measurement_info.sk, measurement_info.rn)
     
-    def update_gate(self, signal_t_new, pulse_t_shifted, measurement_info):
-        """ Generates an new (maybe improoved) guess for the gate. """
-        _lambda = 1e-12
-        # maybe there is an error here -> its the same formula as for the pulse, doesnt seem right 
-        # rederive formula, also take mu into account
-        # for non-shg one would need to reverse the gate function
-        gate = jnp.sum(signal_t_new*jnp.conjugate(pulse_t_shifted), axis=1)/(jnp.sum(jnp.abs(pulse_t_shifted)**2, axis=1) + _lambda)
-        return self.fft(gate, measurement_info.sk, measurement_info.rn)
+    def update_gate(self, gate, signal_t, signal_t_new, measurement_info, descent_info):
+        """ Generates an new (maybe improoved) guess for the gate. Uses an iterative formula. Thus not linear-least-squares anymore."""
+        # this is essentially the PIE update with pie_method=None
+        deltaS = signal_t_new - signal_t.signal_t
+        term1 = -1*self.fft(deltaS*jnp.conjugate(signal_t.pulse_t[:,None,:]), measurement_info.sk, measurement_info.rn)
+        
+        if measurement_info.real_fields==False:
+            frequency, time = measurement_info.frequency, measurement_info.time
+        else:
+            frequency, time = measurement_info.frequency_big, measurement_info.time_big
+
+        _reverse_shift = Partial(self.calculate_shifted_signal, frequency=frequency, 
+                                 tau_arr=-1*measurement_info.tau_arr, time=time, in_axes=(0,0,None,None,None))
+        grad_m = jax.vmap(_reverse_shift)(term1)
+        descent_direction = -1*jnp.sum(grad_m, axis=1)
+        gate = gate + descent_info.gamma._global*descent_direction
+        return gate
     
 
 
@@ -227,7 +236,13 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
 
         if measurement_info.doubleblind==True:
-            population_gate = self.update_gate(signal_t_new, signal_t.pulse_t_shifted, measurement_info)
+            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+            trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+            signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, 
+                                                            mu, measurement_info, descent_info, "_global", 
+                                                            axes=(0,None,0,None,None,None))
+        
+            population_gate = self.update_gate(descent_state.population.gate, signal_t, signal_t_new, measurement_info, descent_info)
             population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
 
@@ -248,6 +263,8 @@ class LSGPABASE(ClassicAlgorithmsBASE):
             tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
 
         """
+        assert self.descent_info.measured_spectrum_is_provided.gate==False or self.nonlinear_method=="shg", "PCGPA retrieves the gate, not the gate-pulse. Thus providing the spectrum isnt correct."
+
         measurement_info = self.measurement_info
 
         s_prime_params = initialize_S_prime_params(self)
@@ -259,7 +276,7 @@ class LSGPABASE(ClassicAlgorithmsBASE):
                                                     eta_spectral_amplitude=self.eta_spectral_amplitude)
         descent_info = self.descent_info
 
-        mu_init_local, mu_init_global = initialize_mu(self, measurement_info, descent_info)
+        _, mu_init_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population = population, 
                                                        mu = mu_init_global)
         descent_state = self.descent_state

@@ -67,7 +67,7 @@ class CPCGPA(RetrievePulsesVAMPIREwithRealFields, _CPCGPA):
         
         #self.measured_trace = 0.5*(self.measured_trace + jnp.flip(self.measured_trace, axis=1))
         self.measurement_info = tree_at(lambda x: x.tau_arr, self.measurement_info, tau_arr_new)
-        self.measurement_info = tree_at(lambda x: x.x_arr, self.measurement_info, tau_arr_new)
+        self.measurement_info = tree_at(lambda x: x.theta, self.measurement_info, tau_arr_new)
         self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, tau_arr_new)
         self.measurement_info = tree_at(lambda x: x.measured_trace, self.measurement_info, self.measured_trace)
 

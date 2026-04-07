@@ -71,7 +71,7 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
         time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
 
 
-    N = jnp.size(time)
+    #N = jnp.size(time)
     Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
     
@@ -80,9 +80,10 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
     
     hessian_all_m = hessian_func_dict[full_or_diagonal](probe, subelement, transform_arr, time, omega, Dkn, measurement_info, pulse_or_gate)
     
-    if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-        spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
+
+
+    def convert_to_spectral_phase_term(hessian_all_m, Dkn, spectral_amplitude, full_or_diagonal):
         if full_or_diagonal=="full":
             hessian_all_m = jnp.einsum("n, kn, Nmkj, jp, p -> Nmnp", spectral_amplitude, Dkn, hessian_all_m, Dkn.conj(), spectral_amplitude)
         
@@ -91,6 +92,19 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
         
         else:
             raise ValueError
+    
+        return hessian_all_m
+    
+
+    if pulse_or_gate=="chirpscan":
+        if descent_info.measured_spectrum_is_provided.pulse==True:
+            spectral_amplitude = measurement_info.spectral_amplitude.pulse
+            hessian_all_m = convert_to_spectral_phase_term(hessian_all_m, Dkn, spectral_amplitude, full_or_diagonal)
+
+    else:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+            spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+            hessian_all_m = convert_to_spectral_phase_term(hessian_all_m, Dkn, spectral_amplitude, full_or_diagonal)
 
     return hessian_all_m
 
@@ -136,4 +150,5 @@ def PIE_get_pseudo_newton_direction(grad, probe, signal_f, transform_arr, measur
         newton_direction_prev = descent_state.newton.pulse.newton_direction_prev
     else:
         newton_direction_prev = getattr(descent_state.newton, pulse_or_gate).newton_direction_prev
+
     return calculate_newton_direction(grad, hessian_all_m, lambda_lm, newton_direction_prev, solver, full_or_diagonal)

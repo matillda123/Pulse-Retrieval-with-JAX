@@ -41,11 +41,11 @@ class RetrievePulsesRealFields(RetrievePulses):
         self.measurement_info = self.measurement_info.expand(real_fields = True)
         
 
-    def get_data(self, x_arr, frequency_exp, measured_trace):
+    def get_data(self, theta, frequency_exp, measured_trace):
         """ Prepare/Convert data. """
         self.measured_trace = measured_trace/jnp.linalg.norm(measured_trace)
 
-        self.x_arr = jnp.asarray(x_arr)
+        self.theta = jnp.asarray(theta)
         df = jnp.mean(jnp.diff(jnp.asarray(frequency_exp)))
 
         self.frequency_exp = jnp.copy(frequency_exp)
@@ -92,7 +92,7 @@ class RetrievePulsesRealFields(RetrievePulses):
                                                              mask = self.mask)
         
         self.measured_trace = self.interpolate_signal_f(self.measured_trace, self.measurement_info, "exp", "big")
-        return self.x_arr, self.time, self.frequency, self.measured_trace
+        return self.theta, self.time, self.frequency, self.measured_trace
     
 
 

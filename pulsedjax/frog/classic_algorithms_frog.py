@@ -214,6 +214,8 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
         else:
             frequency, time = measurement_info.frequency_big, measurement_info.time_big
 
+        # in_axes: 1. entry -> vmap over m of signal, 2. entry, vmap over tau
+        # 1. entry is not 1 because one is vmapping the population over calculate_PIE_descent_direction_m
         signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
         return signal
     
