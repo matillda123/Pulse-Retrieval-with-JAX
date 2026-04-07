@@ -80,7 +80,7 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
     
     hessian_all_m = hessian_func_dict[full_or_diagonal](probe, subelement, transform_arr, time, omega, Dkn, measurement_info, pulse_or_gate)
     
-    if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.phase_factor_opt==True:
+    if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
         spectral_amplitude = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         if full_or_diagonal=="full":

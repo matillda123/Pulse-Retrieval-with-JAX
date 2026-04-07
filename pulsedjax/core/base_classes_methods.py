@@ -31,7 +31,7 @@ class RetrievePulses:
         key (jnp.array): a jax.random.PRNGKey
         factor (int): for SHG/THG the a correction factor of 2/3 needs to applied occasionally.
 
-        x_arr (jnp.array): an alias for the shifts/delays, internally indexed via m
+        theta (jnp.array): an alias for the shifts/delays, internally indexed via m
         time (jnp.array): the time axis, internally indexed via k
         frequency (jnp.array): the frequency axis, internally indexed via n
         measured_trace (jnp.array): 2D-array with the measured data. axis=0 corresponds to shift/delay (index m), axis=1 correpsonds to the frequencies (index n)
@@ -111,10 +111,10 @@ class RetrievePulses:
         self.key = jax.random.PRNGKey(seed)
 
 
-    def get_data(self, x_arr, frequency, measured_trace):
+    def get_data(self, theta, frequency, measured_trace):
         """ Prepare/Convert data. """
 
-        self.x_arr = jnp.asarray(x_arr)
+        self.theta = jnp.asarray(theta)
         self.frequency = jnp.asarray(frequency)
         self.time = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.frequency), jnp.mean(jnp.diff(self.frequency))))
         self.measured_trace = jnp.asarray(measured_trace/jnp.linalg.norm(measured_trace))
@@ -126,7 +126,7 @@ class RetrievePulses:
         self.measurement_info = self.measurement_info.expand(time=self.time, frequency=self.frequency, 
                                                         sk=self.sk, rn=self.rn, 
                                                         dt=self.dt, df=self.df)
-        return self.x_arr, self.time, self.frequency, self.measured_trace
+        return self.theta, self.time, self.frequency, self.measured_trace
 
 
 
@@ -181,7 +181,7 @@ class RetrievePulses:
         gate_t, gate_f = final_result.gate_t, final_result.gate_f
         error_arr = final_result.error_arr
 
-        x_arr, time, frequency, measured_trace = final_result.x_arr, final_result.time, final_result.frequency, final_result.measured_trace
+        theta, time, frequency, measured_trace = final_result.theta, final_result.time, final_result.frequency, final_result.measured_trace
         frequency_exp = final_result.frequency_exp
 
         trace = trace/jnp.max(trace)
@@ -236,19 +236,19 @@ class RetrievePulses:
         plt.xlabel("Iteration No.")
 
         plt.subplot(2,3,4)
-        plt.pcolormesh(x_arr, frequency_exp, measured_trace.T)
+        plt.pcolormesh(theta, frequency_exp, measured_trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.title("Measured Trace")
 
         plt.subplot(2,3,5)
-        plt.pcolormesh(x_arr, frequency_exp, trace.T)
+        plt.pcolormesh(theta, frequency_exp, trace.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.title("Retrieved Trace")
 
         plt.subplot(2,3,6)
-        plt.pcolormesh(x_arr, frequency_exp, trace_difference.T)
+        plt.pcolormesh(theta, frequency_exp, trace_difference.T)
         plt.xlabel("Shift [arb. u.]")
         plt.ylabel("Frequency [arb. u.]")
         plt.colorbar()
@@ -380,7 +380,7 @@ class RetrievePulses:
             local_mu, global_mu = None, descent_state.mu[idx]
 
 
-        x_arr = self.measurement_info.x_arr
+        theta = self.measurement_info.theta
         time, frequency = self.measurement_info.time, self.measurement_info.frequency + self.f0
 
         if self.measurement_info.real_fields==True:
@@ -388,7 +388,7 @@ class RetrievePulses:
         else:
             frequency_exp = frequency
 
-        final_result = MyNamespace(x_arr=x_arr, time=time, frequency=frequency, frequency_exp = frequency_exp,
+        final_result = MyNamespace(theta=theta, time=time, frequency=frequency, frequency_exp = frequency_exp,
                                  pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
                                  trace=trace, measured_trace=measured_trace,
                                  error_arr=error_arr, mu=MyNamespace(_local=local_mu, _global=global_mu))
@@ -437,7 +437,7 @@ class RetrievePulsesFROG(RetrievePulses):
         tau_arr (jnp.array): the delays
         gate (jnp.array): the gate-pulse (if its known).
         transform_arr (jnp.array): an alias for tau_arr
-        idx_arr (jnp.array): an array with indices for tau_arr
+        idtheta (jnp.array): an array with indices for tau_arr
         dt (float):
         df (float):
         sk (jnp.array): correction values for FFT->DFT
@@ -459,7 +459,7 @@ class RetrievePulsesFROG(RetrievePulses):
                                                              measured_trace = self.measured_trace,
                                                              gate = self.gate,
                                                              transform_arr = self.transform_arr,
-                                                             x_arr = self.x_arr)
+                                                             theta = self.theta)
         
 
 
@@ -698,7 +698,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         phase_matrix (jnp.array): a 2D-array with the phase values applied to pulse
         parameters (tuple): parameters for the chirp function
         transform_arr (jnp.array): an alias for phase_matrix
-        idx_arr (jnp.array): indices for theta
+        idtheta (jnp.array): indices for theta
 
     """
     
@@ -707,8 +707,7 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
         self.theta, self.time, self.frequency, self.measured_trace = self.get_data(theta, frequency, measured_trace)
         self.measurement_info = self.measurement_info.expand(theta = self.theta,
-                                                             measured_trace = self.measured_trace,
-                                                             x_arr = self.x_arr)
+                                                             measured_trace = self.measured_trace)
         
 
         self.phase_type = phase_type

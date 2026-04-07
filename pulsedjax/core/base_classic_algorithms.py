@@ -9,7 +9,7 @@ from pulsedjax.core.stepsize import do_linesearch, adaptive_step_size
 from pulsedjax.core.nonlinear_cg import get_nonlinear_CG_direction
 from pulsedjax.core.lbfgs import get_quasi_newton_direction
 
-from pulsedjax.utilities import scan_helper, MyNamespace, calculate_mu, _calculate_mu, _calculate_mu_f, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan, do_interpolation_1d, initialize_mu
+from pulsedjax.utilities import scan_helper, MyNamespace, get_com, _calculate_mu, _calculate_mu_f, calculate_trace, calculate_trace_error, calculate_Z_error, run_scan, do_interpolation_1d, initialize_mu
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 
 
@@ -288,9 +288,18 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         antialias (bool): if true anti-aliasing is applied to the outer-product-matrix-form
     
     """
-    def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, constraints=False, svd=False, antialias=False, **kwargs):
-        assert jnp.shape(trace)[0]==jnp.shape(trace)[1], "For CPCGPA the trace needs to be symmetric and FFT conform."
+    def __init__(self, delay, frequency, trace, nonlinear_method, cross_correlation=False, constraints=False, svd=False, antialias=False, shift_trace_to_zero=False, **kwargs):
+        assert jnp.shape(trace)[0]==jnp.shape(trace)[1], "For CPCGPA the trace needs to be FFT conform."
         
+        self.shift_trace_to_zero = shift_trace_to_zero
+        # # shifting frequency to zero breaks retrieval with real_fields
+        if self.shift_trace_to_zero==True:
+            idx0 = get_com(jnp.sum(trace, axis=0), jnp.arange(jnp.size(jnp.sum(trace, axis=0)))).astype(int)
+            self.f0 = frequency[idx0]
+            frequency = frequency - self.f0
+        else:
+            self.f0=0
+
         super().__init__(delay, frequency, trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "PCGPA is not intended for interferometric measurements."
         assert nonlinear_method!="sd", "Doesnt work for SD. Which is weird."
@@ -303,6 +312,22 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         self.constraints = constraints
         self.svd = svd
         self.antialias = antialias
+
+
+
+    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
+        """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
+
+        if self.shift_trace_to_zero==True:
+            frequency = self.frequency
+            idx0_p = get_com(measured_spectrum, jnp.arange(jnp.size(frequency))).astype(int)
+            self.f0_p = measured_frequency[idx0_p]
+        else:
+            self.f0_p = 0
+    
+        #this is needed, since the trace is shifted to zero
+        return super().get_spectral_amplitude(measured_frequency - self.f0_p, measured_spectrum, pulse_or_gate)
+    
 
 
     
@@ -516,11 +541,18 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
             tuple[Pytree, Callable], the initial descent state and the step-function of the algorithm.
 
         """
-        if self.descent_info.measured_spectrum_is_provided.gate==True and self.nonlinear_method!="shg":
-            print("PCGPA retrieves the gate, not the gate-pulse. Thus providing the spectrum isnt correct.")
+        assert self.descent_info.measured_spectrum_is_provided.gate==False or self.nonlinear_method=="shg", "PCGPA retrieves the gate, not the gate-pulse. Thus providing the spectrum isnt correct."
 
         if self.global_optimize_calibration_curve==True:
-            print("Calibration curve optimization isnt working in PCGPA.")
+            print("Calibration curve optimization isnt working and thus disabled in PCGPA.")
+
+        if self.constraints==True and self.shift_trace_to_zero==False:
+            print("Constraints only seem to work when the center of mass of the trace is shifted to frequency=0.")
+            print("This can be enabled by setting shift_trace_to_zero=True during class instantiation.")
+
+        if self.antialias==True:
+            print("Antialias only works seemlessly if the center of mass of the trace is centered both in frequency and time domain.")
+            print("The reason for this is that antialias sets values in specific areas near the edge to zero.")
 
 
         measurement_info = self.measurement_info
@@ -561,7 +593,7 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
         signal_t = jax.vmap(self.calculate_signal_t_using_opf, in_axes=(0,None,None,None))(population, iteration, measurement_info, descent_info)
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
         trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
-        trace = mu[:,None,None]*trace
+        trace = jax.vmap(lambda x,y: x*y)(mu, trace)
         return trace[idx]
 
 
