@@ -90,8 +90,9 @@ class AlgorithmsBASE:
             if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
                 print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
 
-            if self.r_local_method!="iteration":
-                print("Calibration curve optimization appears only to be working nicely with r_local_method=iteration. Projections seem to get stuck in a local minima.")
+            if hasattr(self, "r_local_method"):
+                if self.r_local_method!="iteration":
+                    print("Calibration curve optimization appears only to be working nicely with r_local_method=iteration. Projections seem to get stuck in a local minima.")
 
             
         if self.global_optimize_calibration_curve==True:
@@ -101,8 +102,9 @@ class AlgorithmsBASE:
             if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
                 print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
 
-            if self.r_global_method!="iteration":
-                print("Calibration curve optimization appears only to be working nicely with r_global_method=iteration. Projections seem to get stuck in a local minima.")
+            if hasattr(self, "r_global_method"):
+                if self.r_global_method!="iteration":
+                    print("Calibration curve optimization appears only to be working nicely with r_global_method=iteration. Projections seem to get stuck in a local minima.")
 
 
 

@@ -183,16 +183,26 @@ class pulsedjax_testing:
 
     def make_run_kwargs_general(self, i, algorithm):
         """ Creates a dict with algorithm parameters for general algorithms, given hardcoded lists of options. """
+
+        options_calibration_curve_local = [True, False, False, True, False] # having true here doesnt do anything
+        options_calibration_curve_global = [False, True, False, True, False]
+
         if algorithm == self.DE:
             options_de_strategy = ["best1_exp", "best2_bin", "rand1_smooth", "currenttobest1_bin", "randtobest2_exp"]
             options_de_selection = ["greedy", "global", "global", "greedy", "greedy"]
             run_kwargs = dict(strategy = options_de_strategy[i],
-                            selection_mechanism = options_de_selection[i])
+                            selection_mechanism = options_de_selection[i],
+                            local_optimize_calibration_curve = options_calibration_curve_local[i],
+                            global_optimize_calibration_curve = options_calibration_curve_global[i])
+        
 
         elif algorithm == self.Evosax:
             from evosax.algorithms import DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC
             options_evo = [DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC]
-            run_kwargs = dict(solver = options_evo[i])
+            run_kwargs = dict(solver = options_evo[i],
+                              local_optimize_calibration_curve = options_calibration_curve_local[i],
+                            global_optimize_calibration_curve = options_calibration_curve_global[i])
+        
 
         elif algorithm == self.AutoDiff:
             from optax import adam, lbfgs
@@ -200,7 +210,9 @@ class pulsedjax_testing:
             options_ad_solver = [adam(learning_rate=0.1), lbfgs(learning_rate=0.1), LBFGS(1,1), LevenbergMarquardt(1,1), GradientDescent(0.1,1,1)]
             options_ad_alternating = [True, False, False, True, True]
             run_kwargs = dict(solver = options_ad_solver[i],
-                            alternating_optimization = options_ad_alternating[i])
+                            alternating_optimization = options_ad_alternating[i],
+                            local_optimize_calibration_curve = options_calibration_curve_local[i],
+                        global_optimize_calibration_curve = options_calibration_curve_global[i])
 
         else:
             raise ValueError
