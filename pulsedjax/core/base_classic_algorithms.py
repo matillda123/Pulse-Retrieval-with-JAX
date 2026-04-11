@@ -177,7 +177,6 @@ class LSGPABASE(ClassicAlgorithmsBASE):
         super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, **kwargs)
         assert self.interferometric==False, "LSGPA is not intended for interferometric measurements."
         assert self.doubleblind==False, "LSGPA doesnt work with doubleblind"
-        #or nonlinear_method=="shg", "LSGPA doesnt work with doubleblind unless its SHG."
 
         self._name = "LSGPA"
 
@@ -267,13 +266,7 @@ class LSGPABASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        s_prime_params = initialize_S_prime_params(self)
-        self.descent_info = self.descent_info.expand(s_prime_params = s_prime_params,
-                                                     xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
-                                                     optimize_calibration_curve = MyNamespace(_local=None,
-                                                                                              _global=self.global_optimize_calibration_curve),
-                                                    eta_spectral_amplitude=self.eta_spectral_amplitude)
+        self.descent_info = initialize_descent_info(self)
         descent_info = self.descent_info
 
         _, mu_init_global = initialize_mu(self, measurement_info, descent_info)
@@ -574,16 +567,9 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        s_prime_params = initialize_S_prime_params(self)
-        self.descent_info = self.descent_info.expand(svd = self.svd, 
-                                                     constraints = self.constraints,
-                                                     antialias = self.antialias,
-                                                     s_prime_params = s_prime_params,
-                                                     xi = self.xi,
-                                                     gamma = MyNamespace(_local=None, _global=self.global_gamma),
-                                                     optimize_calibration_curve = MyNamespace(_local=None,
-                                                                                              _global=self.global_optimize_calibration_curve),
-                                                    eta_spectral_amplitude=self.eta_spectral_amplitude)
+        self.descent_info = initialize_descent_info(self).expand(svd = self.svd, 
+                                                                 constraints = self.constraints,
+                                                                 antialias = self.antialias)
         descent_info = self.descent_info
 
         population = MyNamespace(pulse=population.pulse, pulse_prime=population.pulse,
@@ -2080,15 +2066,12 @@ class LSFBASE(ClassicAlgorithmsBASE):
         assert self.no_sections > 1, "Number of sections needs to be greater than one."
 
         measurement_info = self.measurement_info
-        self.descent_info = self.descent_info.expand(no_sections = self.no_sections,
+        self.descent_info = initialize_descent_info(self).expand(no_sections = self.no_sections,
                                                      number_of_disection_iterations = self.number_of_disection_iterations,
                                                      ratio_points_for_continuous = self.ratio_points_for_continuous,
                                                      direction_mode = self.direction_mode,
                                                      boundary = self.boundary,
-                                                     optimize_calibration_curve = MyNamespace(_local=None,
-                                                                                              _global=self.global_optimize_calibration_curve),
-                                                    eta_spectral_amplitude=self.eta_spectral_amplitude,
-                                                    only_allow_improvements=self.only_allow_improvements)
+                                                     only_allow_improvements=self.only_allow_improvements)
         descent_info = self.descent_info
 
         # normalization seems to be needed, i guess the calculation of s1, s2 is faulty otherwise

@@ -564,6 +564,15 @@ class RetrievePulsesFROG(RetrievePulses):
             signal_t = pulse_t*gate_shifted
             
         signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
+
+        # can only happen in collinear setup -> what leaks? pulse, shifted_pulse, both?
+        # needs to be incorporated into gradient -> but is nonlinear method independent -> nice :)
+        # the leakage, factor could maybe be obtained like the calibration curve?
+        # if has_leakage==True:
+        #     signal_f = signal_f + measurement_info.leakage_factor*pulse_f
+        #     signal_t = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
+
+
         signal_t = MyNamespace(signal_t = signal_t, 
                                signal_f = signal_f, 
                                pulse_t_shifted = pulse_t_shifted, 

@@ -63,7 +63,7 @@ class AlgorithmsBASE:
 
 
     def do_checks_before_running(self, **kwargs):
-        ''' Called by algorithm.run() performs a few checks and applies settings before running the algorithms. '''
+        """ Called by algorithm.run() performs a few checks and applies settings before running the algorithms. """
 
         # takes kwargs and applies them as algorithm parameters 
         allowed_params = vars(self).keys()
