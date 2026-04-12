@@ -38,7 +38,7 @@ class RetrievePulses:
 
     """
 
-    def __init__(self, nonlinear_method, *args, cross_correlation=False, interferometric=False, seed=None, 
+    def __init__(self, nonlinear_method, *args, cross_correlation=False, interferometric=False, key=None, seed=None, 
                  central_frequency=(None,None), **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -95,13 +95,15 @@ class RetrievePulses:
                                         calibration_curve_is_provided = self.calibration_curve_is_provided)
         self.descent_state = MyNamespace()
 
-        self.key = None
-        if seed==None:
-            self.prng_seed = np.random.randint(0, 1e9)
-        else:
-            self.prng_seed = int(seed)
+        if key is None:
+            if seed is None:
+                self.prng_seed = np.random.randint(0, 1e9)
+            else:
+                self.prng_seed = int(seed)
 
-        self.update_PRNG_key(self.prng_seed)
+            self.update_PRNG_key(self.prng_seed)
+        else:
+            self.key = key
 
             
 

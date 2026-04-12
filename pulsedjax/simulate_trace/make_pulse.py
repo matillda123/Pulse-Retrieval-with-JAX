@@ -150,7 +150,7 @@ class MultiPulse:
         cf = self.central_frequency
         p = self.p
 
-        if p==None:
+        if any(p==None):
             p=np.broadcast_to(1,np.shape(np.asarray([amp])))
         check_and_correct_if_scalar((amp,dt,cf,p))
         assert np.size(amp)==np.size(dt)==np.size(cf)==np.size(p)==np.size(g_or_l)
@@ -208,7 +208,7 @@ class MakePulse:
     def generate_gaussian_lorentzian_amplitude(self, x, parameters, amp_func):
         amp, fwhm, shift, p = parameters.amplitude, parameters.fwhm, parameters.central_frequency, parameters.p
 
-        if p==None:
+        if p is None:
            p = np.broadcast_to(1, np.shape(amp))
 
         amp, fwhm, shift, p = check_and_correct_if_scalar((amp, fwhm, shift, p))
