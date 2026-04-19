@@ -7,7 +7,7 @@ from functools import partial as Partial
 import jax
 import jax.numpy as jnp
 
-from pulsedjax.utilities import MyNamespace, get_com, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, center_signal, project_onto_amplitude
+from pulsedjax.utilities import MyNamespace, get_com, center_signal, get_sk_rn, do_interpolation_1d, calculate_gate, calculate_trace, center_signal, project_onto_amplitude, integrate_signal_1D
 from pulsedjax.core.initial_guess_doublepulse import make_population_doublepulse
 from pulsedjax.core.phase_matrix_funcs import phase_func_dict, calculate_phase_matrix, calculate_phase_matrix_material, calc_group_delay_phase, _eval_refractive_index
 
@@ -73,7 +73,9 @@ class RetrievePulses:
                 raise ValueError("You need to provide a central_frequency for the gate.")
 
 
-        if nonlinear_method=="shg":
+        if nonlinear_method is None:
+            self.factor = 1
+        elif nonlinear_method=="shg":
             self.factor = 2
         elif nonlinear_method=="thg":
             self.factor = 3
@@ -508,10 +510,15 @@ class RetrievePulsesFROG(RetrievePulses):
         # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
         frequency = frequency - (frequency[-1] + frequency[0])/2
 
+        # global phase issue might be solved with jnp.exp(-1j*2*jnp.pi*f0*tau_arr)
+        # has something to do with mismatching reference zero-frequencies 
+
         N = jnp.size(frequency)
+        # pads the axis=-1 with N values 
         pad_arr = [(0,0)]*(signal.ndim-1) + [(0,N)]
         signal = jnp.pad(signal, pad_arr)
         
+        # due to padding f, t, sk and rn need to be redefined 
         frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
         time = jnp.concatenate([time, time+(jnp.size(time)+1)*jnp.mean(jnp.diff(time))])
         sk, rn = get_sk_rn(time, frequency)
@@ -1017,4 +1024,186 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 
 
+
+
+
+class RetrievePulsesSTREAKING(RetrievePulsesFROG):
+    # inputs are converted to atomic units
+
+    """
+    The reconstruction class for Attosecond Streaking.
+    All axis (time, frequency, ... ) are converted to atomic units for convenience. 
+
+    [1] P. D. Keathley et al., (2016), New J. Phys. 18 073009, 10.1088/1367-2630/18/7/073009    
+
+    Attributes:
+        energy_au (jnp.array): the energy axis in atomic units
+        momentum_au (jnp.array): the photoelectron momenta in atomic units, is non-uniform
+        Ip_au (float): the ionization potential in atomic units
+        
+    """
     
+    # it doesnt really make sense to keep interferometric as an input but it doesnt do any harm either. 
+    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=0, cross_correlation=True, interferometric=False, **kwargs):
+        delay = self.convert_time_fs_au(delay_fs, "fs", "au")
+        self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
+        self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
+
+        frequency = self.energy_au/(2*jnp.pi) # convert energy in au to frequency in au
+        self.momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au) # -> momentum axis is non-uniform :/
+
+        assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
+        super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
+
+        # generate space axis which is conjugate to momentum
+        # make accompanying fourier matrix
+        r_au, Dbq = self.construct_conjugate_axis_from_nonuniform_one_and_according_fourier_matrix(self.momentum_au)
+        
+        self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
+                                                             ionization_potential = self.Ip_au,
+                                                             space = r_au,
+                                                             fourier_matrix_space_momentum = Dbq)
+
+        self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
+
+
+
+    
+    def check_usability_of_time_axis(self, time, delay):
+        # this is a sanity check to ensure sensible axis
+        t_min, t_max = jnp.min(time), jnp.max(time)
+        tau_min, tau_max = jnp.min(delay), jnp.max(delay)
+
+        if (t_max - t_min) < (tau_max - tau_min):
+            # Either more points or smaller energy range
+            raise ValueError(f"Infered time-range is smaller than input delays (Time: {(t_max - t_min)} au, Delays: {(tau_max - tau_min)} au). Adjust input energy axis accordingly.")
+
+        if tau_min < t_min:
+            # Maybe offset in delays helps, alternatively more points in energy or smaller energy range
+            raise ValueError("The smallest/most negative delay is outside of infered time-range.")
+
+        if tau_max > t_max:
+            # Maybe offset in delays helps, alternatively more points in energy or smaller energy range
+            raise ValueError("The largest/most positive delay is outside of infered time-range.")
+        
+
+
+
+    def convert_time_fs_au(self, time, unit_in, unit_out):
+        assert (unit_in=="fs" and unit_out=="au") or (unit_out=="fs" and unit_in=="au")
+        factor = 2.418884*1e-2
+        factor_dict = {"fs_au": 1/factor,
+                       "au_fs": factor}
+        
+        conversion = unit_in + "_" + unit_out
+        return time*factor_dict[conversion]
+
+
+    def convert_frequency_PHz_au(self, frequency, unit_in, unit_out):
+        assert (unit_in=="PHz" and unit_out=="au") or (unit_out=="PHz" and unit_in=="au")
+        factor = 2.418884*1e-2
+        factor_dict = {"PHz_au": factor,
+                       "au_PHz": 1/factor}
+        
+        conversion = unit_in + "_" + unit_out
+        return frequency*factor_dict[conversion]
+    
+
+    def convert_energy_eV_au(self, energy, unit_in, unit_out):
+        assert (unit_in=="eV" and unit_out=="au") or (unit_out=="eV" and unit_in=="au")
+        factor = 27.211386
+        factor_dict = {"eV_au": 1/factor,
+                       "au_eV": factor}
+        
+        conversion = unit_in + "_" + unit_out
+        return energy*factor_dict[conversion]
+
+    
+    def construct_conjugate_axis_from_nonuniform_one_and_according_fourier_matrix(self, nonuniform_axis):
+        """ Creates axis and fourier matrix for nonuniform dft. """
+        N = jnp.size(nonuniform_axis)
+        dk = jnp.mean(jnp.diff(nonuniform_axis))
+        dr = 1/(N*dk)
+        r_min, r_max = -dr*N/2, dr*N/2
+        axis = jnp.arange(r_min, r_max, dr)
+        Dbq = jnp.exp(-1j*2*jnp.pi*nonuniform_axis[:,None]*axis[None,:])
+        return axis, Dbq
+
+    def do_nonuniform_dft(self, signal, Dbq): # what about normalization?
+        # takes signal on equidistant axis and maps to signal on non-equidistant conjugate axis
+        # e.g. uniform space to nonuniform momentum
+        return jnp.einsum("...q, bq -> ...b", signal, Dbq) 
+
+    
+
+    def make_volkov_phase(self, pulse_t_nir_vectorpotential, measurement_info):
+        _integrate = Partial(integrate_signal_1D, integration_method="cumsum", integration_order=None)
+        time, momentum, Ip = measurement_info.time, measurement_info.momentum, measurement_info.ionization_potential
+        
+        pulse_t_nir_vectorpotential = jnp.real(pulse_t_nir_vectorpotential)
+        A2_int = _integrate((pulse_t_nir_vectorpotential**2)[::-1], time)[::-1]
+        A_int = _integrate(pulse_t_nir_vectorpotential[::-1], time)[::-1]
+
+        momentum = momentum[:,None]
+        phase = (Ip + 0.5*momentum**2)*time[None,:] + momentum*A_int[None,:] + A2_int[None,:]/2
+        return phase
+
+
+    def make_streaking_amplitude(self, dtme_space, pulse_t_nir_vectorpotential, pulse_t_euv, volkov_phase, measurement_info):
+        if dtme_space is None:
+            dtme_momentum = jnp.ones(jnp.shape(volkov_phase))
+        else:
+            r, Dbq = measurement_info.space, measurement_info.fourier_matrix_space_momentum
+
+            # -1 because one wants to shift to positive values
+            # but is this consistent with atomic units convention for elementary-charge?
+            momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)
+            phase_factor = jnp.exp(-1j*2*jnp.pi*r[None,:]*momentum_shift[:,None])
+            # has shape -> (k,q)
+            dtme_space = dtme_space*phase_factor # -> (q,) * (k,q) -> broadcasting is on last axis so thats fine
+            dtme_momentum = self.do_nonuniform_dft(dtme_space, Dbq)
+
+        
+        # naming stuff signal_t, signal_f is technically wrong by convention, 
+        # but potentially necessary for consistency i think
+        # signal_r and signal_k would be better though
+        # b is index in momentum space
+        dt = jnp.mean(jnp.diff(measurement_info.time))
+        signal_f = -1j*dt*jnp.einsum("kb, mk, bk -> mb", dtme_momentum, pulse_t_euv, jnp.exp(-1j*volkov_phase))
+        signal_t = None # would require non-uniform dft with nonuniform momentum to uniform space -> has nonunitarity issues -> only iteratively accurate
+        return signal_t, signal_f
+
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field in the time domain. 
+
+        Args:
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
+            tau_arr (jnp.array): the delays
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+        time, frequency = measurement_info.time, measurement_info.frequency
+        sk, rn = measurement_info.sk, measurement_info.rn
+
+        # make euv pulse the gate, because thats the one getting shifted 
+        pulse_f_nir_vectorpotential, pulse_f_euv = individual.pulse, individual.gate
+        dtme_space = individual.dtme # maybe one can optimize for this if nir and euv spectra are provided?
+
+        pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
+        pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, sk, rn)
+
+        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
+        volkov_phase = self.make_volkov_phase(pulse_t_nir_vectorpotential, measurement_info)
+
+        signal_t, signal_f = self.make_streaking_amplitude(dtme_space, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, volkov_phase, measurement_info)
+        
+        signal_t = MyNamespace(signal_t = signal_t,
+                               signal_f = signal_f,
+                               pulse_t_euv_shifted = pulse_t_euv_shifted,
+                               volkov_phase = volkov_phase)
+        return signal_t

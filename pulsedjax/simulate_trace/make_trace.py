@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import c as c0
+from functools import partial as Partial
 
 import refractiveindex
 
 import jax.numpy as jnp
 import jax
 
-from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max
-from pulsedjax.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesTDP, RetrievePulsesVAMPIRE
+from pulsedjax.utilities import MyNamespace, do_fft, do_ifft, get_sk_rn, do_interpolation_1d, center_signal_to_max, integrate_signal_1D
+from pulsedjax.core.base_classes_methods import RetrievePulsesFROG, RetrievePulsesCHIRPSCAN, RetrievePulses2DSI, RetrievePulsesTDP, RetrievePulsesVAMPIRE, RetrievePulsesSTREAKING
 from pulsedjax.real_fields.core.base_classes_methods import RetrievePulsesFROGwithRealFields, RetrievePulsesCHIRPSCANwithRealFields, RetrievePulses2DSIwithRealFields, RetrievePulsesTDPwithRealFields, RetrievePulsesVAMPIREwithRealFields
 from pulsedjax.simulate_trace.make_pulse import MakePulse as MakePulseBase
 
@@ -339,6 +340,56 @@ class MakeTrace(MakePulseBase):
 
 
 
+    def generate_streaking(self, time, frequency, nir_pulse, euv_pulse, delay, Ip_eV=0, DTME=(None, None), energy_range=None, N=2048, 
+                         cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
+        
+        """
+        Generates an Attosecond-Streaking trace using the provide pulse and gate. 
+        Assumes the pulse to be the femtosecond pulse and gate the EUV-pulse.
+
+        Args:
+            time (jnp.array): the time axis of pulse_t
+            frequency (jnp.array): the frequency axis of pulse_f
+            nir_pulse (tuple[jnp.array, jnp.array]): a tuple containing the nir pulse in the time and frequency domain
+            euv_pulse (tuple[jnp.array, jnp.array]): a tuple containing the euv pulse in the time and frequency domain
+            delay (jnp.array): the delays
+            Ip_eV (float): the ionization potential in eV
+            DTME (tuple[jnp.array, jnp.array]): a tuple containing the momentum axis in atomic units and the Dipole-Transition-Matrix-Elements
+            energy_range (tuple[Scalar,Scalar]): defines the energy range of the trace (in eV)
+            N (int): defines the number of points along the frequency axis of the trace
+            cut_off_val (float): defines how far the trace is zoomed in. Should be between zero and one.
+            interpolate_fft_conform (bool): whether the time axis of the trace is interpolated to conform to the fft requirements.
+            plot_stuff (bool): whether the trace and pulse should be plotted
+
+        Returns:
+            tuple[jnp.array, jnp.array, jnp.array, Pytree], the time and frequency axis, the trace, the spectra
+
+        """
+        pulse_t, pulse_f = nir_pulse
+        gate_t, gate_f = euv_pulse
+        
+        maketrace = MakeTraceSTREAKING
+        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, delay, Ip_eV,
+                                   energy_range, N, cut_off_val, interpolate_fft_conform)
+        gate = self.maketrace.get_gate_pulse(frequency, gate_f)
+
+        if DTME!=(None,None):
+            dtme = self.maketrace.get_DTME(DTME[0], DTME[1])
+
+
+        time_trace, frequency_trace, trace, spectra = self.maketrace.generate_trace()
+            
+        if plot_stuff==True:
+            self.maketrace.plot_trace(time, pulse_t, frequency, pulse_f, time_trace, frequency_trace, trace, spectra)
+
+        return time_trace, frequency_trace, trace, spectra
+    
+
+
+
+
+
+
 
 
 
@@ -373,7 +424,9 @@ class MakeTraceBASE:
                  N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                  cross_correlation, interferometric, *args, **kwargs):
         
-        if nonlinear_method=="shg":
+        if nonlinear_method is None:
+            self.factor=1
+        elif nonlinear_method=="shg":
             self.factor=2
         elif nonlinear_method=="thg":
             self.factor=3
@@ -454,7 +507,7 @@ class MakeTraceBASE:
         idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
 
 
-        time_zoom = self.x_arr[idx_0_min:idx_0_max]
+        time_zoom = self.theta[idx_0_min:idx_0_max]
         frequency_zoom = self.frequency[idx_1_min:idx_1_max]
 
         if self.frequency_range!=None:
@@ -467,24 +520,24 @@ class MakeTraceBASE:
         if is_delay_based==True:
             if self.interpolate_fft_conform==True:
                 central_f = (fmin + fmax)/2
-                df = 1/np.abs((self.x_arr[-1] - self.x_arr[0]))
+                df = 1/np.abs((self.theta[-1] - self.theta[0]))
 
                 fmin = central_f - df*self.N/2
                 fmax = central_f + df*self.N/2
-                time_interpolate = self.x_arr
+                time_interpolate = self.theta
                 frequency_interpolate = np.linspace(fmin, fmax, self.N)
             else:
-                time_interpolate = self.x_arr
+                time_interpolate = self.theta
                 frequency_interpolate = np.linspace(fmin, fmax, self.N)
         else:		
-            time_interpolate = self.x_arr
+            time_interpolate = self.theta
             frequency_interpolate = np.linspace(fmin, fmax, self.N)
 
 
         trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
-            trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,1))(time_interpolate, self.x_arr, trace_interpolate)
+            trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,1))(time_interpolate, self.theta, trace_interpolate)
             trace_interpolate = np.abs(trace_interpolate).T
         else:
             trace_interpolate = np.abs(trace_interpolate)
@@ -584,12 +637,12 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
                          N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                          cross_correlation, interferometric)
         
-        self.x_arr = delay
+        self.theta = delay
        
 
     def get_parameters_to_make_signal_t(self):
         individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.x_arr
+        return individual, self.measurement_info, self.theta
 
 
 
@@ -602,7 +655,7 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
                          N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                          cross_correlation, interferometric)
         
-        self.x_arr = delay
+        self.theta = delay
 
         if spectral_filter==None:
             self.spectral_filter = jnp.ones(jnp.size(frequency))
@@ -613,7 +666,7 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
     def get_parameters_to_make_signal_t(self):
         individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
         self.measurement_info = self.measurement_info.expand(spectral_filter=self.spectral_filter)
-        return individual, self.measurement_info, self.x_arr
+        return individual, self.measurement_info, self.theta
 
     
 
@@ -633,7 +686,7 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
                          False, False)
 
         self.theta = theta
-        self.x_arr = theta
+        self.theta = theta
         self.phase_type = phase_type
         self.chirp_parameters = chirp_parameters
 
@@ -659,7 +712,7 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
                          N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                          cross_correlation, False)
 
-        self.x_arr = delay
+        self.theta = delay
         self.tau_pulse_anc1 = tau_pulse_anc1
         self.refractive_index, self.material_thickness = refractive_index, material_thickness
 
@@ -680,7 +733,7 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
                                                              spectral_filter1=self.spectral_filter1, 
                                                              spectral_filter2=self.spectral_filter2)
         individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.x_arr
+        return individual, self.measurement_info, self.theta
     
 
 
@@ -693,7 +746,7 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
                          N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
                          cross_correlation, False)
-        self.x_arr = delay
+        self.theta = delay
         self.tau_interferometer = tau_interferometer
         self.refractive_index, self.material_thickness = refractive_index, material_thickness
         
@@ -704,7 +757,84 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         self.measurement_info = self.measurement_info.expand(tau_interferometer = self.tau_interferometer, 
                                                              phase_matrix = self.phase_matrix)
         individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.x_arr
+        return individual, self.measurement_info, self.theta
+    
+
+
+
+
+
+
+class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
+    def __init__(self, time, frequency, pulse_t, pulse_f, delay, Ip_eV,
+                 energy_range, N, cut_off_val, interpolate_fft_conform):
+        
+        nonlinear_method = None
+        f_range_fields = f_range_pulse = None
+        interferometric = False
+        cross_correlation = True
+
+        self.dtme = None
+        self.ionization_potential = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, Ip_eV, "eV", "au")
+        self.theta = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, delay, "fs", "au")
+
+        time = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, time, "fs", "au")
+        frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "PHz", "au")
+        self.energy_au = frequency*2*jnp.pi
+        self.momentum = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
+
+        
+        if energy_range is not None:
+            emin, emax = energy_range
+            emin = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, emin, "eV", "au")
+            emax = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, emax, "eV", "au")
+            fmin, fmax = emin/(2*jnp.pi), emax/(2*jnp.pi)
+            frequency_range = (fmin, fmax)
+        else:
+            frequency_range = None
+
+
+        super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
+                         N, cut_off_val, interpolate_fft_conform, frequency_range, f_range_fields, f_range_pulse, 
+                         cross_correlation, interferometric)
+
+
+    def get_gate_pulse(self, frequency_gate, gate_f):
+        frequency_gate = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency_gate, "PHz", "au")
+        return super().get_gate_pulse(frequency_gate, gate_f)
+    
+
+    def get_DTME(self, momentum_au, dtme_k):
+        dtme_k = do_interpolation_1d(self.momentum, momentum_au, dtme_k)
+        self.dtme = dtme_k
+        return self.dtme
+    
+    
+    def get_parameters_to_make_signal_t(self):
+        pulse_t_nir = self.ifft(self.pulse_f, self.sk, self.rn)
+        pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, integration_method="cumsum", integration_order=None)
+        pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
+
+        self.measurement_info = self.measurement_info.expand(momentum=self.momentum, 
+                                                             ionization_potential=self.ionization_potential)
+
+        individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=self.dtme)
+        return individual, self.measurement_info, self.theta
+
+
+    def generate_trace(self):
+        time, frequency, trace, spectra = super().generate_trace()
+
+        time = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, time, "au", "fs")
+        frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "au", "PHz")
+
+        fp, p = spectra.pulse
+        fp = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, fp, "au", "PHz")
+        fg, g = spectra.gate
+        fg = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, fg, "au", "PHz")
+        spectra = MyNamespace(pulse=(fp,p), gate=(fg,g))
+        
+        return time, frequency, trace, spectra
 
 
 
@@ -740,3 +870,9 @@ class MakeTrace2DSIReal(MakeTrace2DSI, RetrievePulses2DSIwithRealFields):
 class MakeTraceVAMPIREReal(MakeTraceVAMPIRE, RetrievePulsesVAMPIREwithRealFields):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+# this is unnecessary and useless
+# class MakeTraceSTREAKINGReal(MakeTraceSTREAKING, RetrievePulsesSTREAKINGwithRealFields):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)

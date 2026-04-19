@@ -150,7 +150,7 @@ class MultiPulse:
         cf = self.central_frequency
         p = self.p
 
-        if any(p==None):
+        if p is None:
             p=np.broadcast_to(1,np.shape(np.asarray([amp])))
         check_and_correct_if_scalar((amp,dt,cf,p))
         assert np.size(amp)==np.size(dt)==np.size(cf)==np.size(p)==np.size(g_or_l)
@@ -371,6 +371,7 @@ class MakePulse:
 
         if isinstance(parameters, MultiPulse): 
             shift = np.concatenate((np.zeros(1), parameters.delay))
+            shift = np.cumsum(shift)
             shift = shift - np.mean(shift)
             assert len(parameters.envelope)==len(parameters.phase)==len(shift)
             pulse_t = self.get_multi_pulse(parameters, shift)

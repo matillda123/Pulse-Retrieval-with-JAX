@@ -25,11 +25,6 @@ Definitions and Formulas
 
    eqs_pie_grad_hessian
 
-..    pie_grad
-..    pie_hessian
-..    pie_chirp_scan
-
-
 
 .. toctree::
    :maxdepth: 2
@@ -37,6 +32,10 @@ Definitions and Formulas
 
    eqs_s_prime_and_polyak
 
-..    r_error_eqs
-..    polyak_step_size_eqs
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Attosecond Streaking
+
+   eqs_streaking
    

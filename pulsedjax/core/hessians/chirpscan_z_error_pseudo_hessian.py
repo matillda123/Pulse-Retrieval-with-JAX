@@ -49,7 +49,7 @@ def calc_Z_error_pseudo_hessian_subelement_nhg(pulse_t_dispersed, deltaS_m, D_ar
 
 
 def calc_Z_error_pseudo_hessian_element(exp_arr_mp, exp_arr_mn, omega_p, omega_n, time, pulse_t_dispersed, deltaS_m, nonlinear_method):
-    """ Sum over time axis via jax.lax.scan. """
+    """ Sum over time axis via vmap. """
     
     D_arr_pn=jnp.exp(1j*time*(omega_p-omega_n))*1/jnp.size(time)
     
