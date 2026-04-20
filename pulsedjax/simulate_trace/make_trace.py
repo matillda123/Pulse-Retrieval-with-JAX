@@ -781,7 +781,10 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         time = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, time, "fs", "au")
         frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "PHz", "au")
         self.energy_au = frequency*2*jnp.pi
-        self.momentum = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
+        momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
+        self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au))
+        self.position_au = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.momentum_au), jnp.mean(jnp.diff(self.momentum_au))))
+        self.sk_position_momentum, self.rn_position_momentum = get_sk_rn(self.position_au, self.momentum_au)
 
         
         if energy_range is not None:
@@ -804,9 +807,9 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         return super().get_gate_pulse(frequency_gate, gate_f)
     
 
-    def get_DTME(self, momentum_au, dtme_k):
-        dtme_k = do_interpolation_1d(self.momentum, momentum_au, dtme_k)
-        self.dtme = dtme_k
+    def get_DTME(self, momentum_au, dtme_momentum):
+        dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
+        self.dtme = dtme_momentum
         return self.dtme
     
     
@@ -815,7 +818,10 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, integration_method="cumsum", integration_order=None)
         pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
 
-        self.measurement_info = self.measurement_info.expand(momentum=self.momentum, 
+        self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
+                                                             position = self.position_au,
+                                                             sk_position_momentum = self.sk_position_momentum,
+                                                             rn_position_momentum = self.rn_position_momentum, 
                                                              ionization_potential=self.ionization_potential)
 
         individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=self.dtme)

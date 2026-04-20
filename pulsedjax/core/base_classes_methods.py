@@ -506,25 +506,26 @@ class RetrievePulsesFROG(RetrievePulses):
     def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
         """ The Fourier-Shift theorem applied to a list of signals. """
 
-        # im really unhappy with this, but this re-definition/calculation of sk, rn is necessary(?)
-        # in the original case a global phase shift dependent on tau and f[0] occured, which i couldnt figure out
-        frequency = frequency - (frequency[-1] + frequency[0])/2
-
-        # global phase issue might be solved with jnp.exp(-1j*2*jnp.pi*f0*tau_arr)
-        # has something to do with mismatching reference zero-frequencies 
-
         N = jnp.size(frequency)
         # pads the axis=-1 with N values 
-        pad_arr = [(0,0)]*(signal.ndim-1) + [(0,N)]
+        # padding on the right side is technically not necessary, but makes things numerically more stable.
+        # padding on left side is definitely needed. Dont remove
+        pad_arr = [(0,0)]*(signal.ndim-1) + [(N,N)]
         signal = jnp.pad(signal, pad_arr)
-        
+            
         # due to padding f, t, sk and rn need to be redefined 
-        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 2*N)
-        time = jnp.concatenate([time, time+(jnp.size(time)+1)*jnp.mean(jnp.diff(time))])
+        frequency = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
+        time = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
         sk, rn = get_sk_rn(time, frequency)
 
+        # the frequency axis is not centered around zero, this causes a global phase in the fourier shift 
+        # this phase-factor compensates this global phase
+        df = jnp.mean(jnp.diff(frequency))
+        phase_correction = jnp.exp(1j*2*jnp.pi*df*tau_arr)
+
         signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
-        return signal_shifted[ ... , :N] 
+        signal_shifted = signal_shifted*phase_correction[... , :, None]
+        return signal_shifted[ ... , N:2*N] 
 
 
 
@@ -1028,13 +1029,12 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 
 class RetrievePulsesSTREAKING(RetrievePulsesFROG):
-    # inputs are converted to atomic units
-
     """
     The reconstruction class for Attosecond Streaking.
-    All axis (time, frequency, ... ) are converted to atomic units for convenience. 
+    All axis (time, frequency, ... ) are converted to atomic units for convenience and because that standard with the Strong-Field-Approximation. 
 
-    [1] P. D. Keathley et al., (2016), New J. Phys. 18 073009, 10.1088/1367-2630/18/7/073009    
+    [1] R. Kienberger, E. Goulielmakis, M. Uiberacker, et al., Atomic transient recorder. Nature 427, 817-821 (2004), 10.1038/nature02277
+    [2] P. D. Keathley et al., (2016), New J. Phys. 18 073009, 10.1088/1367-2630/18/7/073009    
 
     Attributes:
         energy_au (jnp.array): the energy axis in atomic units
@@ -1050,19 +1050,28 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
 
         frequency = self.energy_au/(2*jnp.pi) # convert energy in au to frequency in au
-        self.momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au) # -> momentum axis is non-uniform :/
+        momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
+        self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au)) # this requires interpolation of trace
+
+        measured_trace = jax.vmap(Partial(do_interpolation_1d, method="cubic"), 
+                                  in_axes=(None,None,0))(0.5*self.momentum_au**2, self.energy_au, measured_trace)
+
+        # I(k)*dk = I(E)*dE
+        # I(k) = I(E)*dE/dk
+        # -> multiply by self.momentum_au
+        measured_trace = measured_trace*self.momentum_au
+
+        self.position_au = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.momentum_au), jnp.mean(jnp.diff(self.momentum_au))))
+        self.sk_position_momentum, self.rn_position_momentum = get_sk_rn(self.position_au, self.momentum_au)
 
         assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
         super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
-
-        # generate space axis which is conjugate to momentum
-        # make accompanying fourier matrix
-        r_au, Dbq = self.construct_conjugate_axis_from_nonuniform_one_and_according_fourier_matrix(self.momentum_au)
         
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
-                                                             ionization_potential = self.Ip_au,
-                                                             space = r_au,
-                                                             fourier_matrix_space_momentum = Dbq)
+                                                             position = self.position_au,
+                                                             sk_position_momentum = self.sk_position_momentum,
+                                                             rn_position_momentum = self.rn_position_momentum,
+                                                             ionization_potential = self.Ip_au)
 
         self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
 
@@ -1117,23 +1126,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         
         conversion = unit_in + "_" + unit_out
         return energy*factor_dict[conversion]
-
     
-    def construct_conjugate_axis_from_nonuniform_one_and_according_fourier_matrix(self, nonuniform_axis):
-        """ Creates axis and fourier matrix for nonuniform dft. """
-        N = jnp.size(nonuniform_axis)
-        dk = jnp.mean(jnp.diff(nonuniform_axis))
-        dr = 1/(N*dk)
-        r_min, r_max = -dr*N/2, dr*N/2
-        axis = jnp.arange(r_min, r_max, dr)
-        Dbq = jnp.exp(-1j*2*jnp.pi*nonuniform_axis[:,None]*axis[None,:])
-        return axis, Dbq
-
-    def do_nonuniform_dft(self, signal, Dbq): # what about normalization?
-        # takes signal on equidistant axis and maps to signal on non-equidistant conjugate axis
-        # e.g. uniform space to nonuniform momentum
-        return jnp.einsum("...q, bq -> ...b", signal, Dbq) 
-
     
 
     def make_volkov_phase(self, pulse_t_nir_vectorpotential, measurement_info):
@@ -1150,27 +1143,30 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def make_streaking_amplitude(self, dtme_space, pulse_t_nir_vectorpotential, pulse_t_euv, volkov_phase, measurement_info):
+        sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
+
         if dtme_space is None:
             dtme_momentum = jnp.ones(jnp.shape(volkov_phase))
-        else:
-            r, Dbq = measurement_info.space, measurement_info.fourier_matrix_space_momentum
+        else: # this shifting should be done like shifts in time -> with padding and redefinition of axis
+            r = measurement_info.position
 
             # -1 because one wants to shift to positive values
             # but is this consistent with atomic units convention for elementary-charge?
             momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)
-            phase_factor = jnp.exp(-1j*2*jnp.pi*r[None,:]*momentum_shift[:,None])
-            # has shape -> (k,q)
-            dtme_space = dtme_space*phase_factor # -> (q,) * (k,q) -> broadcasting is on last axis so thats fine
-            dtme_momentum = self.do_nonuniform_dft(dtme_space, Dbq)
+            dtme_space = dtme_space*jnp.exp(-1j*2*jnp.pi*r[None,:]*momentum_shift[:,None]) 
+            dtme_momentum = self.fft(dtme_space, sk, rn)
+
+            # the momentum axis is not centered around zero, this causes a global phase in the fourier shift 
+            # this phase-factor compensates this global phase
+            dr = jnp.mean(jnp.diff(r))
+            phase_correction = jnp.exp(1j*2*jnp.pi*dr*momentum_shift)
+            dtme_momentum = dtme_momentum*phase_correction[:,None]
 
         
-        # naming stuff signal_t, signal_f is technically wrong by convention, 
-        # but potentially necessary for consistency i think
-        # signal_r and signal_k would be better though
-        # b is index in momentum space
+        # naming stuff signal_t, signal_f is technically wrong by convention, but potentially necessary for consistency i think
         dt = jnp.mean(jnp.diff(measurement_info.time))
         signal_f = -1j*dt*jnp.einsum("kb, mk, bk -> mb", dtme_momentum, pulse_t_euv, jnp.exp(-1j*volkov_phase))
-        signal_t = None # would require non-uniform dft with nonuniform momentum to uniform space -> has nonunitarity issues -> only iteratively accurate
+        signal_t = self.ifft(signal_f, sk, rn)
         return signal_t, signal_f
 
 
@@ -1192,15 +1188,20 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         # make euv pulse the gate, because thats the one getting shifted 
         pulse_f_nir_vectorpotential, pulse_f_euv = individual.pulse, individual.gate
-        dtme_space = individual.dtme # maybe one can optimize for this if nir and euv spectra are provided?
+        dtme = individual.dtme # maybe one can optimize for this if nir and euv spectra are provided?
 
         pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
         pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, sk, rn)
 
+        if dtme is not None: # does this work with jax? idk because dtme is not static
+            dtme_position = self.ifft(dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+        else: 
+            dtme_position = None
+
         pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
         volkov_phase = self.make_volkov_phase(pulse_t_nir_vectorpotential, measurement_info)
 
-        signal_t, signal_f = self.make_streaking_amplitude(dtme_space, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, volkov_phase, measurement_info)
+        signal_t, signal_f = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, volkov_phase, measurement_info)
         
         signal_t = MyNamespace(signal_t = signal_t,
                                signal_f = signal_f,

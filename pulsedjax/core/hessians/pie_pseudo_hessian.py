@@ -15,10 +15,10 @@ def PIE_get_full_pseudo_hessian_all_m(probe, subelement, transform_arr, time, om
         phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
 
         N = jnp.size(time)
-        time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
-        Dkn = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
-        H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn, phase_matrix, Dkn.conj())
-        H = H[:,:,:N,:N]
+        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(omega), 1/(2*jnp.pi)*jnp.mean(jnp.diff(omega))))
+        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N) ?
+        H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn_new, phase_matrix, Dkn_new.conj())
+        H = H[:,:,N:,N:]
         hessian_all_m = jnp.einsum("Nmju, un, Nmu, Nmi, in, Nmki, Nmn -> Nmkj", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
 
     elif pulse_or_gate=="chirpscan":
@@ -44,10 +44,10 @@ def PIE_get_diagonal_pseudo_hessian_all_m(probe, subelement, transform_arr, time
         phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
 
         N = jnp.size(time)
-        time_new = jnp.concatenate([time, time + (N+1)*jnp.mean(jnp.diff(time))])
-        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
+        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(omega), 1/(2*jnp.pi)*jnp.mean(jnp.diff(omega))))
+        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N) ?
         H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn_new, phase_matrix, Dkn_new.conj())
-        H = H[:,:,:N,:N]
+        H = H[:,:,N:,N:]
         hessian_all_m = jnp.einsum("Nmki, in, Nmi, Nmi, in, Nmik, Nmn -> Nmk", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
 
     elif pulse_or_gate=="chirpscan":
@@ -70,8 +70,6 @@ def PIE_get_pseudo_hessian_all_m(probe, signal_f, transform_arr, measured_trace,
     else:
         time, omega = measurement_info.time_big, 2*jnp.pi*measurement_info.frequency_big
 
-
-    #N = jnp.size(time)
     Dkn = jnp.exp(1j*(time[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N)
     subelement = (2 - jnp.sqrt(jnp.abs(measured_trace))/(jnp.abs(signal_f) + 1e-15))
     
