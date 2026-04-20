@@ -585,6 +585,7 @@ class AutoDiffBASE(GeneralOptimizationBASE):
     Attributes:
         solver (optimistix-solver, optax-solver): solvers need to be initialized
         alternating_optimization (bool): if true, the optimizer alternates between amplitude and phase
+        optimize_group_delay (bool): if true, the group delay will be optimized instead of the spectral phase
         
     """
 

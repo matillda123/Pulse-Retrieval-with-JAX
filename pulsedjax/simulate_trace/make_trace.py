@@ -483,12 +483,13 @@ class MakeTraceBASE:
                                        central_frequency = self.central_frequency, c0 = self.c0)
 
 
-    def generate_trace(self):
+    def _generate_trace(self):
         individual, measurement_info, transform_arr = self.get_parameters_to_make_signal_t()
-
         self.signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         self.trace = jnp.abs(self.signal_t.signal_f)**2
 
+    def generate_trace(self):
+        self._generate_trace()
         time, frequency, trace, spectra = self.interpolate_trace()
 
         self.trace = trace/np.max(trace)
@@ -822,10 +823,19 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
                                                              position = self.position_au,
                                                              sk_position_momentum = self.sk_position_momentum,
                                                              rn_position_momentum = self.rn_position_momentum, 
-                                                             ionization_potential=self.ionization_potential)
+                                                             ionization_potential=self.ionization_potential, 
+                                                             dtme = None,
+                                                             retrieve_dtme = True)
 
         individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=self.dtme)
         return individual, self.measurement_info, self.theta
+
+
+    def _generate_trace(self):
+        super()._generate_trace()
+        momentum_au_nonuniform = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
+        self.trace = jax.vmap(Partial(do_interpolation_1d, method="linear"), 
+                              in_axes=(None,None,0))(momentum_au_nonuniform, self.momentum_au, self.trace)
 
 
     def generate_trace(self):

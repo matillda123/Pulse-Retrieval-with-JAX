@@ -1044,7 +1044,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     """
     
     # it doesnt really make sense to keep interferometric as an input but it doesnt do any harm either. 
-    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=0, cross_correlation=True, interferometric=False, **kwargs):
+    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=0, retrieve_dtme=False, cross_correlation=True, interferometric=False, **kwargs):
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
@@ -1067,12 +1067,18 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
         super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
         
+
+        self.retrieve_dtme = retrieve_dtme
+        self.dtme = None
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
                                                              position = self.position_au,
                                                              sk_position_momentum = self.sk_position_momentum,
                                                              rn_position_momentum = self.rn_position_momentum,
-                                                             ionization_potential = self.Ip_au)
+                                                             ionization_potential = self.Ip_au,
+                                                             dtme = self.dtme,
+                                                             retrieve_dtme = self.retrieve_dtme)
 
+        # is this necessary?
         self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
 
 
@@ -1127,6 +1133,14 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         conversion = unit_in + "_" + unit_out
         return energy*factor_dict[conversion]
     
+
+
+    def get_DTME(self, momentum_au, dtme_momentum):
+        dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
+        self.dtme = dtme_momentum
+        self.measurement_info = self.measurement_info.expand(dtme = self.dtme)
+        return self.dtme
+    
     
 
     def make_volkov_phase(self, pulse_t_nir_vectorpotential, measurement_info):
@@ -1142,19 +1156,21 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         return phase
 
 
-    def make_streaking_amplitude(self, dtme_space, pulse_t_nir_vectorpotential, pulse_t_euv, volkov_phase, measurement_info):
+    def make_streaking_amplitude(self, dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv, volkov_phase, measurement_info):
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
-        if dtme_space is None:
+        if dtme_position is None:
             dtme_momentum = jnp.ones(jnp.shape(volkov_phase))
-        else: # this shifting should be done like shifts in time -> with padding and redefinition of axis
+        else: 
+            # this shifting should be done like shifts in time -> with padding and redefinition of axis
+            # but its probably fine because shift is much smaller than total axis?
             r = measurement_info.position
 
             # -1 because one wants to shift to positive values
             # but is this consistent with atomic units convention for elementary-charge?
             momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)
-            dtme_space = dtme_space*jnp.exp(-1j*2*jnp.pi*r[None,:]*momentum_shift[:,None]) 
-            dtme_momentum = self.fft(dtme_space, sk, rn)
+            dtme_position = dtme_position*jnp.exp(-1j*2*jnp.pi*r[None,:]*momentum_shift[:,None]) 
+            dtme_momentum = self.fft(dtme_position, sk, rn)
 
             # the momentum axis is not centered around zero, this causes a global phase in the fourier shift 
             # this phase-factor compensates this global phase
@@ -1188,15 +1204,14 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         # make euv pulse the gate, because thats the one getting shifted 
         pulse_f_nir_vectorpotential, pulse_f_euv = individual.pulse, individual.gate
-        dtme = individual.dtme # maybe one can optimize for this if nir and euv spectra are provided?
 
         pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
         pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, sk, rn)
 
-        if dtme is not None: # does this work with jax? idk because dtme is not static
-            dtme_position = self.ifft(dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+        if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
+            dtme_position = self.ifft(individual.dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
         else: 
-            dtme_position = None
+            dtme_position = measurement_info.dtme 
 
         pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
         volkov_phase = self.make_volkov_phase(pulse_t_nir_vectorpotential, measurement_info)
