@@ -18,8 +18,9 @@ def get_initial_amp(measurement_info):
     mean_trace = jnp.mean(measured_trace, axis=0)
     amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
-
-    if nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
+    if nonlinear_method is None:
+        pass
+    elif nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
         if nonlinear_method=="shg":
             factor=2
         elif nonlinear_method=="thg":

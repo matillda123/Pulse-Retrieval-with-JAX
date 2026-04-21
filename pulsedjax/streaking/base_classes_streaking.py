@@ -51,6 +51,28 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
                                     gate=MyNamespace(amp=population_amp.gate.amp, phase=population_phase.gate.phase),
                                     dtme=MyNamespace(amp=population_amp.dtme.amp, phase=population_phase.dtme.phase))
         return population
+    
+
+    
+    def get_pulses_f_from_population(self, population, measurement_info, descent_info):
+        """ Evaluates a parametrized population onto the frequency axis. """
+        make_pulse = Partial(self.make_pulse_f_from_individual, pulse_or_gate="pulse")
+        pulse_f_arr = jax.vmap(make_pulse, in_axes=(0,None,None))(population, measurement_info, descent_info)
+
+        if measurement_info.doubleblind==True:
+            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="gate")
+            gate_f_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
+        else:
+            gate_f_arr = None
+
+        if measurement_info.retrieve_dtme==True: # here one needs to do a extra vmap-for the multichannel sfa
+            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="dtme")
+            dtme_b_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
+        else:
+            dtme_b_arr = None
+
+        return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr, dtme=dtme_b_arr)
+    
 
 
 
@@ -76,21 +98,20 @@ class AutoDiffBASESTREAKING(GeneralOptimizationBASESTREAKING, AutoDiffBASE):
         super().__init__(*args, solver=solver, **kwargs)
 
     
-    def get_pulses_f_from_population(self, population, measurement_info, descent_info):
-        """ Evaluates a parametrized population onto the frequency axis. """
-        make_pulse = Partial(self.make_pulse_f_from_individual, pulse_or_gate="pulse")
-        pulse_f_arr = jax.vmap(make_pulse, in_axes=(0,None,None))(population, measurement_info, descent_info)
+    def loss_function(self, individual, measurement_info, descent_info):
+        """ Wraps around self.calculate_error_individual() to return the error of the current guess. """
+        pulse = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "pulse")
 
         if measurement_info.doubleblind==True:
-            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="gate")
-            gate_f_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
+            gate = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "gate")
         else:
-            gate_f_arr = None
+            gate = pulse # why like this?, why not None?, maybe because of alternating optimization of amp and phase?
 
-        if measurement_info.retrieve_dtme==True:
-            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="dtme")
-            dtme_b_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
+        if measurement_info.retrieve_dtme==True: # for multichannel one needs to vmap here 
+            _make_dtme = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descnet_info=descent_info, pulse_or_gate="dtme")
+            dtme = jax.vmap(_make_dtme)(individual)
         else:
-            dtme_b_arr = None
-
-        return MyNamespace(pulse=pulse_f_arr, gate=gate_f_arr, dtme=dtme_b_arr)
+            dtme = None
+            
+        trace_error, mu = self.calculate_error_individual(MyNamespace(pulse=pulse, gate=gate, dtme=dtme), measurement_info, descent_info)
+        return trace_error, mu

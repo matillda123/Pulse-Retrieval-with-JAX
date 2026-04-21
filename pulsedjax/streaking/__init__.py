@@ -1,1 +1,1 @@
-from general_algorithms_streaking import DifferentialEvolution, Evosax, AutoDiff
+from pulsedjax.streaking.general_algorithms_streaking import DifferentialEvolution, Evosax, AutoDiff

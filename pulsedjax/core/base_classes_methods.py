@@ -1030,7 +1030,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     """
-    The reconstruction class for Attosecond Streaking.
+    The reconstruction class for Attosecond Streaking. Implements the single- and multi-channel Strong-Field-Approximation.
     All axis (time, frequency, ... ) are converted to atomic units for convenience and because that standard with the Strong-Field-Approximation. 
 
     [1] R. Kienberger, E. Goulielmakis, M. Uiberacker, et al., Atomic transient recorder. Nature 427, 817-821 (2004), 10.1038/nature02277
@@ -1038,13 +1038,18 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
     Attributes:
         energy_au (jnp.array): the energy axis in atomic units
-        momentum_au (jnp.array): the photoelectron momenta in atomic units, is non-uniform
-        Ip_au (float): the ionization potential in atomic units
+        momentum_au (jnp.array): the photoelectron momenta in atomic units
+        position_au (jnp.array): the conjugate axis to momentum_au
+        sk_position_momentum (jnp.array): same function as sk, but for the position-momentum fourier pair
+        rn_position_momentum (jnp.array): same function as rn, but for the position-momentum fourier pair
+        Ip_au (jnp.array): the ionization potential in atomic units, size needs to match the number of channels
+        retrieve_dtme (bool): if true, the dipole-transition-matrix-elements will be retrieved
+        dtme_momentum (None, jnp.array): the optionally provided dipole-transition-matrix-elements
         
     """
     
     # it doesnt really make sense to keep interferometric as an input but it doesnt do any harm either. 
-    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=0, retrieve_dtme=False, cross_correlation=True, interferometric=False, **kwargs):
+    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([[0]]), retrieve_dtme=False, no_channels=1, cross_correlation="doubleblind", interferometric=False, **kwargs):
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
@@ -1067,16 +1072,20 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
         super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
         
-
+        self.no_channels = no_channels
         self.retrieve_dtme = retrieve_dtme
-        self.dtme = None
+        self.dtme_momentum = None
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
                                                              position = self.position_au,
                                                              sk_position_momentum = self.sk_position_momentum,
                                                              rn_position_momentum = self.rn_position_momentum,
                                                              ionization_potential = self.Ip_au,
-                                                             dtme = self.dtme,
-                                                             retrieve_dtme = self.retrieve_dtme)
+                                                             dtme_momentum = self.dtme_momentum,
+                                                             retrieve_dtme = self.retrieve_dtme,
+                                                             no_channels = self.no_channels)
+        
+        self.descent_info = self.descent_info.expand(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False, dtme=False))
+        
 
         # is this necessary?
         self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
@@ -1136,31 +1145,49 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
-        self.dtme = dtme_momentum
-        self.measurement_info = self.measurement_info.expand(dtme = self.dtme)
-        return self.dtme
-    
+        if dtme_momentum.ndims==1:
+            dtme_momentum = jnp.asarray([do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)])
+        else:
+            dtme_momentum = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
+        self.dtme_momentum = dtme_momentum
+        self.measurement_info = self.measurement_info.expand(dtme_momentum = self.dtme_momentum)
+        return self.dtme_momentum
+
     
 
-    def make_volkov_phase(self, pulse_t_nir_vectorpotential, measurement_info):
+    def get_spectral_amplitude(self, measured_frequency_PHz, measured_spectrum, pulse_or_gate):
+        """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
+
+        if pulse_or_gate=="pulse": # pulse is the nir-vectorpotential -> spectrum is not exactly the pulse spectrum
+            measured_spectrum = measured_spectrum/(2*jnp.pi*measured_frequency_PHz)**2
+
+        measured_frequency = self.convert_frequency_PHz_au(measured_frequency_PHz, "PHz", "au")
+        return super().get_spectral_amplitude(measured_frequency, measured_spectrum, pulse_or_gate)
+    
+    
+    def make_volkov_phase_0(self, Ip, measurement_info):
+        time, momentum = measurement_info.time, measurement_info.momentum
+        momentum = momentum[:,None]
+        return (Ip + 0.5*momentum**2)*time[None,:]
+
+
+    def make_volkov_phase_1(self, pulse_t_nir_vectorpotential, measurement_info):
         _integrate = Partial(integrate_signal_1D, integration_method="cumsum", integration_order=None)
-        time, momentum, Ip = measurement_info.time, measurement_info.momentum, measurement_info.ionization_potential
+        time, momentum = measurement_info.time, measurement_info.momentum
         
         pulse_t_nir_vectorpotential = jnp.real(pulse_t_nir_vectorpotential)
         A2_int = _integrate((pulse_t_nir_vectorpotential**2)[::-1], time)[::-1]
         A_int = _integrate(pulse_t_nir_vectorpotential[::-1], time)[::-1]
 
         momentum = momentum[:,None]
-        phase = (Ip + 0.5*momentum**2)*time[None,:] + momentum*A_int[None,:] + A2_int[None,:]/2
-        return phase
+        return momentum*A_int[None,:] + A2_int[None,:]/2
 
 
-    def make_streaking_amplitude(self, dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv, volkov_phase, measurement_info):
+    def make_dressed_DTME(self, dtme_position, pulse_t_nir_vectorpotential, measurement_info):
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
-        if dtme_position is None:
-            dtme_momentum = jnp.ones(jnp.shape(volkov_phase))
+        if measurement_info.dtme_momentum is None:
+            dtme_momentum = jnp.ones(jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position))
         else: 
             # this shifting should be done like shifts in time -> with padding and redefinition of axis
             # but its probably fine because shift is much smaller than total axis?
@@ -1178,10 +1205,20 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
             phase_correction = jnp.exp(1j*2*jnp.pi*dr*momentum_shift)
             dtme_momentum = dtme_momentum*phase_correction[:,None]
 
+        return dtme_momentum.T # transpose to go from (k,b) to (b,k)
+
+
+    def make_streaking_amplitude(self, dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv, measurement_info):
+        # vmapping is done because of multichannel sfa
+        phase0 = jax.vmap(self.make_volkov_phase_0, in_axes=(0,None))(measurement_info.ionization_potential, measurement_info)
+        phase1 = self.make_volkov_phase_1(pulse_t_nir_vectorpotential, measurement_info)
+        dtme_momentum = jax.vmap(self.make_dressed_DTME, in_axes=(0,None,None))(dtme_position, pulse_t_nir_vectorpotential, measurement_info)
+        dtme_momentum_and_phase0 = jnp.sum(dtme_momentum*jnp.exp(-1j*phase0), axis=0)
         
-        # naming stuff signal_t, signal_f is technically wrong by convention, but potentially necessary for consistency i think
+        # naming stuff signal_t, signal_f is technically wrong by convention, but potentially necessary for consistency
         dt = jnp.mean(jnp.diff(measurement_info.time))
-        signal_f = -1j*dt*jnp.einsum("kb, mk, bk -> mb", dtme_momentum, pulse_t_euv, jnp.exp(-1j*volkov_phase))
+        sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
+        signal_f = -1j*dt*jnp.einsum("mk, bk, bk -> mb", pulse_t_euv, dtme_momentum_and_phase0, jnp.exp(-1j*phase1))
         signal_t = self.ifft(signal_f, sk, rn)
         return signal_t, signal_f
 
@@ -1211,15 +1248,16 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
             dtme_position = self.ifft(individual.dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
         else: 
-            dtme_position = measurement_info.dtme 
+            if measurement_info.dtme_momentum is None:
+                dtme_position = jnp.ones(measurement_info.no_channels) # a dummy for vmap to work
+            else:
+                dtme_position = self.ifft(measurement_info.dtme_momentum, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
+                
         pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
-        volkov_phase = self.make_volkov_phase(pulse_t_nir_vectorpotential, measurement_info)
-
-        signal_t, signal_f = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, volkov_phase, measurement_info)
+        signal_t, signal_f = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)
         
         signal_t = MyNamespace(signal_t = signal_t,
                                signal_f = signal_f,
-                               pulse_t_euv_shifted = pulse_t_euv_shifted,
-                               volkov_phase = volkov_phase)
+                               pulse_t_euv_shifted = pulse_t_euv_shifted)
         return signal_t

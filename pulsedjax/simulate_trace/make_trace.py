@@ -340,7 +340,7 @@ class MakeTrace(MakePulseBase):
 
 
 
-    def generate_streaking(self, time, frequency, nir_pulse, euv_pulse, delay, Ip_eV=0, DTME=(None, None), energy_range=None, N=2048, 
+    def generate_streaking(self, time, frequency, nir_pulse, euv_pulse, delay, Ip_eV=jnp.array([[0]]), DTME=(None, None), energy_range=None, N=2048, 
                          cut_off_val=0.001, interpolate_fft_conform=False, plot_stuff=True):
         
         """
@@ -353,7 +353,7 @@ class MakeTrace(MakePulseBase):
             nir_pulse (tuple[jnp.array, jnp.array]): a tuple containing the nir pulse in the time and frequency domain
             euv_pulse (tuple[jnp.array, jnp.array]): a tuple containing the euv pulse in the time and frequency domain
             delay (jnp.array): the delays
-            Ip_eV (float): the ionization potential in eV
+            Ip_eV (jnp.array): the ionization potential in eV
             DTME (tuple[jnp.array, jnp.array]): a tuple containing the momentum axis in atomic units and the Dipole-Transition-Matrix-Elements
             energy_range (tuple[Scalar,Scalar]): defines the energy range of the trace (in eV)
             N (int): defines the number of points along the frequency axis of the trace
@@ -775,13 +775,16 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         interferometric = False
         cross_correlation = True
 
-        self.dtme = None
+        self.dtme_momentum = None
         self.ionization_potential = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, Ip_eV, "eV", "au")
         self.theta = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, delay, "fs", "au")
 
         time = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, time, "fs", "au")
         frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "PHz", "au")
         self.energy_au = frequency*2*jnp.pi
+
+        #self.energy_au = jnp.linspace(0, jnp.max(energy_au), jnp.size(energy_au)//2)
+
         momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
         self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au))
         self.position_au = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.momentum_au), jnp.mean(jnp.diff(self.momentum_au))))
@@ -809,9 +812,12 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
-        self.dtme = dtme_momentum
-        return self.dtme
+        if dtme_momentum.ndims==1:
+            dtme_momentum = jnp.asarray([do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)])
+        else:
+            dtme_momentum = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
+        self.dtme_momentum = dtme_momentum
+        return self.dtme_momentum
     
     
     def get_parameters_to_make_signal_t(self):
@@ -819,15 +825,21 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, integration_method="cumsum", integration_order=None)
         pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
 
+        if self.dtme_momentum is None:
+            dtme = jnp.ones((jnp.size(self.ionization_potential), jnp.size(self.momentum_au)))
+        else:
+            dtme = self.dtme_momentum
+
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
                                                              position = self.position_au,
                                                              sk_position_momentum = self.sk_position_momentum,
                                                              rn_position_momentum = self.rn_position_momentum, 
                                                              ionization_potential=self.ionization_potential, 
-                                                             dtme = None,
-                                                             retrieve_dtme = True)
+                                                             dtme_momentum = dtme,
+                                                             retrieve_dtme = False)
+        
 
-        individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=self.dtme)
+        individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=None)
         return individual, self.measurement_info, self.theta
 
 
