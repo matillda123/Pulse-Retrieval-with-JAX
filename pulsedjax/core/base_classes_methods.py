@@ -135,11 +135,11 @@ class RetrievePulses:
 
 
 
-    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate):
+    def get_spectral_amplitude(self, measured_frequency, measured_spectrum, pulse_or_gate, **kwargs):
         """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
         frequency = self.frequency
 
-        spectral_intensity = do_interpolation_1d(frequency, measured_frequency-self.f0/self.factor, measured_spectrum)
+        spectral_intensity = do_interpolation_1d(frequency, measured_frequency-self.f0/self.factor, measured_spectrum, **kwargs)
         spectral_amplitude = jnp.sqrt(jnp.abs(spectral_intensity))*jnp.sign(spectral_intensity)
         
         if pulse_or_gate=="pulse":
@@ -1042,14 +1042,14 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         position_au (jnp.array): the conjugate axis to momentum_au
         sk_position_momentum (jnp.array): same function as sk, but for the position-momentum fourier pair
         rn_position_momentum (jnp.array): same function as rn, but for the position-momentum fourier pair
-        Ip_au (jnp.array): the ionization potential in atomic units, size needs to match the number of channels
+        Ip_au (jnp.array): the ionization potential in atomic units, the number of channels is infered from the number of Ips
         retrieve_dtme (bool): if true, the dipole-transition-matrix-elements will be retrieved
         dtme_momentum (None, jnp.array): the optionally provided dipole-transition-matrix-elements
         
     """
     
     # it doesnt really make sense to keep interferometric as an input but it doesnt do any harm either. 
-    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([[0]]), retrieve_dtme=False, no_channels=1, cross_correlation="doubleblind", interferometric=False, **kwargs):
+    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([[0]]), retrieve_dtme=False, cross_correlation="doubleblind", interferometric=False, **kwargs):
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
@@ -1072,7 +1072,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
         super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
         
-        self.no_channels = no_channels
+        self.no_channels = jnp.size(Ip_eV)
         self.retrieve_dtme = retrieve_dtme
         self.dtme_momentum = None
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
@@ -1087,7 +1087,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         self.descent_info = self.descent_info.expand(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False, dtme=False))
         
 
-        # is this necessary?
+        # is this necessary? (sometimes it is)
         self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
 
 
@@ -1155,14 +1155,23 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
     
 
-    def get_spectral_amplitude(self, measured_frequency_PHz, measured_spectrum, pulse_or_gate):
-        """ Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. """
+    def get_spectral_amplitude(self, measured_frequency_PHz, measured_spectrum, pulse_or_gate, cutoff_frequency_PHz=0.1, **kwargs):
+        """ 
+        Used to provide a measured pulse spectrum. A spectrum for the gate pulse can also be provided. 
+        The cutoff_frequency_PHz is used if pulse_or_gate="pulse", for the vectorpotential the spectrum is divided 
+        by the frequency. In order to avoid dvergences the spectrum is set to zero below this cutoff. 
+        """
 
-        if pulse_or_gate=="pulse": # pulse is the nir-vectorpotential -> spectrum is not exactly the pulse spectrum
-            measured_spectrum = measured_spectrum/(2*jnp.pi*measured_frequency_PHz)**2
+        # pulse is the vectorpotential -> E(w) = iw*A(w)
+        if pulse_or_gate=="pulse":
+            measured_spectrum = jnp.asarray(measured_spectrum)
+            idx0 = jnp.argmin(jnp.abs(measured_frequency_PHz + cutoff_frequency_PHz))
+            idx1 = jnp.argmin(jnp.abs(measured_frequency_PHz - cutoff_frequency_PHz))
+            measured_spectrum = measured_spectrum.at[idx0:idx1].set(0)
+            measured_spectrum = measured_spectrum/((2*jnp.pi*measured_frequency_PHz)**2 + 1e-15)
 
         measured_frequency = self.convert_frequency_PHz_au(measured_frequency_PHz, "PHz", "au")
-        return super().get_spectral_amplitude(measured_frequency, measured_spectrum, pulse_or_gate)
+        return super().get_spectral_amplitude(measured_frequency, measured_spectrum, pulse_or_gate, **kwargs)
     
     
     def make_volkov_phase_0(self, Ip, measurement_info):
@@ -1187,7 +1196,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
         if measurement_info.dtme_momentum is None:
-            dtme_momentum = jnp.ones(jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position))
+            dtme_momentum = jnp.ones((jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position)))
         else: 
             # this shifting should be done like shifts in time -> with padding and redefinition of axis
             # but its probably fine because shift is much smaller than total axis?
@@ -1261,3 +1270,4 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                                signal_f = signal_f,
                                pulse_t_euv_shifted = pulse_t_euv_shifted)
         return signal_t
+

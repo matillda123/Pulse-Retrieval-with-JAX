@@ -617,7 +617,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         if measurement_info.doubleblind==True:
             gate = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "gate")
         else:
-            gate = pulse
+            #gate = pulse
+            gate = None
             
         trace_error, mu = self.calculate_error_individual(MyNamespace(pulse=pulse, gate=gate), measurement_info, descent_info)
         return trace_error, mu

@@ -182,6 +182,7 @@ class AlgorithmsBASE:
         Returns:
             the class instance
         """
+
         if pulse_or_gate=="gate":
             assert self.doubleblind==True
             
@@ -661,12 +662,12 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
 
 
         subkey, population_pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
-                                                             self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info)
+                                                             self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info, "pulse")
         population = tree_at(lambda x: x.pulse, population, population_pulse)
         
         if self.doubleblind==True:
             subkey, population_gate = create_population_general(subkey, amp_type, phase_type, population.gate, population_size, no_funcs_amp, no_funcs_phase, 
-                                                                self.descent_info.measured_spectrum_is_provided.gate, self.measurement_info)
+                                                                self.descent_info.measured_spectrum_is_provided.gate, self.measurement_info, "gate")
             population = tree_at(lambda x: x.gate, population, population_gate, is_leaf=lambda x: x is None)
             
 
@@ -818,8 +819,15 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         """ Evaluates a parametrized individual onto the frequency axis. """
         individual = getattr(individual, pulse_or_gate)
 
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
-            amp = getattr(measurement_info.spectral_amplitude, pulse_or_gate)
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True: 
+            # here one needs to aloow for the multiplication of a variable factor if streaking and pulseorgate=pulse
+            # reason is vectorpotential in volkov phase 
+            if hasattr(measurement_info, "dtme_momentum")==True and pulse_or_gate=="pulse":
+                scale = individual.amp
+            else:
+                scale = 1
+                
+            amp = scale*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
             central_f = getattr(measurement_info.central_frequency, pulse_or_gate)
 
         else:

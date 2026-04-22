@@ -267,7 +267,7 @@ def create_amp(key, amp_type, population, shape, measurement_info):
 
 
 
-def create_population_general(key, amp_type, phase_type, population, population_size, no_funcs_amp, no_funcs_phase, spectrum_provided, measurement_info):
+def create_population_general(key, amp_type, phase_type, population, population_size, no_funcs_amp, no_funcs_phase, spectrum_provided, measurement_info, pulse_or_gate):
     """
     Creates an initial guess population for general solvers. Since general solvers do not require a grid, different 
     representations for amplitude and phase can be used. The population is represented in the freqeuncy domain.
@@ -282,6 +282,7 @@ def create_population_general(key, amp_type, phase_type, population, population_
         no_funcs_phase (int): some representations can consist of multiple basis functions
         spectrum_provided (bool): if a spectrum is provided then the guessed population will not include an amplitude
         measurement_info (Pytree): holds the measurement information, is filled during initialization of each solver
+        pulse_or_gate (str): only needed in streaking, there the scale of the nir/ir-vectorpotential needs to be always optimizable
        
     Returns:
         tuple[jnp.array, Pytree]
@@ -290,9 +291,17 @@ def create_population_general(key, amp_type, phase_type, population, population_
     shape = (population_size, no_funcs_phase)
     key, population = create_phase(key, phase_type, population, shape, measurement_info)
 
+    is_streaking = hasattr(measurement_info, "dtme_momentum")
+
     if spectrum_provided==False:
         shape = (population_size, no_funcs_amp)
         key, population = create_amp(key, amp_type, population, shape, measurement_info)
+
+    elif spectrum_provided==True and is_streaking==True and pulse_or_gate=="pulse":
+        shape = (population_size, )
+        key, subkey = jax.random.split(key, 2)
+        scale_val = jax.random.uniform(subkey, shape, jnp.float32, 0, 1)
+        population = tree_at(lambda x: x.amp, population, scale_val, is_leaf=lambda x: x is None)
         
     return key, population
 

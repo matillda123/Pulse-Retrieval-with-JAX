@@ -368,9 +368,8 @@ class MakeTrace(MakePulseBase):
         pulse_t, pulse_f = nir_pulse
         gate_t, gate_f = euv_pulse
         
-        maketrace = MakeTraceSTREAKING
-        self.maketrace = maketrace(time, frequency, pulse_t, pulse_f, delay, Ip_eV,
-                                   energy_range, N, cut_off_val, interpolate_fft_conform)
+        self.maketrace = MakeTraceSTREAKING(time, frequency, pulse_t, pulse_f, delay, Ip_eV,
+                                            energy_range, N, cut_off_val, interpolate_fft_conform)
         gate = self.maketrace.get_gate_pulse(frequency, gate_f)
 
         if DTME!=(None,None):

@@ -1,5 +1,7 @@
 from functools import partial as Partial
 import jax
+import jax.numpy as jnp
+import equinox
 from pulsedjax.core.create_population import create_population_general
 from pulsedjax.core.base_classes_algorithms import GeneralOptimizationBASE
 from pulsedjax.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, AutoDiffBASE
@@ -23,8 +25,12 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
 
         if self.measurement_info.retrieve_dtme == True:
             measured_spectrum_is_provided_dtme = False
-            subkey, population_dtme = create_population_general(subkey, amp_type, phase_type, population_dtme, population_size, no_funcs_amp, no_funcs_phase, 
-                                                                measured_spectrum_is_provided_dtme, self.measurement_info)
+            population_size_comb = population_size*self.measurement_info.no_channels
+            subkey, population_dtme = create_population_general(subkey, amp_type, phase_type, population_dtme, population_size_comb, no_funcs_amp, no_funcs_phase, 
+                                                                measured_spectrum_is_provided_dtme, self.measurement_info, "dtme")
+            
+            do_reshape = lambda x: jnp.reshape(x, (population_size, self.measurement_info.no_channels) + jnp.shape(x)[1:])
+            population_dtme = jax.tree.map(do_reshape, population_dtme)
             
         population = population.expand(dtme = population_dtme)
         return population
@@ -66,8 +72,8 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
             gate_f_arr = None
 
         if measurement_info.retrieve_dtme==True: # here one needs to do a extra vmap-for the multichannel sfa
-            make_gate = Partial(self.make_pulse_f_from_individual, pulse_or_gate="dtme")
-            dtme_b_arr = jax.vmap(make_gate, in_axes=(0,None,None))(population, measurement_info, descent_info)
+            make_dtme = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="dtme")
+            dtme_b_arr = jax.vmap(jax.vmap(make_dtme))(MyNamespace(pulse=None, gate=None, dtme=population.dtme))
         else:
             dtme_b_arr = None
 
@@ -105,11 +111,13 @@ class AutoDiffBASESTREAKING(GeneralOptimizationBASESTREAKING, AutoDiffBASE):
         if measurement_info.doubleblind==True:
             gate = self.make_pulse_f_from_individual(individual, measurement_info, descent_info, "gate")
         else:
-            gate = pulse # why like this?, why not None?, maybe because of alternating optimization of amp and phase?
-
+            #gate = pulse # why like this?, why not None?, maybe because of alternating optimization of amp and phase?
+            gate = None
+            
         if measurement_info.retrieve_dtme==True: # for multichannel one needs to vmap here 
-            _make_dtme = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descnet_info=descent_info, pulse_or_gate="dtme")
-            dtme = jax.vmap(_make_dtme)(individual)
+            _make_dtme = Partial(self.make_pulse_f_from_individual, measurement_info=measurement_info, descent_info=descent_info, pulse_or_gate="dtme")
+            # remove pulse and gate because of scaling factor in pulse -> messes with vmap
+            dtme = equinox.filter_vmap(_make_dtme)(MyNamespace(pulse=None, gate=None, dtme=individual.dtme)) 
         else:
             dtme = None
             
