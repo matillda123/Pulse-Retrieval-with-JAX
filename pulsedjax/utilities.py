@@ -257,9 +257,14 @@ def scan_helper_equinox(carry, xs, step, static):
 
 
 
+# def do_dft(signal, time, frequency):
+#     fourier_matrix = jnp.exp(-1j*2*jnp.pi*time[:,None]*frequency[None,:])
+#     return jnp.einsum("k, nk -> n", signal, fourier_matrix)
 
 
-
+# def do_idft(signal, time, frequency):
+#     fourier_matrix = jnp.exp(1j*2*jnp.pi*time[:,None]*frequency[None,:])
+#     return jnp.einsum("n, nk -> k", signal, fourier_matrix)
 
 
 

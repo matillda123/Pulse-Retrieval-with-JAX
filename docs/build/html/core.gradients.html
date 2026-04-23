@@ -9,7 +9,7 @@
   <title>core.gradients &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -57,19 +57,23 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -324,66 +328,8 @@ The gradient is calculated in the frequency domain.</p>
 </dd></dl>
 
 </section>
-<section id="module-core.gradients.gradients_via_AD">
-<span id="core-gradients-gradients-via-ad-module"></span><h2>core.gradients.gradients_via_AD module<a class="headerlink" href="#module-core.gradients.gradients_via_AD" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.split_population_real_imag">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">split_population_real_imag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.split_population_real_imag" title="Link to this definition"></a></dt>
-<dd><p>Splits population into real/imag.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.merge_real_imag_population">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">merge_real_imag_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.merge_real_imag_population" title="Link to this definition"></a></dt>
-<dd><p>Merges a population from real/imag into a complex valued one.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.calc_grad_AD">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">calc_grad_AD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.calc_grad_AD" title="Link to this definition"></a></dt>
-<dd><p>Calculates the gradient of a loss function with respect to pulse and gate using jax.grad.
-To do this the complex valued population is split into real/imag. The resulting gradient are merged into a complex one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> (<em>Pytree</em>) – an individual of the current population</p></li>
-<li><p><strong>transform_arr</strong> (<em>jnp.array</em>) – the applied transform to get signal_t_new</p></li>
-<li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
-<li><p><strong>measured_trace</strong> (<em>jnp.array</em>) – the measured intensity</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>descent_info</strong> (<em>Pytree</em>) – contains parameters for the retrieval</p></li>
-<li><p><strong>calculate_signal_t</strong> (<em>Callable</em>) – the method depended function to calculate the nonlinear signal</p></li>
-<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – the variable of with which to differentiate with respect to</p></li>
-<li><p><strong>loss_func</strong> (<em>Callable</em>) – the loss function</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>jnp.array, the gradient with respect to the pulse and gate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.calc_z_error">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">calc_z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.calc_z_error" title="Link to this definition"></a></dt>
-<dd><p>Calculates the Z-error for an individual.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.calc_pie_error">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">calc_pie_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.calc_pie_error" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.calc_grad_AD_z_error">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">calc_grad_AD_z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.calc_grad_AD_z_error" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="core.gradients.gradients_via_AD.calc_grad_AD_pie_error">
-<span class="sig-prename descclassname"><span class="pre">core.gradients.gradients_via_AD.</span></span><span class="sig-name descname"><span class="pre">calc_grad_AD_pie_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculate_signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.gradients.gradients_via_AD.calc_grad_AD_pie_error" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
+<section id="core-gradients-gradients-via-ad-module">
+<h2>core.gradients.gradients_via_AD module<a class="headerlink" href="#core-gradients-gradients-via-ad-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-core.gradients.tdp_z_error_gradients">
 <span id="core-gradients-tdp-z-error-gradients-module"></span><h2>core.gradients.tdp_z_error_gradients module<a class="headerlink" href="#module-core.gradients.tdp_z_error_gradients" title="Link to this heading"></a></h2>

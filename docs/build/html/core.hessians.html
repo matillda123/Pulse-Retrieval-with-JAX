@@ -9,7 +9,7 @@
   <title>core.hessians package &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -70,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -153,7 +155,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.chirpscan_z_error_pseudo_hessian.calc_Z_error_pseudo_hessian_element">
 <span class="sig-prename descclassname"><span class="pre">core.hessians.chirpscan_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">calc_Z_error_pseudo_hessian_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp_arr_mp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_arr_mn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_dispersed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaS_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.chirpscan_z_error_pseudo_hessian.calc_Z_error_pseudo_hessian_element" title="Link to this definition"></a></dt>
-<dd><p>Sum over time axis via jax.lax.scan.</p>
+<dd><p>Sum over time axis via vmap.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -170,7 +172,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.chirpscan_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.chirpscan_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_dispersed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.chirpscan_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.chirpscan_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_dispersed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.chirpscan_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a chirp-scan.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -181,9 +183,9 @@ The direction is calculated in the frequency domain.</p>
 <li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
 <li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
 <li><p><strong>phase_matrix</strong> (<em>jnp.array</em>) – the applied phases</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>newton_state</strong> (<em>Pytree</em>) – contains the current state of the hessian calculation, e.g. the previous newton direction</p></li>
-<li><p><strong>newton_info</strong> (<em>Pytree</em>) – contains parameters for the pseudo-newton direction calculation</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
 <li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
 </ul>
 </dd>
@@ -337,7 +339,7 @@ The direction is calculated in the frequency domain.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.frog_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.frog_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.frog_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.frog_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.frog_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a FROG measurement.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -350,9 +352,9 @@ The direction is calculated in the frequency domain.</p>
 <li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
 <li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the time delays</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>newton_state</strong> (<em>Pytree</em>) – contains the current state of the hessian calculation, e.g. the previous newton direction</p></li>
-<li><p><strong>newton_info</strong> (<em>Pytree</em>) – contains parameters for the pseudo-newton direction calculation</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
 <li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the direction is calculated for the pulse or the gate-pulse</p></li>
 </ul>
@@ -367,41 +369,41 @@ The direction is calculated in the frequency domain.</p>
 <section id="module-core.hessians.pie_pseudo_hessian">
 <span id="core-hessians-pie-pseudo-hessian-module"></span><h2>core.hessians.pie_pseudo_hessian module<a class="headerlink" href="#module-core.hessians.pie_pseudo_hessian" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_element">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_hessian_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probe_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_element" title="Link to this definition"></a></dt>
-<dd><p>Sum over frequency axis via jax.lax.scan.</p>
+<dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_full_pseudo_hessian_all_m">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_full_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subelement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dkn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_full_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
+<dd><p>Calculates the full pseudo hessian through jnp.einsum().</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_one_m">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_hessian_one_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dummy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hessian</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_one_m" title="Link to this definition"></a></dt>
-<dd><p>jax.vmap over time axis</p>
+<dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_diagonal_pseudo_hessian_all_m">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_diagonal_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subelement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dkn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_diagonal_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
+<dd><p>Calculates the diagonal pseudo hessian through jnp.einsum().</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_all_m">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probe_all_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hessian</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
-<dd><p>Loop over delays/shifts to get hessian for each. Does not use jax.vmap because of memory limits.</p>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_hessian_all_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_all_m" title="Link to this definition"></a></dt>
+<dd><p>Just an intermediary to call full or diagonal hessian.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.pie_pseudo_hessian.PIE_get_pseudo_newton_direction">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_newton_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse_transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_direction_prev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_or_global</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_newton_direction" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.pie_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">PIE_get_pseudo_newton_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_or_global</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_newton_direction" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the PIE loss function. Is the same for all methods.
+Except for those which cannot be used with PIE, which are not available.
 The direction is calculated in the time domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>grad</strong> (<em>jnp.array</em>) – the current (weighted) gradient</p></li>
-<li><p><strong>probe</strong> (<em>jnp.array</em>) – the PIE probe</p></li>
+<li><p><strong>probe</strong> (<em>jnp.array</em>) – the PIE probe or modified probe/object for hessian</p></li>
 <li><p><strong>signal_f</strong> (<em>jnp.array</em>) – the signal field in the frequency domain</p></li>
-<li><p><strong>transform_arr</strong> (<em>jnp.array</em>) – the delays or phase matrix, unused</p></li>
+<li><p><strong>transform_arr</strong> (<em>jnp.array</em>) – the delays or phase matrix</p></li>
 <li><p><strong>measured_trace</strong> (<em>jnp.array</em>) – the measured intensity</p></li>
-<li><p><strong>reverse_transform</strong> – Callable, unused</p></li>
-<li><p><strong>newton_direction_prev</strong> (<em>jnp.array</em>) – the previous pseudo-newton direction</p></li>
+<li><p><strong>descent_state</strong> (<em>Pytree</em>)</p></li>
 <li><p><strong>measurement_info</strong> (<em>Pytree</em>) – holds measurement data and parameters</p></li>
 <li><p><strong>descent_info</strong> (<em>Pytree</em>) – holds algorithm parameters</p></li>
-<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – pulse or gate, unused</p></li>
+<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – pulse or gate, (or chirpscan)</p></li>
 <li><p><strong>local_or_global</strong> (<em>str</em>) – local or global iteration?</p></li>
 </ul>
 </dd>
@@ -416,7 +418,7 @@ The direction is calculated in the time domain.</p>
 <span id="core-hessians-tdp-z-error-pseudo-hessian-module"></span><h2>core.hessians.tdp_z_error_pseudo_hessian module<a class="headerlink" href="#module-core.hessians.tdp_z_error_pseudo_hessian" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.tdp_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.tdp_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.tdp_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.tdp_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_shifted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.tdp_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a Time-Domain-Ptychography measurement.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -429,9 +431,9 @@ The direction is calculated in the frequency domain.</p>
 <li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
 <li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the time delays</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>newton_state</strong> (<em>Pytree</em>) – contains the current state of the hessian calculation, e.g. the previous newton direction</p></li>
-<li><p><strong>newton_info</strong> (<em>Pytree</em>) – contains parameters for the pseudo-newton direction calculation</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
 <li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the direction is calculated for the pulse or the gate-pulse</p></li>
 </ul>
@@ -526,7 +528,7 @@ The direction is calculated in the frequency domain.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.twodsi_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.twodsi_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a 2DSI measurement.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -539,10 +541,9 @@ The direction is calculated in the frequency domain.</p>
 <li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
 <li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the applied delays</p></li>
-<li><p><strong>gd_correction</strong> (<em>jnp.array</em>) – group delay correction for material dispersion</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>newton_state</strong> (<em>Pytree</em>) – contains the current state of the hessian calculation, e.g. the previous newton direction</p></li>
-<li><p><strong>newton_info</strong> (<em>Pytree</em>) – contains parameters for the pseudo-newton direction calculation</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
 <li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the direction is calculated for the pulse or the gate-pulse</p></li>
 </ul>
@@ -558,7 +559,7 @@ The direction is calculated in the frequency domain.</p>
 <span id="core-hessians-vampire-z-error-pseudo-hessian-module"></span><h2>core.hessians.vampire_z_error_pseudo_hessian module<a class="headerlink" href="#module-core.hessians.vampire_z_error_pseudo_hessian" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.hessians.vampire_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
-<span class="sig-prename descclassname"><span class="pre">core.hessians.vampire_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newton_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.vampire_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">core.hessians.vampire_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.hessians.vampire_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the pseudo-newton direction for the Z-error of a VAMPIRE measurement.
 The direction is calculated in the frequency domain.</p>
 <dl class="field-list simple">
@@ -571,10 +572,9 @@ The direction is calculated in the frequency domain.</p>
 <li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
 <li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
 <li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the applied delays</p></li>
-<li><p><strong>gd_correction</strong> (<em>jnp.array</em>) – group delay correction for a material dispersion</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
-<li><p><strong>newton_state</strong> (<em>Pytree</em>) – contains the current state of the hessian calculation, e.g. the previous newton direction</p></li>
-<li><p><strong>newton_info</strong> (<em>Pytree</em>) – contains parameters for the pseudo-newton direction calculation</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
 <li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
 <li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the direction is calculated for the pulse or the gate-pulse</p></li>
 </ul>

@@ -15,20 +15,20 @@ from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 
 
 
-def normalize_population(population, measurement_info, pulse_or_gate):
-    if pulse_or_gate=="pulse":
-        population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]
-        population_gate = population.gate
-
-    elif pulse_or_gate=="gate":
-        population_pulse = population.pulse
-        if measurement_info.interferometric==False:
-            population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
-        else:
+def normalize_population(population, measurement_info, descent_info, pulse_or_gate):
+    if descent_info.normalize==False:
+        if pulse_or_gate=="pulse":
+            population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]
             population_gate = population.gate
 
-    return MyNamespace(pulse=population_pulse, gate=population_gate)
+        elif pulse_or_gate=="gate":
+            population_pulse = population.pulse
+            if measurement_info.interferometric==False:
+                population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
+            else:
+                population_gate = population.gate
 
+    return MyNamespace(pulse=population_pulse, gate=population_gate)
 
 
 
@@ -148,7 +148,8 @@ def initialize_descent_info(optimizer):
                                                                                                     factor=optimizer.global_adaptive_scaling_factor)),
                                                 optimize_calibration_curve = MyNamespace(_local=optimizer.local_optimize_calibration_curve,
                                                                                          _global=optimizer.global_optimize_calibration_curve),
-                                                eta_spectral_amplitude = optimizer.eta_spectral_amplitude
+                                                eta_spectral_amplitude = optimizer.eta_spectral_amplitude,
+                                                normalize = optimizer.normalize_after_every_step
                                                 )
     return descent_info
 
@@ -231,8 +232,10 @@ class LSGPABASE(ClassicAlgorithmsBASE):
     
         trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
         population_pulse = self.update_pulse(signal_t_new, signal_t.gate_shifted, measurement_info)
-        population_pulse = population_pulse/jnp.linalg.norm(population_pulse,axis=-1)[:,jnp.newaxis]
-        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population_pulse)
+        
+        population = tree_at(lambda x: x.pulse, descent_state.population, population_pulse)
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
 
         if measurement_info.doubleblind==True:
             signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
@@ -242,8 +245,9 @@ class LSGPABASE(ClassicAlgorithmsBASE):
                                                             axes=(0,None,0,None,None,None))
         
             population_gate = self.update_gate(descent_state.population.gate, signal_t, signal_t_new, measurement_info, descent_info)
-            population_gate = population_gate/jnp.linalg.norm(population_gate,axis=-1)[:,jnp.newaxis]
-            descent_state = tree_at(lambda x: x.population.gate, descent_state, population_gate)
+            population = tree_at(lambda x: x.gate, descent_state.population, population_gate)
+            population = normalize_population(population, measurement_info, descent_info, "gate")
+            descent_state = tree_at(lambda x: x.population, descent_state, population)
 
         descent_state = tree_at(lambda x: x.mu, descent_state, mu)
         return descent_state, trace_error.reshape(-1,1)
@@ -529,7 +533,9 @@ class CPCGPABASE(ClassicAlgorithmsBASE):
 
         population = jax.vmap(self.update_individual, in_axes=(0,0,None,None))(opf, population, measurement_info, descent_info)        
         population = jax.tree.map(lambda x: self.fft(x, measurement_info.sk, measurement_info.rn), population)
-        population = jax.tree.map(lambda x: x/jnp.linalg.norm(x,axis=-1)[:,None], population)
+
+        if descent_info.normalize==True:
+            population = jax.tree.map(lambda x: x/jnp.linalg.norm(x,axis=-1)[:,None], population)
         
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x.iteration, descent_state, iteration+1)
@@ -793,13 +799,13 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
 
         population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, "pulse")
-        population = normalize_population(population, measurement_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
         
         if measurement_info.doubleblind==True:
             population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, 
                                                             measurement_info, descent_info, "gate")
-            population = normalize_population(population, measurement_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
         return descent_state, None
 
@@ -808,7 +814,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     def do_descent_Z_error(self, descent_state, signal_t_new, measurement_info, descent_info):
         """ Performs a descent based optimization to find the pulse/gate that are able to produce S_prime. """
         
-        shape_pulse = jnp.shape(descent_state.population.pulse)
+        shape_pulse = jnp.shape(descent_state.population.pulse) # this might make problems with streaking
         cg_state = initialize_CG_state(shape_pulse, measurement_info)
         newton_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
         lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
@@ -873,7 +879,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         self.descent_info = initialize_descent_info(self).expand(no_steps_descent = self.no_steps_descent)
         descent_info = self.descent_info
 
-        shape_pulse = jnp.shape(population.pulse)
+        shape_pulse = jnp.shape(population.pulse) # same here might mke problems with streaking
         cg_state = initialize_CG_state(shape_pulse, measurement_info)
         newton_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
         lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
@@ -1133,7 +1139,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, trace_line, 
                                                     descent_state.population, local_state, 
                                                       measurement_info, descent_info, "pulse", "_local")
-        population = normalize_population(population, measurement_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
 
         if measurement_info.doubleblind==True:
@@ -1146,7 +1152,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                         descent_state.population, local_state, 
                                                       measurement_info, descent_info, "gate", "_local")
             
-            population = normalize_population(population, measurement_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
         
         descent_state = tree_at(lambda x: x._local, descent_state, local_state)
@@ -1220,7 +1226,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, measured_trace,
                                                       descent_state.population, global_state, 
                                                       measurement_info, descent_info, "pulse", "_global")
-        population = normalize_population(population, measurement_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
 
         if measurement_info.doubleblind==True:
@@ -1236,7 +1242,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                           descent_state.population, global_state, 
                                                           measurement_info, descent_info, "gate", "_global")
             
-            population = normalize_population(population, measurement_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
 
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
@@ -1516,7 +1522,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                     measurement_info, descent_info, 
                                                    "pulse", "_local")
         
-        population = normalize_population(population, measurement_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
 
         if measurement_info.doubleblind==True:
@@ -1528,7 +1534,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                         descent_state.population, local_state, 
                                                         measurement_info, descent_info, 
                                                         "gate", "_local")
-            population = normalize_population(population, measurement_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
 
         descent_state = tree_at(lambda x: x._local, descent_state, local_state)
@@ -1602,7 +1608,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                      descent_state.population, global_state, measurement_info, 
                                                      descent_info, "pulse", "_global")
         
-        population = normalize_population(population, measurement_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
         descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
 
         if measurement_info.doubleblind==True:
@@ -1616,7 +1622,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                          descent_state.population, global_state, measurement_info, 
                                                          descent_info, "gate", "_global")
             
-            population = normalize_population(population, measurement_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
             descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
             
         descent_state = tree_at(lambda x: x._global, descent_state, global_state)
@@ -2033,8 +2039,9 @@ class LSFBASE(ClassicAlgorithmsBASE):
         direction = self.get_search_direction(subkey, descent_state.population, measurement_info, descent_info)
         descent_state = self.search_along_direction(direction, descent_state, measurement_info, descent_info)
 
-        population = jax.tree.map(lambda x: x/jnp.linalg.norm(x, axis=-1)[:,None], descent_state.population)
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        if descent_info.normalize==True:
+            population = jax.tree.map(lambda x: x/jnp.linalg.norm(x, axis=-1)[:,None], descent_state.population)
+            descent_state = tree_at(lambda x: x.population, descent_state, population)
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)        
         _calculate_trace = Partial(calculate_trace, measured_trace=measurement_info.measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")

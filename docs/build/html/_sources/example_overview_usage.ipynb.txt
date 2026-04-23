@@ -33,7 +33,7 @@
     "phase = PolynomialPhase(0.3, (0,0,20,0))\n",
     "\n",
     "mp = MakeTrace(N=1024, f_max=2)\n",
-    "time, pulse_t, frequency, pulse_f = mp.generate_pulse((amp, phase))"
+    "time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp, phase))"
    ]
   },
   {
@@ -92,9 +92,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "myalgorithm.use_measured_spectrum(f_spectrum, spectrum_pulse, \"pulse\")\n",
-    "myalgorithm.use_measured_spectrum(f_spectrum, spectrum_gate_pulse, \"gate\")\n",
-    "myalgorithm.get_gate_pulse(f_gate, pulse_f_gate) # needs to be in frequency domain"
+    "myalgorithm.use_measured_spectrum(frequency_spectrum, spectrum_pulse, \"pulse\")\n",
+    "myalgorithm.use_measured_spectrum(frequency_spectrum, spectrum_gate_pulse, \"gate\")\n",
+    "myalgorithm.get_gate_pulse(frequency_gate, pulse_f_gate) # needs to be in frequency domain"
    ]
   },
   {

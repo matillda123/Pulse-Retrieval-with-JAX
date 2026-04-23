@@ -3,34 +3,13 @@ Definitions and Formulas
 
 .. toctree::
    :maxdepth: 2
-   :caption: General Definitions
+   :caption: Definitions and Formulas
 
    eqs_general_definitions
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Z-Error Gradient and Pseudo-Hessian
-
-   eqs_frog
-   eqs_chirpscan
-   eqs_tdp
-   eqs_twodsi
-   eqs_vampire
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Ptychographic Iterative Engine
-
+   definitions_and_formulas_z_error
    eqs_pie_grad_hessian
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Update nonlinear Signal and adaptive Stepsize
-
-   eqs_s_prime_and_polyak
+   eqs_s_prime
+   eqs_polyak
 
 
 .. toctree::

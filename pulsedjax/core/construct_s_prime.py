@@ -192,8 +192,11 @@ def calculate_S_prime(signal_t, measured_trace, mu, measurement_info, descent_in
         sk, rn = measurement_info.sk_big, measurement_info.rn_big
     else:
         sk, rn = measurement_info.sk, measurement_info.rn
-        
-        
+
+    if hasattr(measurement_info, "retrieve_dtme")==True: # for streaking
+        sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
+
+
     if method=="projection":
         signal_t_new = calculate_S_prime_projection(signal_t, measured_trace, mu, sk, rn)
 

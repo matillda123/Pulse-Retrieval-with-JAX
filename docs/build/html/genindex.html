@@ -8,7 +8,7 @@
   <title>Index &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -54,19 +54,23 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -130,7 +134,6 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
- | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -218,8 +221,6 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.amplitude_or_intensity">amplitude_or_intensity (core.base_classes_algorithms.GeneralOptimizationBASE attribute)</a>
-</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.anc_frequency1">anc_frequency1 (core.base_classes_methods.RetrievePulses2DSI attribute)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.anc_frequency2">anc_frequency2 (core.base_classes_methods.RetrievePulses2DSI attribute)</a>
@@ -228,6 +229,12 @@
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA.antialias">(frog.classic_algorithms_frog.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.antialias">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.antialias">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.antialias">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA attribute)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.CPCGPA.antialias">(tdp.classic_algorithms_tdp.CPCGPA attribute)</a>
 </li>
@@ -247,11 +254,11 @@
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum">apply_spectrum() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.apply_spectrum">(core.base_classic_algorithms.LSFBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum_frequency_domain">apply_spectrum_frequency_domain() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
-</li>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.apply_spectrum_time_domain">apply_spectrum_time_domain() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
-</li>
+      </ul></li>
       <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.DirectReconstruction.apply_windowing">apply_windowing() (twodsi.classic_algorithms_2dsi.DirectReconstruction method)</a>
 </li>
       <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.AutoDiff">AutoDiff (class in chirp_scan.general_algorithms_chirpscan)</a>
@@ -300,21 +307,15 @@
 </li>
       <li><a href="core.html#core.nonlinear_cg.beta_fletcher_reeves">beta_fletcher_reeves() (in module core.nonlinear_cg)</a>
 </li>
-      <li><a href="core.html#core.nonlinear_cg.beta_hestenes_stiefel">beta_hestenes_stiefel() (in module core.nonlinear_cg)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core.html#core.nonlinear_cg.beta_hestenes_stiefel">beta_hestenes_stiefel() (in module core.nonlinear_cg)</a>
+</li>
       <li><a href="core.html#core.nonlinear_cg.beta_polak_ribiere">beta_polak_ribiere() (in module core.nonlinear_cg)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.bin_crossover">bin_crossover() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.bisection_step">bisection_step() (core.base_general_optimization.LSFBASE method)</a>
-</li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_0">bisection_step_logic_0() (core.base_general_optimization.LSFBASE method)</a>
-</li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_1">bisection_step_logic_1() (core.base_general_optimization.LSFBASE method)</a>
-</li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.bisection_step_logic_2">bisection_step_logic_2() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.bisection_step">bisection_step() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.bspline_amplitude">bspline_amplitude() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
@@ -352,25 +353,15 @@
 </li>
       <li><a href="core.html#core.phase_matrix_funcs.calc_GDD">calc_GDD() (in module core.phase_matrix_funcs)</a>
 </li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.calc_grad_AD">calc_grad_AD() (in module core.gradients.gradients_via_AD)</a>
-</li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.calc_grad_AD_pie_error">calc_grad_AD_pie_error() (in module core.gradients.gradients_via_AD)</a>
-</li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.calc_grad_AD_z_error">calc_grad_AD_z_error() (in module core.gradients.gradients_via_AD)</a>
-</li>
       <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calc_grad_for_linesearch">calc_grad_for_linesearch() (core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
       <li><a href="core.html#core.phase_matrix_funcs.calc_group_delay_phase">calc_group_delay_phase() (in module core.phase_matrix_funcs)</a>
 </li>
       <li><a href="core.html#core.phase_matrix_funcs.calc_MIIPS_phase">calc_MIIPS_phase() (in module core.phase_matrix_funcs)</a>
 </li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.calc_pie_error">calc_pie_error() (in module core.gradients.gradients_via_AD)</a>
-</li>
       <li><a href="core.html#core.phase_matrix_funcs.calc_sine_phase">calc_sine_phase() (in module core.phase_matrix_funcs)</a>
 </li>
       <li><a href="core.html#core.phase_matrix_funcs.calc_tanh_phase">calc_tanh_phase() (in module core.phase_matrix_funcs)</a>
-</li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.calc_z_error">calc_z_error() (in module core.gradients.gradients_via_AD)</a>
 </li>
       <li><a href="core.html#core.base_classic_algorithms.COPRABASE.calc_Z_error_for_linesearch">calc_Z_error_for_linesearch() (core.base_classic_algorithms.COPRABASE method)</a>
 
@@ -510,16 +501,26 @@
         <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.calc_Z_grad_for_linesearch">(core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
 </li>
       </ul></li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.calculate_error">calculate_error() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.calculate_error">calculate_error() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.calculate_error_individual">calculate_error_individual() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.calculate_error_population">calculate_error_population() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.calculate_error_population">calculate_error_population() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.calculate_error_population">(core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
+      </ul></li>
       <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA.calculate_gate">calculate_gate() (frog.classic_algorithms_frog.CPCGPA method)</a>
 
       <ul>
         <li><a href="utilities.html#utilities.calculate_gate">(in module utilities)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.calculate_gate">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.calculate_gate">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.calculate_gate">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA method)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.CPCGPA.calculate_gate">(tdp.classic_algorithms_tdp.CPCGPA method)</a>
 </li>
@@ -547,6 +548,14 @@
 </li>
         <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine method)</a>
 </li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine method)</a>
+</li>
         <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine method)</a>
 </li>
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.PtychographicIterativeEngine.calculate_PIE_descent_direction_m">(vampire.classic_algorithms_vampire.PtychographicIterativeEngine method)</a>
@@ -554,16 +563,30 @@
       </ul></li>
       <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calculate_PIE_error">calculate_PIE_error() (core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
+      <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calculate_PIE_mu">calculate_PIE_mu() (core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
+</li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine.calculate_PIE_newton_direction">calculate_PIE_newton_direction() (chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine method)</a>
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.calculate_PIE_newton_direction">(frog.classic_algorithms_frog.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction">(real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction">(real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction">(real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine method)</a>
 </li>
         <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.calculate_PIE_newton_direction">(twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine method)</a>
 </li>
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.PtychographicIterativeEngine.calculate_PIE_newton_direction">(vampire.classic_algorithms_vampire.PtychographicIterativeEngine method)</a>
 </li>
       </ul></li>
+      <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.calculate_PIE_trace">calculate_PIE_trace() (core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
+</li>
       <li><a href="core.html#core.lbfgs.calculate_quasi_newton_direction">calculate_quasi_newton_direction() (in module core.lbfgs)</a>
 </li>
       <li><a href="core.html#core.construct_s_prime.calculate_r_descent_direction">calculate_r_descent_direction() (in module core.construct_s_prime)</a>
@@ -588,9 +611,13 @@
 </li>
       <li><a href="core.html#core.construct_s_prime.calculate_S_prime">calculate_S_prime() (in module core.construct_s_prime)</a>
 </li>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.calculate_S_prime_individual">calculate_S_prime_individual() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
+</li>
       <li><a href="core.html#core.construct_s_prime.calculate_S_prime_iterative">calculate_S_prime_iterative() (in module core.construct_s_prime)</a>
 </li>
       <li><a href="core.html#core.construct_s_prime.calculate_S_prime_iterative_step">calculate_S_prime_iterative_step() (in module core.construct_s_prime)</a>
+</li>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.calculate_S_prime_population">calculate_S_prime_population() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
       <li><a href="core.html#core.construct_s_prime.calculate_S_prime_projection">calculate_S_prime_projection() (in module core.construct_s_prime)</a>
 </li>
@@ -603,23 +630,23 @@
 </li>
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.calculate_signal_t">(core.base_classes_methods.RetrievePulsesFROG method)</a>
 </li>
+        <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.calculate_signal_t">(core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesTDP.calculate_signal_t">(core.base_classes_methods.RetrievePulsesTDP method)</a>
 </li>
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE.calculate_signal_t">(core.base_classes_methods.RetrievePulsesVAMPIRE method)</a>
 </li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.calculate_signal_t">(real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields.calculate_signal_t">(real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.calculate_signal_t">(real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.calculate_signal_t">(real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.calculate_signal_t">(real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields method)</a>
-</li>
       </ul></li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.calculate_signal_t_using_opf">calculate_signal_t_using_opf() (core.base_classic_algorithms.CPCGPABASE method)</a>
+
+      <ul>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.calculate_signal_t_using_opf">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA method)</a>
 </li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.calculate_signal_t_using_opf">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.calculate_signal_t_using_opf">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA method)</a>
+</li>
+      </ul></li>
       <li><a href="utilities.html#utilities.calculate_trace">calculate_trace() (in module utilities)</a>
 </li>
       <li><a href="utilities.html#utilities.calculate_trace_error">calculate_trace_error() (in module utilities)</a>
@@ -649,6 +676,16 @@
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.calculate_Z_gradient_individual">(frog.classic_algorithms_frog.GeneralizedProjection method)</a>
 </li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">(real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">(real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">(real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection method)</a>
+</li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.GeneralizedProjection.calculate_Z_gradient_individual">(tdp.classic_algorithms_tdp.GeneralizedProjection method)</a>
 </li>
         <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.GeneralizedProjection.calculate_Z_gradient_individual">(twodsi.classic_algorithms_2dsi.GeneralizedProjection method)</a>
@@ -656,18 +693,28 @@
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.GeneralizedProjection.calculate_Z_gradient_individual">(vampire.classic_algorithms_vampire.GeneralizedProjection method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.gradients.html#core.gradients.frog_z_error_gradients.calculate_Z_gradient_pulse">calculate_Z_gradient_pulse() (in module core.gradients.frog_z_error_gradients)</a>
 
       <ul>
         <li><a href="core.gradients.html#core.gradients.twodsi_z_error_gradients.calculate_Z_gradient_pulse">(in module core.gradients.twodsi_z_error_gradients)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection.calculate_Z_newton_direction">calculate_Z_newton_direction() (chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection method)</a>
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.calculate_Z_newton_direction">(frog.classic_algorithms_frog.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.calculate_Z_newton_direction">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_newton_direction">(real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection.calculate_Z_newton_direction">(real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection.calculate_Z_newton_direction">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection.calculate_Z_newton_direction">(real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection method)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.GeneralizedProjection.calculate_Z_newton_direction">(tdp.classic_algorithms_tdp.GeneralizedProjection method)</a>
 </li>
@@ -695,6 +742,8 @@
 </li>
       </ul></li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.check_and_correct_if_scalar">check_and_correct_if_scalar() (in module simulate_trace.make_pulse)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.check_usability_of_time_axis">check_usability_of_time_axis() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
       <li>
     chirp_scan
@@ -732,6 +781,12 @@
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA.constraints">(frog.classic_algorithms_frog.CPCGPA attribute)</a>
 </li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.constraints">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.constraints">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.constraints">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA attribute)</a>
+</li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.CPCGPA.constraints">(tdp.classic_algorithms_tdp.CPCGPA attribute)</a>
 </li>
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.CPCGPA.constraints">(vampire.classic_algorithms_vampire.CPCGPA attribute)</a>
@@ -743,31 +798,15 @@
 </li>
       <li><a href="core.html#core.create_population.continuous_discrete_guess_phase">continuous_discrete_guess_phase() (in module core.create_population)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.convert_energy_eV_au">convert_energy_eV_au() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.convert_frequency_PHz_au">convert_frequency_PHz_au() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.convert_opf_to_signal_t">convert_opf_to_signal_t() (core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF.convert_population">convert_population() (chirp_scan.general_algorithms_chirpscan.LSF method)</a>
-
-      <ul>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF.convert_population">(frog.general_algorithms_frog.LSF method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.convert_population">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.convert_population">(real_fields.frog.general_algorithms_frog_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.convert_population">(real_fields.tdp.general_algorithms_tdp_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.convert_population">(real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.convert_population">(real_fields.vampire.general_algorithms_vampire_real_fields.LSF method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF.convert_population">(tdp.general_algorithms_tdp.LSF method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF.convert_population">(twodsi.general_algorithms_2dsi.LSF method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF.convert_population">(vampire.general_algorithms_vampire.LSF method)</a>
-</li>
-      </ul></li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.convert_signal_t_to_opf">convert_signal_t_to_opf() (core.base_classic_algorithms.CPCGPABASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.convert_time_fs_au">convert_time_fs_au() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.COPRA">COPRA (class in chirp_scan.classic_algorithms_chirpscan)</a>
 
@@ -868,13 +907,6 @@
 
       <ul>
         <li><a href="core.gradients.html#module-core.gradients.frog_z_error_gradients">module</a>
-</li>
-      </ul></li>
-      <li>
-    core.gradients.gradients_via_AD
-
-      <ul>
-        <li><a href="core.gradients.html#module-core.gradients.gradients_via_AD">module</a>
 </li>
       </ul></li>
       <li>
@@ -992,6 +1024,12 @@
       <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA">CPCGPA (class in frog.classic_algorithms_frog)</a>
 
       <ul>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA">(class in real_fields.frog.classical_algorithms_frog_real_fields)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA">(class in real_fields.tdp.classical_algorithms_tdp_real_fields)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA">(class in real_fields.vampire.classical_algorithms_vampire_real_fields)</a>
+</li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.CPCGPA">(class in tdp.classic_algorithms_tdp)</a>
 </li>
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.CPCGPA">(class in vampire.classic_algorithms_vampire)</a>
@@ -1105,19 +1143,43 @@
       </ul></li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE">DifferentialEvolutionBASE (class in core.base_general_optimization)</a>
 </li>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.direction_mode">direction_mode (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.direction_mode">(core.base_classic_algorithms.LSFBASE attribute)</a>
+</li>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF.direction_mode">(frog.classic_algorithms_frog.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.direction_mode">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.direction_mode">(real_fields.frog.classical_algorithms_frog_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.direction_mode">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.direction_mode">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.direction_mode">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF.direction_mode">(tdp.classic_algorithms_tdp.LSF attribute)</a>
+</li>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF.direction_mode">(twodsi.classic_algorithms_2dsi.LSF attribute)</a>
+</li>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF.direction_mode">(vampire.classic_algorithms_vampire.LSF attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.DirectReconstruction">DirectReconstruction (class in twodsi.classic_algorithms_2dsi)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.discrete_amplitude">discrete_amplitude() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.discrete_phase">discrete_phase() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.do_anti_alias">do_anti_alias() (core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.do_bisection_search">do_bisection_search() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.do_bisection_search">do_bisection_search() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
-      <li><a href="utilities.html#utilities.do_checks_before_running">do_checks_before_running() (in module utilities)</a>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.do_checks_before_running">do_checks_before_running() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.do_crossover">do_crossover() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
@@ -1147,8 +1209,12 @@
 </li>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.do_step_and_apply_momentum">do_step_and_apply_momentum() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.do_step_and_apply_spectrum">do_step_and_apply_spectrum() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.do_step_and_apply_spectral_amplitude">do_step_and_apply_spectral_amplitude() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.do_step_and_apply_spectral_amplitude">(core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
+      </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.doubleblind">doubleblind (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.dt">dt (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
@@ -1157,6 +1223,8 @@
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.dt">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
 </li>
       </ul></li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.dtme_momentum">dtme_momentum (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
+</li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MultiPulse.duration">duration (simulate_trace.make_pulse.MultiPulse attribute)</a>
 
       <ul>
@@ -1170,6 +1238,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.stepsize.end_linesearch">end_linesearch() (in module core.stepsize)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.energy_au">energy_au (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MultiPulse.envelope">envelope (simulate_trace.make_pulse.MultiPulse attribute)</a>
 </li>
@@ -1217,9 +1287,7 @@
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.factor">factor (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.fd_grad">fd_grad (core.base_classes_algorithms.GeneralOptimizationBASE attribute)</a>
-</li>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.fft">fft (core.base_classes_algorithms.AlgorithmsBASE attribute)</a>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.fft">fft() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
       <li><a href="core.html#core.stepsize.finding_phase">finding_phase() (in module core.stepsize)</a>
 </li>
@@ -1230,15 +1298,11 @@
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.frequency">frequency (core.base_classes_methods.RetrievePulses attribute)</a>
 
       <ul>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency">(real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
-</li>
         <li><a href="simulate_trace.html#simulate_trace.make_pulse.CustomPulse.frequency">(simulate_trace.make_pulse.CustomPulse attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_big">frequency_big (real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
-</li>
       <li>
     frog
 
@@ -1330,6 +1394,8 @@
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace.generate_chirpscan">generate_chirpscan() (simulate_trace.make_trace.MakeTrace method)</a>
 </li>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.generate_E_arr">generate_E_arr() (core.base_classic_algorithms.LSFBASE method)</a>
+</li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace.generate_frog">generate_frog() (simulate_trace.make_trace.MakeTrace method)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.generate_gaussian_lorentzian_amplitude">generate_gaussian_lorentzian_amplitude() (simulate_trace.make_pulse.MakePulse method)</a>
@@ -1340,18 +1406,20 @@
 </li>
       <li><a href="utilities.html#utilities.generate_random_continuous_function">generate_random_continuous_function() (in module utilities)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.generate_signal_t">generate_signal_t() (core.base_classes_methods.RetrievePulsesCHIRPSCAN method)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.generate_signal_t">(core.base_classes_methods.RetrievePulsesFROG method)</a>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.generate_signal_t">generate_signal_t() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
-      </ul></li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.generate_sinusoidal_phase">generate_sinusoidal_phase() (simulate_trace.make_pulse.MakePulse method)</a>
+</li>
+      <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace.generate_streaking">generate_streaking() (simulate_trace.make_trace.MakeTrace method)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace.generate_tdp">generate_tdp() (simulate_trace.make_trace.MakeTrace method)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceBASE.generate_trace">generate_trace() (simulate_trace.make_trace.MakeTraceBASE method)</a>
+
+      <ul>
+        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceSTREAKING.generate_trace">(simulate_trace.make_trace.MakeTraceSTREAKING method)</a>
 </li>
+      </ul></li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace.generate_vampire">generate_vampire() (simulate_trace.make_trace.MakeTrace method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_amplitude">get_amplitude() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
@@ -1360,23 +1428,25 @@
 </li>
       <li><a href="core.html#core.bsplines_1d.get_C_in">get_C_in() (in module core.bsplines_1d)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_calibration_curve">get_calibration_curve() (core.base_classes_methods.RetrievePulses method)</a>
+</li>
       <li><a href="utilities.html#utilities.get_com">get_com() (in module utilities)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_data">get_data() (core.base_classes_methods.RetrievePulses method)</a>
-
-      <ul>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.get_data">(real_fields.base_classes_methods.RetrievePulsesRealFields method)</a>
 </li>
-      </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.get_dispersed_pulse_t">get_dispersed_pulse_t() (core.base_classes_methods.RetrievePulsesCHIRPSCAN method)</a>
 </li>
       <li><a href="core.html#core.initial_guess_doublepulse.get_double_pulse_amps">get_double_pulse_amps() (in module core.initial_guess_doublepulse)</a>
 </li>
       <li><a href="core.html#core.initial_guess_doublepulse.get_double_pulse_initial_guess">get_double_pulse_initial_guess() (in module core.initial_guess_doublepulse)</a>
 </li>
-      <li><a href="core.html#core.spectral_filter_funcs.get_filter">get_filter() (in module core.spectral_filter_funcs)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.get_DTME">get_DTME() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+
+      <ul>
+        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceSTREAKING.get_DTME">(simulate_trace.make_trace.MakeTraceSTREAKING method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_final_result_population">get_final_result_population() (core.base_classes_methods.RetrievePulses method)</a>
+      </ul></li>
+      <li><a href="core.html#core.spectral_filter_funcs.get_filter">get_filter() (in module core.spectral_filter_funcs)</a>
 </li>
       <li><a href="core.html#core.initial_guess_doublepulse.get_flat_spectral_phase">get_flat_spectral_phase() (in module core.initial_guess_doublepulse)</a>
 </li>
@@ -1385,52 +1455,32 @@
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_gate_pulse">get_gate_pulse() (core.base_classes_methods.RetrievePulses method)</a>
 
       <ul>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.get_gate_pulse">(real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields method)</a>
+        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceBASE.get_gate_pulse">(simulate_trace.make_trace.MakeTraceBASE method)</a>
 </li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.get_gate_pulse">(real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.get_gate_pulse">(real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields method)</a>
-</li>
-        <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.get_gate_pulse">(real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace2DSI.get_gate_pulse">(simulate_trace.make_trace.MakeTrace2DSI method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace2DSIReal.get_gate_pulse">(simulate_trace.make_trace.MakeTrace2DSIReal method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceFROG.get_gate_pulse">(simulate_trace.make_trace.MakeTraceFROG method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceFROGReal.get_gate_pulse">(simulate_trace.make_trace.MakeTraceFROGReal method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDP.get_gate_pulse">(simulate_trace.make_trace.MakeTraceTDP method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDPReal.get_gate_pulse">(simulate_trace.make_trace.MakeTraceTDPReal method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceVAMPIRE.get_gate_pulse">(simulate_trace.make_trace.MakeTraceVAMPIRE method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceVAMPIREReal.get_gate_pulse">(simulate_trace.make_trace.MakeTraceVAMPIREReal method)</a>
+        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceSTREAKING.get_gate_pulse">(simulate_trace.make_trace.MakeTraceSTREAKING method)</a>
 </li>
       </ul></li>
       <li><a href="utilities.html#utilities.get_idx_arr">get_idx_arr() (in module utilities)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_idx_best_individual">get_idx_best_individual() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_idx_best_individual">(core.base_classes_methods.RetrievePulses method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_idx_average_individual">get_idx_average_individual() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
-      </ul></li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_idx_best_individual">get_idx_best_individual() (core.base_classes_methods.RetrievePulses method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_idx_worst_individual">get_idx_worst_individual() (core.base_classes_methods.RetrievePulses method)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_individual_from_idx">get_individual_from_idx() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
       <li><a href="core.html#core.create_population.get_initial_amp">get_initial_amp() (in module core.create_population)</a>
 </li>
       <li><a href="core.html#core.bsplines_1d.get_M">get_M() (in module core.bsplines_1d)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.bsplines_1d.get_m_ij">get_m_ij() (in module core.bsplines_1d)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.get_multi_pulse">get_multi_pulse() (simulate_trace.make_pulse.MakePulse method)</a>
 </li>
       <li><a href="core.html#core.nonlinear_cg.get_nonlinear_CG_direction">get_nonlinear_CG_direction() (in module core.nonlinear_cg)</a>
-</li>
-      <li><a href="core.html#core.phase_matrix_funcs.get_parameters_material_scan">get_parameters_material_scan() (in module core.phase_matrix_funcs)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace2DSI.get_parameters_to_make_signal_t">get_parameters_to_make_signal_t() (simulate_trace.make_trace.MakeTrace2DSI method)</a>
 
@@ -1438,6 +1488,8 @@
         <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceCHIRPSCAN.get_parameters_to_make_signal_t">(simulate_trace.make_trace.MakeTraceCHIRPSCAN method)</a>
 </li>
         <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceFROG.get_parameters_to_make_signal_t">(simulate_trace.make_trace.MakeTraceFROG method)</a>
+</li>
+        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceSTREAKING.get_parameters_to_make_signal_t">(simulate_trace.make_trace.MakeTraceSTREAKING method)</a>
 </li>
         <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDP.get_parameters_to_make_signal_t">(simulate_trace.make_trace.MakeTraceTDP method)</a>
 </li>
@@ -1458,8 +1510,6 @@
         <li><a href="core.html#core.spectral_filter_funcs.get_phase_matrix">(in module core.spectral_filter_funcs)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.get_PIE_weights">get_PIE_weights() (core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
       <li><a href="core.html#core.bsplines_1d.get_prefactor">get_prefactor() (in module core.bsplines_1d)</a>
@@ -1478,109 +1528,27 @@
       </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_pulses_f_from_population">get_pulses_f_from_population() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.AutoDiff.get_pulses_from_population">get_pulses_from_population() (chirp_scan.general_algorithms_chirpscan.AutoDiff method)</a>
-
-      <ul>
-        <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.DifferentialEvolution.get_pulses_from_population">(chirp_scan.general_algorithms_chirpscan.DifferentialEvolution method)</a>
-</li>
-        <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.Evosax.get_pulses_from_population">(chirp_scan.general_algorithms_chirpscan.Evosax method)</a>
-</li>
-        <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF.get_pulses_from_population">(chirp_scan.general_algorithms_chirpscan.LSF method)</a>
-</li>
-        <li><a href="frog.html#frog.general_algorithms_frog.AutoDiff.get_pulses_from_population">(frog.general_algorithms_frog.AutoDiff method)</a>
-</li>
-        <li><a href="frog.html#frog.general_algorithms_frog.DifferentialEvolution.get_pulses_from_population">(frog.general_algorithms_frog.DifferentialEvolution method)</a>
-</li>
-        <li><a href="frog.html#frog.general_algorithms_frog.Evosax.get_pulses_from_population">(frog.general_algorithms_frog.Evosax method)</a>
-</li>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF.get_pulses_from_population">(frog.general_algorithms_frog.LSF method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.get_pulses_from_population">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution.get_pulses_from_population">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax.get_pulses_from_population">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.get_pulses_from_population">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.get_pulses_from_population">(real_fields.frog.general_algorithms_frog_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution.get_pulses_from_population">(real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution method)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax.get_pulses_from_population">(real_fields.frog.general_algorithms_frog_real_fields.Evosax method)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.get_pulses_from_population">(real_fields.frog.general_algorithms_frog_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.get_pulses_from_population">(real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution.get_pulses_from_population">(real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax.get_pulses_from_population">(real_fields.tdp.general_algorithms_tdp_real_fields.Evosax method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.get_pulses_from_population">(real_fields.tdp.general_algorithms_tdp_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.get_pulses_from_population">(real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution.get_pulses_from_population">(real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax.get_pulses_from_population">(real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.get_pulses_from_population">(real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.get_pulses_from_population">(real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution.get_pulses_from_population">(real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax.get_pulses_from_population">(real_fields.vampire.general_algorithms_vampire_real_fields.Evosax method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.get_pulses_from_population">(real_fields.vampire.general_algorithms_vampire_real_fields.LSF method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.AutoDiff.get_pulses_from_population">(tdp.general_algorithms_tdp.AutoDiff method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.DifferentialEvolution.get_pulses_from_population">(tdp.general_algorithms_tdp.DifferentialEvolution method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.Evosax.get_pulses_from_population">(tdp.general_algorithms_tdp.Evosax method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF.get_pulses_from_population">(tdp.general_algorithms_tdp.LSF method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.AutoDiff.get_pulses_from_population">(twodsi.general_algorithms_2dsi.AutoDiff method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.DifferentialEvolution.get_pulses_from_population">(twodsi.general_algorithms_2dsi.DifferentialEvolution method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.Evosax.get_pulses_from_population">(twodsi.general_algorithms_2dsi.Evosax method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF.get_pulses_from_population">(twodsi.general_algorithms_2dsi.LSF method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.AutoDiff.get_pulses_from_population">(vampire.general_algorithms_vampire.AutoDiff method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.DifferentialEvolution.get_pulses_from_population">(vampire.general_algorithms_vampire.DifferentialEvolution method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.Evosax.get_pulses_from_population">(vampire.general_algorithms_vampire.Evosax method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF.get_pulses_from_population">(vampire.general_algorithms_vampire.LSF method)</a>
-</li>
-      </ul></li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.get_pulses_t_from_population">get_pulses_t_from_population() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
-</li>
       <li><a href="core.html#core.lbfgs.get_quasi_newton_direction">get_quasi_newton_direction() (in module core.lbfgs)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.get_random_values">get_random_values() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.get_random_values">get_random_values() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.get_scalars">get_scalars() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.get_scalars">get_scalars() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.stepsize.get_scaling">get_scaling() (in module core.stepsize)</a>
 </li>
       <li><a href="utilities.html#utilities.get_score_values">get_score_values() (in module utilities)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.get_search_direction">get_search_direction() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.get_search_direction">get_search_direction() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.get_search_direction_individual">get_search_direction_individual() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.get_search_direction_individual">get_search_direction_individual() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="utilities.html#utilities.get_sk_rn">get_sk_rn() (in module utilities)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.get_spectral_amplitude">get_spectral_amplitude() (core.base_classes_methods.RetrievePulses method)</a>
 
       <ul>
+        <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.get_spectral_amplitude">(core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
         <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.get_spectral_amplitude">(core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
         <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.get_spectral_amplitude">(simulate_trace.make_pulse.MakePulse method)</a>
@@ -1599,6 +1567,16 @@
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.COPRA.get_Z_gradient_individual">(frog.classic_algorithms_frog.COPRA method)</a>
 </li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.get_Z_gradient_individual">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA.get_Z_gradient_individual">(real_fields.frog.classical_algorithms_frog_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA.get_Z_gradient_individual">(real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA.get_Z_gradient_individual">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA.get_Z_gradient_individual">(real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA method)</a>
+</li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.COPRA.get_Z_gradient_individual">(tdp.classic_algorithms_tdp.COPRA method)</a>
 </li>
         <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.COPRA.get_Z_gradient_individual">(twodsi.classic_algorithms_2dsi.COPRA method)</a>
@@ -1610,6 +1588,16 @@
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.COPRA.get_Z_newton_direction">(frog.classic_algorithms_frog.COPRA method)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.get_Z_newton_direction">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA.get_Z_newton_direction">(real_fields.frog.classical_algorithms_frog_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA.get_Z_newton_direction">(real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA.get_Z_newton_direction">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA.get_Z_newton_direction">(real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA method)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.COPRA.get_Z_newton_direction">(tdp.classic_algorithms_tdp.COPRA method)</a>
 </li>
@@ -1640,13 +1628,13 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idx_arr">idx_arr (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idtheta">idtheta (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
 
       <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.idx_arr">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
+        <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.idtheta">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
 </li>
       </ul></li>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.ifft">ifft (core.base_classes_algorithms.AlgorithmsBASE attribute)</a>
+      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.ifft">ifft() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.impose_constraints">impose_constraints() (core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
@@ -1666,6 +1654,8 @@
 </li>
       <li><a href="core.html#core.base_classic_algorithms.initialize_linesearch_info">initialize_linesearch_info() (in module core.base_classic_algorithms)</a>
 </li>
+      <li><a href="utilities.html#utilities.initialize_mu">initialize_mu() (in module utilities)</a>
+</li>
       <li><a href="core.html#core.base_classic_algorithms.initialize_newton_info">initialize_newton_info() (in module core.base_classic_algorithms)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.initialize_optimistix">initialize_optimistix() (core.base_general_optimization.AutoDiffBASE method)</a>
@@ -1683,6 +1673,8 @@
 </li>
         <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.initialize_run">(core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
 </li>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.initialize_run">(core.base_classic_algorithms.LSFBASE method)</a>
+</li>
         <li><a href="core.html#core.base_classic_algorithms.LSGPABASE.initialize_run">(core.base_classic_algorithms.LSGPABASE method)</a>
 </li>
         <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.initialize_run">(core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
@@ -1692,8 +1684,6 @@
         <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.initialize_run">(core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
         <li><a href="core.html#core.base_general_optimization.EvosaxBASE.initialize_run">(core.base_general_optimization.EvosaxBASE method)</a>
-</li>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.initialize_run">(core.base_general_optimization.LSFBASE method)</a>
 </li>
         <li><a href="frog.html#frog.classic_algorithms_frog.Vanilla.initialize_run">(frog.classic_algorithms_frog.Vanilla method)</a>
 </li>
@@ -1722,29 +1712,15 @@
 </li>
       <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.DirectReconstruction.interpolate_group_delay_onto_spectral_amplitude">interpolate_group_delay_onto_spectral_amplitude() (twodsi.classic_algorithms_2dsi.DirectReconstruction method)</a>
 </li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.interpolate_signal">interpolate_signal() (real_fields.base_classes_methods.RetrievePulsesRealFields method)</a>
-</li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.interpolate_spectrum">interpolate_spectrum() (in module simulate_trace.make_trace)</a>
 </li>
-      <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace2DSI.interpolate_trace">interpolate_trace() (simulate_trace.make_trace.MakeTrace2DSI method)</a>
+      <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceBASE.interpolate_trace">interpolate_trace() (simulate_trace.make_trace.MakeTraceBASE method)</a>
 
       <ul>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceBASE.interpolate_trace">(simulate_trace.make_trace.MakeTraceBASE method)</a>
-</li>
         <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceCHIRPSCAN.interpolate_trace">(simulate_trace.make_trace.MakeTraceCHIRPSCAN method)</a>
 </li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDP.interpolate_trace">(simulate_trace.make_trace.MakeTraceTDP method)</a>
-</li>
-        <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceVAMPIRE.interpolate_trace">(simulate_trace.make_trace.MakeTraceVAMPIRE method)</a>
-</li>
       </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="J">J</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.jit">jit (core.base_classes_algorithms.AlgorithmsBASE attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.Ip_au">Ip_au (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1798,41 +1774,47 @@
 </li>
       <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function">loss_function() (core.base_general_optimization.AutoDiffBASE method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function_amp">loss_function_amp() (core.base_general_optimization.AutoDiffBASE method)</a>
 </li>
-      <li><a href="utilities.html#utilities.loss_function_modifications">loss_function_modifications() (in module utilities)</a>
+      <li><a href="core.html#core.base_general_optimization.loss_function_for_general">loss_function_for_general() (in module core.base_general_optimization)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.loss_function_phase">loss_function_phase() (core.base_general_optimization.AutoDiffBASE method)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF">LSF (class in chirp_scan.general_algorithms_chirpscan)</a>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF">LSF (class in chirp_scan.classic_algorithms_chirpscan)</a>
 
       <ul>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF">(class in frog.general_algorithms_frog)</a>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF">(class in frog.classic_algorithms_frog)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF">(class in real_fields.chirp_scan.general_algorithms_chirpscan_real_fields)</a>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF">(class in real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields)</a>
 </li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF">(class in real_fields.frog.general_algorithms_frog_real_fields)</a>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF">(class in real_fields.frog.classical_algorithms_frog_real_fields)</a>
 </li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF">(class in real_fields.tdp.general_algorithms_tdp_real_fields)</a>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF">(class in real_fields.tdp.classical_algorithms_tdp_real_fields)</a>
 </li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF">(class in real_fields.twodsi.general_algorithms_2dsi_real_fields)</a>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF">(class in real_fields.twodsi.classical_algorithms_2dsi_real_fields)</a>
 </li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF">(class in real_fields.vampire.general_algorithms_vampire_real_fields)</a>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF">(class in real_fields.vampire.classical_algorithms_vampire_real_fields)</a>
 </li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF">(class in tdp.general_algorithms_tdp)</a>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF">(class in tdp.classic_algorithms_tdp)</a>
 </li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF">(class in twodsi.general_algorithms_2dsi)</a>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF">(class in twodsi.classic_algorithms_2dsi)</a>
 </li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF">(class in vampire.general_algorithms_vampire)</a>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF">(class in vampire.classic_algorithms_vampire)</a>
 </li>
       </ul></li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE">LSFBASE (class in core.base_general_optimization)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE">LSFBASE (class in core.base_classic_algorithms)</a>
 </li>
       <li><a href="frog.html#frog.classic_algorithms_frog.LSGPA">LSGPA (class in frog.classic_algorithms_frog)</a>
 
       <ul>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA">(class in real_fields.frog.classical_algorithms_frog_real_fields)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA">(class in real_fields.tdp.classical_algorithms_tdp_real_fields)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA">(class in real_fields.vampire.classical_algorithms_vampire_real_fields)</a>
+</li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSGPA">(class in tdp.classic_algorithms_tdp)</a>
 </li>
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSGPA">(class in vampire.classic_algorithms_vampire)</a>
@@ -1850,39 +1832,23 @@
 </li>
       <li><a href="core.html#core.bsplines_1d.make_bsplines">make_bsplines() (in module core.bsplines_1d)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_dressed_DTME">make_dressed_DTME() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.make_exp_mask_tree">make_exp_mask_tree() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.make_key_tree">make_key_tree() (in module core.base_general_optimization)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.make_population_bisection_search">make_population_bisection_search() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.make_population_bisection_search">make_population_bisection_search() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.initial_guess_doublepulse.make_population_doublepulse">make_population_doublepulse() (in module core.initial_guess_doublepulse)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.make_pulse_f_from_individual">make_pulse_f_from_individual() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.AutoDiff.make_pulse_from_individual">make_pulse_from_individual() (chirp_scan.general_algorithms_chirpscan.AutoDiff method)</a>
-
-      <ul>
-        <li><a href="frog.html#frog.general_algorithms_frog.AutoDiff.make_pulse_from_individual">(frog.general_algorithms_frog.AutoDiff method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_streaking_amplitude">make_streaking_amplitude() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.make_pulse_from_individual">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_volkov_phase_0">make_volkov_phase_0() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.make_pulse_from_individual">(real_fields.frog.general_algorithms_frog_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.make_pulse_from_individual">(real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.make_pulse_from_individual">(real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.make_pulse_from_individual">(real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff method)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.AutoDiff.make_pulse_from_individual">(tdp.general_algorithms_tdp.AutoDiff method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.AutoDiff.make_pulse_from_individual">(twodsi.general_algorithms_2dsi.AutoDiff method)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.AutoDiff.make_pulse_from_individual">(vampire.general_algorithms_vampire.AutoDiff method)</a>
-</li>
-      </ul></li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.make_pulse_t_from_individual">make_pulse_t_from_individual() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_volkov_phase_1">make_volkov_phase_1() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse">MakePulse (class in simulate_trace.make_pulse)</a>
 </li>
@@ -1904,6 +1870,8 @@
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceFROGReal">MakeTraceFROGReal (class in simulate_trace.make_trace)</a>
 </li>
+      <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceSTREAKING">MakeTraceSTREAKING (class in simulate_trace.make_trace)</a>
+</li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDP">MakeTraceTDP (class in simulate_trace.make_trace)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceTDPReal">MakeTraceTDPReal (class in simulate_trace.make_trace)</a>
@@ -1921,8 +1889,6 @@
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.measurement_info">measurement_info (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.merge_population_from_amp_and_phase">merge_population_from_amp_and_phase() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
-</li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.merge_real_imag_population">merge_real_imag_population() (in module core.gradients.gradients_via_AD)</a>
 </li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.MIIPS">MIIPS (class in chirp_scan.classic_algorithms_chirpscan)</a>
 </li>
@@ -1961,8 +1927,6 @@
         <li><a href="core.gradients.html#module-core.gradients.chirpscan_z_error_gradients">core.gradients.chirpscan_z_error_gradients</a>
 </li>
         <li><a href="core.gradients.html#module-core.gradients.frog_z_error_gradients">core.gradients.frog_z_error_gradients</a>
-</li>
-        <li><a href="core.gradients.html#module-core.gradients.gradients_via_AD">core.gradients.gradients_via_AD</a>
 </li>
         <li><a href="core.gradients.html#module-core.gradients.tdp_z_error_gradients">core.gradients.tdp_z_error_gradients</a>
 </li>
@@ -2003,8 +1967,6 @@
         <li><a href="frog.html#module-frog.general_algorithms_frog">frog.general_algorithms_frog</a>
 </li>
         <li><a href="real_fields.html#module-real_fields">real_fields</a>
-</li>
-        <li><a href="real_fields.html#module-real_fields.base_classes_methods">real_fields.base_classes_methods</a>
 </li>
         <li><a href="real_fields.chirp_scan.html#module-real_fields.chirp_scan">real_fields.chirp_scan</a>
 </li>
@@ -2067,6 +2029,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum">momentum() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.momentum_au">momentum_au (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
+</li>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.momentum_is_being_used">momentum_is_being_used (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
 
       <ul>
@@ -2111,6 +2075,30 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.N">N (simulate_trace.make_pulse.MakePulse attribute)</a>
 </li>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.no_sections">no_sections (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.no_sections">(core.base_classic_algorithms.LSFBASE attribute)</a>
+</li>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF.no_sections">(frog.classic_algorithms_frog.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.no_sections">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.no_sections">(real_fields.frog.classical_algorithms_frog_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.no_sections">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.no_sections">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.no_sections">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF.no_sections">(tdp.classic_algorithms_tdp.LSF attribute)</a>
+</li>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF.no_sections">(twodsi.classic_algorithms_2dsi.LSF attribute)</a>
+</li>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF.no_sections">(vampire.classic_algorithms_vampire.LSF attribute)</a>
+</li>
+      </ul></li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection.no_steps_descent">no_steps_descent (chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection attribute)</a>
 
       <ul>
@@ -2139,28 +2127,30 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.nonlinear_method">nonlinear_method (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF.number_of_bisection_iterations">number_of_bisection_iterations (chirp_scan.general_algorithms_chirpscan.LSF attribute)</a>
+      <li><a href="core.html#core.base_classic_algorithms.normalize_population">normalize_population() (in module core.base_classic_algorithms)</a>
+</li>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.number_of_disection_iterations">number_of_disection_iterations (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
 
       <ul>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.number_of_bisection_iterations">(core.base_general_optimization.LSFBASE attribute)</a>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.number_of_disection_iterations">(core.base_classic_algorithms.LSFBASE attribute)</a>
 </li>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF.number_of_bisection_iterations">(frog.general_algorithms_frog.LSF attribute)</a>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF.number_of_disection_iterations">(frog.classic_algorithms_frog.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.number_of_bisection_iterations">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.number_of_disection_iterations">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.number_of_bisection_iterations">(real_fields.frog.general_algorithms_frog_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.number_of_disection_iterations">(real_fields.frog.classical_algorithms_frog_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.number_of_bisection_iterations">(real_fields.tdp.general_algorithms_tdp_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.number_of_disection_iterations">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.number_of_bisection_iterations">(real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.number_of_disection_iterations">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.number_of_bisection_iterations">(real_fields.vampire.general_algorithms_vampire_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.number_of_disection_iterations">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF.number_of_bisection_iterations">(tdp.general_algorithms_tdp.LSF attribute)</a>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF.number_of_disection_iterations">(tdp.classic_algorithms_tdp.LSF attribute)</a>
 </li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF.number_of_bisection_iterations">(twodsi.general_algorithms_2dsi.LSF attribute)</a>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF.number_of_disection_iterations">(twodsi.classic_algorithms_2dsi.LSF attribute)</a>
 </li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF.number_of_bisection_iterations">(vampire.general_algorithms_vampire.LSF attribute)</a>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF.number_of_disection_iterations">(vampire.classic_algorithms_vampire.LSF attribute)</a>
 </li>
       </ul></li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.RandomPhase.number_of_points">number_of_points (simulate_trace.make_pulse.RandomPhase attribute)</a>
@@ -2171,8 +2161,58 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.only_allow_improvements">only_allow_improvements (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.only_allow_improvements">(core.base_classic_algorithms.LSFBASE attribute)</a>
+</li>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF.only_allow_improvements">(frog.classic_algorithms_frog.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.only_allow_improvements">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.only_allow_improvements">(real_fields.frog.classical_algorithms_frog_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.only_allow_improvements">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.only_allow_improvements">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.only_allow_improvements">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSF attribute)</a>
+</li>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF.only_allow_improvements">(tdp.classic_algorithms_tdp.LSF attribute)</a>
+</li>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF.only_allow_improvements">(twodsi.classic_algorithms_2dsi.LSF attribute)</a>
+</li>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF.only_allow_improvements">(vampire.classic_algorithms_vampire.LSF attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utilities.html#utilities.optimistix_helper_loss_function">optimistix_helper_loss_function() (in module utilities)</a>
 </li>
+      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.AutoDiff.optimize_group_delay">optimize_group_delay (chirp_scan.general_algorithms_chirpscan.AutoDiff attribute)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.optimize_group_delay">(core.base_general_optimization.AutoDiffBASE attribute)</a>
+</li>
+        <li><a href="frog.html#frog.general_algorithms_frog.AutoDiff.optimize_group_delay">(frog.general_algorithms_frog.AutoDiff attribute)</a>
+</li>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.optimize_group_delay">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.optimize_group_delay">(real_fields.frog.general_algorithms_frog_real_fields.AutoDiff attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.optimize_group_delay">(real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff attribute)</a>
+</li>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.optimize_group_delay">(real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.optimize_group_delay">(real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff attribute)</a>
+</li>
+        <li><a href="tdp.html#tdp.general_algorithms_tdp.AutoDiff.optimize_group_delay">(tdp.general_algorithms_tdp.AutoDiff attribute)</a>
+</li>
+        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.AutoDiff.optimize_group_delay">(twodsi.general_algorithms_2dsi.AutoDiff attribute)</a>
+</li>
+        <li><a href="vampire.html#vampire.general_algorithms_vampire.AutoDiff.optimize_group_delay">(vampire.general_algorithms_vampire.AutoDiff attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -2209,11 +2249,11 @@
       </ul></li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.SinusoidalPhase.phase_shift">phase_shift (simulate_trace.make_pulse.SinusoidalPhase attribute)</a>
 </li>
+      <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_diagonal_pseudo_hessian_all_m">PIE_get_diagonal_pseudo_hessian_all_m() (in module core.hessians.pie_pseudo_hessian)</a>
+</li>
+      <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_full_pseudo_hessian_all_m">PIE_get_full_pseudo_hessian_all_m() (in module core.hessians.pie_pseudo_hessian)</a>
+</li>
       <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_all_m">PIE_get_pseudo_hessian_all_m() (in module core.hessians.pie_pseudo_hessian)</a>
-</li>
-      <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_element">PIE_get_pseudo_hessian_element() (in module core.hessians.pie_pseudo_hessian)</a>
-</li>
-      <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_hessian_one_m">PIE_get_pseudo_hessian_one_m() (in module core.hessians.pie_pseudo_hessian)</a>
 </li>
       <li><a href="core.hessians.html#core.hessians.pie_pseudo_hessian.PIE_get_pseudo_newton_direction">PIE_get_pseudo_newton_direction() (in module core.hessians.pie_pseudo_hessian)</a>
 </li>
@@ -2241,10 +2281,10 @@
         <li><a href="vampire.html#vampire.classic_algorithms_vampire.PtychographicIterativeEngine.pie_method">(vampire.classic_algorithms_vampire.PtychographicIterativeEngine attribute)</a>
 </li>
       </ul></li>
-      <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.plot_envelopes">plot_envelopes() (simulate_trace.make_pulse.MakePulse method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.plot_envelopes">plot_envelopes() (simulate_trace.make_pulse.MakePulse method)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.plot_results">plot_results() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTraceBASE.plot_trace">plot_trace() (simulate_trace.make_trace.MakeTraceBASE method)</a>
@@ -2257,26 +2297,22 @@
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.PolynomialPhase">PolynomialPhase (class in simulate_trace.make_pulse)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.position_au">position_au (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.post_process">post_process() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.post_process_center_pulse_and_gate">post_process_center_pulse_and_gate() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulses.post_process_create_trace">post_process_create_trace() (core.base_classes_methods.RetrievePulses method)</a>
+      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.post_process_create_trace">post_process_create_trace() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
 
       <ul>
+        <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.post_process_create_trace">(core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
+</li>
         <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.post_process_create_trace">(core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
       </ul></li>
-      <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.post_process_get_pulse_and_gate">post_process_get_pulse_and_gate() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.post_process_get_pulse_and_gate">(core.base_classes_methods.RetrievePulsesCHIRPSCAN method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.post_process_get_pulse_and_gate">post_process_get_pulse_and_gate() (core.base_classes_methods.RetrievePulses method)</a>
 </li>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.post_process_get_pulse_and_gate">(core.base_classes_methods.RetrievePulsesFROG method)</a>
-</li>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.post_process_get_pulse_and_gate">(core.base_general_optimization.LSFBASE method)</a>
-</li>
-      </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.prng_seed">prng_seed (core.base_classes_methods.RetrievePulses attribute)</a>
 </li>
       <li><a href="utilities.html#utilities.project_onto_amplitude">project_onto_amplitude() (in module utilities)</a>
@@ -2323,40 +2359,12 @@
 </li>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_no_iterations">r_no_iterations (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
 </li>
-      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_step_scaling">r_step_scaling (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
-</li>
-      <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.r_weights">r_weights (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
-</li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.rand1">rand1() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.rand2">rand2() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
       <li><a href="core.html#core.create_population.random">random() (in module core.create_population)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF.random_direction_mode">random_direction_mode (chirp_scan.general_algorithms_chirpscan.LSF attribute)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.random_direction_mode">(core.base_general_optimization.LSFBASE attribute)</a>
-</li>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF.random_direction_mode">(frog.general_algorithms_frog.LSF attribute)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.random_direction_mode">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF attribute)</a>
-</li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.random_direction_mode">(real_fields.frog.general_algorithms_frog_real_fields.LSF attribute)</a>
-</li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.random_direction_mode">(real_fields.tdp.general_algorithms_tdp_real_fields.LSF attribute)</a>
-</li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.random_direction_mode">(real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF attribute)</a>
-</li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.random_direction_mode">(real_fields.vampire.general_algorithms_vampire_real_fields.LSF attribute)</a>
-</li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF.random_direction_mode">(tdp.general_algorithms_tdp.LSF attribute)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF.random_direction_mode">(twodsi.general_algorithms_2dsi.LSF attribute)</a>
-</li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF.random_direction_mode">(vampire.general_algorithms_vampire.LSF attribute)</a>
-</li>
-      </ul></li>
       <li><a href="core.html#core.create_population.random_phase">random_phase() (in module core.create_population)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.RandomPhase">RandomPhase (class in simulate_trace.make_pulse)</a>
@@ -2365,28 +2373,28 @@
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.randtobest2">randtobest2() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
-      <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.LSF.ratio_points_for_continuous">ratio_points_for_continuous (chirp_scan.general_algorithms_chirpscan.LSF attribute)</a>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.ratio_points_for_continuous">ratio_points_for_continuous (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
 
       <ul>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.ratio_points_for_continuous">(core.base_general_optimization.LSFBASE attribute)</a>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.ratio_points_for_continuous">(core.base_classic_algorithms.LSFBASE attribute)</a>
 </li>
-        <li><a href="frog.html#frog.general_algorithms_frog.LSF.ratio_points_for_continuous">(frog.general_algorithms_frog.LSF attribute)</a>
+        <li><a href="frog.html#frog.classic_algorithms_frog.LSF.ratio_points_for_continuous">(frog.classic_algorithms_frog.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.ratio_points_for_continuous">(real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.ratio_points_for_continuous">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.ratio_points_for_continuous">(real_fields.frog.general_algorithms_frog_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.ratio_points_for_continuous">(real_fields.frog.classical_algorithms_frog_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.ratio_points_for_continuous">(real_fields.tdp.general_algorithms_tdp_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.ratio_points_for_continuous">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.ratio_points_for_continuous">(real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.ratio_points_for_continuous">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.ratio_points_for_continuous">(real_fields.vampire.general_algorithms_vampire_real_fields.LSF attribute)</a>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.ratio_points_for_continuous">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSF attribute)</a>
 </li>
-        <li><a href="tdp.html#tdp.general_algorithms_tdp.LSF.ratio_points_for_continuous">(tdp.general_algorithms_tdp.LSF attribute)</a>
+        <li><a href="tdp.html#tdp.classic_algorithms_tdp.LSF.ratio_points_for_continuous">(tdp.classic_algorithms_tdp.LSF attribute)</a>
 </li>
-        <li><a href="twodsi.html#twodsi.general_algorithms_2dsi.LSF.ratio_points_for_continuous">(twodsi.general_algorithms_2dsi.LSF attribute)</a>
+        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.LSF.ratio_points_for_continuous">(twodsi.classic_algorithms_2dsi.LSF attribute)</a>
 </li>
-        <li><a href="vampire.html#vampire.general_algorithms_vampire.LSF.ratio_points_for_continuous">(vampire.general_algorithms_vampire.LSF attribute)</a>
+        <li><a href="vampire.html#vampire.classic_algorithms_vampire.LSF.ratio_points_for_continuous">(vampire.classic_algorithms_vampire.LSF attribute)</a>
 </li>
       </ul></li>
       <li>
@@ -2394,13 +2402,6 @@
 
       <ul>
         <li><a href="real_fields.html#module-real_fields">module</a>
-</li>
-      </ul></li>
-      <li>
-    real_fields.base_classes_methods
-
-      <ul>
-        <li><a href="real_fields.html#module-real_fields.base_classes_methods">module</a>
 </li>
       </ul></li>
       <li>
@@ -2431,8 +2432,6 @@
         <li><a href="real_fields.frog.html#module-real_fields.frog">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     real_fields.frog.classical_algorithms_frog_real_fields
 
@@ -2454,6 +2453,8 @@
         <li><a href="real_fields.tdp.html#module-real_fields.tdp">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     real_fields.tdp.classical_algorithms_tdp_real_fields
 
@@ -2522,36 +2523,26 @@
       </ul></li>
       <li><a href="utilities.html#utilities.remove_phase_jumps">remove_phase_jumps() (in module utilities)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.retrieve_dtme">retrieve_dtme (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses">RetrievePulses (class in core.base_classes_methods)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI">RetrievePulses2DSI (class in core.base_classes_methods)</a>
 </li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields">RetrievePulses2DSIwithRealFields (class in real_fields.base_classes_methods)</a>
-</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN">RetrievePulsesCHIRPSCAN (class in core.base_classes_methods)</a>
-</li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields">RetrievePulsesCHIRPSCANwithRealFields (class in real_fields.base_classes_methods)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG">RetrievePulsesFROG (class in core.base_classes_methods)</a>
 </li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields">RetrievePulsesFROGwithRealFields (class in real_fields.base_classes_methods)</a>
-</li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields">RetrievePulsesRealFields (class in real_fields.base_classes_methods)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING">RetrievePulsesSTREAKING (class in core.base_classes_methods)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesTDP">RetrievePulsesTDP (class in core.base_classes_methods)</a>
 </li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields">RetrievePulsesTDPwithRealFields (class in real_fields.base_classes_methods)</a>
-</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesVAMPIRE">RetrievePulsesVAMPIRE (class in core.base_classes_methods)</a>
-</li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields">RetrievePulsesVAMPIREwithRealFields (class in real_fields.base_classes_methods)</a>
 </li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine.reverse_transform_grad">reverse_transform_grad() (chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine method)</a>
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.reverse_transform_grad">(frog.classic_algorithms_frog.PtychographicIterativeEngine method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.reverse_transform_grad">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine method)</a>
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.rn">rn (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
@@ -2560,7 +2551,7 @@
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.rn">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
 </li>
       </ul></li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.rn_big">rn_big (real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.rn_position_momentum">rn_position_momentum (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.run">run() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 
@@ -2582,7 +2573,11 @@
 </li>
       <li><a href="utilities.html#utilities.scan_helper_equinox">scan_helper_equinox() (in module utilities)</a>
 </li>
-      <li><a href="core.html#core.base_general_optimization.LSFBASE.search_along_direction">search_along_direction() (core.base_general_optimization.LSFBASE method)</a>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.search_along_direction">search_along_direction() (core.base_classic_algorithms.LSFBASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.select_new_brackets_bisection">select_new_brackets_bisection() (core.base_classic_algorithms.LSFBASE method)</a>
+</li>
+      <li><a href="core.html#core.base_classic_algorithms.LSFBASE.select_new_brackets_N_section">select_new_brackets_N_section() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.select_population">select_population() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
@@ -2665,7 +2660,7 @@
         <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.sk">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
 </li>
       </ul></li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.sk_big">sk_big (real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.sk_position_momentum">sk_position_momentum (core.base_classes_methods.RetrievePulsesSTREAKING attribute)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.smooth_crossover">smooth_crossover() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
@@ -2785,8 +2780,6 @@
       </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.split_population_in_amp_and_phase">split_population_in_amp_and_phase() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
-      <li><a href="core.gradients.html#core.gradients.gradients_via_AD.split_population_real_imag">split_population_real_imag() (in module core.gradients.gradients_via_AD)</a>
-</li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.Basic.step">step() (chirp_scan.classic_algorithms_chirpscan.Basic method)</a>
 
       <ul>
@@ -2796,6 +2789,8 @@
 </li>
         <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.step">(core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
 </li>
+        <li><a href="core.html#core.base_classic_algorithms.LSFBASE.step">(core.base_classic_algorithms.LSFBASE method)</a>
+</li>
         <li><a href="core.html#core.base_classic_algorithms.LSGPABASE.step">(core.base_classic_algorithms.LSGPABASE method)</a>
 </li>
         <li><a href="core.html#core.base_general_optimization.AutoDiffBASE.step">(core.base_general_optimization.AutoDiffBASE method)</a>
@@ -2803,8 +2798,6 @@
         <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.step">(core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
         <li><a href="core.html#core.base_general_optimization.EvosaxBASE.step">(core.base_general_optimization.EvosaxBASE method)</a>
-</li>
-        <li><a href="core.html#core.base_general_optimization.LSFBASE.step">(core.base_general_optimization.LSFBASE method)</a>
 </li>
         <li><a href="frog.html#frog.classic_algorithms_frog.Vanilla.step">(frog.classic_algorithms_frog.Vanilla method)</a>
 </li>
@@ -2841,6 +2834,12 @@
 
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.CPCGPA.svd">(frog.classic_algorithms_frog.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.svd">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.svd">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA attribute)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.svd">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA attribute)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.CPCGPA.svd">(tdp.classic_algorithms_tdp.CPCGPA attribute)</a>
 </li>
@@ -2912,11 +2911,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.TemporalAmplitude">TemporalAmplitude (class in simulate_trace.make_pulse)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta">theta (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulses.theta">theta (core.base_classes_methods.RetrievePulses attribute)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.theta">(core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
 </li>
+      </ul></li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses.time">time (core.base_classes_methods.RetrievePulses attribute)</a>
-</li>
-      <li><a href="real_fields.html#real_fields.base_classes_methods.RetrievePulsesRealFields.time_big">time_big (real_fields.base_classes_methods.RetrievePulsesRealFields attribute)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.trace_error">trace_error() (core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
@@ -2960,45 +2961,29 @@
       <ul>
         <li><a href="frog.html#frog.classic_algorithms_frog.Vanilla.update_gate">(frog.classic_algorithms_frog.Vanilla method)</a>
 </li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA.update_gate">(real_fields.frog.classical_algorithms_frog_real_fields.LSGPA method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA.update_gate">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA.update_gate">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA method)</a>
+</li>
       </ul></li>
-      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.COPRA.update_individual">update_individual() (chirp_scan.classic_algorithms_chirpscan.COPRA method)</a>
+      <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.MIIPS.update_individual">update_individual() (chirp_scan.classic_algorithms_chirpscan.MIIPS method)</a>
 
       <ul>
-        <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection.update_individual">(chirp_scan.classic_algorithms_chirpscan.GeneralizedProjection method)</a>
-</li>
-        <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.MIIPS.update_individual">(chirp_scan.classic_algorithms_chirpscan.MIIPS method)</a>
-</li>
-        <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine.update_individual">(chirp_scan.classic_algorithms_chirpscan.PtychographicIterativeEngine method)</a>
+        <li><a href="core.html#core.base_classic_algorithms.COPRABASE.update_individual">(core.base_classic_algorithms.COPRABASE method)</a>
 </li>
         <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.update_individual">(core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
-        <li><a href="frog.html#frog.classic_algorithms_frog.COPRA.update_individual">(frog.classic_algorithms_frog.COPRA method)</a>
+        <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.update_individual">(core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
 </li>
-        <li><a href="frog.html#frog.classic_algorithms_frog.GeneralizedProjection.update_individual">(frog.classic_algorithms_frog.GeneralizedProjection method)</a>
+        <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.update_individual">(core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
-        <li><a href="frog.html#frog.classic_algorithms_frog.PtychographicIterativeEngine.update_individual">(frog.classic_algorithms_frog.PtychographicIterativeEngine method)</a>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.update_individual">(real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA method)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.update_individual">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA method)</a>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.update_individual">(real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA method)</a>
 </li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.update_individual">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection method)</a>
-</li>
-        <li><a href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.update_individual">(real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine method)</a>
-</li>
-        <li><a href="tdp.html#tdp.classic_algorithms_tdp.COPRA.update_individual">(tdp.classic_algorithms_tdp.COPRA method)</a>
-</li>
-        <li><a href="tdp.html#tdp.classic_algorithms_tdp.GeneralizedProjection.update_individual">(tdp.classic_algorithms_tdp.GeneralizedProjection method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.COPRA.update_individual">(twodsi.classic_algorithms_2dsi.COPRA method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.GeneralizedProjection.update_individual">(twodsi.classic_algorithms_2dsi.GeneralizedProjection method)</a>
-</li>
-        <li><a href="twodsi.html#twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine.update_individual">(twodsi.classic_algorithms_2dsi.PtychographicIterativeEngine method)</a>
-</li>
-        <li><a href="vampire.html#vampire.classic_algorithms_vampire.COPRA.update_individual">(vampire.classic_algorithms_vampire.COPRA method)</a>
-</li>
-        <li><a href="vampire.html#vampire.classic_algorithms_vampire.GeneralizedProjection.update_individual">(vampire.classic_algorithms_vampire.GeneralizedProjection method)</a>
-</li>
-        <li><a href="vampire.html#vampire.classic_algorithms_vampire.PtychographicIterativeEngine.update_individual">(vampire.classic_algorithms_vampire.PtychographicIterativeEngine method)</a>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.update_individual">(real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -3021,6 +3006,12 @@
         <li><a href="core.html#core.base_classic_algorithms.LSGPABASE.update_pulse">(core.base_classic_algorithms.LSGPABASE method)</a>
 </li>
         <li><a href="frog.html#frog.classic_algorithms_frog.Vanilla.update_pulse">(frog.classic_algorithms_frog.Vanilla method)</a>
+</li>
+        <li><a href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA.update_pulse">(real_fields.frog.classical_algorithms_frog_real_fields.LSGPA method)</a>
+</li>
+        <li><a href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA.update_pulse">(real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA method)</a>
+</li>
+        <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA.update_pulse">(real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA method)</a>
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.use_measured_spectrum">use_measured_spectrum() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
@@ -3080,10 +3071,6 @@
 
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulses.x_arr">x_arr (core.base_classes_methods.RetrievePulses attribute)</a>
-</li>
-  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.xi">xi (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
 </li>

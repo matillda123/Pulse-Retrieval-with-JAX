@@ -9,7 +9,7 @@
   <title>utilities &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -69,6 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -151,22 +153,15 @@ Can be used to build an arbitrary pytree.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="utilities.do_checks_before_running">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">do_checks_before_running</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm_instance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.do_checks_before_running" title="Link to this definition"></a></dt>
-<dd><p>Called by algorithm.run() performs a few checks and applies settings before running the algorithms.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="utilities.run_scan">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">run_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">do_scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_iterations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.run_scan" title="Link to this definition"></a></dt>
-<dd><p>Run a solver iteratively using lax.scan with or without jax.jit.</p>
+<dd><p>Run a solver iteratively using lax.scan with jax.jit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>do_scan</strong> (<em>Callable</em>) – the callable needs to take carry its argument</p></li>
 <li><p><strong>carry</strong> (<em>Pytree</em>) – the initial state of the iteration</p></li>
 <li><p><strong>no_iterations</strong> (<em>int</em>) – the number of iterations</p></li>
-<li><p><strong>use_jit</strong> (<em>bool</em>) – whether jax.jit is supposed to be used or not</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -322,7 +317,7 @@ time and frequency have to fullfill N=1/(df*dt).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.do_interpolation_1d">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">do_interpolation_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.do_interpolation_1d" title="Link to this definition"></a></dt>
-<dd><p>Wraps around interpax.interp1d</p>
+<dd><p>Wraps around interpax.interp1d and jnp.interp</p>
 </dd></dl>
 
 <dl class="py function">
@@ -357,20 +352,25 @@ This allows for the description of difference frequency generation.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="utilities.calculate_trace">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_trace" title="Link to this definition"></a></dt>
-<dd><p>Calculates intensity from a complex signal.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="utilities.initialize_mu">
+<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">initialize_mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.initialize_mu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.calculate_mu">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_mu" title="Link to this definition"></a></dt>
-<dd><p>Calculates scaling factor between measured intensity and intensity of current guess.</p>
+<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_mu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_or_global</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_mu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utilities.calculate_trace">
+<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_or_global</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_trace" title="Link to this definition"></a></dt>
+<dd><p>Calculates intensity from a complex signal. As well as the calibration factor/curve.
+Needs to be vmapped in order to apply to a population.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.calculate_trace_error">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_trace_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_trace_error" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">calculate_trace_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.calculate_trace_error" title="Link to this definition"></a></dt>
 <dd><p>Calculates the mean of the squared L2-Norm between the measured intensity and intensity of the current guess.
 With the current guess being scaled by mu.</p>
 </dd></dl>
@@ -384,7 +384,7 @@ With the current guess being scaled by mu.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.generate_random_continuous_function">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">generate_random_continuous_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.generate_random_continuous_function" title="Link to this definition"></a></dt>
-<dd><p>Generates a 1D-array with random but continuous values. Uses on cubic inter/extrapolation of random values.</p>
+<dd><p>Generates a 1D-array with random but continuous values. Uses a cubic inter/extrapolation of random values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -488,14 +488,6 @@ Is done in two stages since periodic boundaries distort the actual center of mas
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="utilities.loss_function_modifications">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">loss_function_modifications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_or_zarr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude_or_intensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fd_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.loss_function_modifications" title="Link to this definition"></a></dt>
-<dd><p>General optimization algorithms are not limited to a specific loss function. This function modifies the given trace and measured_trace
-such that residuals based on the amplitude instead of the intensity are optimized. Alternatively finite difference derivatives of the trace
-can be optimized instead.</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="utilities.remove_phase_jumps">
 <span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">remove_phase_jumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.remove_phase_jumps" title="Link to this definition"></a></dt>
 <dd><p>Checks for jumps of 2*pi in phase, subtracts accordingly to get a smooth phase.</p>
@@ -503,7 +495,7 @@ can be optimized instead.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utilities.get_score_values">
-<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">get_score_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.get_score_values" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">utilities.</span></span><span class="sig-name descname"><span class="pre">get_score_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_pulses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.get_score_values" title="Link to this definition"></a></dt>
 <dd><p>Computes different error-metrics for a reconstructed pulse given the exact pulse is known and provided.
 The error metrics are the maximum cross-correlation between reconstructed and exact pulse in the time and frequency domain.
 The cross-correlation in the frequency domain without any shifts. This evaluates the efficacy of the retrived central freqeuncy.

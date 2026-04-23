@@ -127,6 +127,14 @@
     "In order for the retrieval to work the interferometer delay has to be set using `tau_interferometer`, the material has to be provided via `refractive_index=refractiveindex.RefractiveIndexMaterial` and its thickness needs to be specified in millimeters with `material_thickness`.\n",
     "The available algorithms for VAMPIRE-retrieval are described in [Algorithms](example_overview_algorithms.ipynb) and [Method Specific Algorithms](example_method_specific_algorithms.ipynb).  "
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "942893bf",
+   "metadata": {},
+   "source": [
+    "## Attosecond Streaking  "
+   ]
   }
  ],
  "metadata": {

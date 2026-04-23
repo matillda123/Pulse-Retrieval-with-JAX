@@ -193,9 +193,13 @@ class MakePulse:
         f_max (float): the frequency range which is used. Extends from -f_max to +f_max (so it should actually be named f_max?)
 
     """
-    def __init__(self, N=256, f_max=None):
+    def __init__(self, N=256, f_max=None, df=None):
+        if df is not None:
+            N = int(2*f_max/df)
+
         self.N = N
         self.f_max = f_max
+        self.df = df
 
 
     def gaussian(self, x, amp, fwhm, shift, p):

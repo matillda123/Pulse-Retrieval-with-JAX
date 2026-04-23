@@ -9,7 +9,7 @@
   <title>Update nonlinear Signal &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -28,7 +28,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Literature" href="literature.html" />
+    <link rel="next" title="Definitions and Gradients for Attosecond-Streaking" href="eqs_streaking.html" />
     <link rel="prev" title="PIE - Gradient" href="eqs_pie_grad_hessian.html" /> 
 </head>
 
@@ -59,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -72,6 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -138,14 +140,14 @@
 <section id="intensity">
 <h3>Intensity<a class="headerlink" href="#intensity" title="Link to this heading"></a></h3>
 <p><span class="math notranslate nohighlight">\(r = \sum_n(T_{mn}^{\mathrm{exp}} - \mu T_{mn})^2\)</span></p>
-<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (T_{mn}^{\mathrm{exp}} - \mu T_{mn})\cdot S_{mn}\)</span></p>
-<p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj} (2\mu T_{mn} - T_{mn}^{\mathrm{exp}})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\sum_n D_{kn}(\frac{T_{mn}^{\mathrm{exp}}}{\mu} - T_{mn})\cdot S_{mn}\)</span></p>
+<p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj} (2T_{mn} - \frac{T_{mn}^{\mathrm{exp}}}{\mu})\)</span></p>
 <br>
 </section>
 <section id="magnitude">
 <h3>Magnitude<a class="headerlink" href="#magnitude" title="Link to this heading"></a></h3>
 <p><span class="math notranslate nohighlight">\(r=\sum_n(\sqrt{T_{mn}^{\mathrm{exp}}} - \mu |S_{mn}|)^2\)</span></p>
-<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\mu \sum_n D_{kn} (\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{|S_mn|} - S_{mn})\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{mk}r = \frac{dr}{dS_{mk}^*} = -2\sum_n D_{kn}(\sqrt{T_{mn}^{\mathrm{exp}}}\cdot\frac{S_{mn}}{\mu|S_{mn}|} - S_{mn})\)</span></p>
 <p><span class="math notranslate nohighlight">\(H_{zz} = \sum_n D_{kn}D_{nj}\)</span></p>
 </section>
 </section>
@@ -189,7 +191,7 @@ For (quasi)-Newton-like methods: <span class="math notranslate nohighlight">\(d=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="eqs_pie_grad_hessian.html" class="btn btn-neutral float-left" title="PIE - Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="literature.html" class="btn btn-neutral float-right" title="Literature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="eqs_streaking.html" class="btn btn-neutral float-right" title="Definitions and Gradients for Attosecond-Streaking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -9,7 +9,7 @@
   <title>Usage &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -70,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -136,7 +138,7 @@
 <span class="n">phase</span> <span class="o">=</span> <span class="n">PolynomialPhase</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
 
 <span class="n">mp</span> <span class="o">=</span> <span class="n">MakeTrace</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">time</span><span class="p">,</span> <span class="n">pulse_t</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">pulse_f</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">generate_pulse</span><span class="p">((</span><span class="n">amp</span><span class="p">,</span> <span class="n">phase</span><span class="p">))</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">pulse_t</span><span class="p">,</span> <span class="n">pulse_f</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">generate_pulse</span><span class="p">((</span><span class="n">amp</span><span class="p">,</span> <span class="n">phase</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -166,9 +168,9 @@
 <p>In addition measured spectra or a known gate pulse may optionally be provided.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">f_spectrum</span><span class="p">,</span> <span class="n">spectrum_pulse</span><span class="p">,</span> <span class="s2">&quot;pulse&quot;</span><span class="p">)</span>
-<span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">f_spectrum</span><span class="p">,</span> <span class="n">spectrum_gate_pulse</span><span class="p">,</span> <span class="s2">&quot;gate&quot;</span><span class="p">)</span>
-<span class="n">myalgorithm</span><span class="o">.</span><span class="n">get_gate_pulse</span><span class="p">(</span><span class="n">f_gate</span><span class="p">,</span> <span class="n">pulse_f_gate</span><span class="p">)</span> <span class="c1"># needs to be in frequency domain</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">frequency_spectrum</span><span class="p">,</span> <span class="n">spectrum_pulse</span><span class="p">,</span> <span class="s2">&quot;pulse&quot;</span><span class="p">)</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">use_measured_spectrum</span><span class="p">(</span><span class="n">frequency_spectrum</span><span class="p">,</span> <span class="n">spectrum_gate_pulse</span><span class="p">,</span> <span class="s2">&quot;gate&quot;</span><span class="p">)</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">get_gate_pulse</span><span class="p">(</span><span class="n">frequency_gate</span><span class="p">,</span> <span class="n">pulse_f_gate</span><span class="p">)</span> <span class="c1"># needs to be in frequency domain</span>
 </pre></div>
 </div>
 </div>

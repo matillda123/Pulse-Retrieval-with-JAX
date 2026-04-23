@@ -9,7 +9,7 @@
   <title>real_fields &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -57,19 +57,23 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -133,19 +137,28 @@
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html#module-real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields">real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.update_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.update_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.alpha</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.reverse_transform_grad"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.reverse_transform_grad()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.update_individual"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.update_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.update_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.update_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.no_sections"><code class="docutils literal notranslate"><span class="pre">LSF.no_sections</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.number_of_disection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_disection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.classical_algorithms_chirpscan_real_fields.LSF.only_allow_improvements"><code class="docutils literal notranslate"><span class="pre">LSF.only_allow_improvements</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -157,29 +170,18 @@
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_bisection_iterations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.random_direction_mode</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.chirp_scan.html#real_fields.chirp_scan.general_algorithms_chirpscan_real_fields.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -190,16 +192,46 @@
 <li class="toctree-l1"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html#module-real_fields.frog.classical_algorithms_frog_real_fields">real_fields.frog.classical_algorithms_frog_real_fields module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA"><code class="docutils literal notranslate"><span class="pre">LSGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA.update_pulse"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSGPA.update_gate"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA"><code class="docutils literal notranslate"><span class="pre">CPCGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.constraints"><code class="docutils literal notranslate"><span class="pre">CPCGPA.constraints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.svd"><code class="docutils literal notranslate"><span class="pre">CPCGPA.svd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.antialias"><code class="docutils literal notranslate"><span class="pre">CPCGPA.antialias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.calculate_gate"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.calculate_signal_t_using_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_signal_t_using_opf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.CPCGPA.update_individual"><code class="docutils literal notranslate"><span class="pre">CPCGPA.update_individual()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.alpha</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.no_sections"><code class="docutils literal notranslate"><span class="pre">LSF.no_sections</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.number_of_disection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_disection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.classical_algorithms_frog_real_fields.LSF.only_allow_improvements"><code class="docutils literal notranslate"><span class="pre">LSF.only_allow_improvements</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html#module-real_fields.frog.general_algorithms_frog_real_fields">real_fields.frog.general_algorithms_frog_real_fields module</a><ul>
@@ -209,29 +241,18 @@
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_bisection_iterations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.random_direction_mode</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.frog.html#real_fields.frog.general_algorithms_frog_real_fields.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -242,16 +263,46 @@
 <li class="toctree-l1"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html#module-real_fields.tdp.classical_algorithms_tdp_real_fields">real_fields.tdp.classical_algorithms_tdp_real_fields module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA"><code class="docutils literal notranslate"><span class="pre">LSGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA.update_pulse"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSGPA.update_gate"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA"><code class="docutils literal notranslate"><span class="pre">CPCGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.constraints"><code class="docutils literal notranslate"><span class="pre">CPCGPA.constraints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.svd"><code class="docutils literal notranslate"><span class="pre">CPCGPA.svd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.antialias"><code class="docutils literal notranslate"><span class="pre">CPCGPA.antialias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.calculate_gate"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.calculate_signal_t_using_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_signal_t_using_opf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.CPCGPA.update_individual"><code class="docutils literal notranslate"><span class="pre">CPCGPA.update_individual()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.alpha</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.no_sections"><code class="docutils literal notranslate"><span class="pre">LSF.no_sections</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.number_of_disection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_disection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.classical_algorithms_tdp_real_fields.LSF.only_allow_improvements"><code class="docutils literal notranslate"><span class="pre">LSF.only_allow_improvements</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html#module-real_fields.tdp.general_algorithms_tdp_real_fields">real_fields.tdp.general_algorithms_tdp_real_fields module</a><ul>
@@ -261,29 +312,18 @@
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_bisection_iterations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.random_direction_mode</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.tdp.html#real_fields.tdp.general_algorithms_tdp_real_fields.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -296,14 +336,30 @@
 <li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html#module-real_fields.twodsi.classical_algorithms_2dsi_real_fields">real_fields.twodsi.classical_algorithms_2dsi_real_fields module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.alpha</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.no_sections"><code class="docutils literal notranslate"><span class="pre">LSF.no_sections</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.number_of_disection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_disection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.LSF.only_allow_improvements"><code class="docutils literal notranslate"><span class="pre">LSF.only_allow_improvements</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html#module-real_fields.twodsi.general_algorithms_2dsi_real_fields">real_fields.twodsi.general_algorithms_2dsi_real_fields module</a><ul>
@@ -313,29 +369,18 @@
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_bisection_iterations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.random_direction_mode</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.twodsi.html#real_fields.twodsi.general_algorithms_2dsi_real_fields.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -346,16 +391,46 @@
 <li class="toctree-l1"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html#module-real_fields.vampire.classical_algorithms_vampire_real_fields">real_fields.vampire.classical_algorithms_vampire_real_fields module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA"><code class="docutils literal notranslate"><span class="pre">LSGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA.update_pulse"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSGPA.update_gate"><code class="docutils literal notranslate"><span class="pre">LSGPA.update_gate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA"><code class="docutils literal notranslate"><span class="pre">CPCGPA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.constraints"><code class="docutils literal notranslate"><span class="pre">CPCGPA.constraints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.svd"><code class="docutils literal notranslate"><span class="pre">CPCGPA.svd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.antialias"><code class="docutils literal notranslate"><span class="pre">CPCGPA.antialias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.calculate_gate"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.calculate_signal_t_using_opf"><code class="docutils literal notranslate"><span class="pre">CPCGPA.calculate_signal_t_using_opf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.CPCGPA.update_individual"><code class="docutils literal notranslate"><span class="pre">CPCGPA.update_individual()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.alpha</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.pie_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.calculate_PIE_descent_direction_m"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_descent_direction_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.calculate_PIE_newton_direction"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngine.calculate_PIE_newton_direction()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.no_sections"><code class="docutils literal notranslate"><span class="pre">LSF.no_sections</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.number_of_disection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_disection_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.direction_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.LSF.only_allow_improvements"><code class="docutils literal notranslate"><span class="pre">LSF.only_allow_improvements</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html#module-real_fields.vampire.general_algorithms_vampire_real_fields">real_fields.vampire.general_algorithms_vampire_real_fields module</a><ul>
@@ -365,29 +440,18 @@
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.DifferentialEvolution.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.get_pulses_from_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.Evosax.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">Evosax.get_pulses_from_population()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF"><code class="docutils literal notranslate"><span class="pre">LSF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.number_of_bisection_iterations"><code class="docutils literal notranslate"><span class="pre">LSF.number_of_bisection_iterations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.random_direction_mode"><code class="docutils literal notranslate"><span class="pre">LSF.random_direction_mode</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.ratio_points_for_continuous"><code class="docutils literal notranslate"><span class="pre">LSF.ratio_points_for_continuous</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">LSF.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.LSF.convert_population"><code class="docutils literal notranslate"><span class="pre">LSF.convert_population()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.get_pulses_from_population"><code class="docutils literal notranslate"><span class="pre">AutoDiff.get_pulses_from_population()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.make_pulse_from_individual"><code class="docutils literal notranslate"><span class="pre">AutoDiff.make_pulse_from_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="real_fields.vampire.html#real_fields.vampire.general_algorithms_vampire_real_fields.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -401,231 +465,8 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="module-real_fields.base_classes_methods">
-<span id="real-fields-base-classes-methods-module"></span><h2>real_fields.base_classes_methods module<a class="headerlink" href="#module-real_fields.base_classes_methods" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_range_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses</span></code></p>
-<p>A Base-Class for reconstruction via real fields. Real fields need to be considered if multiple nonlinear signals are present in the same trace.
-A complex signal does not inherently express difference frequency generation. Because complex signals do not possess negative frequencies.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.frequency">
-<span class="sig-name descname"><span class="pre">frequency</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency" title="Link to this definition"></a></dt>
-<dd><p>the frequencies correpsonding to pulse/gate-pulse</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>jnp.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_big">
-<span class="sig-name descname"><span class="pre">frequency_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.frequency_big" title="Link to this definition"></a></dt>
-<dd><p>a large frequency axis needed for the signal field due to negative frequencies</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>jnp.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.time_big">
-<span class="sig-name descname"><span class="pre">time_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.time_big" title="Link to this definition"></a></dt>
-<dd><p>the corresponding time axis to frequency_big</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>jnp.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.sk_big">
-<span class="sig-name descname"><span class="pre">sk_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.sk_big" title="Link to this definition"></a></dt>
-<dd><p>correction values for FFT-&gt;DFT</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>jnp.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.rn_big">
-<span class="sig-name descname"><span class="pre">rn_big</span></span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.rn_big" title="Link to this definition"></a></dt>
-<dd><p>correction values for FFT-&gt;DFT</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>jnp.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.get_data">
-<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency_exp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.get_data" title="Link to this definition"></a></dt>
-<dd><p>Prepare/Convert data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesRealFields.interpolate_signal">
-<span class="sig-name descname"><span class="pre">interpolate_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesRealFields.interpolate_signal" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesFROGwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="real_fields.base_classes_methods.RetrievePulsesRealFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesFROG</span></code></p>
-<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.get_gate_pulse">
-<span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
-<dd><p>For crosscorrelation=True the actual gate pulse has to be provided.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.calculate_signal_t">
-<span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesFROGwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Calculates the signal field of a FROG in the time domain. Does so by using real fields instead of complex ones.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
-<li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, … )</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pytree, contains the signal field in the time domain as well as the fields used to calculate it.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesTDPwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="real_fields.base_classes_methods.RetrievePulsesRealFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesTDP</span></code></p>
-<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.get_gate_pulse">
-<span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
-<dd><p>For crosscorrelation=True the actual gate pulse has to be provided.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.calculate_signal_t">
-<span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesTDPwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Calculates the signal field of a FROG in the time domain. Does so by using real fields instead of complex ones.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
-<li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, interferometric, … )</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pytree, contains the signal field in the time domain as well as the fields used to calculate it.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesCHIRPSCANwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="real_fields.base_classes_methods.RetrievePulsesRealFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesCHIRPSCAN</span></code></p>
-<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields.calculate_signal_t">
-<span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesCHIRPSCANwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Calculates the signal field of a Chirp-Scan in the time domain. Does so by using real fields instead of complex ones.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>phase_matrix</strong> – jnp.array, the applied phases</p></li>
-<li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pytree, contains the signal field in the time domain as well as the fields used to calculate it.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulses2DSIwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="real_fields.base_classes_methods.RetrievePulsesRealFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulses2DSI</span></code></p>
-<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.get_gate_pulse">
-<span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
-<dd><p>For crosscorrelation=True the actual gate pulse has to be provided.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.calculate_signal_t">
-<span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulses2DSIwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Calculates the signal field of 2DSI in the time domain. Does so by using real fields instead of complex ones.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
-<li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pytree, contains the signal field in the time domain as well as the fields used to calculate it.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">real_fields.base_classes_methods.</span></span><span class="sig-name descname"><span class="pre">RetrievePulsesVAMPIREwithRealFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#real_fields.base_classes_methods.RetrievePulsesRealFields" title="real_fields.base_classes_methods.RetrievePulsesRealFields"><code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesRealFields</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesVAMPIRE</span></code></p>
-<p>Overwrites the generation of the signal field in order to use real fields instead of complex ones.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.get_gate_pulse">
-<span class="sig-name descname"><span class="pre">get_gate_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gate_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.get_gate_pulse" title="Link to this definition"></a></dt>
-<dd><p>For crosscorrelation=True the actual gate pulse has to be provided.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.calculate_signal_t">
-<span class="sig-name descname"><span class="pre">calculate_signal_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.base_classes_methods.RetrievePulsesVAMPIREwithRealFields.calculate_signal_t" title="Link to this definition"></a></dt>
-<dd><p>Calculates the signal field in the time domain.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>individual</strong> – Pytree, a population containing only one member. (jax.vmap over whole population)</p></li>
-<li><p><strong>tau_arr</strong> – jnp.array, the delays</p></li>
-<li><p><strong>measurement_info</strong> – Pytree, contains the measurement parameters (e.g. nonlinear method, … )</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Pytree, contains the signal field in the time domain as well as the fields used to calculate it.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="real-fields-base-classes-methods-module">
+<h2>real_fields.base_classes_methods module<a class="headerlink" href="#real-fields-base-classes-methods-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-real_fields">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-real_fields" title="Link to this heading"></a></h2>

@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attosecond Streaking (Definitions and Gradients) &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Literature" href="literature.html" />
+    <link rel="prev" title="Adaptive Stepsize" href="eqs_polyak.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Attosecond Streaking (Definitions and Gradients)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="definitions_and_formulas.html">Definitions and Formulas</a></li>
+      <li class="breadcrumb-item active">Attosecond Streaking (Definitions and Gradients)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/eqs_streaking.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="attosecond-streaking-definitions-and-gradients">
+<h1>Attosecond Streaking (Definitions and Gradients)<a class="headerlink" href="#attosecond-streaking-definitions-and-gradients" title="Link to this heading"></a></h1>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Link to this heading"></a></h2>
+<section id="symbols-and-indices">
+<h3>Symbols and Indices<a class="headerlink" href="#symbols-and-indices" title="Link to this heading"></a></h3>
+<p>The SFA introduces a momentum axis <code class="docutils literal notranslate"><span class="pre">k</span></code>. In the numerical implementation a conjugate spatial axis <code class="docutils literal notranslate"><span class="pre">r</span></code> is also relevant.
+These two axis require new index convetions.</p>
+<p><span class="math notranslate nohighlight">\(\quad q\quad\rightarrow\quad\)</span> Spatial Domain<br />
+<span class="math notranslate nohighlight">\(\quad b\quad\rightarrow\quad\)</span> Momentum Domain</p>
+<p>Its a bit annoying that im already using <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(p\)</span> as indices. If its not an index <span class="math notranslate nohighlight">\(k\)</span> refers to the momentum.</p>
+<p>In addition the channel-dependent transition-dipole-matrix-element (DTME or <span class="math notranslate nohighlight">\(\rho^C\)</span>) and the channel dependent ionization potential <span class="math notranslate nohighlight">\(IP^C\)</span> are introduced.</p>
+</section>
+<section id="streaking-amplitude-within-strong-field-approximation">
+<h3>Streaking Amplitude (within Strong-Field-Approximation)<a class="headerlink" href="#streaking-amplitude-within-strong-field-approximation" title="Link to this heading"></a></h3>
+<p>For a single-channel the SFA is implemented as:</p>
+<p><span class="math notranslate nohighlight">\(S_{mb}^C = -i \cdot \sum\limits_k dt\cdot \rho_{bk}^C \cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}}\)</span></p>
+<p>The multi-channel SFA is simply a coherent sum over all channels, which translates to all gradients:</p>
+<p><span class="math notranslate nohighlight">\(S_{mb} = \sum\limits_C S_{mb}^C\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}}{dX} = \sum\limits_C \frac{d S_{mb}^C}{dX}\)</span></p>
+<br>
+<p><span class="math notranslate nohighlight">\(E_{mk}\quad\)</span> is the shifted attosecond pulse in the time domain. (Same naming as e.g. in FROG)</p>
+<p><span class="math notranslate nohighlight">\(A_j\quad\)</span> is the vectorpotential of the femtosecond pulse in the time domain</p>
+<br>
+<p>The vectorpotential-dependent part of the Volkov-Phase is:</p>
+<p><span class="math notranslate nohighlight">\(\phi_{bk} = \sum\limits_{j'=k}^{k_{\mathrm{max}}} dt\cdot \left(k_b A_{j'} + \frac{A_{j'}^2}{2}\right)\)</span></p>
+<br>
+<p>The DTME is momentum dependent and thus modulated by the vectorpotential. This can be numerically implemented using the Fourier-shift theorem.</p>
+<p><span class="math notranslate nohighlight">\(\rho_{bk}^C = \sum\limits_q D_{bq} \rho_q^C \cdot e^{i\cdot 2\pi r_q\cdot A_k}\)</span></p>
+</section>
+</section>
+<section id="gradients">
+<h2>Gradients<a class="headerlink" href="#gradients" title="Link to this heading"></a></h2>
+<section id="with-respect-to-the-vectorpotential-in-time-domain-a-j">
+<h3>With respect to the Vectorpotential in time domain (<span class="math notranslate nohighlight">\(A_j\)</span>)<a class="headerlink" href="#with-respect-to-the-vectorpotential-in-time-domain-a-j" title="Link to this heading"></a></h3>
+<p>Vectorpotential is required to be real for streaking. This gradient is with respect to real-part of <span class="math notranslate nohighlight">\(A_j\)</span>.</p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_j} = -i\cdot\sum\limits_k dt \cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot \left(-i\cdot \rho_{bk}^C\cdot e^{-i\phi_{bk}}\cdot \frac{d \phi_{bk}}{d A_j} + e^{-i\phi_{bk}}\cdot\frac{d\rho_{bk}^C}{d A_j} \right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_n} = \mathrm{FFT}_{jn}\{\frac{d S_{mb}^C}{d A_j}\}\quad\)</span> This is a bad idea because negative frequencies will wrap around and cause erroneuos interferences. Should always be kept in time domain.</p>
+<p>In the case-definition <span class="math notranslate nohighlight">\(k\)</span> is the index and not the momentum, the momentum is <span class="math notranslate nohighlight">\(k_b\)</span>. Can be implemented with binary mask.</p>
+<p><span class="math notranslate nohighlight">\(\frac{d \phi_{bk}}{d A_j} = \begin{cases}dt \cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
+0 &amp; \text{else}\end{cases} \)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d \rho_{bk}^C}{d A_j} = \sum\limits_q D_{bq}\rho_q^C\cdot e^{i\cdot 2\pi r_q\cdot A_k}\cdot i\cdot 2\pi r_q\cdot \delta_{kj}\)</span></p>
+</section>
+<section id="with-respect-to-the-attosecond-pulse-in-frequency-domain-left-e-n-right">
+<h3>With respect to the attosecond pulse in frequency domain <span class="math notranslate nohighlight">\(\left(E_n\right)\)</span><a class="headerlink" href="#with-respect-to-the-attosecond-pulse-in-frequency-domain-left-e-n-right" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d E_n} = -i \cdot \sum\limits_k dt\cdot \rho_{bk}^C \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}} \cdot D_{kn} e^{-i\omega_n\tau_m}\)</span></p>
+</section>
+<section id="with-respect-to-the-dipole-transition-matrix-element-in-spatial-domain-rho-q">
+<h3>With respect to the dipole transition matrix element in spatial domain (<span class="math notranslate nohighlight">\(\rho_q\)</span>)<a class="headerlink" href="#with-respect-to-the-dipole-transition-matrix-element-in-spatial-domain-rho-q" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d \rho_q^{C'}} = -i \cdot \sum\limits_k dt\cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}} \cdot D_{bq}\cdot e^{i\cdot 2\pi r_q A_k} \cdot \delta_{CC'}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d \rho_b^{C'}} = \mathrm{FFT}_{qb}\{\frac{d S_{mb}^C}{d \rho_q^{C'}}\}\)</span></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="eqs_polyak.html" class="btn btn-neutral float-left" title="Adaptive Stepsize" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="literature.html" class="btn btn-neutral float-right" title="Literature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

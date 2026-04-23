@@ -9,7 +9,7 @@
   <title>Definitions &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -70,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -194,24 +196,30 @@
 </section>
 <section id="definition-of-nonlinear-signal-in-time-domain">
 <h2>Definition of nonlinear signal in time domain<a class="headerlink" href="#definition-of-nonlinear-signal-in-time-domain" title="Link to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p>Frog<br />
-<span class="math notranslate nohighlight">\(S_{mk} = E_k \cdot G(A_{mk})\)</span></p></li>
-<li><p>Chirp-Scan<br />
-<span class="math notranslate nohighlight">\(S_{mk} = A_{mk}\cdot G(A_{mk})\)</span></p></li>
-<li><p>Interferometric Frog<br />
-<span class="math notranslate nohighlight">\(S_{mk} = (E_k + A_{mk})\cdot G(E_k + A_{mk})\)</span></p></li>
-<li><p>Time-Domain-Ptychography<br />
-Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\)</span> is different.<br />
-<span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p></li>
-<li><p>2D-SI<br />
-<span class="math notranslate nohighlight">\(S_{mk} = G(E_k'\cdot e^{-i\tau_0\omega_n} + A_{mk}'') \cdot E_k \quad\)</span> ( <span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay of <span class="math notranslate nohighlight">\(E_k\)</span> and <span class="math notranslate nohighlight">\(E_k'\)</span> )<br />
-<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p></li>
-<li><p>Vampire<br />
-<span class="math notranslate nohighlight">\(S_{mk} = G(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot A_{mk}\quad\)</span>  (Original definition, pushing <span class="math notranslate nohighlight">\(m\)</span> onto gate makes it easier with PIE.)<br />
+<ol class="arabic">
+<li><p>Frog</p>
+<p><span class="math notranslate nohighlight">\(S_{mk} = E_k \cdot G(A_{mk})\)</span></p>
+</li>
+<li><p>Chirp-Scan</p>
+<p><span class="math notranslate nohighlight">\(S_{mk} = A_{mk}\cdot G(A_{mk})\)</span></p>
+</li>
+<li><p>Interferometric Frog</p>
+<p><span class="math notranslate nohighlight">\(S_{mk} = (E_k + A_{mk})\cdot G(E_k + A_{mk})\)</span></p>
+</li>
+<li><p>Time-Domain-Ptychography</p>
+<p>Same as FROG or I-FROG only <span class="math notranslate nohighlight">\(A_{mk}\)</span> is different.<br />
+<span class="math notranslate nohighlight">\(A_{mk}' = \sum_n D_{kn}B_n A_{mn}\quad\)</span> (<span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p>
+</li>
+<li><p>2D-SI</p>
+<p><span class="math notranslate nohighlight">\(S_{mk} = G(E_k'\cdot e^{-i\tau_0\omega_n} + A_{mk}'') \cdot E_k \quad\)</span> ( <span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay of <span class="math notranslate nohighlight">\(E_k\)</span> and <span class="math notranslate nohighlight">\(E_k'\)</span> )<br />
+<span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}B_n E_n\quad\)</span> ( <span class="math notranslate nohighlight">\(B_n\)</span> represents a known spectral filter, can be complex valued)</p>
+</li>
+<li><p>Vampire</p>
+<p><span class="math notranslate nohighlight">\(S_{mk} = G(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot A_{mk}\quad\)</span>  (Original definition, pushing <span class="math notranslate nohighlight">\(m\)</span> onto gate makes it easier with PIE.)<br />
 <span class="math notranslate nohighlight">\(S_{mk} = G_m(E_k\cdot e^{-i\tau_0\omega_n} + E_k') \cdot E_k = G(A_{mk}\cdot e^{-i\tau_0\omega_n} + A_{mk}')\cdot E_k\)</span><br />
 <span class="math notranslate nohighlight">\(E_k' = \sum_n D_{kn}E_ne^{i\phi_n}\quad\)</span> (<span class="math notranslate nohighlight">\(\phi_n\)</span> represents a material dispersion)<br />
-<span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay in the interferometer.</p></li>
+<span class="math notranslate nohighlight">\(\tau_0\)</span> is a fixed delay in the interferometer.</p>
+</li>
 </ol>
 </section>
 <section id="error">

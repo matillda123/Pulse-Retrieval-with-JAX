@@ -9,7 +9,7 @@
   <title>Literature &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="frog" href="frog.html" />
-    <link rel="prev" title="Update nonlinear Signal" href="eqs_s_prime_and_polyak.html" /> 
+    <link rel="prev" title="Definitions and Gradients for Attosecond-Streaking" href="eqs_streaking.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -70,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Literature</a></li>
@@ -182,17 +184,17 @@
 <span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
 <p>Nils C. Geib. Python for Pulse Retrieval. 2019. URL: <a class="reference external" href="https://github.com/ncgeib/pypret">https://github.com/ncgeib/pypret</a>.</p>
 </div>
-<div class="citation" id="id22" role="doc-biblioentry">
+<div class="citation" id="id24" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Christoffer Oxelmark Krook and Valdas Pasiskevicius. Overcoming noise in pulse retrieval: introducing the line-search frog algorithm. <em>Opt. Express</em>, 33(16):33258–33269, Aug 2025. <a class="reference external" href="https://doi.org/10.1364/OE.569606">doi:10.1364/OE.569606</a>.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
 <p>Ji Qiang and Chad Mitchell. A unified differential evolution algorithm for global optimization. <em>IEEE Transactions on Evolutionary Computation.</em>, 06 2014. URL: <a class="reference external" href="https://www.osti.gov/biblio/1163659">https://www.osti.gov/biblio/1163659</a>.</p>
 </div>
 <div class="citation" id="id23" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
-<p>I Grigorenko and M.E Garcia. An evolutionary algorithm to calculate the ground state of a quantum system. <em>Physica A: Statistical Mechanics and its Applications</em>, 284(1):131–139, 2000. <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">doi:10.1016/S0378-4371(00)00218-1</a>.</p>
-</div>
-<div class="citation" id="id24" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
-<p>Christoffer Oxelmark Krook and Valdas Pasiskevicius. Overcoming noise in pulse retrieval: introducing the line-search frog algorithm. <em>Opt. Express</em>, 33(16):33258–33269, Aug 2025. <a class="reference external" href="https://doi.org/10.1364/OE.569606">doi:10.1364/OE.569606</a>.</p>
+<p>I Grigorenko and M.E Garcia. An evolutionary algorithm to calculate the ground state of a quantum system. <em>Physica A: Statistical Mechanics and its Applications</em>, 284(1):131–139, 2000. <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">doi:10.1016/S0378-4371(00)00218-1</a>.</p>
 </div>
 <div class="citation" id="id17" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
@@ -214,37 +216,49 @@
 <span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
 <p>Jason Rader, Terry Lyons, and Patrick Kidger. Optimistix: modular optimisation in jax and equinox. <em>arXiv:2402.09983</em>, 2024.</p>
 </div>
-<div class="citation" id="id15" role="doc-biblioentry">
+<div class="citation" id="id32" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Shuhe Zhang, Tos T.J.M. Berendschot, and Jinhua Zhou. Elfpie: an error-laxity fourier ptychographic iterative engine. <em>Signal Processing</em>, 210:109088, 2023. <a class="reference external" href="https://doi.org/10.1016/j.sigpro.2023.109088">doi:10.1016/j.sigpro.2023.109088</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. <em>J. Opt. Soc. Am. B</em>, 34(1):190–197, Jan 2017. <a class="reference external" href="https://doi.org/10.1364/JOSAB.34.000190">doi:10.1364/JOSAB.34.000190</a>.</p>
+</div>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
 <p>J. Gagnon, E. Goulielmakis, and V. S. Yakovlev. The accurate frog characterization of attosecond pulses from streaking measurements. <em>Applied Physics B</em>, 92(1):25–32, Jul 2008. <a class="reference external" href="https://doi.org/10.1007/s00340-008-3063-x">doi:10.1007/s00340-008-3063-x</a>.</p>
 </div>
 <div class="citation" id="id14" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
 <p>Daniel J. Kane. Principal components generalized projections: a review. <em>J. Opt. Soc. Am. B</em>, 25(6):A120–A132, Jun 2008. <a class="reference external" href="https://doi.org/10.1364/JOSAB.25.00A120">doi:10.1364/JOSAB.25.00A120</a>.</p>
 </div>
 <div class="citation" id="id13" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
 <p>Daniel J. Kane and Andrei B. Vakhtin. A review of ptychographic techniques for ultrashort pulse measurement. <em>Progress in Quantum Electronics</em>, 81:100364, 2022. <a class="reference external" href="https://doi.org/https://doi.org/10.1016/j.pquantelec.2021.100364">doi:https://doi.org/10.1016/j.pquantelec.2021.100364</a>.</p>
 </div>
 <div class="citation" id="id4" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
 <p>Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. <em>J. Opt. Soc. Am. B</em>, 34(1):190–197, Jan 2017. <a class="reference external" href="https://doi.org/10.1364/JOSAB.34.000190">doi:10.1364/JOSAB.34.000190</a>.</p>
 </div>
 <div class="citation" id="id29" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
 <p>Jorge Nocedal and Stephen Wright. <em>Numerical Optimization</em>. Springer New York, New York, NY, 2nd ed. 2006 edition, 2006. ISBN 9780387400655. <a class="reference external" href="https://doi.org/10.1007/978-0-387-40065-5">doi:10.1007/978-0-387-40065-5</a>.</p>
 </div>
 <div class="citation" id="id28" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
 <p>B.T. Polyak. Minimization of unsmooth functionals. <em>USSR Computational Mathematics and Mathematical Physics</em>, 9(3):14–29, 1969. <a class="reference external" href="https://doi.org/https://doi.org/10.1016/0041-5553(69)90061-5">doi:https://doi.org/10.1016/0041-5553(69)90061-5</a>.</p>
 </div>
 <div class="citation" id="id26" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>31<span class="fn-bracket">]</span></span>
 <p>Laurent Sorber, Marc Van Barel, and Lieven De Lathauwer. Unconstrained optimization of real functions in complex variables. <em>SIAM Journal on Optimization</em>, 22(3):879–898, 2012. <a class="reference external" href="https://doi.org/10.1137/110832124">doi:10.1137/110832124</a>.</p>
 </div>
 <div class="citation" id="id27" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>32<span class="fn-bracket">]</span></span>
 <p>Ken Kreutz-Delgado. The complex gradient operator and the cr-calculus. 2009. URL: <a class="reference external" href="https://arxiv.org/abs/0906.4835">https://arxiv.org/abs/0906.4835</a>, <a class="reference external" href="https://arxiv.org/abs/0906.4835">arXiv:0906.4835</a>.</p>
+</div>
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>33<span class="fn-bracket">]</span></span>
+<p>Maximilian Kubullek, Miguel A. Silva-Toledo, Roland E. Mainz, Fabian Scheiba, Rafael de Q. Garcia, Felix Ritzkowsky, Giulio Maria Rossi, and Franz X. Kärtner. Complete electric field characterization of ultrashort multicolor pulses. <em>Ultrafast Science</em>, 5():0081, 2025. <a class="reference external" href="https://doi.org/10.34133/ultrafastscience.0081">doi:10.34133/ultrafastscience.0081</a>.</p>
 </div>
 </div>
 </div>
@@ -254,7 +268,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eqs_s_prime_and_polyak.html" class="btn btn-neutral float-left" title="Update nonlinear Signal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eqs_streaking.html" class="btn btn-neutral float-left" title="Definitions and Gradients for Attosecond-Streaking" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="frog.html" class="btn btn-neutral float-right" title="frog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

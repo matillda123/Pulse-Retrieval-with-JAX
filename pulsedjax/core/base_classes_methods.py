@@ -502,7 +502,8 @@ class RetrievePulsesFROG(RetrievePulses):
         signal = self.ifft(signal_f, sk, rn)
         return signal
 
-
+    
+    # time is an uncesseray input -> not used but redefined -> can be removed
     def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
         """ The Fourier-Shift theorem applied to a list of signals. """
 
@@ -1026,6 +1027,36 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 
 
+# idea to make streaking numerics more efficient
+# use targeted DFT instead of generic global FFT
+# one needs both pulses on the same time-grid for the SFA integral
+#   -> give EUV and A their own frequncy grids but the same time grid 
+#   -> for this to work one always needs to map from many points to fewer points, inverses are not stable
+#   -> for vectorpotential this operation only needs to be done in calculate_signal_t()
+#   -> with euv its more complicated because its supposed to be shifted 
+#       -> maybe one can write an extra fourier shift function
+
+# upsides:
+# small HR-frequency grid for vectorpotential
+# euv-frequency grid doesnt need to include zero 
+# fewer points
+
+# downsides:
+# unclear if this is actually cheaper N^2 vs N*log(N)
+# resolution of time grid needs to be big enough to resolve euv and volkovphase oscillations
+#   -> probably not as many fewer points as one would think 
+
+
+# even if its not causing a speed up it would drastically increase spectral resolution for vectorpotential
+
+
+# where would this require changes?
+#   -> get_data, get_gate
+#   -> fourier shift of euv pulse 
+#   -> fourier transforms in calculate_signal_t
+#   -> what about gradient calculation ? -> wouldnt that require an inverse?
+#       -> inverse is unstable because few points get mapped to many points
+#       -> so maybe something like that would only work for general optimization algorithms? 
 
 
 class RetrievePulsesSTREAKING(RetrievePulsesFROG):
@@ -1047,14 +1078,19 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         dtme_momentum (None, jnp.array): the optionally provided dipole-transition-matrix-elements
         
     """
-    
-    # it doesnt really make sense to keep interferometric as an input but it doesnt do any harm either. 
-    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([[0]]), retrieve_dtme=False, cross_correlation="doubleblind", interferometric=False, **kwargs):
+     
+    def __init__(self, delay_fs, energy_eV, measured_trace, df_PHz=0.01, Ip_eV=jnp.array([0]), retrieve_dtme=False, cross_correlation="doubleblind", interferometric=False, **kwargs):
+        assert jnp.max(delay_fs)-jnp.min(delay_fs) < 1/df_PHz, "Range of time axis should ba larger than delay-range. Also keep in mind that you need to resolve the vectorpotential spectrally."
+        
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
 
-        frequency = self.energy_au/(2*jnp.pi) # convert energy in au to frequency in au
+        # construct frequency grid 
+        frequency = self.energy_au/(2*jnp.pi)
+        df = self.convert_frequency_PHz_au(df_PHz, "PHz", "au")
+        frequency = jnp.arange(jnp.min(frequency), jnp.max(frequency), df)
+
         momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
         self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au)) # this requires interpolation of trace
 
@@ -1072,6 +1108,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         assert cross_correlation!=False, "Streaking is a cross-correlation-like method."
         super().__init__(delay, frequency, measured_trace, None, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
         
+
         self.no_channels = jnp.size(Ip_eV)
         self.retrieve_dtme = retrieve_dtme
         self.dtme_momentum = None
@@ -1085,31 +1122,6 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                                                              no_channels = self.no_channels)
         
         self.descent_info = self.descent_info.expand(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False, dtme=False))
-        
-
-        # is this necessary? (sometimes it is)
-        self.check_usability_of_time_axis(self.measurement_info.time, self.measurement_info.tau_arr)
-
-
-
-    
-    def check_usability_of_time_axis(self, time, delay):
-        # this is a sanity check to ensure sensible axis
-        t_min, t_max = jnp.min(time), jnp.max(time)
-        tau_min, tau_max = jnp.min(delay), jnp.max(delay)
-
-        if (t_max - t_min) < (tau_max - tau_min):
-            # Either more points or smaller energy range
-            raise ValueError(f"Infered time-range is smaller than input delays (Time: {(t_max - t_min)} au, Delays: {(tau_max - tau_min)} au). Adjust input energy axis accordingly.")
-
-        if tau_min < t_min:
-            # Maybe offset in delays helps, alternatively more points in energy or smaller energy range
-            raise ValueError("The smallest/most negative delay is outside of infered time-range.")
-
-        if tau_max > t_max:
-            # Maybe offset in delays helps, alternatively more points in energy or smaller energy range
-            raise ValueError("The largest/most positive delay is outside of infered time-range.")
-        
 
 
 
@@ -1193,14 +1205,13 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def make_dressed_DTME(self, dtme_position, pulse_t_nir_vectorpotential, measurement_info):
-        sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
-
         if measurement_info.dtme_momentum is None:
             dtme_momentum = jnp.ones((jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position)))
         else: 
             # this shifting should be done like shifts in time -> with padding and redefinition of axis
             # but its probably fine because shift is much smaller than total axis?
             r = measurement_info.position
+            sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
             # -1 because one wants to shift to positive values
             # but is this consistent with atomic units convention for elementary-charge?
@@ -1233,6 +1244,32 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
 
+
+
+
+    def calculate_shifted_signal_input_f_output_t(self, signal_f, frequency, tau_arr):
+        """ The Fourier-Shift theorem applied to a list of signals. """
+
+        N = jnp.size(frequency)
+        # due to padding f, t, sk and rn need to be redefined 
+        frequency_pad = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
+        time_pad = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
+        sk_pad, rn_pad = get_sk_rn(time_pad, frequency_pad)
+
+        # padding in time domain is the same as interpolation in frequency domain
+        signal_f = do_interpolation_1d(frequency_pad, frequency, signal_f, method="linear")
+
+        # the frequency axis is not centered around zero, this causes a global phase in the fourier shift 
+        # this phase-factor compensates this global phase
+        df = jnp.mean(jnp.diff(frequency_pad))
+        phase_correction = jnp.exp(1j*2*jnp.pi*df*tau_arr)
+
+        signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*frequency_pad[None,:]*tau_arr[:,None])
+        signal_t_shifted = self.ifft(signal_f, sk_pad, rn_pad)[:,N:2*N]
+        return signal_t_shifted*phase_correction
+
+
+
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         """
         Calculates the signal field in the time domain. 
@@ -1251,7 +1288,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         # make euv pulse the gate, because thats the one getting shifted 
         pulse_f_nir_vectorpotential, pulse_f_euv = individual.pulse, individual.gate
 
-        pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
+        #pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
         pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, sk, rn)
 
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
@@ -1262,8 +1299,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
             else:
                 dtme_position = self.ifft(measurement_info.dtme_momentum, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
-                
-        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
+        pulse_t_euv_shifted = self.calculate_shifted_signal_input_f_output_t(pulse_f_euv, frequency, tau_arr)
         signal_t, signal_f = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)
         
         signal_t = MyNamespace(signal_t = signal_t,

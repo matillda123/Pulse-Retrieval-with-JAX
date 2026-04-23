@@ -9,7 +9,7 @@
   <title>PulsedJAX: Pulse-Retrieval with JAX &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -56,19 +56,23 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -123,19 +127,21 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="pulsedjax-pulse-retrieval-with-jax">
 <h1>PulsedJAX: Pulse-Retrieval with JAX<a class="headerlink" href="#pulsedjax-pulse-retrieval-with-jax" title="Link to this heading"></a></h1>
-<p>Uses Jax to implement various algorithms for pulse-retrieval in ultrafast optics.
-This does not mean that the implemented algorithms are differentiable. (They are probably not.) The point is to take advantage of jax.jit and other Jax-transformations.</p>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Uses JAX to implement various algorithms for pulse-retrieval in ultrafast optics.
+This does not mean that the algorithms are meant to be differentiated (even though they seem to be differentiable). However the point is to take advantage of jax.jit and other JAX-transformations.</p>
+<section id="installation-and-documentation">
+<h2>Installation and Documentation<a class="headerlink" href="#installation-and-documentation" title="Link to this heading"></a></h2>
 <p>To install (create a new environment and) run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">matillda123</span><span class="o">/</span><span class="n">pulse</span><span class="o">-</span><span class="n">retrieval</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">jax</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
+<p>The documentation is available <a class="reference external" href="https://pulse-retrieval-with-jax.readthedocs.io/en/latest/index.html">here</a>.</p>
 </section>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI) and VAMPIRE.
-For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.</p>
+For each method SHG, THG, PG/TG and SD as well as cross-correlation and doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.
+In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once as well as the retrieval of the calibration curve of the measured trace.</p>
 <p>On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid.</p>
 <p>The available algorithms are:</p>
 <table class="docutils align-default">
@@ -149,16 +155,16 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <td><p><a class="reference external" href="https://doi.org/10.1364/OL.19.002152">K. W. DeLong et al., Opt. Lett. 19, 2152-2154 (1994)</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Ptychographic Iterative Engine</p></td>
-<td><p><a class="reference external" href="https://doi.org/10.1364/OPTICA.4.000736">A. Maiden et al., Optica 4, 736-745 (2017)</a></p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1364/OPTICA.4.000736">A. Maiden et al., Optica 4, 736-745 (2017)</a> and <a class="reference external" href="https://doi.org/10.1364/OPTICA.3.001320">P. Sidorenko et al., Optica 3, 1320-1330 (2016)</a></p></td>
 </tr>
 <tr class="row-even"><td><p>Common Pulse Retrieval Algorithm</p></td>
 <td><p><a class="reference external" href="https://doi.org/10.1364/OPTICA.6.000495">N. C. Geib, Optica 6, 495-505 (2019)</a> and <a class="reference external" href="https://github.com/ncgeib/pypret">pypret</a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Differential Evolution</p></td>
-<td><p><a class="reference external" href="https://www.osti.gov/biblio/1163659">J. Qiang and C. Mitchell (2014)</a> and <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)</a></p></td>
-</tr>
-<tr class="row-even"><td><p>Linesearch-Frog-Algorithm (for all methods)</p></td>
+<tr class="row-odd"><td><p>Linesearch-Frog-Algorithm (for all methods)</p></td>
 <td><p><a class="reference external" href="https://doi.org/10.1364/OE.569606">C. O. Krook and V. Pasiskevicius, Opt. Express 33, 33258-33269 (2025)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Differential Evolution</p></td>
+<td><p><a class="reference external" href="https://www.osti.gov/biblio/1163659">J. Qiang and C. Mitchell (2014)</a> and <a class="reference external" href="https://doi.org/10.1016/S0378-4371(00)00218-1">I. Grigorenko and M.E. Garcia, Physica A 284 131–139 (2000)</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>AD-Solvers (<a class="reference external" href="https://github.com/google-deepmind/optax">optax</a> and <a class="reference external" href="https://github.com/patrick-kidger/optimistix">optimistix</a>)</p></td>
 <td><p><a class="reference external" href="https://github.com/google-deepmind/optax"> DeepMind et al., <em>The DeepMind JAX Ecosystem</em> (2020)</a> and<br><a class="reference external" href="https://arxiv.org/abs/2402.09983">J. Rader, T. Lyons and P. Kidger, <em>Optimistix: modular optimisation in JAX and Equinox</em>, arXiv:2402.09983 (2024)</a></p></td>
@@ -203,6 +209,7 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 </tr>
 </tbody>
 </table>
+<p>Adding new methods or algorithms should be relatively easy. The general approach for doing this is described <a class="reference external" href="https://pulse-retrieval-with-jax.readthedocs.io/en/latest/example_advanced_things.html#adding-new-methods">here</a>.</p>
 <p>If you end up using this code for a publication, please use the citation below as well as the appropriate citations for the algorithm used.</p>
 <div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@software</span><span class="p">{</span><span class="nl">pulseretrievalwithjax</span><span class="p">,</span>
 <span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Pulse {R}etrieval with {JAX}}</span><span class="p">,</span>
@@ -232,11 +239,14 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#time-domain-ptchography">Time-Domain-Ptchography</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#d-si">2D-SI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#vampire">VAMPIRE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_methods.html#attosecond-streaking">Attosecond Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#classical-algorithms">Classical Algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#general-algorithms">General Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#general-optimization-algorithms">General Optimization Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#cross-correlation-and-doubleblind-retrievals">Cross-correlation and Doubleblind Retrievals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_overview_algorithms.html#retrieval-of-the-calibration-curve">Retrieval of the Calibration Curve</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a><ul>
@@ -256,23 +266,25 @@ For each method SHG, THG, PG/TG and SD as well as cross-correlation/doubleblind 
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#real-fields">Real-Fields</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#mixing-algorithms">Mixing Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#differentiability-and-jax-equinox-transformations">Differentiability and JAX/Equinox-Transformations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#adding-new-methods">Adding new Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_advanced_things.html#adding-new-algorithms">Adding new Algorithms</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pytree_structure.html#descent-state">Descent State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytree_structure.html#measurement-info">Measurement Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytree_structure.html#descent-info">Descent Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytree_structure.html#final-result">Final Result</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>

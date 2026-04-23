@@ -9,7 +9,7 @@
   <title>Methods &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -59,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -72,6 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -195,6 +197,9 @@ Usually 2D-SI is performed via Sum-Frequency Generation. In this case Direct-Rec
 The working idea is to create a duplicate but modified pulse in the interferometer at a fixed delay. The pulse <span class="math notranslate nohighlight">\(E\)</span> is shifted in time over these in order to create a FROG-like trace. This approach resolves any ambiguities which may be present in an analog FROG measurement.<br />
 In order for the retrieval to work the interferometer delay has to be set using <code class="docutils literal notranslate"><span class="pre">tau_interferometer</span></code>, the material has to be provided via <code class="docutils literal notranslate"><span class="pre">refractive_index=refractiveindex.RefractiveIndexMaterial</span></code> and its thickness needs to be specified in millimeters with <code class="docutils literal notranslate"><span class="pre">material_thickness</span></code>.
 The available algorithms for VAMPIRE-retrieval are described in <a class="reference internal" href="example_overview_algorithms.html"><span class="std std-doc">Algorithms</span></a> and <a class="reference internal" href="example_method_specific_algorithms.html"><span class="std std-doc">Method Specific Algorithms</span></a>.</p>
+</section>
+<section id="attosecond-streaking">
+<h2>Attosecond Streaking<a class="headerlink" href="#attosecond-streaking" title="Link to this heading"></a></h2>
 </section>
 </section>
 

@@ -55,8 +55,8 @@ class MakeTrace(MakePulseBase):
         maketrace (MakeTraceFROG, MakeTraceCHIRPSCAN, MakeTrace2DSI, MakeTraceTDP, or MakeTraceVAMPIRE): default is None, defined via respective method
 
     """
-    def __init__(self, N=256, f_max=1):
-        super().__init__(N=N, f_max=f_max)
+    def __init__(self, N=256, f_max=1, df=None):
+        super().__init__(N=N, f_max=f_max, df=df)
         self.maketrace = None
 
     
@@ -403,17 +403,17 @@ class MakeTrace(MakePulseBase):
 
 
 
-def interpolate_spectrum(frequency, pulse_f, N):
+def interpolate_spectrum(frequency, pulse_f, N, do_interpolation):
     spectrum = jnp.abs(pulse_f)**2
 
-    idx = np.where(spectrum/jnp.max(spectrum)>1e-5)
+    idx = np.where(spectrum/jnp.max(spectrum)>1e-6)
     idx_1 = np.sort(idx)[0]
     idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
     
     frequency_zoom = frequency[idx_1_min:idx_1_max]
     frequency_interpolate_spectrum = np.linspace(frequency_zoom[0], frequency_zoom[-1], N)
     
-    spectrum = do_interpolation_1d(frequency_interpolate_spectrum, frequency, spectrum, method="linear")
+    spectrum = do_interpolation(frequency_interpolate_spectrum, frequency, spectrum)
     return frequency_interpolate_spectrum, spectrum
 
 
@@ -437,6 +437,7 @@ class MakeTraceBASE:
 
         self.fft = do_fft
         self.ifft = do_ifft
+        self.do_interpolation = Partial(do_interpolation_1d, method="cubic")
 
         self.time = time
         self.frequency = frequency
@@ -534,10 +535,10 @@ class MakeTraceBASE:
             frequency_interpolate = np.linspace(fmin, fmax, self.N)
 
 
-        trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
+        trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
-            trace_interpolate = jax.vmap(do_interpolation_1d, in_axes=(None,None,1))(time_interpolate, self.theta, trace_interpolate)
+            trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,1))(time_interpolate, self.theta, trace_interpolate)
             trace_interpolate = np.abs(trace_interpolate).T
         else:
             trace_interpolate = np.abs(trace_interpolate)
@@ -548,9 +549,9 @@ class MakeTraceBASE:
             trace_interpolate = np.flip(trace_interpolate, axis=0)
 
 
-        frequency_pulse_spectrum, spectrum_pulse = interpolate_spectrum(self.frequency, self.pulse_f, self.N)
+        frequency_pulse_spectrum, spectrum_pulse = interpolate_spectrum(self.frequency, self.pulse_f, self.N, self.do_interpolation)
         if self.cross_correlation==True:
-            frequency_gate_spectrum, spectrum_gate = interpolate_spectrum(self.frequency, self.gate_f, self.N)
+            frequency_gate_spectrum, spectrum_gate = interpolate_spectrum(self.frequency, self.gate_f, self.N, self.do_interpolation)
         else:
             frequency_gate_spectrum, spectrum_gate = None, None
             
@@ -615,7 +616,7 @@ class MakeTraceBASE:
 
 
     def get_gate_pulse(self, frequency_gate, gate_f):
-        gate_f = do_interpolation_1d(self.frequency, frequency_gate, gate_f)
+        gate_f = self.do_interpolation(self.frequency, frequency_gate, gate_f)
         self.gate_f = gate_f
         self.gate_t = self.ifft(gate_f, self.sk, self.rn)
 
@@ -812,9 +813,9 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
 
     def get_DTME(self, momentum_au, dtme_momentum):
         if dtme_momentum.ndims==1:
-            dtme_momentum = jnp.asarray([do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)])
+            dtme_momentum = jnp.asarray([self.do_interpolation(self.momentum_au, momentum_au, dtme_momentum)])
         else:
-            dtme_momentum = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
+            dtme_momentum = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
         self.dtme_momentum = dtme_momentum
         return self.dtme_momentum
     
@@ -845,7 +846,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     def _generate_trace(self):
         super()._generate_trace()
         momentum_au_nonuniform = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
-        self.trace = jax.vmap(Partial(do_interpolation_1d, method="linear"), 
+        self.trace = jax.vmap(self.do_interpolation, 
                               in_axes=(None,None,0))(momentum_au_nonuniform, self.momentum_au, self.trace)
 
 

@@ -9,7 +9,7 @@
   <title>Algorithms &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -59,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -72,6 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -126,8 +128,9 @@
              
   <section class="tex2jax_ignore mathjax_ignore" id="algorithms">
 <h1>Algorithms<a class="headerlink" href="#algorithms" title="Link to this heading"></a></h1>
-<p>Internally one can divide the implemented algorithms into two general types. Classical-Algorithms and General-Algorithms, where the former refers to algorithms that have been specifically introduced to solve the phase-retrieval problem in ultrafast optics, while the latter refers to generic optimization algorithms.<br />
+<p>Internally one can divide the implemented algorithms into two general types. Classical-Algorithms and General-Optimization-Algorithms, where the former refers to algorithms that have been specifically introduced to solve the phase-retrieval problem in ultrafast optics, while the latter refers to generic optimization algorithms.<br />
 The algorithms described here belong to either type. In addition several method-specific algorithms have been published and are discussed in <a class="reference internal" href="example_method_specific_algorithms.html"><span class="std std-doc">Method-Specific Algorithms</span></a>.</p>
+<p>Sidenote: Even though almost none of the algorithms require the delay and frequency axis to be FFT-conform, it seems that this increases the performance.</p>
 <section id="classical-algorithms">
 <h2>Classical Algorithms<a class="headerlink" href="#classical-algorithms" title="Link to this heading"></a></h2>
 <section id="generalized-projection-trebino-book-gp-paper">
@@ -214,9 +217,36 @@ Below is a small working example of the COPRA to an SHG-FROG. Apart from the non
 </div>
 </div>
 </section>
+<section id="lsf-lsf-paper">
+<h3>LSF <span id="id4">[<a class="reference internal" href="literature.html#id24" title="Christoffer Oxelmark Krook and Valdas Pasiskevicius. Overcoming noise in pulse retrieval: introducing the line-search frog algorithm. Opt. Express, 33(16):33258–33269, Aug 2025. doi:10.1364/OE.569606.">15</a>]</span><a class="headerlink" href="#lsf-lsf-paper" title="Link to this heading"></a></h3>
+<p>The Linesearch-Frog-Algorithm (LSF) is a gradient-free algorithm. Despite its name it works with all measurement techniques. Simply speaking the algorithm performs a high-dimensional randomized bisection search. This works by selecting a random complex-valued direction. By setting the maximum pulse magnitude to one, a lower and an upper boundry can be defined. By performing bisection search along the random direction inside the boundary, a slightly improoved pulse guess can be found.<br />
+The original algorithm only uses bisection, however it is straight forward to disect the search direction into N slices. This should in theory reduce the required number of iterations in the sectional searches.<br />
+In addition on top of the fully randomized version, in this implementation one can restrict the random directions to exhibit some degree of smoothness. However, this may not necesserily improve the algorithm performance.<br />
+<br>
+Below is a small working example of the LSF to an SHG-FROG. The main tunable parameters are the number of iterations per bisection-search as well as a tuning parameter for the smoothness in case of a continuous direction search.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSF</span>
+
+<span class="n">lsf</span> <span class="o">=</span> <span class="n">LSF</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
+
+<span class="n">population</span> <span class="o">=</span> <span class="n">lsf</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+
+<span class="n">lsf</span><span class="o">.</span><span class="n">no_sections</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">lsf</span><span class="o">.</span><span class="n">number_of_disection_iterations</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">lsf</span><span class="o">.</span><span class="n">direction_mode</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
+<span class="c1"># lsf.ratio_points_for_continuous = 0.25    # only used when random_direction_mode=&quot;continuous&quot;</span>
+
+<span class="n">final_result</span> <span class="o">=</span> <span class="n">lsf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="additional-constraint-and-momentum-pie-paper">
-<h3>Additional Constraint and Momentum <span id="id4">[<a class="reference internal" href="literature.html#id10" title="Andrew Maiden, Daniel Johnson, and Peng Li. Further improvements to the ptychographical iterative engine. Optica, 4(7):736–745, Jul 2017. doi:10.1364/OPTICA.4.000736.">12</a>]</span><a class="headerlink" href="#additional-constraint-and-momentum-pie-paper" title="Link to this heading"></a></h3>
-<p>All of the Classical Algorithms, are able to incorporate the pulse-spectrum as an additional constraint. This may improve the retrieval result, but it also may cause issues if the provided spectrum and measured trace are somehow inconsistent. For doubleblind retrievals the provision of spectra for pulse and gate-pulse is necessary to avoid retrieval ambiguities.<br />
+<h3>Additional Constraint and Momentum <span id="id5">[<a class="reference internal" href="literature.html#id10" title="Andrew Maiden, Daniel Johnson, and Peng Li. Further improvements to the ptychographical iterative engine. Optica, 4(7):736–745, Jul 2017. doi:10.1364/OPTICA.4.000736.">12</a>]</span><a class="headerlink" href="#additional-constraint-and-momentum-pie-paper" title="Link to this heading"></a></h3>
+<p>All of the Classical Algorithms, are able to incorporate the pulse-spectrum as an additional constraint. This may improve the retrieval result, but it also may possibly cause issues if the provided spectrum and measured trace are somehow inconsistent.
+For <code class="docutils literal notranslate"><span class="pre">GeneralizedProjection,</span> <span class="pre">COPRA</span></code> and <code class="docutils literal notranslate"><span class="pre">LSF</span></code> the spectrum is used as a true constraint, meaning that the phase factor is optimized while the amplitude is obtained from the measured spectrum.
 A spectrum can be incorporated in any algorithm as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -254,10 +284,10 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 </div>
 </section>
 </section>
-<section id="general-algorithms">
-<h2>General Algorithms<a class="headerlink" href="#general-algorithms" title="Link to this heading"></a></h2>
+<section id="general-optimization-algorithms">
+<h2>General Optimization Algorithms<a class="headerlink" href="#general-optimization-algorithms" title="Link to this heading"></a></h2>
 <section id="differential-evolution-differentialevolution-differentialevolution-garcia">
-<h3>Differential Evolution <span id="id5">[<a class="reference internal" href="literature.html#id22" title="Ji Qiang and Chad Mitchell. A unified differential evolution algorithm for global optimization. IEEE Transactions on Evolutionary Computation., 06 2014. URL: https://www.osti.gov/biblio/1163659.">15</a>, <a class="reference internal" href="literature.html#id23" title="I Grigorenko and M.E Garcia. An evolutionary algorithm to calculate the ground state of a quantum system. Physica A: Statistical Mechanics and its Applications, 284(1):131-139, 2000. doi:10.1016/S0378-4371(00)00218-1.">16</a>]</span><a class="headerlink" href="#differential-evolution-differentialevolution-differentialevolution-garcia" title="Link to this heading"></a></h3>
+<h3>Differential Evolution <span id="id6">[<a class="reference internal" href="literature.html#id22" title="Ji Qiang and Chad Mitchell. A unified differential evolution algorithm for global optimization. IEEE Transactions on Evolutionary Computation., 06 2014. URL: https://www.osti.gov/biblio/1163659.">16</a>, <a class="reference internal" href="literature.html#id23" title="I Grigorenko and M.E Garcia. An evolutionary algorithm to calculate the ground state of a quantum system. Physica A: Statistical Mechanics and its Applications, 284(1):131-139, 2000. doi:10.1016/S0378-4371(00)00218-1.">17</a>]</span><a class="headerlink" href="#differential-evolution-differentialevolution-differentialevolution-garcia" title="Link to this heading"></a></h3>
 <p>This implementation of the Differential Evolution algorithm (DE), follows the same paper as the scipy-implementation. It works by taking a parent population and creating a child population through mutations and crossover operations. A fitness evaluation then returns the population back to its original size.<br />
 In addition to the standard implementation an additional crossover strategy (smooth) and an additional selection mechanism (global) have been implemented. The smooth-crossover is motivated by the fact that the population can be parametrized on a grid. Conventional crossovers (bin, exp) will introduce sharp jumps and cutoffs into the population. The smooth crossover works similar to the exp-crossover but introduces a smooth transition via a tanh() function.<br />
 The additional selection mechanism is motivated by the fact that the greedy-selection performs a pair-based comparison of parent and child population. The global-selection performs a global comparison of all individuals and randomly selects the fittest individuals. This selection can be tuned via a temperature of a Fermi-Dirac-like probability distribution.<br />
@@ -276,32 +306,6 @@ Below is a small working example of the DE to an SHG-FROG. The main tunable para
                                           <span class="n">no_funcs_amp</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="n">final_result</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</section>
-<section id="lsf-lsf-paper">
-<h3>LSF <span id="id6">[<a class="reference internal" href="literature.html#id24" title="Christoffer Oxelmark Krook and Valdas Pasiskevicius. Overcoming noise in pulse retrieval: introducing the line-search frog algorithm. Opt. Express, 33(16):33258–33269, Aug 2025. doi:10.1364/OE.569606.">17</a>]</span><a class="headerlink" href="#lsf-lsf-paper" title="Link to this heading"></a></h3>
-<p>The Linesearch-Frog-Algorithm (LSF) is a general optimization algorithm. Despite its name. Simply speaking the algorithm performs a high-dimensional randomized bisection search. This works by selecting a random complex-valued direction. By setting the maximum pulse magnitude to one, a lower and an upper boundry can be defined. Be performing bisection search along the random direction inside the boundary, a slightly improoved pulse guess can be found.<br />
-On top of the fully randomized version, in this implementation one can restrict the random directions to exhibit some degree of smoothness. However, this may not necesserily improve the algorithm performance.<br />
-<br>
-In addition the algorithm is not able to fully converge if one applies an additional constraint by projection onto the pulse spectrum. This is because the bisection search does not know about the spectrum. The projection and the bisection search may thus counteract each other. A possible but not implemented solution would be to seperate the pulse into a magnitude and a complex oscillatory part <span class="math notranslate nohighlight">\(\Psi\)</span> with constant magnitude one and only optimize the latter. <span class="math notranslate nohighlight">\(\left(E(\omega,\phi(\omega)) = E(\omega)\cdot \Psi(\phi(\omega))\right)\)</span><br />
-<br>
-Below is a small working example of the LSF to an SHG-FROG. The main tunable parameters are the number of iterations per bisection-search as well as a tuning parameter for the smoothness in case of a continuous direction search.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSF</span>
-
-<span class="n">lsf</span> <span class="o">=</span> <span class="n">LSF</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">)</span>
-
-<span class="n">population</span> <span class="o">=</span> <span class="n">lsf</span><span class="o">.</span><span class="n">create_initial_population</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">amp_type</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">phase_type</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">)</span>
-
-<span class="n">lsf</span><span class="o">.</span><span class="n">number_of_bisection_iterations</span> <span class="o">=</span> <span class="mi">12</span>
-<span class="n">lsf</span><span class="o">.</span><span class="n">random_direction_mode</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
-<span class="c1"># lsf.ratio_points_for_continuous = 0.25    # only used when random_direction_mode=&quot;continuous&quot;</span>
-
-<span class="n">final_result</span> <span class="o">=</span> <span class="n">lsf</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -362,7 +366,7 @@ Below is a small working example of AutoDiff with an SHG-FROG. One should be abl
 </section>
 <section id="additional-constraint-and-loss-function">
 <h3>Additional Constraint and Loss-Function<a class="headerlink" href="#additional-constraint-and-loss-function" title="Link to this heading"></a></h3>
-<p>As in the Classical Algorithms, the General Algorithms are able to incorporate the pulse-spectrum as an additional constraint. However, with the exception of LSF all implementations incorporate this constraint as a true constraint optimization. Meaning that if a spectrum is provided only the phase will be optimized. For doubleblind retrievals the provision of spectra for pulse and gate-pulse is necessary to avoid retrieval ambiguities.<br />
+<p>As in the Classical Algorithms, the General Algorithms are able to incorporate the pulse-spectrum as an additional constraint. All implementations incorporate this constraint as a true constraint optimization. Meaning that if a spectrum is provided only the phase will be optimized. For doubleblind retrievals the provision of spectra for pulse and gate-pulse is necessary to avoid retrieval ambiguities.<br />
 A spectrum can be incorporated in any algorithm as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -388,7 +392,7 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 </div>
 <p>Since the General Algorithms dont rely on analytic derivatives one is not restricted to a specific Error/Loss-function. By default the G-error is used:</p>
 <p><span class="math notranslate nohighlight">\(G = \frac{1}{N_\theta\cdot N_\omega}\sum |T(\theta, \omega) -  |S(\theta,\omega)|^2|^2\)</span></p>
-<p>However one can specify an arbitrary user-defined loss-function. This can be done as shown below, where an L1-Norm isused.</p>
+<p>However one can specify an arbitrary user-defined loss-function <span id="id9">[<a class="reference internal" href="literature.html#id32" title="Shuhe Zhang, Tos T.J.M. Berendschot, and Jinhua Zhou. Elfpie: an error-laxity fourier ptychographic iterative engine. Signal Processing, 210:109088, 2023. doi:10.1016/j.sigpro.2023.109088.">23</a>]</span>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoDiff</span>
@@ -396,9 +400,33 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">my_loss</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">measured_trace</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">trace</span> <span class="o">-</span> <span class="n">measured_trace</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">my_loss_function</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">measured_trace</span><span class="p">,</span> <span class="n">exponent_trace</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">L_norm</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An example of a modified loss function for general algorithms. </span>
+<span class="sd">    </span>
+<span class="sd">    Inspired by ELFPIE: S. Zhang, T.T.J.M. Berendschot and J. Zhou, Signal Processing 210 109088, 10.1016/j.sigpro.2023.109088, (2023)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        trace (jnp.array): the current trace</span>
+<span class="sd">        measured_trace (jnp.array): the measured trace</span>
+<span class="sd">        </span>
+<span class="sd">        kwargs:</span>
+<span class="sd">            exponent_trace (int, float): the exponent applied to trace before building the residual</span>
+<span class="sd">            L_norm (int, float): the norm exponent to be used</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">measured_trace</span> <span class="o">=</span> <span class="n">measured_trace</span><span class="o">/</span><span class="n">jnp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">measured_trace</span><span class="p">))</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">trace</span><span class="o">/</span><span class="n">jnp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>
+
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span><span class="o">*</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">exponent_trace</span><span class="p">)</span> <span class="o">-</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">measured_trace</span><span class="p">)</span><span class="o">*</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">measured_trace</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">exponent_trace</span><span class="p">)</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="o">**</span><span class="n">L_norm</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">error</span>
+
     
+
+
 
 <span class="n">solver</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">)</span>
 <span class="n">ad</span> <span class="o">=</span> <span class="n">AutoDiff</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="s2">&quot;shg&quot;</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">)</span>
@@ -407,7 +435,7 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
                                            <span class="n">amp_type</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="n">phase_type</span><span class="o">=</span><span class="s2">&quot;sigmoidal&quot;</span><span class="p">,</span> 
                                            <span class="n">no_funcs_amp</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">no_funcs_phase</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 
-<span class="n">ad</span><span class="o">.</span><span class="n">error_metric</span> <span class="o">=</span> <span class="n">my_loss</span>
+<span class="n">ad</span><span class="o">.</span><span class="n">error_metric</span> <span class="o">=</span> <span class="n">my_loss_function</span>
 
 <span class="n">final_result</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </pre></div>
@@ -415,6 +443,51 @@ A spectrum can be incorporated in any algorithm as shown below.</p>
 </div>
 </div>
 </section>
+</section>
+<section id="cross-correlation-and-doubleblind-retrievals">
+<h2>Cross-correlation and Doubleblind Retrievals<a class="headerlink" href="#cross-correlation-and-doubleblind-retrievals" title="Link to this heading"></a></h2>
+<p>All algorithms are capable of retrieving the pulse from a cross-correlation measurement, given that the gate pulse has been provided. In addition the keyword <code class="docutils literal notranslate"><span class="pre">cross_correlation=True</span></code> needs to be set during algorithm instantiation.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myalgorithm</span> <span class="o">=</span> <span class="n">MyAlgorithm</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">nonlinear_method</span><span class="p">,</span> <span class="n">cross_correlation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span>
+
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">get_gate_pulse</span><span class="p">(</span><span class="n">frequency_gate</span><span class="p">,</span> <span class="n">gate_pulse</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>If the gate-pulse is not known a doubleblind-retrieval of both the pulse and the gate-pulse can be attempted with most algorithms. It can be enabled by setting <code class="docutils literal notranslate"><span class="pre">cross_correlation=&quot;doubleblind&quot;</span></code>. Those algorithms who are not meant for doubleblind retrievals will/should raise an assertion error if this is attempted.<br />
+The simultaneous retrieval of pulse and gate-pulse is non-unique, thus additional constraints in the form of the pulse-spectrum and gate-pulse spectrum should be provided. Examples for cross-correlation and doubleblind retrievals can be found <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/examples">here</a>.</p>
+<p>Some algorithms like <code class="docutils literal notranslate"><span class="pre">CPCGPA</span></code> retrieve the actual gate and not the gate pulse. In such cases the provision of a spectrum for the gate-pulse would introduce inconsistencies. However this algorithm incorporates the required additional constraints through the “principal-component procdure”.</p>
+</section>
+<section id="retrieval-of-the-calibration-curve">
+<h2>Retrieval of the Calibration Curve<a class="headerlink" href="#retrieval-of-the-calibration-curve" title="Link to this heading"></a></h2>
+<p>Usually, the calibration curve of a spectrometer or an optical setup is known. In such cases it can be provided via <code class="docutils literal notranslate"><span class="pre">algorithm.get_calibration_curve(frequency,</span> <span class="pre">calibration_curve)</span></code>. However in rare cases the calibration curve may not easily be accessible. Luckily the calibration curve <span class="math notranslate nohighlight">\(\mu\)</span> can be recovered via linear least-squares from the G-error. <span id="id10">[<a class="reference internal" href="literature.html#id34" title="Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. J. Opt. Soc. Am. B, 34(1):190–197, Jan 2017. doi:10.1364/JOSAB.34.000190.">24</a>]</span></p>
+<p><span class="math notranslate nohighlight">\(G = \sum\limits_{mn} (T_{mn}^{\mathrm{exp}} - \mu_n\cdot T_{mn})^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\quad \Rightarrow \quad \mu_n = \dfrac{\sum_m T_{mn}^{\mathrm{exp}} \cdot T_{mn}}{\sum_m T_{mn}^2}\)</span></p>
+<p>Thus for a given pulse guess the trace and accompanying calibration curve can be generated. The calibration curve itself is used in the iterative update of the pulse guess. This feedback/additional degree of freedom requires additional constraints on the optimization in order to yield useful results. These can be provided through a calibrated spectrum of the pulse.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># provision of known calibration curve, can also be directly multiplied to meausured_trace before algorithm initialization</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">get_calibration_curve</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">calibration_curve</span><span class="p">)</span>
+
+<span class="c1"># optimize calibration curve in local or global stages</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">local_optimize_calibration_curve</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">global_optimize_calibration_curve</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In practice it seems that the calibration curve retrieval tends to be only successfuly with iterative updates to the signal field <span class="math notranslate nohighlight">\(S'(\theta,t)\)</span>. Thus, one should enable this approach via:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myalgorithm</span><span class="o">.</span><span class="n">r_local_method</span> <span class="o">=</span> <span class="s2">&quot;iteration&quot;</span>
+<span class="n">myalgorithm</span><span class="o">.</span><span class="n">r_global_method</span> <span class="o">=</span> <span class="s2">&quot;iteration&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Possible reasons for this are that a plain projection likely leads to a more eratic movement on the error-surface. Alternatively, during the projection <span class="math notranslate nohighlight">\(\mu\)</span> is incorporated via division, which amplifies noise.</p>
 </section>
 </section>
 

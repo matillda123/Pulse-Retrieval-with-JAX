@@ -9,7 +9,7 @@
   <title>Method-Specific Algorithms &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
@@ -59,6 +59,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Method-Specific Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
@@ -72,6 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -152,10 +154,11 @@
 <section id="frog-tdp-and-vampire">
 <h2>FROG, TDP and VAMPIRE<a class="headerlink" href="#frog-tdp-and-vampire" title="Link to this heading"></a></h2>
 <section id="lsgpa-lsgpa">
-<h3>LSGPA <span id="id2">[<a class="reference internal" href="literature.html#id15" title="J. Gagnon, E. Goulielmakis, and V. S. Yakovlev. The accurate frog characterization of attosecond pulses from streaking measurements. Applied Physics B, 92(1):25-32, Jul 2008. doi:10.1007/s00340-008-3063-x.">23</a>]</span><a class="headerlink" href="#lsgpa-lsgpa" title="Link to this heading"></a></h3>
+<h3>LSGPA <span id="id2">[<a class="reference internal" href="literature.html#id15" title="J. Gagnon, E. Goulielmakis, and V. S. Yakovlev. The accurate frog characterization of attosecond pulses from streaking measurements. Applied Physics B, 92(1):25-32, Jul 2008. doi:10.1007/s00340-008-3063-x.">25</a>]</span><a class="headerlink" href="#lsgpa-lsgpa" title="Link to this heading"></a></h3>
 <p>The Least-Squares Generalized-Projection Algorithm is quite similar to the Vanilla- and Generalized Projection Algorithms. However it works by applying a linear least-squares approach to the Z-error in order to generate a new update. This works since the signal field <span class="math notranslate nohighlight">\(S(\tau, t) = E(t)\cdot G(\tau, t)\)</span> depends on the pulse only in a linear fashion. (If implicit dependencies are ignored.) Thus an update formula for the pulse can be derived:</p>
 <p><span class="math notranslate nohighlight">\(E'(t) = \dfrac{\int S'(\tau, t)\cdot G^*(\tau, t)\, d\tau}{\int |G(\tau, t)|^2\, d\tau}\)</span></p>
-<p>Below is a minimal working example applied to SHG-FROG. There are no tunable parameters.</p>
+<p>Due to its approach/assumptions the algorithm or more specifically its math is related to that of the Ptychographic Iterative Engine.<br />
+Below is a minimal working example applied to SHG-FROG. There are no tunable parameters.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pulsedjax.frog</span><span class="w"> </span><span class="kn">import</span> <span class="n">LSGPA</span>
@@ -171,7 +174,7 @@
 </div>
 </section>
 <section id="c-pcgpa-pcgpa-cpcgpa">
-<h3>C-PCGPA <span id="id3">[<a class="reference internal" href="literature.html#id14" title="Daniel J. Kane. Principal components generalized projections: a review. J. Opt. Soc. Am. B, 25(6):A120–A132, Jun 2008. doi:10.1364/JOSAB.25.00A120.">24</a>, <a class="reference internal" href="literature.html#id13" title="Daniel J. Kane and Andrei B. Vakhtin. A review of ptychographic techniques for ultrashort pulse measurement. Progress in Quantum Electronics, 81:100364, 2022. doi:https://doi.org/10.1016/j.pquantelec.2021.100364.">25</a>]</span><a class="headerlink" href="#c-pcgpa-pcgpa-cpcgpa" title="Link to this heading"></a></h3>
+<h3>C-PCGPA <span id="id3">[<a class="reference internal" href="literature.html#id14" title="Daniel J. Kane. Principal components generalized projections: a review. J. Opt. Soc. Am. B, 25(6):A120–A132, Jun 2008. doi:10.1364/JOSAB.25.00A120.">26</a>, <a class="reference internal" href="literature.html#id13" title="Daniel J. Kane and Andrei B. Vakhtin. A review of ptychographic techniques for ultrashort pulse measurement. Progress in Quantum Electronics, 81:100364, 2022. doi:https://doi.org/10.1016/j.pquantelec.2021.100364.">27</a>]</span><a class="headerlink" href="#c-pcgpa-pcgpa-cpcgpa" title="Link to this heading"></a></h3>
 <p>The Constraint-Principal-Component-Generalized-Projection-Algorithm (C-PCGPA) exploits the fact that a FROG trace can be obtained through an outer product of the pulse and gate. On one hand, this yields an efficient way to calculate a trace. On the other hand this implies that the reverse is also true. Namely that a nonlinear signal field <span class="math notranslate nohighlight">\(S(\tau, t)\)</span> can be transformed into a rank-one matrix consisting of a pulse and gate pair.<br />
 The algorithm applies this to construct an update to the pulse. In a first step a nonlinear signal is calculated and projected onto the measured trace, such that <span class="math notranslate nohighlight">\(S'(\tau, t)\)</span> is obtained. Subsequently, <span class="math notranslate nohighlight">\(S'\)</span> is transformed and factorized using the Singular-Value-Decomposition (SVD), where the column and row-vector of the first singular value correspond to the updated pulse (and gate). For the ideal solution all other singular values are zero. This factorization into the principle components provides the algorithm with its name.<br />
 Since a full SVD is numerically expensive, the power-method can be used to approximate the principal components and iteratively refine them.<br />
@@ -196,7 +199,7 @@ However, despite its elegancy, the algorithm does not seem to work for SD-FROG. 
 <section id="chirp-scan">
 <h2>Chirp-Scan<a class="headerlink" href="#chirp-scan" title="Link to this heading"></a></h2>
 <section id="basic-basic">
-<h3>Basic <span id="id4">[<a class="reference internal" href="literature.html#id4" title="Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. J. Opt. Soc. Am. B, 34(1):190–197, Jan 2017. doi:10.1364/JOSAB.34.000190.">26</a>]</span><a class="headerlink" href="#basic-basic" title="Link to this heading"></a></h3>
+<h3>Basic <span id="id4">[<a class="reference internal" href="literature.html#id4" title="Miguel Miranda, João Penedones, Chen Guo, Anne Harth, Maïté Louisy, Lana Neoričić, Anne L'Huillier, and Cord L. Arnold. Fast iterative retrieval algorithm for ultrashort pulse characterization using dispersion scans. J. Opt. Soc. Am. B, 34(1):190–197, Jan 2017. doi:10.1364/JOSAB.34.000190.">28</a>]</span><a class="headerlink" href="#basic-basic" title="Link to this heading"></a></h3>
 <p>Similarily to the Vanilla algorithm fro FROG, this algorithm produces an updated signal field <span class="math notranslate nohighlight">\(S'(\theta, t)\)</span> via projection. Subsequently a heuristic procedure is used to produce an update. In short, the complex conjugate of the gate is multiplied onto the nonlinear signal. Thus approximately converting any contributions from the gate into an intensity. Afterwards a cube or quintic root is applied which technically converts the nonlinear signal field into a linear signal field. Finally the inverse of the chirp is applied and the resulting linear signal is averaged along <span class="math notranslate nohighlight">\(\theta\)</span>.</p>
 <p>Below is a minimal example for an SHG-Chirp-Scan. There are no tunable parameters.</p>
 <div class="cell docutils container">
@@ -221,9 +224,9 @@ However, despite its elegancy, the algorithm does not seem to work for SD-FROG. 
 <p>For regular SFG 2D-SI this algorithm should be used. It assumes that the ancillae pulses in the interferometer are so narrowband that a CW-approximation applies. The two pulses must have entirely separate frequencies.<br />
 In such a case the nonlinear signal can be written as:</p>
 <p><span class="math notranslate nohighlight">\(S(\tau, t) = (\cos(\omega_1 t) + \cos(\omega_2 (t+\tau)))\cdot E(t)\)</span></p>
-<p>This results in a trace which is directly contains the approximate group delay.</p>
+<p>This results in a trace which directly contains the approximate group delay.</p>
 <p><span class="math notranslate nohighlight">\(T(\tau, \omega) \propto \cos(\omega_1\tau + \phi(\omega) - \phi(\omega - \Omega)) \approx \cos(\omega_1\tau + \phi'(\omega)\cdot\Omega)\)</span></p>
-<p>where <span class="math notranslate nohighlight">\(\Omega=\omega_2-\omega_1\)</span>. Thus the algorithm needs to extract the phase of each frequency component, divide my <span class="math notranslate nohighlight">\(\Omega\)</span> and integrate along <span class="math notranslate nohighlight">\(\omega\)</span> to obtain the spectral phase.</p>
+<p>where <span class="math notranslate nohighlight">\(\Omega=\omega_2-\omega_1\)</span>. Thus the algorithm needs to extract the phase of each frequency component, divide by <span class="math notranslate nohighlight">\(\Omega\)</span> and integrate along <span class="math notranslate nohighlight">\(\omega\)</span> to obtain the spectral phase.</p>
 <p>Below is an example of an SFG 2D-SI reconstruction. Algorithm parameters include the integration type and the FFT-windowing type.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">

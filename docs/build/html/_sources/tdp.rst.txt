@@ -1,6 +1,5 @@
 tdp
 ===========
-
 Submodules
 ----------
 
@@ -19,6 +18,7 @@ tdp.general\_algorithms\_tdp module
    :members:
    :show-inheritance:
    :undoc-members:
+
 
 Module contents
 ---------------

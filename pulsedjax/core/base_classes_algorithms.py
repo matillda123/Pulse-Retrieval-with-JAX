@@ -283,7 +283,7 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
                                             pade_11, pade_01 or pade_02
 
         momentum_is_being_used (bool): what the name says
-
+        normalize_after_every_step (bool): what the name says, is usually True, but e.g. in attosecond streaking it needs to be False
 
     """
 
@@ -322,6 +322,8 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.xi = 0
 
         self.momentum_is_being_used = False
+
+        self.normalize_after_every_step = True
 
 
     def set_nonlinear_optimization(self, local_method=False, global_method=False, damping=1e-3, memory=10, solver="lineax"):
