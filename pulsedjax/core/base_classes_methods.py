@@ -1233,14 +1233,15 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         phase0 = jax.vmap(self.make_volkov_phase_0, in_axes=(0,None))(measurement_info.ionization_potential, measurement_info)
         phase1 = self.make_volkov_phase_1(pulse_t_nir_vectorpotential, measurement_info)
         dtme_momentum = jax.vmap(self.make_dressed_DTME, in_axes=(0,None,None))(dtme_position, pulse_t_nir_vectorpotential, measurement_info)
-        dtme_momentum_and_phase0 = jnp.sum(dtme_momentum*jnp.exp(-1j*phase0), axis=0)
+        dtme_momentum_and_phase0 = jnp.einsum("Cbk, Cbk -> bk", dtme_momentum, jnp.exp(-1j*phase0))
+        #jnp.sum(dtme_momentum*jnp.exp(-1j*phase0), axis=0)
         
         # naming stuff signal_t, signal_f is technically wrong by convention, but potentially necessary for consistency
         dt = jnp.mean(jnp.diff(measurement_info.time))
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
         signal_f = -1j*dt*jnp.einsum("mk, bk, bk -> mb", pulse_t_euv, dtme_momentum_and_phase0, jnp.exp(-1j*phase1))
         signal_t = self.ifft(signal_f, sk, rn)
-        return signal_t, signal_f
+        return signal_t, signal_f, phase0, phase1, dtme_momentum_and_phase0
 
 
 
@@ -1300,10 +1301,14 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                 dtme_position = self.ifft(measurement_info.dtme_momentum, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
         pulse_t_euv_shifted = self.calculate_shifted_signal_input_f_output_t(pulse_f_euv, frequency, tau_arr)
-        signal_t, signal_f = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)
+        signal_t, signal_f, volkov_phase0, volkov_phase1, dtme_shifted_and_volkov_phase0 = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)
         
         signal_t = MyNamespace(signal_t = signal_t,
                                signal_f = signal_f,
-                               pulse_t_euv_shifted = pulse_t_euv_shifted)
+                               pulse_t_euv_shifted = pulse_t_euv_shifted,
+                               pulse_t_nir_vectorpotential = pulse_t_nir_vectorpotential,
+                               volkov_phase0 = volkov_phase0,
+                               volkov_phase1 = volkov_phase1,
+                               dtme_position = dtme_position,
+                               dtme_shifted_and_volkov_phase0 = dtme_shifted_and_volkov_phase0)
         return signal_t
-

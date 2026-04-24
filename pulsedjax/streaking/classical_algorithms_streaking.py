@@ -49,11 +49,7 @@ class GeneralizedProjection(GeneralizedProjectionBASE, RetrievePulsesSTREAKING):
 
     def calculate_Z_gradient_individual(self, signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate):
         """ Calculates the Z-error gradient for an individual. """
-        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, 
-                                    
-                                    signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
-
-                                    tau_arr, measurement_info, pulse_or_gate)
+        grad = calculate_Z_gradient(signal_t.signal_t, signal_t_new, tau_arr, measurement_info, pulse_or_gate)
         return grad
 
 
