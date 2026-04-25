@@ -5,18 +5,25 @@ from functools import partial as Partial
 from pulsedjax.utilities import MyNamespace
 
 
+# can i replace the loops by some vector-operation/broadcasting operation?
+
 
 # the two loops need to have differing counting directions
 # because of this it seems easier to scan over index and not over element
 def backward_loop(q, i, rho, s, y):
     """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-multiplications. """
-    alpha = rho[i]*jnp.vdot(s[i], q)
+    
+    # rho[i] has shape () -> but (C,) in dtme
+    # s[i] has shape (n,) -> but (C,n) in dtme
+    # q has shape (n,) -> but (C,n) in dtme
+    # y[i] has shape (n,) .> but (C,n) in dtme
+    alpha = rho[i]*jnp.vecdot(s[i], q)
     q = q - alpha*y[i]
     return q, alpha
 
 def forward_loop(r, i, alpha, rho, s, y):
     """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-multiplications. """
-    beta = rho[i]*jnp.vdot(y[i], r)
+    beta = rho[i]*jnp.vecdot(y[i], r)
     r = r + s[i] * (alpha[i] - beta)
     return r, None
 
@@ -31,8 +38,10 @@ def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, newton_
     do_backward = Partial(backward_loop, rho=rho, s=s, y=y)
     q, alpha = jax.lax.scan(do_backward, grad_current, m_backward)
 
-    n = jnp.shape(grad_prev)[-1]
-    r = jnp.eye(n) @ q
+    n = jnp.shape(grad_prev)[-1] # (n,)
+    I = jnp.broadcast_to(jnp.eye(n), jnp.shape(grad_current) + (n,))
+    r = jnp.einsum("...np, n -> ...p", I, q) # this should work with dtme in streaking
+
     do_forward = Partial(forward_loop, alpha=alpha, rho=rho, s=s, y=y)
     newton_direction, _ = jax.lax.scan(do_forward, r, m_forward)
     return newton_direction
@@ -70,7 +79,6 @@ def get_quasi_newton_direction(grad, lbfgs_state, descent_info):
     Returns:
         tuple[jnp.array, Pytree], the quasi-newton direction and the unchanged lbfgs_state 
     """
-
     newton_direction = jax.vmap(do_lbfgs, in_axes=(0,0,None))(grad, lbfgs_state, descent_info)
 
     return -1*newton_direction, lbfgs_state

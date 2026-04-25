@@ -18,7 +18,7 @@ def get_nonlinear_CG_direction(descent_direction, cg, beta_parameter_version):
     descent_direction_prev, CG_direction_prev = cg.descent_direction_prev, cg.CG_direction_prev
     
     # negative one to convert descent_direction to grad or pseudo-newton direction
-    beta=get_beta(-1*descent_direction, descent_direction_prev, CG_direction_prev, beta_parameter_version)
+    beta = get_beta(-1*descent_direction, descent_direction_prev, CG_direction_prev, beta_parameter_version)
     CG_direction = descent_direction + beta*CG_direction_prev
 
     cg = MyNamespace(CG_direction_prev=CG_direction, descent_direction_prev = -1*descent_direction)

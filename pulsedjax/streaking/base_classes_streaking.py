@@ -2,11 +2,98 @@ from functools import partial as Partial
 import jax
 import jax.numpy as jnp
 import equinox
-from pulsedjax.core.create_population import create_population_general
-from pulsedjax.core.base_classes_algorithms import GeneralOptimizationBASE
+from pulsedjax.core.create_population import create_population_classic, create_population_general
+from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE, GeneralOptimizationBASE
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 from pulsedjax.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, AutoDiffBASE
 
 from pulsedjax.utilities import MyNamespace
+
+
+
+
+
+
+
+class ClassicalAlgorithmsBASESTREAKING(ClassicAlgorithmsBASE):
+    __doc__ = ClassicAlgorithmsBASE.__doc__
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def create_initial_population(self, population_size=1, guess_type="random"):
+        """ 
+        Creates an initial population of pulses, parametrized as complex values on a grid.
+
+        Args:
+            population_size (int): the number of guesses to be optimized
+            guess_type (str): Has to be one of random, random_phase, constant or constant_phase.
+        
+        Returns:
+            tuple[jnp.array, jnp.array, jnp.array or None, jnp.array or None], initial populations for the pulse and possibly the gate-pulse in time domain or frequency domain for ChirpScans
+
+        """
+        population = super().create_initial_population(population_size=population_size, guess_type=guess_type)
+        
+        if self.measurement_info.retrieve_dtme==True:
+            self.key, subkey = jax.random.split(self.key, 2)
+            shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.momentum))
+            population_dtme = create_population_classic(subkey, shape, guess_type, self.measurement_info)
+        else:
+            population_dtme = None
+        
+        return population.expand(dtme=population_dtme)
+
+
+
+
+class GeneralizedProjectionBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, GeneralizedProjectionBASE):
+    __doc__ = GeneralizedProjectionBASE.__doc__
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+
+
+class PtychographicIterativeEngineBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, PtychographicIterativeEngineBASE):
+    __doc__ = PtychographicIterativeEngineBASE.__doc__
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+
+class COPRABASESTREAKING(ClassicalAlgorithmsBASESTREAKING, COPRABASE):
+    __doc__ = COPRABASE.__doc__
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
@@ -20,8 +107,15 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
         population = super().create_initial_population(population_size, amp_type=amp_type, phase_type=phase_type, no_funcs_amp=no_funcs_amp, no_funcs_phase=no_funcs_phase)
         
         population_dtme = MyNamespace(amp=None, phase=None)
-
         self.key, subkey = jax.random.split(self.key, 2)
+
+
+        if any([amp_type==i for i in self._classical_guess_types])==True:
+            no_funcs_amp = jnp.size(self.measurement_info.momentum)
+        
+        if any([phase_type==i for i in self._classical_guess_types])==True:
+            no_funcs_phase = jnp.size(self.measurement_info.momentum)
+
 
         if self.measurement_info.retrieve_dtme == True:
             measured_spectrum_is_provided_dtme = False

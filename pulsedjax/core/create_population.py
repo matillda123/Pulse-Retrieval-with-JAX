@@ -78,14 +78,14 @@ def constant_phase(key, shape, amp):
 
 
 
-def create_population_classic(key, population_size, guess_type, measurement_info):
+def create_population_classic(key, shape, guess_type, measurement_info):
     """
     Creates a stack of initial guesses with the shape (population_size, jnp.size(frequency)). The guesses are all in the frequency domain.
     The created populations can be optimized by both general and classical solvers.
 
     Args:
         key (jnp.array): jax.random.PRNGKey
-        population_size (int): the number of guesses to be optimized
+        shape (tuple): the number and size of individuals
         guess_type (str): the guess mode. Has to be one of random, random_phase, constant or constant_phase. doublepulse is moved to initial_guess_doublepulse.py
         measurement_info (Pytree): holds the measurement information, is filled during initialization of each solver
 
@@ -94,7 +94,6 @@ def create_population_classic(key, population_size, guess_type, measurement_info
     """
 
     amp = get_initial_amp(measurement_info)
-    shape=(population_size, jnp.size(measurement_info.frequency))
 
     if guess_type=="random":
         signal_f_arr = random(key, shape)
@@ -223,14 +222,14 @@ def bspline_guess_amp(key, population, shape, measurement_info):
 
 def general_phase(key, population, shape, measurement_info, phase_type):
     key, subkey = jax.random.split(key, 2)
-    signal_f = create_population_classic(subkey, shape[0], phase_type, measurement_info)
+    signal_f = create_population_classic(subkey, shape, phase_type, measurement_info)
     population = tree_at(lambda x: x.phase, population, jnp.angle(signal_f), is_leaf=lambda x: x is None)
     return key, population
 
 
 def general_amp(key, population, shape, measurement_info, amp_type):
     key, subkey = jax.random.split(key, 2)
-    signal_f = create_population_classic(subkey, shape[0], amp_type, measurement_info)
+    signal_f = create_population_classic(subkey, shape, amp_type, measurement_info)
     population = tree_at(lambda x: x.amp, population, jnp.abs(signal_f), is_leaf=lambda x: x is None)
     return key, population
 

@@ -438,12 +438,14 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
             tuple[jnp.array, jnp.array, jnp.array or None, jnp.array or None], initial populations for the pulse and possibly the gate-pulse in time domain or frequency domain for ChirpScans
 
         """
+        shape = (population_size, jnp.size(self.measurement_info.frequency))
+        
         self.key, subkey = jax.random.split(self.key, 2)
-        pulse_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
+        pulse_f_arr = create_population_classic(subkey, shape, guess_type, self.measurement_info)
 
         if self.doubleblind==True:
             self.key, subkey = jax.random.split(self.key, 2)
-            gate_f_arr = create_population_classic(subkey, population_size, guess_type, self.measurement_info)
+            gate_f_arr = create_population_classic(subkey, shape, guess_type, self.measurement_info)
         else:
             gate_f_arr = None
 
@@ -475,6 +477,14 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
 
+    def update_velocity_map(self, signal, velocity_map, update_velocity_map, eta):
+        """ Updates the velocity map for such that it can be applied in self.apply_momentum()"""
+        return eta*velocity_map + (signal - update_velocity_map)
+
+
+    def apply_momentum(self, signal, velocity_map, eta):
+        """ Applies momentum to a signal. """
+        return signal + eta*velocity_map
 
 
     def do_step_and_apply_momentum(self, descent_state, measurement_info, descent_info, do_step):
@@ -482,14 +492,12 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         population = descent_state.population
         momentum = descent_state.momentum
 
-        population_pulse, momentum_pulse = self.apply_momentum(population.pulse, momentum.pulse, descent_info.eta)
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
-        momentum = tree_at(lambda x: x.pulse, momentum, momentum_pulse)
+        _update_velocity_map = Partial(self.update_velocity_map, eta=descent_info.eta)
+        _apply_momentum = Partial(self.apply_momentum, eta=descent_info.eta)
+        velocity_map = jax.tree.map(_update_velocity_map, population, momentum.velocity_map, momentum.update_velocity_map)
+        population = jax.tree.map(_apply_momentum, population, velocity_map)
 
-        if measurement_info.doubleblind==True:
-            population_gate, momentum_gate = self.apply_momentum(population.gate, momentum.gate, descent_info.eta)
-            population = tree_at(lambda x: x.gate, population, population_gate)
-            momentum = tree_at(lambda x: x.gate, momentum, momentum_gate)
+        momentum = MyNamespace(velocity_map=velocity_map, update_velocity_map=population)
 
         descent_state = tree_at(lambda x: x.population, descent_state, population)
         descent_state = tree_at(lambda x: x.momentum, descent_state, momentum)
@@ -513,13 +521,31 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         """
         if self.momentum_is_being_used==True:
             return self
-        else:
-            shape=(population_size, jnp.size(self.frequency))
+        else: # this initialization doesnt work with dtme
+            shape=(population_size, jnp.size(self.measurement_info.frequency))
             init_arr = jnp.zeros(shape, dtype=jnp.complex64)
-            
+
+            if self.measurement_info.doubleblind==True:
+                gate_init = init_arr
+            else:
+                gate_init = None
+
+            velocity_map_init = MyNamespace(pulse=init_arr, gate=gate_init)
+            update_velocity_map_init = MyNamespace(pulse=init_arr, gate=gate_init)
+
+            if hasattr(self.measurement_info, "retrieve_dtme")==True:
+                if self.measurement_info.retrieve_dtme==True:
+                    shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.momentum))
+                    dtme_init = jnp.zeros(shape, dtype=jnp.complex64)
+                else:
+                    dtme_init = None
+
+                velocity_map_init = velocity_map_init.expand(dtme=dtme_init)
+                update_velocity_map_init = update_velocity_map_init.expand(dtme=dtme_init)
+
             self.descent_info = self.descent_info.expand(eta=eta)
-            self.descent_state = self.descent_state.expand(momentum = MyNamespace(pulse = MyNamespace(update_for_velocity_map=init_arr, velocity_map=init_arr), 
-                                                                                  gate = MyNamespace(update_for_velocity_map=init_arr, velocity_map=init_arr)))
+            self.descent_state = self.descent_state.expand(momentum = MyNamespace(velocity_map=velocity_map_init, 
+                                                                                  update_velocity_map=update_velocity_map_init))
             
             if self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
                 self._local_step = self.local_step
@@ -534,27 +560,6 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
             self.momentum_is_being_used = True
             return self
     
-
-
-    def apply_momentum(self, signal, momentum, eta):
-        """ 
-        Applies momentum to a signal. 
-
-        Args:
-            signal: jnp.array,
-            momentum: Pytree, contains the velocity map and its update
-            eta (float): the strength of the momentum
-
-        Returns:
-            tuple[jnp.array, Pytree], the updated signal and momentum state
-        """
-        update_for_velocity_map, velocity_map = momentum.update_for_velocity_map, momentum.velocity_map
-
-        velocity_map = eta*velocity_map + (signal - update_for_velocity_map)
-        signal = signal + eta*velocity_map
-
-        momentum = MyNamespace(update_for_velocity_map=signal, velocity_map=velocity_map)
-        return signal, momentum
     
 
 
@@ -614,6 +619,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         self.make_bsplines_amp = None
         self.make_bsplines_phase = None
 
+        self._classical_guess_types = ["random", "random_phase", "constant", "constant_phase"]
+
 
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         """ 
@@ -662,6 +669,11 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             Nx = N/(no_funcs_amp-k+1) + 1
             self.make_bsplines_amp = Partial(make_bsplines, k=k, M=M, f=f, Nx=int(Nx))
 
+        if any([amp_type==i for i in self._classical_guess_types])==True:
+            no_funcs_amp = jnp.size(self.measurement_info.frequency)
+        
+        if any([phase_type==i for i in self._classical_guess_types])==True:
+            no_funcs_phase = jnp.size(self.measurement_info.frequency)
 
         subkey, population_pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
                                                              self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info, "pulse")
@@ -673,11 +685,10 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             population = tree_at(lambda x: x.gate, population, population_gate, is_leaf=lambda x: x is None)
             
 
-        classical_guess_types=["random", "random_phase", "constant", "constant_phase"]
-        if any([guess==phase_type for guess in classical_guess_types])==True:
+        if any([guess==phase_type for guess in self._classical_guess_types])==True:
             phase_type = "continuous"
             
-        if any([guess==amp_type for guess in classical_guess_types])==True:
+        if any([guess==amp_type for guess in self._classical_guess_types])==True:
             amp_type = "continuous"
         
         self.descent_info = self.descent_info.expand(population_size=population_size, phase_type=phase_type, amp_type=amp_type)
@@ -807,14 +818,21 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             
         amp_func = amp_func_dict[descent_info.amp_type]
         amp_f = amp_func(coefficients, measurement_info)
-
-        frequency = measurement_info.frequency
-        idx_arr = jnp.arange(jnp.size(frequency))
-        idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
-        central_f = frequency[idx.astype(int)]
-        return amp_f, central_f
+        return amp_f
     
 
+    def get_central_f_for_current_guess(self, amp_f, measurement_info, pulse_or_guess):
+        if pulse_or_guess=="dtme":
+            momentum = measurement_info.momentum
+            idx_arr = jnp.arange(jnp.size(momentum))
+            idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
+            central_f = momentum[idx.astype(int)]
+        else:
+            frequency = measurement_info.frequency
+            idx_arr = jnp.arange(jnp.size(frequency))
+            idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
+            central_f = frequency[idx.astype(int)]
+        return central_f
 
 
     def make_pulse_f_from_individual(self, individual, measurement_info, descent_info, pulse_or_gate="pulse"):
@@ -833,7 +851,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             central_f = getattr(measurement_info.central_frequency, pulse_or_gate)
 
         else:
-            amp, central_f = self.get_amplitude(individual.amp, measurement_info, descent_info)
+            amp = self.get_amplitude(individual.amp, measurement_info, descent_info)
+            central_f = self.get_central_f_for_current_guess(amp, measurement_info, pulse_or_gate)
     
         phase = self.get_phase(individual.phase, central_f, measurement_info, descent_info)
         signal_f = amp*jnp.exp(1j*2*jnp.pi*phase)

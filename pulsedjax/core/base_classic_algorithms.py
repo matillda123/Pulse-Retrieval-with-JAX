@@ -27,55 +27,36 @@ def normalize_population(population, measurement_info, descent_info, pulse_or_ga
                 population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
             else:
                 population_gate = population.gate
-
-    return MyNamespace(pulse=population_pulse, gate=population_gate)
-
-
-
-def initialize_CG_state(shape, measurement_info):
-    init_arr = jnp.zeros(shape, dtype=jnp.complex64)
-
-    cg_pulse = MyNamespace(CG_direction_prev = init_arr, 
-                           descent_direction_prev = init_arr)
-
-    if measurement_info.doubleblind==True:
-        cg_gate = MyNamespace(CG_direction_prev = init_arr, 
-                              descent_direction_prev = init_arr)
     else:
-        cg_gate = None
+        population_pulse = population.pulse
+        population_gate = population.gate
 
-    return MyNamespace(pulse=cg_pulse, gate=cg_gate)
-
-
-
-def initialize_pseudo_newton_state(shape, measurement_info):
-    init_arr1 = jnp.zeros(shape, dtype=jnp.complex64)
-
-    newton_pulse = MyNamespace(newton_direction_prev=init_arr1)
-    if measurement_info.doubleblind==True:
-        newton_gate = MyNamespace(newton_direction_prev=init_arr1)
-    else:
-        newton_gate = None
-
-    return MyNamespace(pulse=newton_pulse, gate=newton_gate)
+    return population.expand(pulse=population_pulse, gate=population_gate)
 
 
 
-def initialize_lbfgs_state(shape, measurement_info, descent_info):
-    N = shape[0]
-    n = shape[1]
+def initialize_CG_state(population):
+    init_arr = jnp.zeros(jnp.shape(population), dtype=jnp.complex64)
+    return MyNamespace(CG_direction_prev = init_arr, descent_direction_prev = init_arr)
+
+
+def initialize_pseudo_newton_state(population):
+    init_arr1 = jnp.zeros(jnp.shape(population), dtype=jnp.complex64)
+    return MyNamespace(newton_direction_prev=init_arr1)
+    
+
+
+def initialize_lbfgs_state(population, descent_info):
     m = descent_info.newton.lbfgs_memory
+    shape = jnp.shape(population)
+    shape1 = (shape[0],) + (m,) + shape[1:]
+    shape2 = (shape[0],) + (m,) + (1,)
 
-    init_arr1 = jnp.zeros((N,m,n), dtype=jnp.complex64)
-    init_arr2 = jnp.zeros((N,m,1), dtype=jnp.float32)
+    init_arr1 = jnp.zeros(shape1, dtype=jnp.complex64)
+    init_arr2 = jnp.zeros(shape2, dtype=jnp.float32)
 
-    lbfgs_init_pulse = MyNamespace(grad_prev = init_arr1, newton_direction_prev = init_arr1, step_size_prev = init_arr2)
-    if measurement_info.doubleblind==True:
-        lbfgs_init_gate = MyNamespace(grad_prev = init_arr1, newton_direction_prev = init_arr1, step_size_prev = init_arr2)
-    else:
-        lbfgs_init_gate = None
-        
-    return MyNamespace(pulse=lbfgs_init_pulse, gate=lbfgs_init_gate)
+    return MyNamespace(grad_prev = init_arr1, newton_direction_prev = init_arr1, step_size_prev = init_arr2)
+
 
 
 def update_lbfgs_state(lbfgs_state, gamma, grad, descent_direction):
@@ -95,6 +76,9 @@ def update_lbfgs_state(lbfgs_state, gamma, grad, descent_direction):
                             newton_direction_prev = newton_arr,
                             step_size_prev = step_size_arr)
     return lbfgs_state
+
+
+
 
 
 
@@ -672,7 +656,10 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
     def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
         pulse_f = getattr(individual, pulse_or_gate)
-        pulse_f = pulse_f + gamma*descent_direction
+        
+        descent_direction = jnp.swapaxes(descent_direction, 0, -1)
+        delta_pulse_f = gamma*descent_direction
+        pulse_f = pulse_f + jnp.swapaxes(delta_pulse_f, 0, -1)
 
         individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
         return individual
@@ -680,7 +667,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     
     def update_population(self, population, gamma, descent_direction, pulse_or_gate):
         """ Applies the descent based update to the population. """
-        return self.update_individual(population, gamma[:,None], descent_direction, pulse_or_gate)
+        return self.update_individual(population, gamma, descent_direction, pulse_or_gate)
         
 
     
@@ -722,7 +709,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
             grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
-        return jnp.sum(grad, axis=0)
+        return jnp.sum(grad, axis=-2)
 
 
     def descent_Z_error_step(self, signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, pulse_or_gate): 
@@ -739,7 +726,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         transform_arr = jnp.broadcast_to(transform_arr, (descent_info.population_size, ) + jnp.shape(transform_arr))
 
         grad = self.get_Z_gradient(signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate)
-        grad_sum = jnp.sum(grad, axis=1)
+        #grad_sum = jnp.sum(grad, axis=1)
+        grad_sum = jnp.sum(grad, axis=-2) # instead of counting from the front, count from the back
 
 
         if newton_info=="diagonal" or newton_info=="full":
@@ -769,8 +757,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
                                                                                                                     pulse_or_gate, "_global")
 
         if descent_info.linesearch_params.linesearch!=False:
-            #pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
+            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            #pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # vmap(vdot) is better for dtme in streaking
             
             linesearch_info=MyNamespace(population=population, descent_direction=descent_direction, signal_t_new=signal_t_new, 
                                         error=Z_error, pk_dot_gradient=pk_dot_gradient)
@@ -814,10 +802,10 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     def do_descent_Z_error(self, descent_state, signal_t_new, measurement_info, descent_info):
         """ Performs a descent based optimization to find the pulse/gate that are able to produce S_prime. """
         
-        shape_pulse = jnp.shape(descent_state.population.pulse) # this might make problems with streaking
-        cg_state = initialize_CG_state(shape_pulse, measurement_info)
-        newton_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
-        lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
+        cg_state = jax.tree.map(initialize_CG_state, descent_state.population)
+        newton_state = jax.tree.map(initialize_pseudo_newton_state, descent_state.population)
+        lbfgs_state = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info), descent_state.population)
+
         descent_state = tree_at(lambda x: x.cg, descent_state, cg_state)
         descent_state = tree_at(lambda x: x.newton, descent_state, newton_state)
         descent_state = tree_at(lambda x: x.lbfgs, descent_state, lbfgs_state)
@@ -879,10 +867,10 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         self.descent_info = initialize_descent_info(self).expand(no_steps_descent = self.no_steps_descent)
         descent_info = self.descent_info
 
-        shape_pulse = jnp.shape(population.pulse) # same here might mke problems with streaking
-        cg_state = initialize_CG_state(shape_pulse, measurement_info)
-        newton_state = initialize_pseudo_newton_state(shape_pulse, measurement_info)
-        lbfgs_state = initialize_lbfgs_state(shape_pulse, measurement_info, descent_info)
+        #shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), population)
+        cg_state = jax.tree.map(initialize_CG_state, population)
+        newton_state = jax.tree.map(initialize_pseudo_newton_state, population)
+        lbfgs_state = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info), population)
 
         _, mu_init_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population=population,
@@ -1280,22 +1268,22 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                                  pie_method = self.pie_method)
         descent_info = self.descent_info
 
-        shape = jnp.shape(population.pulse)
-        cg_state_local = initialize_CG_state(shape, measurement_info)
-        newton_state_local = initialize_pseudo_newton_state(shape, measurement_info)
-        lbfgs_state_local = initialize_lbfgs_state(shape, measurement_info, descent_info)
+        shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), descent_state.population)
+        cg_state_local = jax.tree.map(initialize_CG_state, shape_population)
+        newton_state_local = jax.tree.map(initialize_pseudo_newton_state, shape_population)
+        lbfgs_state_local = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
 
-        cg_state_global = initialize_CG_state(shape, measurement_info)
-        newton_state_global = initialize_pseudo_newton_state(shape, measurement_info)
-        lbfgs_state_global = initialize_lbfgs_state(shape, measurement_info, descent_info)
+        cg_state_global = jax.tree.map(initialize_CG_state, shape_population)
+        newton_state_global = jax.tree.map(initialize_pseudo_newton_state, shape_population)
+        lbfgs_state_global = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
 
         mu_init_local, mu_init_global = initialize_mu(self, measurement_info, descent_info)
 
-        init_arr = jnp.zeros(shape[0])
+        max_scaling_init = jax.tree.map(lambda x: jnp.zeros(x[0]), shape_population) 
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
                                                        _local=MyNamespace(cg=cg_state_local, newton=newton_state_local, lbfgs=lbfgs_state_local, 
-                                                                          max_scaling = MyNamespace(pulse=init_arr, gate=init_arr),
+                                                                          max_scaling = max_scaling_init,
                                                                           mu=mu_init_local),
                                                        _global=MyNamespace(cg=cg_state_global, newton=newton_state_global, 
                                                                            lbfgs=lbfgs_state_global, mu=mu_init_global))
@@ -1656,22 +1644,22 @@ class COPRABASE(ClassicAlgorithmsBASE):
         self.descent_info = initialize_descent_info(self)
         descent_info = self.descent_info
 
-        shape = jnp.shape(population.pulse)
-        cg_state_local = initialize_CG_state(shape, measurement_info)
-        newton_state_local = initialize_pseudo_newton_state(shape, measurement_info)
-        lbfgs_state_local = initialize_lbfgs_state(shape, measurement_info, descent_info)
+        shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), descent_state.population)
+        cg_state_local = jax.tree.map(initialize_CG_state, shape_population)
+        newton_state_local = jax.tree.map(initialize_pseudo_newton_state, shape_population)
+        lbfgs_state_local = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
 
-        cg_state_global = initialize_CG_state(shape, measurement_info)
-        newton_state_global = initialize_pseudo_newton_state(shape, measurement_info)
-        lbfgs_state_global = initialize_lbfgs_state(shape, measurement_info, descent_info)
+        cg_state_global = jax.tree.map(initialize_CG_state, shape_population)
+        newton_state_global = jax.tree.map(initialize_pseudo_newton_state, shape_population)
+        lbfgs_state_global = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
 
         mu_init_local, mu_init_global = initialize_mu(self, measurement_info, descent_info)
 
-        init_arr = jnp.zeros(shape[0])
+        max_scaling_init = jax.tree.map(lambda x: jnp.zeros(x[0]), shape_population) 
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
                                                        _local=MyNamespace(cg=cg_state_local, newton=newton_state_local, lbfgs=lbfgs_state_local, 
-                                                                          max_scaling = MyNamespace(pulse=init_arr, gate=init_arr),
+                                                                          max_scaling = max_scaling_init,
                                                                           mu = mu_init_local),
                                                        _global=MyNamespace(cg=cg_state_global, newton=newton_state_global, lbfgs=lbfgs_state_global, 
                                                                            mu=mu_init_global))
