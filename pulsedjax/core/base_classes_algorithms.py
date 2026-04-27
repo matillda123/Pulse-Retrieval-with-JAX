@@ -129,39 +129,6 @@ class AlgorithmsBASE:
 
 
 
-    def apply_spectrum(self, pulse, spectral_amplitude, eta):
-        norm_in = jnp.linalg.norm(pulse, axis=-1)
-        spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
-        pulse = project_onto_amplitude(pulse, spectral_amplitude)
-        norm_out = jnp.linalg.norm(pulse, axis=-1)
-        return pulse*(norm_in/norm_out)[:,None]
-    
-
-    def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
-        """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
-        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
-        
-        
-        population = descent_state.population
-        eta = descent_info.eta_spectral_amplitude
-        
-        if descent_info.measured_spectrum_is_provided.pulse==True:
-            _apply_spectrum = Partial(self.apply_spectrum, spectral_amplitude=measurement_info.spectral_amplitude.pulse, eta=eta)
-            population_pulse = jax.tree.map(_apply_spectrum, population.pulse)
-            population = tree_at(lambda x: x.pulse, population, population_pulse)
-
-        if descent_info.measured_spectrum_is_provided.gate==True:
-            _apply_spectrum = Partial(self.apply_spectrum, spectral_amplitude=measurement_info.spectral_amplitude.gate, eta=eta)
-            population_gate = jax.tree.map(_apply_spectrum, population.gate)
-            population = tree_at(lambda x: x.gate, population, population_gate)
-            
-        descent_state = tree_at(lambda x: x.population, descent_state, population)
-        return descent_state, trace_error
-
-
-
-
-
     def use_measured_spectrum(self, frequency, spectrum, pulse_or_gate="pulse"):
         """ 
         Needs to be called if a pulse spectrum is meant to be used in the reconstruction. 
@@ -474,6 +441,40 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         transform_arr = jnp.expand_dims(transform_arr, axis=2)
         measured_trace = jnp.expand_dims(measured_trace, axis=2)
         return transform_arr, measured_trace, descent_state
+
+
+    
+
+
+    def apply_spectrum(self, pulse, spectral_amplitude, eta):
+        norm_in = jnp.linalg.norm(pulse, axis=-1)
+        spectral_amplitude = (1-eta)*jnp.abs(pulse) + eta*spectral_amplitude
+        pulse = project_onto_amplitude(pulse, spectral_amplitude)
+        norm_out = jnp.linalg.norm(pulse, axis=-1)
+        return pulse*(norm_in/norm_out)[:,None]
+    
+
+    def do_step_and_apply_spectral_amplitude(self, descent_state, measurement_info, descent_info, do_step):
+        """ If a spectrum is provided this wraps around the step-method of all solvers and projects the current guess onto the measured spectrum. """
+        descent_state, trace_error = do_step(descent_state, measurement_info, descent_info)
+        
+        
+        population = descent_state.population
+        eta = descent_info.eta_spectral_amplitude
+        
+        if descent_info.measured_spectrum_is_provided.pulse==True:
+            population_pulse = self.apply_spectrum(population.pulse, measurement_info.spectral_amplitude.pulse, eta)
+            population = tree_at(lambda x: x.pulse, population, population_pulse)
+
+        if descent_info.measured_spectrum_is_provided.gate==True:
+            population_gate = self.apply_spectrum(population.gate, measurement_info.spectral_amplitude.gate, eta)
+            population = tree_at(lambda x: x.gate, population, population_gate)
+
+        descent_state = tree_at(lambda x: x.population, descent_state, population)
+        return descent_state, trace_error
+    
+
+    
 
 
 

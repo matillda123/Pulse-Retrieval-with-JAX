@@ -1093,7 +1093,6 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
         self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au)) # this requires interpolation of trace
-
         measured_trace = jax.vmap(Partial(do_interpolation_1d, method="cubic"), 
                                   in_axes=(None,None,0))(0.5*self.momentum_au**2, self.energy_au, measured_trace)
 
@@ -1245,39 +1244,6 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
 
-
-
-    # curcimventing the padding by interpolation doesnt work
-    # def calculate_shifted_signal_input_f_output_t(self, signal_t, frequency, tau_arr):
-    #     """ The Fourier-Shift theorem applied to a list of signals. """
-
-    #     N = jnp.size(frequency)
-    #     # due to padding f, t, sk and rn need to be redefined 
-    #     frequency_pad = jnp.linspace(jnp.min(frequency), jnp.max(frequency), 3*N)
-    #     time_pad = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(frequency))))
-    #     sk_pad, rn_pad = get_sk_rn(time_pad, frequency_pad)
-
-    #     # padding in time domain is the same as interpolation in frequency domain
-
-    #     time = jnp.fft.fftshift(jnp.fft.fftfreq(N, jnp.mean(jnp.diff(frequency))))
-    #     sk, rn = get_sk_rn(time, frequency)
-    #     signal_f = self.fft(signal_t, sk, rn)
-    #     signal_f = do_interpolation_1d(frequency_pad, frequency, signal_f, method="cubic")
-
-    #     # signal_t = jnp.pad(signal_t, (N,N))
-    #     # signal_f = self.fft(signal_t, sk_pad, rn_pad)
-
-    #     # the frequency axis is not centered around zero, this causes a global phase in the fourier shift 
-    #     # this phase-factor compensates this global phase
-    #     df = jnp.mean(jnp.diff(frequency_pad))
-    #     phase_correction = jnp.exp(1j*2*jnp.pi*df*tau_arr)
-
-    #     signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*frequency_pad[None,:]*tau_arr[:,None])
-    #     signal_t_shifted = self.ifft(signal_f, sk_pad, rn_pad)[:,N:2*N]
-    #     return signal_t_shifted*phase_correction[:,None]
-
-
-
     def calculate_signal_t(self, individual, tau_arr, measurement_info):
         """
         Calculates the signal field in the time domain. 
@@ -1294,10 +1260,19 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         sk, rn = measurement_info.sk, measurement_info.rn
 
         # make euv pulse the gate, because thats the one getting shifted 
-        pulse_f_nir_vectorpotential, pulse_f_euv = individual.pulse, individual.gate
+        pulse_t_nir_vectorpotential = individual.pulse # there is never a need to fft the vectorpotential -> keep it in time domain always
+        # needs to be accounted for in apply_spectrum
+
+
+        if measurement_info.doubleblind==True:
+            pulse_f_euv = individual.gate
+        elif measurement_info.cross_correlation==True:
+            pulse_f_euv = measurement_info.gate
+        else:
+            raise ValueError
 
         pulse_t_euv = self.ifft(pulse_f_euv, sk, rn)
-        pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, sk, rn)
+
 
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
             dtme_position = self.ifft(individual.dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)

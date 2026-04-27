@@ -1,2 +1,2 @@
-from pulsedjax.streaking.classical_algorithms_streaking import GeneralizedProjection
+from pulsedjax.streaking.classical_algorithms_streaking import GeneralizedProjection, COPRA
 from pulsedjax.streaking.general_algorithms_streaking import DifferentialEvolution, Evosax, AutoDiff

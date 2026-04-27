@@ -8,14 +8,14 @@ import jax
 def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # frequency domain
     dtme_shifted_and_volkov_phase0, volkov_phase1 = signal_t.dtme_shifted_and_volkov_phase0, signal_t.volkov_phase1
     dt = jnp.mean(jnp.diff(measurement_info.time))
-    sk, rn = measurement_info.sk, measurement_info.rn
     omega = 2*jnp.pi*measurement_info.frequency
     exp_arr = jnp.exp(1j*tau_arr[:,None]*omega[None,:])
 
     delta_S_mq = signal_t_new - signal_t.signal_t
+    delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
-    term1 = do_fft(jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1), sk, rn)
-    grad_temp = jnp.einsum("mq, qn -> mn", delta_S_mq, term1)
+    term1 = jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1)
+    grad_temp = jnp.einsum("mb, bn -> mn", delta_S_mb, term1)
     return -2*1j*dt*exp_arr*grad_temp
 
 
@@ -52,36 +52,36 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
     volkov_phase0, volkov_phase1 = signal_t.volkov_phase0, signal_t.volkov_phase1
     
     gradient_dtme_Cbk = _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info)
-    gradient_dtme_Cbk = jnp.conjugate(gradient_dtme_Cbk)
 
     dt = jnp.mean(jnp.diff(measurement_info.time))
     sk, rn = measurement_info.sk, measurement_info.rn
     position, momentum = measurement_info.position, measurement_info.momentum
     N = jnp.size(measurement_info.time)
     
-    term1 = jnp.einsum("Cbk, Cbk -> bk", gradient_dtme_Cbk, jnp.exp(1j*volkov_phase0))
-    term1 = jnp.ones((jnp.size(measurement_info.momentum), N))
+    term1 = jnp.einsum("Cbk, Cbk -> bk", jnp.conjugate(gradient_dtme_Cbk), jnp.exp(1j*volkov_phase0))
     term2 = 1j*dt*jnp.einsum("mk, bk, bk -> mbk", jnp.conjugate(pulse_t_euv_shifted), jnp.exp(1j*volkov_phase1), term1)
 
 
     grad_volkov1 = dt*(momentum[:,None] + jnp.real(pulse_t_nir_vectorpotential)[None,:]) 
     dtme_shifted_and_volkov_phase01 = jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1)
-    mask = jnp.tril(jnp.ones((N,N)))
+    mask = jnp.triu(jnp.ones((N,N))) 
 
     def mask_grad_volkov1(dummy, mask):
-         temp = grad_volkov1*mask
-         val = jnp.einsum("mk, bk, bk -> mb", jnp.conjugate(pulse_t_euv_shifted), temp, dtme_shifted_and_volkov_phase01)
+         val = jnp.einsum("mk, bk, k, bk -> mb", 
+                          jnp.conjugate(pulse_t_euv_shifted), grad_volkov1, mask, dtme_shifted_and_volkov_phase01)
          return dummy, val
     
     _, term3 = jax.lax.scan(mask_grad_volkov1, jnp.ones(1), mask) # needs to be done via scan, because of memory explosion
     term3 = -1*dt*jnp.transpose(term3, (1,2,0))
 
     delta_S_mq = signal_t_new - signal_t.signal_t
-    Dbq = jnp.exp(-1j*position[None,:]*momentum[:,None])
+    #Dbq = jnp.exp(-1j*position[None,:]*momentum[:,None])
+    delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
     term4 = term2 + term3
 
-    grad = jnp.real(jnp.einsum("mq, bq, mbk -> mk", delta_S_mq, Dbq, term4))
-    grad = do_fft(grad, sk, rn)
+    #grad = jnp.real(jnp.einsum("mq, bq, mbk -> mk", delta_S_mq, Dbq, term4)) # here this is an issue -> wraps frequency around 
+    grad = jnp.einsum("mb, mbk -> mk", delta_S_mb, term4)
+    #grad = do_fft(grad, sk, rn)
     return -2*grad
 
 
@@ -107,7 +107,6 @@ def Z_gradient_DTME(signal_t, signal_t_new, tau_arr, measurement_info): # moment
     grad_temp_q = delta_S_mq*term1 # maybe there needs to be a 1/N here becuae Dbq and Dqb cancel?
     grad_temp_b = do_fft(grad_temp_q, sk_position_momentum, rn_position_momentum)
     return -2*1j*dt*grad_temp_b # with shape (C,m,b) -> will cauuse issues in some algorihms because its not dimension (m,n)
-
 
 
 

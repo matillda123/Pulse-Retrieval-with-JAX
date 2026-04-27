@@ -823,7 +823,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     def get_parameters_to_make_signal_t(self):
         pulse_t_nir = self.ifft(self.pulse_f, self.sk, self.rn)
         pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, integration_method="cumsum", integration_order=None)
-        pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
+        #pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
 
         if self.dtme_momentum is None:
             dtme = jnp.ones((jnp.size(self.ionization_potential), jnp.size(self.momentum_au)))
@@ -836,10 +836,11 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
                                                              rn_position_momentum = self.rn_position_momentum, 
                                                              ionization_potential=self.ionization_potential, 
                                                              dtme_momentum = dtme,
-                                                             retrieve_dtme = False)
+                                                             retrieve_dtme = False,
+                                                             doubleblind=True)
         
 
-        individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=None)
+        individual = MyNamespace(pulse=pulse_t_nir_vectorpotential, gate=self.gate_f, dtme=None)
         return individual, self.measurement_info, self.theta
 
 

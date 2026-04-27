@@ -462,14 +462,14 @@ def calculate_gate_with_Real_Fields(pulse_t, method):
 
 def project_onto_intensity(signal_f, measured_intensity):
     """ Project the current complex guess signal onto the measured intensity. """
-    #return jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)*jnp.exp(1j*jnp.angle(signal_f))
-    return signal_f/(jnp.abs(signal_f)+1e-15)*jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)
+    return jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)*jnp.exp(1j*jnp.angle(signal_f))
+    #return signal_f/(jnp.abs(signal_f)+1e-15)*jnp.sqrt(jnp.abs(measured_intensity))*jnp.sign(measured_intensity)
 
 
 def project_onto_amplitude(signal_f, measured_amplitude):
     """ Project the current complex guess signal onto the measured amplitude. """
-    #return measured_amplitude*jnp.exp(1j*jnp.angle(signal_f))
-    return signal_f/(jnp.abs(signal_f)+1e-15)*measured_amplitude
+    return measured_amplitude*jnp.exp(1j*jnp.angle(signal_f))
+    #return signal_f/(jnp.abs(signal_f)+1e-15)*measured_amplitude
 
 
 
@@ -539,7 +539,7 @@ def calculate_trace_error(mu, trace, measured_trace):
 
 def calculate_Z_error(signal_t, signal_t_new):
     """ Calculates the squared L2-Norm between the complex signal fields in the time domain before and after projection onto the measured signal. """
-    deltaS = signal_t_new - signal_t
+    deltaS = signal_t_new - signal_t.signal_t
     return jnp.sum(jnp.abs(deltaS)**2)
 
 

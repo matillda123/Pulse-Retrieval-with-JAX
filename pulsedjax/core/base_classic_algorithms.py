@@ -638,6 +638,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
     
     Attributes:
         no_steps_descent (int): the numer of descent steps per iteration
+        optimize_spectral_phase_directly (bool):
 
     """
 
@@ -652,6 +653,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         self.no_steps_descent = 15
 
         self.r_local_method = None
+
+        self.optimize_spectral_phase_directly = False
 
 
     def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
@@ -677,7 +680,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
                                                                                            transform_arr, measurement_info, 
                                                                                            pulse_or_gate)
         
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.optimize_spectral_phase_directly==True:
             grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return grad
@@ -692,7 +695,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         individual = self.update_individual(individual, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        Z_error_new = calculate_Z_error(signal_t.signal_t, signal_t_new)
+        Z_error_new = calculate_Z_error(signal_t, signal_t_new)
         return Z_error_new
     
 
@@ -706,7 +709,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         grad = self.calculate_Z_gradient_individual(signal_t, signal_t_new, transform_arr, measurement_info, pulse_or_gate)
         
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.optimize_spectral_phase_directly==True:
             grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return jnp.sum(grad, axis=-2)
@@ -784,7 +787,7 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
         """ Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate. """
 
         signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
-        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
+        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t, signal_t_new)
 
         population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, "pulse")
         population = normalize_population(population, measurement_info, descent_info, "pulse")
@@ -864,7 +867,8 @@ class GeneralizedProjectionBASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        self.descent_info = initialize_descent_info(self).expand(no_steps_descent = self.no_steps_descent)
+        self.descent_info = initialize_descent_info(self).expand(no_steps_descent = self.no_steps_descent,
+                                                                 optimize_spectral_phase_directly = self.optimize_spectral_phase_directly)
         descent_info = self.descent_info
 
         #shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), population)
@@ -902,6 +906,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
     Attributes:
         alpha (float): a regularization parameter
         pie_method (None, str): specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.
+        optimize_spectral_phase_directly (bool):
 
     """
 
@@ -914,6 +919,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
 
         # this corresponds to the pie-error
         self.r_gradient = "amplitude"
+        self.optimize_spectral_phase_directly = False
 
 
 
@@ -1018,7 +1024,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
                                                         measurement_info, descent_info, pulse_or_gate)
         
         grad_U = self.fft(grad_U, measurement_info.sk, measurement_info.rn)
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.optimize_spectral_phase_directly==True:
             grad_U = grad_U*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
 
         return jnp.sum(grad_U, axis=0)
@@ -1051,7 +1057,7 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         grad_U = self.calculate_PIE_descent_direction(signal_t, signal_t_new, transform_arr, pie_method, measurement_info, descent_info, pulse_or_gate)
         
         grad_U = self.fft(grad_U, measurement_info.sk, measurement_info.rn)
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.optimize_spectral_phase_directly==True:
             grad_U = grad_U*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
             
         grad_sum = jnp.sum(grad_U, axis=1)
@@ -1265,7 +1271,8 @@ class PtychographicIterativeEngineBASE(ClassicAlgorithmsBASE):
         measurement_info = self.measurement_info
 
         self.descent_info = initialize_descent_info(self).expand(alpha = self.alpha,
-                                                                 pie_method = self.pie_method)
+                                                                 pie_method = self.pie_method,
+                                                                 optimize_spectral_phase_directly = self.optimize_spectral_phase_directly)
         descent_info = self.descent_info
 
         shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), descent_state.population)
@@ -1357,21 +1364,25 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         self.local_adaptive_scaling = "linear"
         self.global_adaptive_scaling = "linear"
+        self.optimize_spectral_phase_directly = False
 
 
 
     def update_individual(self, individual, gamma, descent_direction, pulse_or_gate):
         """ Updates an individual based on a descent direction and a step size. """
+        pulse_f = getattr(individual, pulse_or_gate)
 
-        signal_f = getattr(individual, pulse_or_gate)
-        signal_f = signal_f + gamma*descent_direction
-        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, signal_f)
+        descent_direction = jnp.swapaxes(descent_direction, 0, -1)
+        delta_pulse_f = gamma*descent_direction
+        pulse_f = pulse_f + jnp.swapaxes(delta_pulse_f, 0, -1)
+
+        individual = tree_at(lambda x: getattr(x, pulse_or_gate), individual, pulse_f)
         return individual
 
 
     def update_population(self, population, gamma, descent_direction, pulse_or_gate):
         """ Applies the a descent based update to the population. """
-        return self.update_individual(population, gamma[:,None], descent_direction, pulse_or_gate)
+        return self.update_individual(population, gamma, descent_direction, pulse_or_gate)
     
 
     
@@ -1382,7 +1393,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                                                      transform_arr, measurement_info, 
                                                                                      pulse_or_gate)
         
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True and descent_info.optimize_spectral_phase_directly==True:
           grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
           # this is technically more accurate 
           # grad = grad*jnp.abs(self.fft(signal_t.pulse_t, measurement_info.sk, measurement_info.rn))[:,None,:]
@@ -1399,7 +1410,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         individual = self.update_individual(linesearch_info.population, gamma, descent_direction, pulse_or_gate)
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
-        error = calculate_Z_error(signal_t.signal_t, signal_t_new)
+        error = calculate_Z_error(signal_t, signal_t_new)
         return error
     
 
@@ -1413,7 +1424,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
         signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
         grad = self.get_Z_gradient_individual(signal_t, signal_t_new, transform_arr, measurement_info, pulse_or_gate)
         
-        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate) == True:
+        if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate) == True and descent_info.optimize_spectral_phase_directly==True:
             grad = grad*getattr(measurement_info.spectral_amplitude, pulse_or_gate)
             # grad = grad*jnp.abs(self.fft(signal_t.pulse_t, measurement_info.sk, measurement_info.rn))
 
@@ -1440,7 +1451,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
             transform_arr = jnp.broadcast_to(transform_arr, shape)
 
         grad = self.get_Z_gradient(signal_t, signal_t_new, transform_arr, measurement_info, descent_info, pulse_or_gate)
-        grad_sum = jnp.sum(grad, axis=1)
+        grad_sum = jnp.sum(grad, axis=-2)
 
         if newton_info=="diagonal" or newton_info=="full":
             descent_direction, newton_state = self.get_Z_newton_direction(grad, signal_t, signal_t_new, transform_arr, local_or_global_state, 
@@ -1462,7 +1473,7 @@ class COPRABASE(ClassicAlgorithmsBASE):
             local_or_global_state = tree_at(lambda x: getattr(x.cg, pulse_or_gate), local_or_global_state, cg)
 
 
-        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t.signal_t, signal_t_new)
+        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t, signal_t_new)
         adaptive_scaling_info = getattr(descent_info.adaptive_scaling, local_or_global)
         if adaptive_scaling_info.order!=False:
             descent_direction, local_or_global_state = jax.vmap(adaptive_step_size, in_axes=(0,0,0,None,0,None,None,None))(Z_error, grad_sum, descent_direction,
@@ -1471,8 +1482,8 @@ class COPRABASE(ClassicAlgorithmsBASE):
                                                                                                                             adaptive_scaling_info,
                                                                                                                             pulse_or_gate, local_or_global)
         if descent_info.linesearch_params.linesearch!=False and local_or_global=="_global":
-            #pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
-            pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
+            pk_dot_gradient = jax.vmap(lambda x,y: jnp.real(jnp.vdot(x,y)), in_axes=(0,0))(descent_direction, grad_sum)
+            #pk_dot_gradient = jnp.real(jnp.vecdot(descent_direction, grad_sum)) # should be the same
             
             linesearch_info=MyNamespace(population=population, signal_t_new=signal_t_new, descent_direction=descent_direction, error=Z_error, 
                                         pk_dot_gradient=pk_dot_gradient, transform_arr=transform_arr)
@@ -1641,21 +1652,20 @@ class COPRABASE(ClassicAlgorithmsBASE):
 
         measurement_info = self.measurement_info
 
-        self.descent_info = initialize_descent_info(self)
+        self.descent_info = initialize_descent_info(self).expand(optimize_spectral_phase_directly = self.optimize_spectral_phase_directly)
         descent_info = self.descent_info
 
-        shape_population = jax.tree.map(lambda x: jnp.asarray(jnp.shape(x)), descent_state.population)
-        cg_state_local = jax.tree.map(initialize_CG_state, shape_population)
-        newton_state_local = jax.tree.map(initialize_pseudo_newton_state, shape_population)
-        lbfgs_state_local = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
+        cg_state_local = jax.tree.map(initialize_CG_state, population)
+        newton_state_local = jax.tree.map(initialize_pseudo_newton_state, population)
+        lbfgs_state_local = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info), population)
 
-        cg_state_global = jax.tree.map(initialize_CG_state, shape_population)
-        newton_state_global = jax.tree.map(initialize_pseudo_newton_state, shape_population)
-        lbfgs_state_global = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info),shape_population)
+        cg_state_global = jax.tree.map(initialize_CG_state, population)
+        newton_state_global = jax.tree.map(initialize_pseudo_newton_state, population)
+        lbfgs_state_global = jax.tree.map(Partial(initialize_lbfgs_state, descent_info=descent_info), population)
 
         mu_init_local, mu_init_global = initialize_mu(self, measurement_info, descent_info)
-
-        max_scaling_init = jax.tree.map(lambda x: jnp.zeros(x[0]), shape_population) 
+        
+        max_scaling_init = jax.tree.map(lambda x: jnp.zeros(jnp.shape(x)[0]), population) 
         self.descent_state = self.descent_state.expand(key = self.key, 
                                                        population = population, 
                                                        _local=MyNamespace(cg=cg_state_local, newton=newton_state_local, lbfgs=lbfgs_state_local, 
