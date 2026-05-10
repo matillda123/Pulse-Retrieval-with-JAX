@@ -18,8 +18,13 @@ def get_initial_amp(measurement_info):
     mean_trace = jnp.mean(measured_trace, axis=0)
     amp = jnp.sqrt(jnp.abs(mean_trace))*jnp.sign(mean_trace)
 
-    if nonlinear_method is None:
-        pass
+    if hasattr(measurement_info, "dtme_momentum"):
+        kmin, kmax = jnp.min(measurement_info.momentum), jnp.max(measurement_info.momentum)
+        fmin, fmax = 0.5*kmin**2*1/(2*jnp.pi), 0.5*kmax**2*1/(2*jnp.pi)
+        frequency_temp = jnp.linspace(fmin, fmax, jnp.size(amp))
+        f0 = jnp.mean(measurement_info.ionization_potential)*1/(2*jnp.pi)
+        amp = do_interpolation_1d(frequency, frequency_temp + f0, amp)
+
     elif nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
         if nonlinear_method=="shg":
             factor=2
@@ -290,13 +295,13 @@ def create_population_general(key, amp_type, phase_type, population, population_
     shape = (population_size, no_funcs_phase)
     key, population = create_phase(key, phase_type, population, shape, measurement_info)
 
-    is_streaking = hasattr(measurement_info, "dtme_momentum")
+    _is_streaking = hasattr(measurement_info, "dtme_momentum")
 
     if spectrum_provided==False:
         shape = (population_size, no_funcs_amp)
         key, population = create_amp(key, amp_type, population, shape, measurement_info)
 
-    elif spectrum_provided==True and is_streaking==True and pulse_or_gate=="pulse":
+    elif spectrum_provided==True and _is_streaking==True and pulse_or_gate=="pulse":
         shape = (population_size, )
         key, subkey = jax.random.split(key, 2)
         scale_val = jax.random.uniform(subkey, shape, jnp.float32, 0, 1)

@@ -28,7 +28,7 @@ def get_prefactor(k):
 
 
 
-def make_bsplines(cpoints, k, M, f, Nx):
+def make_bsplines(cpoints, Nx, k, M, f):
     """ Evaluate arbitrary order bsplines in 1D. """
     u = jnp.linspace(0, 1, Nx)
     arr = jnp.arange(k).reshape(-1,1)

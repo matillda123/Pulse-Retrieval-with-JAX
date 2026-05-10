@@ -58,12 +58,6 @@ class GeneralizedProjection(GeneralizedProjectionBASESTREAKING, RetrievePulsesST
         """ Calculates the Z-error newton direction for a population. """
 
         raise NotImplementedError("Streaking is already super-expensive to retrieve, dont do this.")
-    
-        # descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
-        #                                                                  signal_t.signal_t, signal_t_new, tau_arr, 
-        #                                                                  descent_state, measurement_info, descent_info, 
-        #                                                                  full_or_diagonal, pulse_or_gate)
-        # return descent_direction, newton_state
 
 
 
@@ -252,12 +246,3 @@ class COPRA(COPRABASESTREAKING, RetrievePulsesSTREAKING):
         """ Calculates the Z-error newton direction for a population. """
 
         raise NotImplementedError
-
-        # descent_direction, newton_state = get_pseudo_newton_direction_Z_error(grad, signal_t.pulse_t, signal_t.pulse_t_shifted, signal_t.gate_shifted, 
-        #                                                                  signal_t.signal_t, signal_t_new, tau_arr, 
-        #                                                                  local_or_global_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
-        # return descent_direction, newton_state
-
-
-
-

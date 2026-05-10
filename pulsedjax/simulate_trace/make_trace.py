@@ -376,12 +376,12 @@ class MakeTrace(MakePulseBase):
             dtme = self.maketrace.get_DTME(DTME[0], DTME[1])
 
 
-        time_trace, frequency_trace, trace, spectra = self.maketrace.generate_trace()
+        time_trace, energy_trace, trace, spectra = self.maketrace.generate_trace()
             
         if plot_stuff==True:
-            self.maketrace.plot_trace(time, pulse_t, frequency, pulse_f, time_trace, frequency_trace, trace, spectra)
+            self.maketrace.plot_trace(time, frequency, nir_pulse, euv_pulse, time_trace, energy_trace, trace, spectra)
 
-        return time_trace, frequency_trace, trace, spectra
+        return time_trace, energy_trace, trace.T, spectra
     
 
 
@@ -437,7 +437,7 @@ class MakeTraceBASE:
 
         self.fft = do_fft
         self.ifft = do_ifft
-        self.do_interpolation = Partial(do_interpolation_1d, method="cubic")
+        self.do_interpolation = Partial(do_interpolation_1d, method="cubic2")
 
         self.time = time
         self.frequency = frequency
@@ -482,7 +482,6 @@ class MakeTraceBASE:
                                        nonlinear_method=self.nonlinear_method,
                                        central_frequency = self.central_frequency, c0 = self.c0)
 
-
     def _generate_trace(self):
         individual, measurement_info, transform_arr = self.get_parameters_to_make_signal_t()
         self.signal_t = self.calculate_signal_t(individual, transform_arr, measurement_info)
@@ -490,6 +489,7 @@ class MakeTraceBASE:
 
     def generate_trace(self):
         self._generate_trace()
+
         time, frequency, trace, spectra = self.interpolate_trace()
 
         self.trace = trace/np.max(trace)
@@ -642,8 +642,8 @@ class MakeTraceFROG(MakeTraceBASE, RetrievePulsesFROG):
        
 
     def get_parameters_to_make_signal_t(self):
-        individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.theta
+        self.individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
+        return self.individual, self.measurement_info, self.theta
 
 
 
@@ -665,9 +665,9 @@ class MakeTraceTDP(MakeTraceBASE, RetrievePulsesTDP):
 
 
     def get_parameters_to_make_signal_t(self):
-        individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
+        self.individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
         self.measurement_info = self.measurement_info.expand(spectral_filter=self.spectral_filter)
-        return individual, self.measurement_info, self.theta
+        return self.individual, self.measurement_info, self.theta
 
     
 
@@ -695,8 +695,8 @@ class MakeTraceCHIRPSCAN(MakeTraceBASE, RetrievePulsesCHIRPSCAN):
     def get_parameters_to_make_signal_t(self):
         self.measurement_info = self.measurement_info.expand(theta = self.theta)
         self.phase_matrix = self.get_phase_matrix(self.chirp_parameters)
-        individual = MyNamespace(pulse=self.pulse_f, gate=None)
-        return individual, self.measurement_info, self.phase_matrix
+        self.individual = MyNamespace(pulse=self.pulse_f, gate=None)
+        return self.individual, self.measurement_info, self.phase_matrix
     
     
     def interpolate_trace(self):
@@ -733,8 +733,8 @@ class MakeTrace2DSI(MakeTraceBASE, RetrievePulses2DSI):
         self.measurement_info = self.measurement_info.expand(tau_pulse_anc1 = self.tau_pulse_anc1, 
                                                              spectral_filter1=self.spectral_filter1, 
                                                              spectral_filter2=self.spectral_filter2)
-        individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.theta
+        self.individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
+        return self.individual, self.measurement_info, self.theta
     
 
 
@@ -757,8 +757,8 @@ class MakeTraceVAMPIRE(MakeTraceBASE, RetrievePulsesVAMPIRE):
         self.phase_matrix = self.get_phase_matrix(self.refractive_index, self.material_thickness, self.measurement_info)
         self.measurement_info = self.measurement_info.expand(tau_interferometer = self.tau_interferometer, 
                                                              phase_matrix = self.phase_matrix)
-        individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
-        return individual, self.measurement_info, self.theta
+        self.individual = MyNamespace(pulse=self.pulse_f, gate=self.gate_f)
+        return self.individual, self.measurement_info, self.theta
     
 
 
@@ -783,22 +783,20 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "PHz", "au")
         self.energy_au = frequency*2*jnp.pi
 
-        #self.energy_au = jnp.linspace(0, jnp.max(energy_au), jnp.size(energy_au)//2)
-
         momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
         self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au))
         self.position_au = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.momentum_au), jnp.mean(jnp.diff(self.momentum_au))))
         self.sk_position_momentum, self.rn_position_momentum = get_sk_rn(self.position_au, self.momentum_au)
 
-        
+        frequency_range = None
         if energy_range is not None:
             emin, emax = energy_range
             emin = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, emin, "eV", "au")
             emax = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, emax, "eV", "au")
-            fmin, fmax = emin/(2*jnp.pi), emax/(2*jnp.pi)
-            frequency_range = (fmin, fmax)
+            self.energy_range = (emin, emax)
+
         else:
-            frequency_range = None
+            self.energy_range = None
 
 
         super().__init__(time, frequency, pulse_t, pulse_f, nonlinear_method, 
@@ -822,48 +820,154 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     
     def get_parameters_to_make_signal_t(self):
         pulse_t_nir = self.ifft(self.pulse_f, self.sk, self.rn)
-        pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, integration_method="cumsum", integration_order=None)
-        #pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
+        pulse_t_nir_vectorpotential = -1 * integrate_signal_1D(pulse_t_nir, self.time, 
+                                                               integration_method="cumsum", integration_order=None)
+        pulse_f_nir_vectorpotential = self.fft(pulse_t_nir_vectorpotential, self.sk, self.rn)
 
         if self.dtme_momentum is None:
             dtme = jnp.ones((jnp.size(self.ionization_potential), jnp.size(self.momentum_au)))
         else:
             dtme = self.dtme_momentum
 
+        axis_nir = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
+        axis_euv = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
+
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
                                                              position = self.position_au,
                                                              sk_position_momentum = self.sk_position_momentum,
                                                              rn_position_momentum = self.rn_position_momentum, 
-                                                             ionization_potential=self.ionization_potential, 
+                                                             ionization_potential = self.ionization_potential, 
                                                              dtme_momentum = dtme,
                                                              retrieve_dtme = False,
-                                                             doubleblind=True)
-        
+                                                             doubleblind = True,
+                                                             axis_nir = axis_nir, 
+                                                             axis_euv = axis_euv)
 
-        individual = MyNamespace(pulse=pulse_t_nir_vectorpotential, gate=self.gate_f, dtme=None)
-        return individual, self.measurement_info, self.theta
-
-
-    def _generate_trace(self):
-        super()._generate_trace()
-        momentum_au_nonuniform = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
-        self.trace = jax.vmap(self.do_interpolation, 
-                              in_axes=(None,None,0))(momentum_au_nonuniform, self.momentum_au, self.trace)
+        self.individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=None)
+        return self.individual, self.measurement_info, self.theta
 
 
     def generate_trace(self):
-        time, frequency, trace, spectra = super().generate_trace()
+        time, momentum_au, trace, spectra = super().generate_trace()
+        # I(k)*dk = I(E)*dE
+        # I(E) = I(k)*dk/dE
+        # -> multiply by momentum_au
+
+        energy_au_nonuniform = 0.5*jnp.abs(momentum_au)**2*jnp.sign(momentum_au)
+        energy_au_uniform = jnp.linspace(jnp.min(energy_au_nonuniform), jnp.max(energy_au_nonuniform), jnp.size(momentum_au))
+        trace = jax.vmap(Partial(do_interpolation_1d, method="cubic2"), 
+                                  in_axes=(None,None,1), out_axes=1)(energy_au_uniform, energy_au_nonuniform, trace)
+        trace = trace/jnp.sqrt(0.5*jnp.abs(energy_au_uniform[:,None]))*jnp.sign(energy_au_uniform[:,None])
+        
+        energy_eV_uniform = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, energy_au_uniform, "au", "eV")
 
         time = RetrievePulsesSTREAKING.convert_time_fs_au(RetrievePulsesSTREAKING, time, "au", "fs")
-        frequency = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, frequency, "au", "PHz")
 
         fp, p = spectra.pulse
-        fp = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, fp, "au", "PHz")
         fg, g = spectra.gate
+        fp = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, fp, "au", "PHz")
         fg = RetrievePulsesSTREAKING.convert_frequency_PHz_au(RetrievePulsesSTREAKING, fg, "au", "PHz")
         spectra = MyNamespace(pulse=(fp,p), gate=(fg,g))
         
-        return time, frequency, trace, spectra
+        return time, energy_eV_uniform, trace, spectra
+
+
+
+
+    def interpolate_trace(self):
+        max_val = np.max(self.trace)
+
+        idx = np.where(self.trace>max_val*self.cut_off_val)
+        idx_0, idx_1 = np.sort(idx)
+
+        idx_0_min, idx_0_max = idx_0[0], idx_0[-1]+1
+        idx_1_min, idx_1_max = idx_1[0], idx_1[-1]+1
+
+        time_zoom = self.theta[idx_0_min:idx_0_max]
+        momentum_zoom = self.momentum_au[idx_1_min:idx_1_max]
+
+        if self.energy_range is not None:
+            emin, emax = self.energy_range
+            kmin, kmax = jnp.sqrt(2*jnp.abs(emin))*jnp.sign(emin), jnp.sqrt(2*jnp.abs(emax))*jnp.sign(emax)
+        else:
+            kmin, kmax = np.min(momentum_zoom), np.max(momentum_zoom)
+
+        time_interpolate = self.theta
+        momentum_interpolate = np.linspace(kmin, kmax, self.N)
+
+        trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(momentum_interpolate, self.momentum_au, self.trace)
+        trace_interpolate = np.abs(trace_interpolate).T
+
+        frequency_pulse_spectrum, spectrum_pulse = interpolate_spectrum(self.frequency, self.pulse_f, self.N, self.do_interpolation)
+        frequency_gate_spectrum, spectrum_gate = interpolate_spectrum(self.frequency, self.gate_f, self.N, self.do_interpolation)
+
+        spectra = MyNamespace(pulse = (frequency_pulse_spectrum, spectrum_pulse), 
+                              gate = (frequency_gate_spectrum, spectrum_gate))
+
+        return time_interpolate, momentum_interpolate, trace_interpolate, spectra
+    
+
+
+
+
+    
+    def plot_trace(self, time, frequency, pulse_nir, pulse_euv, delay, energy, trace, spectra):
+        pulse_t_nir, pulse_f_nir = pulse_nir
+        pulse_t_euv, pulse_f_euv = pulse_euv
+        
+        fig=plt.figure(figsize=(18,8))
+        ax1=plt.subplot(2,2,1)
+        ax1.plot(time, np.abs(pulse_t_nir), label="Amplitude")
+        ax1.set_xlabel("Time [fs]")
+        ax1.set_ylabel("Amplitude [arb. u.]")
+        ax1.legend(loc=2)
+
+        ax2 = ax1.twinx()
+        ax2.plot(time, np.unwrap(np.angle(pulse_t_nir))*1/np.pi, c="tab:orange", label="Phase")
+        ax2.set_ylabel(r"Phase [$\pi$]")
+        ax2.legend(loc=1)
+
+        ax1.plot(time, np.abs(pulse_t_euv), label="EUV-Pulse", c="tab:red")
+        ax2.plot(time, np.unwrap(np.angle(pulse_t_euv))*1/np.pi, label="EUV-Pulse", c="tab:green")
+
+
+
+
+        ax1=plt.subplot(2,2,2)
+        ax1.plot(frequency, np.abs(pulse_f_nir), label="Amplitude")
+        ax1.set_xlabel("Frequency [PHz]")
+        ax1.set_ylabel("Amplitude [arb. u.]")
+        ax1.legend(loc=2)
+
+        ax2 = ax1.twinx()
+        ax2.plot(frequency, np.unwrap(np.angle(pulse_f_nir))*1/np.pi, c="tab:orange", label="Phase")
+        ax2.set_ylabel(r"Phase [$\pi$]")
+        ax2.legend(loc=1)
+
+        ax1.plot(frequency, np.abs(pulse_f_euv), label="EUV-Pulse", c="tab:red")
+        ax2.plot(frequency, np.unwrap(np.angle(pulse_f_euv))*1/np.pi, label="EUV-Pulse", c="tab:green")
+
+
+        plt.subplot(2,2,3)
+        plt.plot(spectra.pulse[0], spectra.pulse[1], label="NIR-Pulse Spectrum")
+        plt.plot(spectra.gate[0], spectra.gate[1], label="EUV-Pulse Spectrum")
+
+        plt.xlabel("Frequency [PHz]")
+        plt.ylabel("Amplitude [arb. u.]")
+        plt.legend()
+
+
+        plt.subplot(2,2,4)
+        plt.pcolormesh(delay, energy, trace, cmap="nipy_spectral")
+        plt.xlabel("Delay [fs]")
+        plt.ylabel("Energy [eV]")
+        plt.colorbar()
+
+        plt.show()
+
+
+
+
 
 
 

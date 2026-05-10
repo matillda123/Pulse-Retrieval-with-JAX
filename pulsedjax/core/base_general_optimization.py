@@ -597,13 +597,14 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         self.solver = solver
         self.alternating_optimization = False
-        self.optimize_group_delay = True
+        self.optimize_group_delay_pulse = True
+        self.optimize_group_delay_gate = True
 
 
-    def get_phase(self, coefficients, central_f, measurement_info, descent_info):
+    def get_phase(self, coefficients, central_f, frequency, measurement_info, descent_info, pulse_or_gate):
         """ Wraps around GeneralOptimizationBASE.get_phase() in order to fascilliate the optimization of the group delay. """
-        phase = super().get_phase(coefficients, central_f, measurement_info, descent_info)
-        if (descent_info.phase_type=="polynomial" or descent_info.phase_type=="sinusoidal") and descent_info.optimize_group_delay==False:
+        phase = super().get_phase(coefficients, central_f, frequency, measurement_info, descent_info, pulse_or_gate)
+        if (descent_info.phase_type=="polynomial" or descent_info.phase_type=="sinusoidal") or getattr(descent_info.optimize_group_delay, pulse_or_gate)==False:
             return phase
         else:
             return jnp.cumsum(phase)*measurement_info.df
@@ -809,7 +810,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         measurement_info = self.measurement_info
 
         self.descent_info = self.descent_info.expand(alternating_optimization = self.alternating_optimization,
-                                                     optimize_group_delay = self.optimize_group_delay)
+                                                     optimize_group_delay = MyNamespace(pulse=self.optimize_group_delay_pulse, 
+                                                                                        gate=self.optimize_group_delay_gate))
         descent_info = self.descent_info
 
 

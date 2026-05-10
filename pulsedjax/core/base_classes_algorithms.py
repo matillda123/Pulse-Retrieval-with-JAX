@@ -62,10 +62,35 @@ class AlgorithmsBASE:
 
 
 
-    def do_checks_before_running(self, **kwargs):
-        """ Called by algorithm.run() performs a few checks and applies settings before running the algorithms. """
 
-        # takes kwargs and applies them as algorithm parameters 
+    def _rule__spectrum_consistency(self, descent_info):
+        if self.spectrum_is_being_used==True:
+            assert (descent_info.measured_spectrum_is_provided.pulse==True or 
+                    descent_info.measured_spectrum_is_provided.gate==True), "you need to provide a spectrum"
+
+    def _rule__doubleblind_needs_spectra(self, measurement_info, descent_info):
+         if measurement_info.doubleblind==True:
+            if (descent_info.measured_spectrum_is_provided.pulse==False or 
+                descent_info.measured_spectrum_is_provided.gate==False):
+                print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
+    
+    def _rule__calibration_curve_needs_spectra(self, descent_info, local_or_global):
+        if getattr(descent_info.optimize_calibration_curve, local_or_global)==True:
+            if descent_info.measured_spectrum_is_provided.pulse==False:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the pulse.")
+
+            if descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
+                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
+
+            if (hasattr(self, "r_local_method") and local_or_global=="_local") or (hasattr(self, "r_global_method") and local_or_global=="_global"):
+                if self.r_local_method!="iteration":
+                    print("Calibration curve optimization appears only to be working nicely with r_local/global_method=iteration. Projections seem to get stuck in a local minima.")
+
+
+    
+    def _apply_kwargs_before_running(self, **kwargs):
+        """ Applies kwargs from run to settings before running the algorithms. """
+        
         allowed_params = vars(self).keys()
         for key, value in kwargs.items():
             if key not in allowed_params:
@@ -73,40 +98,14 @@ class AlgorithmsBASE:
             setattr(self, key, value)
 
 
-        if self.spectrum_is_being_used==True:
-            assert (self.descent_info.measured_spectrum_is_provided.pulse==True or 
-                    self.descent_info.measured_spectrum_is_provided.gate==True), "you need to provide a spectrum"
-        
-        if self.measurement_info.doubleblind==True:
-            if (self.descent_info.measured_spectrum_is_provided.pulse==False or 
-                self.descent_info.measured_spectrum_is_provided.gate==False):
-                print("Doubleblind Retrieval has uniqueness issues. You should provide spectra for pulse and gate-pulse.")
 
+    def do_checks_before_running(self):
+        """ Called by algorithm.run() performs a few checks """
 
-        if self.local_optimize_calibration_curve==True:
-            if self.descent_info.measured_spectrum_is_provided.pulse==False:
-                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the pulse.")
-
-            if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
-                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
-
-            if hasattr(self, "r_local_method"):
-                if self.r_local_method!="iteration":
-                    print("Calibration curve optimization appears only to be working nicely with r_local_method=iteration. Projections seem to get stuck in a local minima.")
-
-            
-        if self.global_optimize_calibration_curve==True:
-            if self.descent_info.measured_spectrum_is_provided.pulse==False:
-                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the pulse.")
-
-            if self.descent_info.measured_spectrum_is_provided.gate==False and self.measurement_info.doubleblind==True:
-                print("Retrieval of the trace calibration has uniqueness issues. You should provide a spectrum for the gate-pulse.")
-
-            if hasattr(self, "r_global_method"):
-                if self.r_global_method!="iteration":
-                    print("Calibration curve optimization appears only to be working nicely with r_global_method=iteration. Projections seem to get stuck in a local minima.")
-
-
+        self._rule__spectrum_consistency(self.descent_info)
+        self._rule__doubleblind_needs_spectra(self.measurement_info, self.descent_info)
+        self._rule__calibration_curve_needs_spectra(self.descent_info, "_local")
+        self._rule__calibration_curve_needs_spectra(self.descent_info, "_global")
 
 
 
@@ -118,12 +117,13 @@ class AlgorithmsBASE:
         Excpetions to this are PtychographicIterativeEngine and COPRA. These invoke run_scan() twice in order to 
         perform a local and global optimization phase. 
         """
-        
+        self._apply_kwargs_before_running(**kwargs)
+        descent_state, do_scan = self.initialize_run(init_vals)
+                
         self.do_checks_before_running(**kwargs)
 
-        carry, do_scan = self.initialize_run(init_vals)
-        carry, error_arr = run_scan(do_scan, carry, no_iterations)
-        final_result = self.post_process(carry, error_arr)
+        descent_state, error_arr = run_scan(do_scan, descent_state, no_iterations)
+        final_result = self.post_process(descent_state, error_arr)
         return final_result
     
 
@@ -158,10 +158,7 @@ class AlgorithmsBASE:
         if self.spectrum_is_being_used==True:
             return self
         else:
-            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction", 
-                          #"GeneralizedProjection", "COPRA", # was removed because of calibration curve optimization
-                          # maybe there needs to be a rule here that enforces projection if calibration curve is optimized
-                          ]
+            names_list = ["DifferentialEvolution", "Evosax", "AutoDiff", "DirectReconstruction"]
 
             if any([self._name==name for name in names_list])==True:
                 # in these classes the spectrum is applied directly
@@ -193,7 +190,7 @@ class AlgorithmsBASE:
             if isinstance(value, MyNamespace):
                 myoutput[key] = "MyNamespace( ... )"
             else:
-                if isinstance(value, (jax.Array, tuple, list, np.ndarray)):
+                if isinstance(value, (jax.Array, np.ndarray)):
                     myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
                 else:
                     try:
@@ -405,14 +402,25 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
             tuple[jnp.array, jnp.array, jnp.array or None, jnp.array or None], initial populations for the pulse and possibly the gate-pulse in time domain or frequency domain for ChirpScans
 
         """
-        shape = (population_size, jnp.size(self.measurement_info.frequency))
+        if hasattr(self.measurement_info, "dtme_momentum")==True:
+            _is_streaking=True
+        else:
+            _is_streaking=False
+
+        if _is_streaking==False:
+            shape_pulse = (population_size, jnp.size(self.measurement_info.frequency))
+            shape_gate = shape_pulse
+        else:
+            shape_pulse = (population_size, jnp.size(self.measurement_info.axis_nir.frequency))
+            shape_gate = (population_size, jnp.size(self.measurement_info.axis_euv.frequency))
+
         
         self.key, subkey = jax.random.split(self.key, 2)
-        pulse_f_arr = create_population_classic(subkey, shape, guess_type, self.measurement_info)
+        pulse_f_arr = create_population_classic(subkey, shape_pulse, guess_type, self.measurement_info)
 
         if self.doubleblind==True:
             self.key, subkey = jax.random.split(self.key, 2)
-            gate_f_arr = create_population_classic(subkey, shape, guess_type, self.measurement_info)
+            gate_f_arr = create_population_classic(subkey, shape_gate, guess_type, self.measurement_info)
         else:
             gate_f_arr = None
 
@@ -623,6 +631,71 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         self._classical_guess_types = ["random", "random_phase", "constant", "constant_phase"]
 
 
+    def _create_inital_population(self, population, population_size, amp_type, phase_type, no_funcs_amp, no_funcs_phase, pulse_or_gate):
+        self.key, subkey = jax.random.split(self.key, 2)
+
+        if hasattr(self.measurement_info, "dtme_momentum")==True:
+            _is_streaking = True
+        else:
+            _is_streaking = False
+            
+
+        if _is_streaking==False:
+            N = jnp.size(self.measurement_info.frequency)
+            _spectrum_provided = getattr(self.descent_info.measured_spectrum_is_provided, pulse_or_gate)
+        else:
+            if pulse_or_gate=="pulse":
+                N = jnp.size(self.measurement_info.axis_nir.frequency)
+                _spectrum_provided = getattr(self.descent_info.measured_spectrum_is_provided, pulse_or_gate)
+            elif pulse_or_gate=="gate":
+                N = jnp.size(self.measurement_info.axis_euv.frequency)
+                _spectrum_provided = getattr(self.descent_info.measured_spectrum_is_provided, pulse_or_gate)
+            elif pulse_or_gate=="dtme":
+                N = jnp.size(self.measurement_info.momentum)
+                _spectrum_provided = False
+
+
+        if phase_type[:-2]=="bsplines":
+            k, phase_type = int(phase_type[-1]), phase_type[:-2]
+            f, M = get_prefactor(k), get_M(k)
+
+            # spline order and number of f-points restrict valid number of control-points
+            n = no_funcs_phase
+            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
+            no_funcs_phase = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
+
+            Nx = int(N/(no_funcs_phase-k+1) + 1) # how many points per spline?
+            self.descent_info = tree_at(lambda x: getattr(x.bsplines_Nx.phase, pulse_or_gate), self.descent_info, Nx, is_leaf=lambda x: x is None)
+            self.make_bsplines_phase = Partial(make_bsplines, k=k, M=M, f=f)
+
+        if amp_type[:-2]=="bsplines":
+            k, amp_type = int(amp_type[-1]), amp_type[:-2]
+            f, M = get_prefactor(k), get_M(k)
+            
+            n = no_funcs_amp
+            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
+            no_funcs_amp = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
+
+            Nx = int(N/(no_funcs_amp-k+1) + 1)
+            self.descent_info = tree_at(lambda x: getattr(x.bsplines_Nx.amp, pulse_or_gate), self.descent_info, Nx, is_leaf=lambda x: x is None)
+            self.make_bsplines_amp = Partial(make_bsplines, k=k, M=M, f=f)
+
+        if any([amp_type==i for i in self._classical_guess_types])==True:
+            no_funcs_amp = N
+        
+        if any([phase_type==i for i in self._classical_guess_types])==True:
+            no_funcs_phase = N
+
+        subkey, _population = create_population_general(subkey, amp_type, phase_type, getattr(population, pulse_or_gate), population_size, no_funcs_amp, no_funcs_phase, 
+                                                        _spectrum_provided, self.measurement_info, pulse_or_gate)
+        population = tree_at(lambda x: getattr(x, pulse_or_gate), population, _population)
+        return population
+    
+
+
+
+
+
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         """ 
         Creates an initial guess either explicit or parametrized.
@@ -640,57 +713,31 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         
         """
 
-        self.key, subkey = jax.random.split(self.key, 2)
+        population = MyNamespace(pulse=MyNamespace(amp=None, phase=None), 
+                                 gate=MyNamespace(amp=None, phase=None))
+        self.descent_info = self.descent_info.expand(bsplines_Nx=MyNamespace(amp=MyNamespace(pulse=None, gate=None), 
+                                                                             phase=MyNamespace(pulse=None, gate=None)))
 
-        population=MyNamespace(pulse=MyNamespace(amp=None, phase=None), 
-                               gate=MyNamespace(amp=None, phase=None))
-    
-        if phase_type[:-2]=="bsplines":
-            k, phase_type = int(phase_type[-1]), phase_type[:-2]
-            f, M = get_prefactor(k), get_M(k)
 
-            # spline order and number of f-points restrict valid number of control-points
-            N = jnp.size(self.measurement_info.frequency)
-            n = no_funcs_phase
-            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
-            no_funcs_phase = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
-
-            Nx = N/(no_funcs_phase-k+1) + 1 # how many points per spline?
-            self.make_bsplines_phase = Partial(make_bsplines, k=k, M=M, f=f, Nx=int(Nx))
-
-        if amp_type[:-2]=="bsplines":
-            k, amp_type = int(amp_type[-1]), amp_type[:-2]
-            f, M = get_prefactor(k), get_M(k)
-            
-            N = jnp.size(self.measurement_info.frequency)
-            n = no_funcs_amp
-            nn = jnp.divide(N, jnp.linspace(1, jnp.ceil(N/n), int(jnp.ceil(N/n))))
-            no_funcs_amp = int(nn[jnp.round(nn%1, 5)==0][-1]) + (k-1)
-
-            Nx = N/(no_funcs_amp-k+1) + 1
-            self.make_bsplines_amp = Partial(make_bsplines, k=k, M=M, f=f, Nx=int(Nx))
-
-        if any([amp_type==i for i in self._classical_guess_types])==True:
-            no_funcs_amp = jnp.size(self.measurement_info.frequency)
+        population = self._create_inital_population(population, population_size, amp_type, phase_type, no_funcs_amp, no_funcs_phase, "pulse")
         
-        if any([phase_type==i for i in self._classical_guess_types])==True:
-            no_funcs_phase = jnp.size(self.measurement_info.frequency)
-
-        subkey, population_pulse = create_population_general(subkey, amp_type, phase_type, population.pulse, population_size, no_funcs_amp, no_funcs_phase, 
-                                                             self.descent_info.measured_spectrum_is_provided.pulse, self.measurement_info, "pulse")
-        population = tree_at(lambda x: x.pulse, population, population_pulse)
+        if self.measurement_info.doubleblind==True:
+            population = self._create_inital_population(population, population_size, amp_type, phase_type, no_funcs_amp, no_funcs_phase, "gate")
         
-        if self.doubleblind==True:
-            subkey, population_gate = create_population_general(subkey, amp_type, phase_type, population.gate, population_size, no_funcs_amp, no_funcs_phase, 
-                                                                self.descent_info.measured_spectrum_is_provided.gate, self.measurement_info, "gate")
-            population = tree_at(lambda x: x.gate, population, population_gate, is_leaf=lambda x: x is None)
-            
 
         if any([guess==phase_type for guess in self._classical_guess_types])==True:
             phase_type = "continuous"
+        elif phase_type[:-2]=="bsplines":
+            phase_type = "bsplines"
+        else:
+            pass
             
         if any([guess==amp_type for guess in self._classical_guess_types])==True:
             amp_type = "continuous"
+        elif amp_type[:-2]=="bsplines":
+            amp_type = "bsplines"
+        else:
+            pass
         
         self.descent_info = self.descent_info.expand(population_size=population_size, phase_type=phase_type, amp_type=amp_type)
         return population
@@ -721,8 +768,8 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         return coefficient*(2*jnp.pi*(x-x0))**order
     
 
-    def polynomial_phase(self, coefficients, central_f, measurement_info):
-        phase = jax.vmap(self.polynomial_term, in_axes=(0, 0, None, None))(coefficients, jnp.arange(jnp.size(coefficients))+1, central_f, measurement_info.frequency)
+    def polynomial_phase(self, coefficients, central_f, frequency, measurement_info):
+        phase = jax.vmap(self.polynomial_term, in_axes=(0, 0, None, None))(coefficients, jnp.arange(jnp.size(coefficients))+1, central_f, frequency)
         phase = jnp.sum(phase, axis=0)
         return phase
     
@@ -731,14 +778,14 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         phase = a*jnp.sin(2*jnp.pi*b*x+c)
         return phase
     
-    def sinusoidal_phase(self, coefficients, central_f, measurement_info):
+    def sinusoidal_phase(self, coefficients, central_f, frequency, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        phase_arr = jax.vmap(self.sinusoidal_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        phase_arr = jax.vmap(self.sinusoidal_term, in_axes=(0, 0, 0, None))(a, b, c, frequency)
         phase = jnp.sum(phase_arr, axis=0)
         return phase
     
 
-    def discrete_phase(self, coefficients, central_f, measurement_info):
+    def discrete_phase(self, coefficients, central_f, frequency, measurement_info):
         return coefficients
     
 
@@ -746,15 +793,15 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         return 0.5*(1+jnp.tanh((x-c)/k))
     
 
-    def tanh_phase(self, coefficients, central_f, measurement_info):
+    def tanh_phase(self, coefficients, central_f, frequency, measurement_info):
         a, c, k = coefficients.a, coefficients.c, coefficients.k
-        phase_arr = jax.vmap(self.tanh_term, in_axes=(0, 0, None))(c, k, measurement_info.frequency)
+        phase_arr = jax.vmap(self.tanh_term, in_axes=(0, 0, None))(c, k, frequency)
         phase = jnp.sum(a[:, jnp.newaxis]*phase_arr, axis=0)
         return phase
     
 
-    def bspline_phase(self, coefficients, central_f, measurement_info):
-        phase = self.make_bsplines_phase(coefficients.c)
+    def bspline_phase(self, coefficients, central_f, frequency, measurement_info, Nx):
+        phase = self.make_bsplines_phase(coefficients.c, Nx)
         return phase
 
 
@@ -764,9 +811,9 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         return a*jnp.exp(-(frequency-c)**2/(2*b**2+1e-9))
     
 
-    def gaussian_amplitude(self, coefficients, measurement_info):
+    def gaussian_amplitude(self, coefficients, frequency, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        amp_f = jax.vmap(self.gaussian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        amp_f = jax.vmap(self.gaussian_term, in_axes=(0, 0, 0, None))(a, b, c, frequency)
         amp_f = jnp.sum(amp_f, axis=0)
         return amp_f
 
@@ -778,61 +825,54 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         return a/((frequency-c)**2+b**2)
     
 
-    def lorentzian_amplitude(self, coefficients, measurement_info):
+    def lorentzian_amplitude(self, coefficients, frequency, measurement_info):
         a, b, c = coefficients.a, coefficients.b, coefficients.c
-        amp_f = jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, measurement_info.frequency)
+        amp_f = jax.vmap(self.lorentzian_term, in_axes=(0, 0, 0, None))(a, b, c, frequency)
         amp_f = jnp.sum(amp_f, axis=0)
         return amp_f
     
 
-    def discrete_amplitude(self, coefficients, measurement_info):
+    def discrete_amplitude(self, coefficients, frequency, measurement_info):
         amp_f = coefficients
         return amp_f
     
 
-    def bspline_amplitude(self, coefficients, measurement_info):
-        amp_f = self.make_bsplines_amp(coefficients.c)
+    def bspline_amplitude(self, coefficients, frequency, measurement_info, Nx):
+        amp_f = self.make_bsplines_amp(coefficients.c, Nx)
         return amp_f
     
 
 
 
-    def get_phase(self, coefficients, central_f, measurement_info, descent_info):
+    def get_phase(self, coefficients, central_f, frequency, measurement_info, descent_info, pulse_or_gate):
         """ Evaluates the spectral phase onto the frequency axis. """
         spectral_phase_func_dict={"polynomial": self.polynomial_phase,
                                   "sinusoidal": self.sinusoidal_phase,
                                   "sigmoidal": self.tanh_phase,
-                                  "bsplines": self.bspline_phase,
+                                  "bsplines": Partial(self.bspline_phase, Nx=getattr(descent_info.bsplines_Nx.phase, pulse_or_gate)),
                                   "continuous": self.discrete_phase}
         
         spectral_phase_func = spectral_phase_func_dict[descent_info.phase_type]
-        return spectral_phase_func(coefficients, central_f, measurement_info)
+        return spectral_phase_func(coefficients, central_f, frequency, measurement_info)
     
 
 
-    def get_amplitude(self, coefficients, measurement_info, descent_info):
+    def get_amplitude(self, coefficients, frequency, measurement_info, descent_info, pulse_or_gate):
         """ Evaluates the spectral amplitude onto the frequency axis. """
         amp_func_dict={"gaussian": self.gaussian_amplitude,
                        "lorentzian": self.lorentzian_amplitude,
-                       "bsplines": self.bspline_amplitude,
+                       "bsplines": Partial(self.bspline_amplitude, Nx=getattr(descent_info.bsplines_Nx.amp, pulse_or_gate)),
                        "continuous": self.discrete_amplitude}
             
         amp_func = amp_func_dict[descent_info.amp_type]
-        amp_f = amp_func(coefficients, measurement_info)
+        amp_f = amp_func(coefficients, frequency, measurement_info)
         return amp_f
     
 
-    def get_central_f_for_current_guess(self, amp_f, measurement_info, pulse_or_guess):
-        if pulse_or_guess=="dtme":
-            momentum = measurement_info.momentum
-            idx_arr = jnp.arange(jnp.size(momentum))
-            idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
-            central_f = momentum[idx.astype(int)]
-        else:
-            frequency = measurement_info.frequency
-            idx_arr = jnp.arange(jnp.size(frequency))
-            idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
-            central_f = frequency[idx.astype(int)]
+    def get_central_f_for_current_guess(self, amp_f, frequency):
+        idx_arr = jnp.arange(jnp.size(frequency))
+        idx = jnp.sum(idx_arr*jnp.abs(amp_f))/jnp.sum(jnp.abs(amp_f))
+        central_f = frequency[idx.astype(int)]
         return central_f
 
 
@@ -840,10 +880,29 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         """ Evaluates a parametrized individual onto the frequency axis. """
         individual = getattr(individual, pulse_or_gate)
 
+
+        if hasattr(measurement_info, "dtme_momentum")==True:
+            _is_streaking = True
+        else:
+            _is_streaking = False
+
+
+        if _is_streaking==False:
+            frequency = measurement_info.frequency
+        else:
+            if pulse_or_gate=="pulse":
+                frequency = measurement_info.axis_nir.frequency
+            elif pulse_or_gate=="gate":
+                frequency = measurement_info.axis_euv.frequency
+            elif pulse_or_gate =="dtme":
+                frequency = measurement_info.momentum
+            else:
+                raise ValueError
+            
+
         if getattr(descent_info.measured_spectrum_is_provided, pulse_or_gate)==True: 
-            # here one needs to aloow for the multiplication of a variable factor if streaking and pulseorgate=pulse
-            # reason is vectorpotential in volkov phase 
-            if hasattr(measurement_info, "dtme_momentum")==True and pulse_or_gate=="pulse":
+            if _is_streaking==True and pulse_or_gate=="pulse":
+                # even if spectrum is provided one still needs to optimize for the absolute scale of the vectorpotential
                 scale = individual.amp
             else:
                 scale = 1
@@ -852,10 +911,10 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             central_f = getattr(measurement_info.central_frequency, pulse_or_gate)
 
         else:
-            amp = self.get_amplitude(individual.amp, measurement_info, descent_info)
-            central_f = self.get_central_f_for_current_guess(amp, measurement_info, pulse_or_gate)
-    
-        phase = self.get_phase(individual.phase, central_f, measurement_info, descent_info)
+            amp = self.get_amplitude(individual.amp, frequency, measurement_info, descent_info, pulse_or_gate)
+            central_f = self.get_central_f_for_current_guess(amp, frequency)
+
+        phase = self.get_phase(individual.phase, central_f, frequency, measurement_info, descent_info, pulse_or_gate)
         signal_f = amp*jnp.exp(1j*2*jnp.pi*phase)
         return signal_f
     
