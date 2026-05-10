@@ -599,6 +599,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
         self.alternating_optimization = False
         self.optimize_group_delay_pulse = True
         self.optimize_group_delay_gate = True
+        self.optimize_group_delay_dtme = None
+
 
 
     def get_phase(self, coefficients, central_f, frequency, measurement_info, descent_info, pulse_or_gate):
@@ -811,7 +813,8 @@ class AutoDiffBASE(GeneralOptimizationBASE):
 
         self.descent_info = self.descent_info.expand(alternating_optimization = self.alternating_optimization,
                                                      optimize_group_delay = MyNamespace(pulse=self.optimize_group_delay_pulse, 
-                                                                                        gate=self.optimize_group_delay_gate))
+                                                                                        gate=self.optimize_group_delay_gate,
+                                                                                        dtme=self.optimize_group_delay_dtme))
         descent_info = self.descent_info
 
 

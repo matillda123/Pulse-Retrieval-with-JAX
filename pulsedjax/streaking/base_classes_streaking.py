@@ -242,6 +242,8 @@ class AutoDiffBASESTREAKING(GeneralOptimizationBASESTREAKING, AutoDiffBASE):
     def __init__(self, *args, solver=None, **kwargs):
         super().__init__(*args, solver=solver, **kwargs)
 
+        self.optimize_group_delay_dtme = True
+
     
     def loss_function(self, individual, measurement_info, descent_info):
         """ Wraps around self.calculate_error_individual() to return the error of the current guess. """

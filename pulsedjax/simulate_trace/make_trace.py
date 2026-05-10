@@ -810,7 +810,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        if dtme_momentum.ndims==1:
+        if dtme_momentum.ndim==1:
             dtme_momentum = jnp.asarray([self.do_interpolation(self.momentum_au, momentum_au, dtme_momentum)])
         else:
             dtme_momentum = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)

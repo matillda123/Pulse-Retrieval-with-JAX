@@ -1,7 +1,7 @@
 from pulsedjax.simulate_trace import MakeTrace, GaussianAmplitude, PolynomialPhase
 import jax.numpy as jnp
 
-mp = MakeTrace(N=128*40, f_max=15, df=None)
+mp = MakeTrace(N=128*20, f_max=15, df=None)
 
 def make_nir_pulse():
     amp0 = GaussianAmplitude((1,), (0.35,), (0.05,), (1,))
@@ -28,9 +28,9 @@ delay = jnp.linspace(-15,15,100)
 # momentum_au = jnp.sqrt(2*jnp.abs(energy_au))*jnp.sign(energy_au)
 # momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au))
 
-# from jax.scipy.special import gamma
-# dtme_phase_factor = jnp.exp(1j*jnp.angle(gamma(2 - 1j/k)))
-# dtme_amp = jnp.exp(-2*jnp.arctan(k_dtme)/k_dtme)/(1-jnp.exp(-2*jnp.pi/k_dtme))*1/(1+k_dtme**2)**2
+# K = 0.1
+# dtme_phase_factor = jnp.exp(1j*2*jnp.pi*momentum_au/K)
+# dtme_amp = jnp.exp(-2*jnp.arctan(momentum_au)/momentum_au)/(1-jnp.exp(-2*jnp.pi/momentum_au))*1/(1+momentum_au**2)**2
 # dtme = dtme_amp*dtme_phase_factor
 
 
@@ -38,6 +38,13 @@ delay_fs, energy_eV, trace, spectra = mp.generate_streaking(time_fs, frequency_P
                                                             (pulse_t_euv, pulse_f_euv), delay, Ip_eV=jnp.array([0]), 
                                                             energy_range=(25,50), N=128, #DTME=(momentum_au, dtme)
                                                             )
+
+
+
+
+
+
+
 
 
 
