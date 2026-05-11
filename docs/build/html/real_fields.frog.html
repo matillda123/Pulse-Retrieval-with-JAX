@@ -60,18 +60,20 @@
 <li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -241,6 +243,16 @@ Only available for delay based non-interferometric methods. Transforms populatio
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.optimize_spectral_phase_directly">
+<span class="sig-name descname"><span class="pre">optimize_spectral_phase_directly</span></span><a class="headerlink" href="#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.optimize_spectral_phase_directly" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_gradient_individual">
 <span class="sig-name descname"><span class="pre">calculate_Z_gradient_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#real_fields.frog.classical_algorithms_frog_real_fields.GeneralizedProjection.calculate_Z_gradient_individual" title="Link to this definition"></a></dt>
@@ -280,6 +292,16 @@ T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Scie
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None, str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.optimize_spectral_phase_directly">
+<span class="sig-name descname"><span class="pre">optimize_spectral_phase_directly</span></span><a class="headerlink" href="#real_fields.frog.classical_algorithms_frog_real_fields.PtychographicIterativeEngine.optimize_spectral_phase_directly" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>

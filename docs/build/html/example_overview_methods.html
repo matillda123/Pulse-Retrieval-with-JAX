@@ -62,18 +62,20 @@
 <li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -200,6 +202,11 @@ The available algorithms for VAMPIRE-retrieval are described in <a class="refere
 </section>
 <section id="attosecond-streaking">
 <h2>Attosecond Streaking<a class="headerlink" href="#attosecond-streaking" title="Link to this heading"></a></h2>
+<p>Attosecond streaking is implementend via the multichannel Strong-Field-Approximation (SFA). The basic idea of streaking is to ionize an atom or molecule with an EUV-Pulse. The momentum of the created photoelectrons is dressed with the field of strong femtosecond pulse. Scanning the delay of the EUV and femtosecond pulse creates a spectrogram-like measurement of the photoelectron spectrum. The SFA allows an analytic description of this process by neglecting the coulomb interaction. It reads:</p>
+<p><span class="math notranslate nohighlight">\(S(\tau, k) = -i \cdot \sum\limits_C \int\limits_{-\infty}^\infty dt\cdot \rho_C(k+A(t)) \cdot E(t,\tau) \cdot e^{-i t\cdot \left(IP_C + \frac{k^2}{2}\right)}\cdot e^{-i\phi(t,k)}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\phi(t,k)= \int\limits_t^{\infty} dt'\cdot \left(k A(t') + \frac{A(t')^2}{2}\right)\)</span></p>
+<p>The retrieval can either be done by usage of standard FROG algorithms. This necessitates employment of the central-momentum axpproximation which assumes the transition-dipole-matrix-element to be constant.<br />
+Alternatively the SFA can be implemented numerically and the retrieval achieved by usage of analytic gradients with respect to the EUV-pulse and vectorpotential. This approach is available for Generalized Projection, COPRA and all general optimization algorithms.</p>
 </section>
 </section>
 

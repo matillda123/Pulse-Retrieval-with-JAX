@@ -60,18 +60,20 @@
 <li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -401,7 +403,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="simulate_trace.make_pulse.MakePulse">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_pulse.</span></span><span class="sig-name descname"><span class="pre">MakePulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_pulse.MakePulse" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_pulse.</span></span><span class="sig-name descname"><span class="pre">MakePulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_pulse.MakePulse" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Is supposed to generate pulses based on input parameters from GaussianAmplitude, PolynomialPhase, SinusoidalPhase, RandomPhase, CustomPulse or MultiPulse.</p>
 <dl class="py attribute">
@@ -503,7 +505,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTrace">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">MakeTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTrace" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MakePulse</span></code></p>
 <p>Simulates measurement traces based in input pulses.
 Inherits from make_pulse.MakePulse.</p>
@@ -710,7 +712,7 @@ Assumes the pulse to be the femtosecond pulse and gate the EUV-pulse.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.interpolate_spectrum">
-<span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">interpolate_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.interpolate_spectrum" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">simulate_trace.make_trace.</span></span><span class="sig-name descname"><span class="pre">interpolate_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_interpolation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.interpolate_spectrum" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -822,6 +824,16 @@ Assumes the pulse to be the femtosecond pulse and gate the EUV-pulse.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTraceSTREAKING.generate_trace">
 <span class="sig-name descname"><span class="pre">generate_trace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTraceSTREAKING.generate_trace" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTraceSTREAKING.interpolate_trace">
+<span class="sig-name descname"><span class="pre">interpolate_trace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTraceSTREAKING.interpolate_trace" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulate_trace.make_trace.MakeTraceSTREAKING.plot_trace">
+<span class="sig-name descname"><span class="pre">plot_trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_nir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_euv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulate_trace.make_trace.MakeTraceSTREAKING.plot_trace" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

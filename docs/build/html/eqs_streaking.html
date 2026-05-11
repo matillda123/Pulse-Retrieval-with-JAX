@@ -140,47 +140,70 @@ These two axis require new index convetions.</p>
 <p><span class="math notranslate nohighlight">\(\quad q\quad\rightarrow\quad\)</span> Spatial Domain<br />
 <span class="math notranslate nohighlight">\(\quad b\quad\rightarrow\quad\)</span> Momentum Domain</p>
 <p>Its a bit annoying that im already using <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(p\)</span> as indices. If its not an index <span class="math notranslate nohighlight">\(k\)</span> refers to the momentum.</p>
-<p>In addition the channel-dependent transition-dipole-matrix-element (DTME or <span class="math notranslate nohighlight">\(\rho^C\)</span>) and the channel dependent ionization potential <span class="math notranslate nohighlight">\(IP^C\)</span> are introduced.</p>
+<p>In addition the channel-dependent transition-dipole-matrix-element (DTME or <span class="math notranslate nohighlight">\(\rho^C\)</span>) and the channel dependent ionization potential <span class="math notranslate nohighlight">\(IP^C\)</span> are introduced.<br />
+In Streaking <code class="docutils literal notranslate"><span class="pre">A</span></code> always refers to the vectorpotential of the femtosecond pulse, while <code class="docutils literal notranslate"><span class="pre">E</span></code> refers to the field of the EUV-pulse.</p>
 </section>
 <section id="streaking-amplitude-within-strong-field-approximation">
 <h3>Streaking Amplitude (within Strong-Field-Approximation)<a class="headerlink" href="#streaking-amplitude-within-strong-field-approximation" title="Link to this heading"></a></h3>
 <p>For a single-channel the SFA is implemented as:</p>
 <p><span class="math notranslate nohighlight">\(S_{mb}^C = -i \cdot \sum\limits_k dt\cdot \rho_{bk}^C \cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}}\)</span></p>
-<p>The multi-channel SFA is simply a coherent sum over all channels, which translates to all gradients:</p>
+<p>Where <span class="math notranslate nohighlight">\(S_{mb}\)</span> is the streaking amplitude in the momenum domain, it can be fourier transform to the spatial domain to yield <span class="math notranslate nohighlight">\(S_{mq}\)</span>. The multi-channel SFA is simply a coherent sum over all channels, which translates to all gradients:</p>
 <p><span class="math notranslate nohighlight">\(S_{mb} = \sum\limits_C S_{mb}^C\)</span></p>
 <p><span class="math notranslate nohighlight">\(\frac{d S_{mb}}{dX} = \sum\limits_C \frac{d S_{mb}^C}{dX}\)</span></p>
-<br>
-<p><span class="math notranslate nohighlight">\(E_{mk}\quad\)</span> is the shifted attosecond pulse in the time domain. (Same naming as e.g. in FROG)</p>
-<p><span class="math notranslate nohighlight">\(A_j\quad\)</span> is the vectorpotential of the femtosecond pulse in the time domain</p>
-<br>
 <p>The vectorpotential-dependent part of the Volkov-Phase is:</p>
 <p><span class="math notranslate nohighlight">\(\phi_{bk} = \sum\limits_{j'=k}^{k_{\mathrm{max}}} dt\cdot \left(k_b A_{j'} + \frac{A_{j'}^2}{2}\right)\)</span></p>
-<br>
 <p>The DTME is momentum dependent and thus modulated by the vectorpotential. This can be numerically implemented using the Fourier-shift theorem.</p>
 <p><span class="math notranslate nohighlight">\(\rho_{bk}^C = \sum\limits_q D_{bq} \rho_q^C \cdot e^{i\cdot 2\pi r_q\cdot A_k}\)</span></p>
 </section>
+<section id="z-error-definition">
+<h3>Z-Error Definition<a class="headerlink" href="#z-error-definition" title="Link to this heading"></a></h3>
+<p><span class="math notranslate nohighlight">\(Z = \sum\limits_{mb} |S_{mb}' - S_{mb}|^2\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{n}Z_m = -2\sum\limits_b \Delta S_{mb} \left(\frac{d S_{mb}}{d E_n}\right)^* + \Delta S_{mb}^*\frac{d S_{mb}}{d E_n^*}\)</span></p>
 </section>
-<section id="gradients">
-<h2>Gradients<a class="headerlink" href="#gradients" title="Link to this heading"></a></h2>
-<section id="with-respect-to-the-vectorpotential-in-time-domain-a-j">
-<h3>With respect to the Vectorpotential in time domain (<span class="math notranslate nohighlight">\(A_j\)</span>)<a class="headerlink" href="#with-respect-to-the-vectorpotential-in-time-domain-a-j" title="Link to this heading"></a></h3>
-<p>Vectorpotential is required to be real for streaking. This gradient is with respect to real-part of <span class="math notranslate nohighlight">\(A_j\)</span>.</p>
-<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_j} = -i\cdot\sum\limits_k dt \cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot \left(-i\cdot \rho_{bk}^C\cdot e^{-i\phi_{bk}}\cdot \frac{d \phi_{bk}}{d A_j} + e^{-i\phi_{bk}}\cdot\frac{d\rho_{bk}^C}{d A_j} \right)\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_n} = \mathrm{FFT}_{jn}\{\frac{d S_{mb}^C}{d A_j}\}\quad\)</span> This is a bad idea because negative frequencies will wrap around and cause erroneuos interferences. Should always be kept in time domain.</p>
-<p>In the case-definition <span class="math notranslate nohighlight">\(k\)</span> is the index and not the momentum, the momentum is <span class="math notranslate nohighlight">\(k_b\)</span>. Can be implemented with binary mask.</p>
-<p><span class="math notranslate nohighlight">\(\frac{d \phi_{bk}}{d A_j} = \begin{cases}dt \cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
-0 &amp; \text{else}\end{cases} \)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d \rho_{bk}^C}{d A_j} = \sum\limits_q D_{bq}\rho_q^C\cdot e^{i\cdot 2\pi r_q\cdot A_k}\cdot i\cdot 2\pi r_q\cdot \delta_{kj}\)</span></p>
+</section>
+<section id="z-gradients">
+<h2>Z-Gradients<a class="headerlink" href="#z-gradients" title="Link to this heading"></a></h2>
+<section id="with-respect-to-the-real-part-of-vectorpotential-in-frequency-domain-a-n">
+<h3>With respect to the real-part of vectorpotential in frequency domain (<span class="math notranslate nohighlight">\(A_n\)</span>)<a class="headerlink" href="#with-respect-to-the-real-part-of-vectorpotential-in-frequency-domain-a-n" title="Link to this heading"></a></h3>
+<p>Vectorpotential is required to be real for streaking. Writing this out is omitted here for readability.</p>
+<p><span class="math notranslate nohighlight">\(\nabla_{n}Z_m = \mathrm{FT}\{\nabla_{j}Z_m\}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{j}Z_m = -1\sum\limits_b \Delta S_{mb} \left(\frac{d S_{mb}}{d A_j}\right)^* + \Delta S_{mb}^*\frac{d S_{mb}}{d A_j^*}= -2\cdot\Re\left(\sum\limits_{b, C}\Delta S_{mb}\left(\frac{d S_{mb}^C}{d A_j}\right)^*\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_j} = -i\cdot\sum\limits_k dt \cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bk}}\cdot\left(-i\cdot \rho_{bk}^C\cdot \frac{d \phi_{bk}}{d A_j} + \frac{d\rho_{bk}^C}{d A_j} \right)\)</span></p>
+<p>For the derivatives of the inner funcition one gets:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d \rho_{bk}^C}{d A_j} = i\cdot 2\pi \cdot \delta_{kj} \sum\limits_q D_{bq}\rho_q^C\cdot e^{i\cdot 2\pi r_q\cdot A_k}r_q\)</span></p>
+<p>The <span class="math notranslate nohighlight">\(\delta_{kj}\)</span> does not appear in the other derivative, a different one with different indices appears and gets rid of a different sum.</p>
+<p><span class="math notranslate nohighlight">\(\frac{d \phi_{bk}}{d A_j} = \begin{cases}
+dt \cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
+0 &amp; \text{else}
+\end{cases}\)</span></p>
+<p>Thus the sum over k survives in this term, which together with the sum leads to a cumulative-sum. The entire gradient reads:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_j} = g_1 + g_2\)</span></p>
+<p><span class="math notranslate nohighlight">\(g_1 = -1\cdot dt^2 \cdot \begin{cases}
+\sum_k E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bk}}\cdot\rho_{bk}^C\cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
+0 &amp; \text{else}
+\end{cases}\)</span></p>
+<p><span class="math notranslate nohighlight">\(g_2 = 2\pi dt \cdot E_{mj} \cdot e^{-i t_j\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bj}}\cdot \left(\sum\limits_q D_{bq}\rho_q^C \cdot r_q\cdot e^{i\cdot 2\pi r_q\cdot A_j}\right)\)</span></p>
 </section>
 <section id="with-respect-to-the-attosecond-pulse-in-frequency-domain-left-e-n-right">
 <h3>With respect to the attosecond pulse in frequency domain <span class="math notranslate nohighlight">\(\left(E_n\right)\)</span><a class="headerlink" href="#with-respect-to-the-attosecond-pulse-in-frequency-domain-left-e-n-right" title="Link to this heading"></a></h3>
-<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d E_n} = -i \cdot \sum\limits_k dt\cdot \rho_{bk}^C \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}} \cdot D_{kn} e^{-i\omega_n\tau_m}\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{n}Z_m = -2\sum\limits_b \Delta S_{mb} \left(\frac{d S_{mb}}{d E_n}\right)^* = -2\sum\limits_{b,C}\Delta S_{mb} \left(\frac{d S_{mb}^C}{d E_n}\right)^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d E_n} = -i \cdot dt\cdot e^{-i\omega_n\tau_m}\cdot \sum\limits_k D_{kn}\cdot \rho_{bk}^C \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}}\)</span></p>
 </section>
-<section id="with-respect-to-the-dipole-transition-matrix-element-in-spatial-domain-rho-q">
-<h3>With respect to the dipole transition matrix element in spatial domain (<span class="math notranslate nohighlight">\(\rho_q\)</span>)<a class="headerlink" href="#with-respect-to-the-dipole-transition-matrix-element-in-spatial-domain-rho-q" title="Link to this heading"></a></h3>
-<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d \rho_q^{C'}} = -i \cdot \sum\limits_k dt\cdot E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}} \cdot D_{bq}\cdot e^{i\cdot 2\pi r_q A_k} \cdot \delta_{CC'}\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d \rho_b^{C'}} = \mathrm{FFT}_{qb}\{\frac{d S_{mb}^C}{d \rho_q^{C'}}\}\)</span></p>
+<section id="with-respect-to-the-dipole-transition-matrix-element-in-momentum-domain-rho-b-c">
+<h3>With respect to the dipole transition matrix element in momentum domain (<span class="math notranslate nohighlight">\(\rho_b^C\)</span>)<a class="headerlink" href="#with-respect-to-the-dipole-transition-matrix-element-in-momentum-domain-rho-b-c" title="Link to this heading"></a></h3>
+<p>Here one wants the gradient with respect to the DTME of each channel.</p>
+<p><span class="math notranslate nohighlight">\(\nabla_{b}Z_m = FFT_{bq} \left(\nabla_{q}Z_m\right)\)</span></p>
+<p><span class="math notranslate nohighlight">\(\nabla_{q'}^{C'}Z_m = -2\sum\limits_{b,C} \Delta S_{mb} \left(\frac{d S_{mb}^C}{d \rho_{q'}^{C'}}\right)^*\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d \rho_{q'}^{C'}} = -i \delta_{CC'}\delta_{qq'}\cdot dt \cdot D_{bq}\cdot \sum\limits_k E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)}\cdot e^{-i\phi_{bk}} \cdot e^{i\cdot 2\pi r_q A_k}\)</span></p>
 </section>
+</section>
+<section id="z-pseudo-hessian">
+<h2>Z-Pseudo-Hessian<a class="headerlink" href="#z-pseudo-hessian" title="Link to this heading"></a></h2>
+<p>TODO</p>
+</section>
+<section id="pie-gradient">
+<h2>PIE Gradient<a class="headerlink" href="#pie-gradient" title="Link to this heading"></a></h2>
+<p>One can take DTME*volkov_phase_factor as object and euv-pulse as probe. Then one can get DTME and A from the object via gradient descent each iteration.</p>
 </section>
 </section>
 
