@@ -34,6 +34,7 @@
    tdp
    twodsi
    vampire
+   streaking
    simulate_trace
    real_fields
    core

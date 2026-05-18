@@ -9,7 +9,7 @@ from pulsedjax.utilities import MyNamespace, generate_random_continuous_function
 
 
 
-def get_initial_amp(measurement_info):
+def get_initial_amp(measurement_info, pulse_or_gate):
     """
     Estimate spectral amplitude from the integrated measured intensity. 
     For SHG/THG the amplitude is interpolated to lie in the correct frequency region.
@@ -23,6 +23,18 @@ def get_initial_amp(measurement_info):
         fmin, fmax = 0.5*kmin**2*1/(2*jnp.pi), 0.5*kmax**2*1/(2*jnp.pi)
         frequency_temp = jnp.linspace(fmin, fmax, jnp.size(amp))
         f0 = jnp.mean(measurement_info.ionization_potential)*1/(2*jnp.pi)
+
+        if pulse_or_gate=="pulse":
+            frequency = measurement_info.axis_nir.frequency
+        elif pulse_or_gate=="gate":
+            frequency = measurement_info.axis_euv.frequency
+        elif pulse_or_gate=="dtme":
+            frequency = measurement_info.momentum
+            frequency_temp = measurement_info.momentum
+            f0 = 0
+        else:
+            raise ValueError
+        
         amp = do_interpolation_1d(frequency, frequency_temp + f0, amp)
 
     elif nonlinear_method=="shg" or nonlinear_method=="thg" or nonlinear_method[-2:]=="hg":
@@ -83,7 +95,7 @@ def constant_phase(key, shape, amp):
 
 
 
-def create_population_classic(key, shape, guess_type, measurement_info):
+def create_population_classic(key, shape, guess_type, measurement_info, pulse_or_gate):
     """
     Creates a stack of initial guesses with the shape (population_size, jnp.size(frequency)). The guesses are all in the frequency domain.
     The created populations can be optimized by both general and classical solvers.
@@ -98,7 +110,7 @@ def create_population_classic(key, shape, guess_type, measurement_info):
         jnp.array, stack of 1D-arrays
     """
 
-    amp = get_initial_amp(measurement_info)
+    amp = get_initial_amp(measurement_info, pulse_or_gate)
 
     if guess_type=="random":
         signal_f_arr = random(key, shape)
@@ -225,46 +237,48 @@ def bspline_guess_amp(key, population, shape, measurement_info):
 
 
 
-def general_phase(key, population, shape, measurement_info, phase_type):
+def general_phase(key, population, shape, measurement_info, phase_type, pulse_or_gate):
     key, subkey = jax.random.split(key, 2)
-    signal_f = create_population_classic(subkey, shape, phase_type, measurement_info)
+    signal_f = create_population_classic(subkey, shape, phase_type, measurement_info, pulse_or_gate)
     population = tree_at(lambda x: x.phase, population, jnp.angle(signal_f), is_leaf=lambda x: x is None)
     return key, population
 
 
-def general_amp(key, population, shape, measurement_info, amp_type):
+def general_amp(key, population, shape, measurement_info, amp_type, pulse_or_gate):
     key, subkey = jax.random.split(key, 2)
-    signal_f = create_population_classic(subkey, shape, amp_type, measurement_info)
+    signal_f = create_population_classic(subkey, shape, amp_type, measurement_info, pulse_or_gate)
     population = tree_at(lambda x: x.amp, population, jnp.abs(signal_f), is_leaf=lambda x: x is None)
     return key, population
 
 
 
 
-def create_phase(key, phase_type, population, shape, measurement_info):
+def create_phase(key, phase_type, population, shape, measurement_info, pulse_or_gate):
+    _general_phase = Partial(general_phase, pulse_or_gate=pulse_or_gate)
     phase_guess_func_dict = {"polynomial": polynomial_guess,
                                 "sinusoidal": sinusoidal_guess,
                                 "sigmoidal": sigmoidal_guess,
                                 "bsplines": bspline_guess_phase,
                                 "continuous": continuous_discrete_guess_phase,
-                                "random": Partial(general_phase, phase_type="random"),
-                                "random_phase": Partial(general_phase, phase_type="random_phase"),
-                                "constant": Partial(general_phase, phase_type="constant"),
-                                "constant_phase": Partial(general_phase, phase_type="constant_phase")}
+                                "random": Partial(_general_phase, phase_type="random"),
+                                "random_phase": Partial(_general_phase, phase_type="random_phase"),
+                                "constant": Partial(_general_phase, phase_type="constant"),
+                                "constant_phase": Partial(_general_phase, phase_type="constant_phase")}
     
     key, population = phase_guess_func_dict[phase_type](key, population, shape, measurement_info)
     return key, population
     
 
-def create_amp(key, amp_type, population, shape, measurement_info):
+def create_amp(key, amp_type, population, shape, measurement_info, pulse_or_gate):
+    _general_amp = Partial(general_amp, pulse_or_gate=pulse_or_gate)
     amp_guess_func_dict = {"gaussian": gaussian_or_lorentzian_guess,
                             "lorentzian": gaussian_or_lorentzian_guess,
                             "bsplines": bspline_guess_amp,
                             "continuous": continuous_discrete_guess_amp,
-                            "random": Partial(general_amp, amp_type="random"),
-                            "random_phase": Partial(general_amp, amp_type="random_phase"),
-                            "constant": Partial(general_amp, amp_type="constant"),
-                            "constant_phase": Partial(general_amp, amp_type="constant_phase")}
+                            "random": Partial(_general_amp, amp_type="random"),
+                            "random_phase": Partial(_general_amp, amp_type="random_phase"),
+                            "constant": Partial(_general_amp, amp_type="constant"),
+                            "constant_phase": Partial(_general_amp, amp_type="constant_phase")}
     
     key, population = amp_guess_func_dict[amp_type](key, population, shape, measurement_info)
     return key, population
@@ -293,13 +307,13 @@ def create_population_general(key, amp_type, phase_type, population, population_
     """
 
     shape = (population_size, no_funcs_phase)
-    key, population = create_phase(key, phase_type, population, shape, measurement_info)
+    key, population = create_phase(key, phase_type, population, shape, measurement_info, pulse_or_gate)
 
     _is_streaking = hasattr(measurement_info, "dtme_momentum")
 
     if spectrum_provided==False:
         shape = (population_size, no_funcs_amp)
-        key, population = create_amp(key, amp_type, population, shape, measurement_info)
+        key, population = create_amp(key, amp_type, population, shape, measurement_info, pulse_or_gate)
 
     elif spectrum_provided==True and _is_streaking==True and pulse_or_gate=="pulse":
         shape = (population_size, )

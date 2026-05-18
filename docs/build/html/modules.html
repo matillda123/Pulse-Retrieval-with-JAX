@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>streaking &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ec38ee01" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PulsedJAX: Pulse-Retrieval-with-JAX
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_methods.html">Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_overview_algorithms.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_method_specific_algorithms.html">Method-Specific Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_nonlinear_optimization.html">Nonlinear Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_advanced_things.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="frog.html">frog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chirp_scan.html">chirp_scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.frog.html">real_fields.frog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.tdp.html">real_fields.tdp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.twodsi.html">real_fields.twodsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PulsedJAX: Pulse-Retrieval-with-JAX</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">streaking</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="streaking">
+<h1>streaking<a class="headerlink" href="#streaking" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="streaking.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="streaking.html#module-streaking.base_classes_streaking">streaking.base_classes_streaking module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.estimate_vectorpotential_scale"><code class="docutils literal notranslate"><span class="pre">estimate_vectorpotential_scale()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.local_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.local_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.global_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.global_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.linesearch"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.linesearch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.max_steps_linesearch"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.max_steps_linesearch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.c1"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.c1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.c2"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.c2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.delta_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.delta_gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.local_newton"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.local_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.global_newton"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.global_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.lambda_lm"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.lambda_lm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.lbfgs_memory"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.lbfgs_memory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.linalg_solver"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.linalg_solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.conjugate_gradients"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.conjugate_gradients</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.r_local_method"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.r_local_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.r_global_method"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.r_global_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.r_gradient"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.r_gradient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.r_newton"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.r_newton</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.r_no_iterations"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.r_no_iterations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.xi"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.xi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.local_adaptive_scaling"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.local_adaptive_scaling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.global_adaptive_scaling"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.global_adaptive_scaling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.momentum_is_being_used"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.momentum_is_being_used</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.normalize_after_every_step"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.normalize_after_every_step</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.create_initial_population"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.create_initial_population()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING.optimize_spectral_phase_directly</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.pie_method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING"><code class="docutils literal notranslate"><span class="pre">COPRABASESTREAKING</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.error_metric"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.error_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.create_initial_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.create_initial_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.split_population_in_amp_and_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.split_population_in_amp_and_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.merge_population_from_amp_and_phase"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.merge_population_from_amp_and_phase()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.get_pulses_f_from_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.get_pulses_f_from_population()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING.strategy"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING.strategy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING.mutation_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING.mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING.crossover_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING.selection_mechanism</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.DifferentialEvolutionBASESTREAKING.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING.temperature</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.EvosaxBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">EvosaxBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.EvosaxBASESTREAKING.solver"><code class="docutils literal notranslate"><span class="pre">EvosaxBASESTREAKING.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.EvosaxBASESTREAKING.solver_params"><code class="docutils literal notranslate"><span class="pre">EvosaxBASESTREAKING.solver_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.EvosaxBASESTREAKING.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">EvosaxBASESTREAKING.solver_kwargs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.AutoDiffBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.AutoDiffBASESTREAKING.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.AutoDiffBASESTREAKING.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING.alternating_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.AutoDiffBASESTREAKING.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING.optimize_group_delay</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.AutoDiffBASESTREAKING.loss_function"><code class="docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING.loss_function()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="streaking.html#module-streaking.classical_algorithms_streaking">streaking.classical_algorithms_streaking module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.optimize_spectral_phase_directly</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.do_descent_Z_error_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.do_descent_Z_error_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.local_iteration"><code class="docutils literal notranslate"><span class="pre">COPRA.local_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.global_step"><code class="docutils literal notranslate"><span class="pre">COPRA.global_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="streaking.html#module-streaking.general_algorithms_streaking">streaking.general_algorithms_streaking module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution.strategy"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.strategy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution.mutation_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution.crossover_rate"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.crossover_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution.selection_mechanism"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.selection_mechanism</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.DifferentialEvolution.temperature"><code class="docutils literal notranslate"><span class="pre">DifferentialEvolution.temperature</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.Evosax"><code class="docutils literal notranslate"><span class="pre">Evosax</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.Evosax.solver"><code class="docutils literal notranslate"><span class="pre">Evosax.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.Evosax.solver_params"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_params</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.Evosax.solver_kwargs"><code class="docutils literal notranslate"><span class="pre">Evosax.solver_kwargs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.AutoDiff"><code class="docutils literal notranslate"><span class="pre">AutoDiff</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.AutoDiff.solver"><code class="docutils literal notranslate"><span class="pre">AutoDiff.solver</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.AutoDiff.alternating_optimization"><code class="docutils literal notranslate"><span class="pre">AutoDiff.alternating_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.general_algorithms_streaking.AutoDiff.optimize_group_delay"><code class="docutils literal notranslate"><span class="pre">AutoDiff.optimize_group_delay</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="streaking.html#module-streaking">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Till-Jakob Stehling.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

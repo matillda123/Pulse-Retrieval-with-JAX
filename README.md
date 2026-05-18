@@ -12,8 +12,8 @@ pip install git+https://github.com/matillda123/pulse-retrieval-with-jax.git
 The documentation is available [here](https://pulse-retrieval-with-jax.readthedocs.io/en/latest/index.html).
 
 ## Overview  
-Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Attosecond Streaking (via multichannel-SFA). 
-For each method SHG, THG, PG/TG and SD as well as cross-correlation and doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.  
+Available methods are FROG, Chirp-Scans (material dispersion or pulse-shaping), Time-Domain-Ptychography, Two-Dimensional Spectral-Shearing Interferometry (2D-SI), VAMPIRE and Attosecond Streaking (via multichannel-SFA).  
+For each method SHG, THG, PG/TG and SD as well as cross-correlation and doubleblind retrievals are implemented (with some exceptions). For FROG and Time-Domain-Ptychography interferometric retrievals are implemented as well.   
 In addition most algorithms support the retrieval of signals from Difference-Frequency-Generation and that of traces containing multiple nonlinear signals at once as well as the retrieval of the calibration curve of the measured trace. For Attosecond Streaking not all available algorithms are have been adapted. Retrieval of the dipole-transition-matrix-elements from streaking is work in progress.
 
 On top of the naive implementation of each algorithm, some allow the usage of standard nonlinear optimization approaches like nonlinear conjugate gradients or LBFGS. In other cases the pulses may be parametrized via analytic functions instead of a discrete grid. 

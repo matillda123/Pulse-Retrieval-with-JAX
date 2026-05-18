@@ -7,22 +7,47 @@ from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE, Genera
 from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE
 from pulsedjax.core.base_general_optimization import DifferentialEvolutionBASE, EvosaxBASE, AutoDiffBASE
 
-from pulsedjax.utilities import MyNamespace
+from pulsedjax.utilities import MyNamespace, calculate_Z_error, calculate_trace, calculate_trace_error, get_com
 
 
 
-
-def estimate_vectorpotential_scale(tau_arr, momentum_au, measured_trace):
-    trace_k = jnp.sum(measured_trace, axis=0)
-    idx_max = jnp.argmax(trace_k)
-    t_max = trace_k[idx_max]
-    idx0, idx1 = jnp.argmin(jnp.abs(trace_k[:idx_max] - t_max/2)), jnp.argmin(jnp.abs(trace_k[idx_max:] - t_max/2)) + idx_max
-    k0, k1 = momentum_au[idx0], momentum_au[idx1]
-    delta_k = jnp.abs(k1 - k0)
+def estimate_vectorpotential_max_scale(tau_arr, momentum_au, measured_trace):
+    """ Approximates the max scale of the vectorpotential in the f-domain, based on the wiggles in the streaaking trace. """
+    trace_com = get_com(jnp.sum(measured_trace, axis=0), jnp.arange(jnp.size(momentum_au))).astype(int)
+    kmax0, kmax1 = jnp.abs(momentum_au[trace_com] - jnp.max(momentum_au)), jnp.abs(momentum_au[trace_com] - jnp.min(momentum_au))
+    delta_k = jnp.min(jnp.asarray([kmax0, kmax1]))
     delta_tau = jnp.max(tau_arr) - jnp.min(tau_arr)
+    scale = delta_tau*delta_k # max in f domain
+    return 2*jnp.sqrt(scale)
 
-    scale = delta_tau*delta_k/2 # needs to be amp in f-domain not t-domain
-    return scale*1/3 # 1/3 just to systematically underestimate
+
+
+def normalize_population(population, measurement_info, descent_info, pulse_or_gate):
+    """ 
+    Forstreaking the absolute scale of the vectorpotential is crucial. 
+    Thus it is not normalized but just rescaled if the scale grows out of bounds.
+    """
+    if descent_info.normalize==True:
+        if pulse_or_gate=="pulse":
+
+            a = estimate_vectorpotential_max_scale(measurement_info.tau_arr, measurement_info.momentum, measurement_info.measured_trace)
+            out_of_range = (a < jnp.max(jnp.abs(population.pulse), axis=-1))
+            a = a*0.025
+            pulse_corrected = a*population.pulse/jnp.max(jnp.abs(population.pulse), axis=-1)[:,None]
+            population_pulse = out_of_range*pulse_corrected + (1-out_of_range)*population.pulse
+            population_gate = population.gate
+
+        elif pulse_or_gate=="gate":
+            population_pulse = population.pulse
+            if measurement_info.interferometric==False:
+                population_gate = population.gate/jnp.linalg.norm(population.gate,axis=-1)[:,jnp.newaxis]
+            else:
+                population_gate = population.gate
+    else:
+        population_pulse = population.pulse
+        population_gate = population.gate
+
+    return population.expand(pulse=population_pulse, gate=population_gate)
 
 
 
@@ -48,13 +73,14 @@ class ClassicalAlgorithmsBASESTREAKING(ClassicAlgorithmsBASE):
 
         """
         population = super().create_initial_population(population_size=population_size, guess_type=guess_type)
-        a = estimate_vectorpotential_scale(self.measurement_info.tau_arr, self.measurement_info.momentum, self.measurement_info.measured_trace)
+        a = estimate_vectorpotential_max_scale(self.measurement_info.tau_arr, self.measurement_info.momentum, self.measurement_info.measured_trace)
+        a = a/4
         population_pulse = population.pulse/jnp.max(jnp.abs(population.pulse), axis=1)[:,None]*a
         
         if self.measurement_info.retrieve_dtme==True:
             self.key, subkey = jax.random.split(self.key, 2)
             shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.momentum))
-            population_dtme = create_population_classic(subkey, shape, guess_type, self.measurement_info)
+            population_dtme = create_population_classic(subkey, shape, guess_type, self.measurement_info, "dtme")
         else:
             population_dtme = None
         
@@ -86,7 +112,31 @@ class GeneralizedProjectionBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, Gener
                 pass
                     
         return grad
+    
+
+    
+    def do_descent_Z_error_step(self, descent_state, signal_t_new, measurement_info, descent_info):
+        """ Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate. """
+
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        Z_error = jax.vmap(calculate_Z_error, in_axes=(0,0))(signal_t, signal_t_new)
+
+        population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, measurement_info, descent_info, "pulse")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
         
+        if measurement_info.doubleblind==True:
+            population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, 
+                                                            measurement_info, descent_info, "gate")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
+
+        if measurement_info.retrieve_dtme==True:
+            population = self.descent_Z_error_step(signal_t, signal_t_new, Z_error, descent_state, 
+                                                            measurement_info, descent_info, "dtme")
+            descent_state = tree_at(lambda x: x.population.dtme, descent_state, population.dtme)
+
+        return descent_state, None
 
 
 
@@ -122,6 +172,129 @@ class COPRABASESTREAKING(ClassicalAlgorithmsBASESTREAKING, COPRABASE):
 
 
 
+    def local_iteration(self, descent_state, transform_arr_m, trace_line, measurement_info, descent_info):
+        """ Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields. """
+        signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
+        signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, descent_state._local.mu, 
+                                                         measurement_info, descent_info, "_local", 
+                                                         axes=(0,0,0,None,None,None))
+        
+        local_state = descent_state._local
+        local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, 
+                                                    descent_state.population, local_state, 
+                                                    measurement_info, descent_info, 
+                                                   "pulse", "_local")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
+
+
+        if measurement_info.doubleblind==True:
+            signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
+            signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, descent_state._local.mu, 
+                                                            measurement_info, descent_info, "_local", 
+                                                            axes=(0,0,0,None,None,None))
+            local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, 
+                                                        descent_state.population, local_state, 
+                                                        measurement_info, descent_info, 
+                                                        "gate", "_local")
+            population = normalize_population(population, measurement_info, descent_info, "gate")
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
+
+
+
+        if measurement_info.retrieve_dtme==True:
+            signal_t = jax.vmap(self.calculate_signal_t, in_axes=(0,0,None))(descent_state.population, transform_arr_m, measurement_info)
+            signal_t_new = self.calculate_S_prime_population(signal_t, trace_line, descent_state._local.mu, 
+                                                            measurement_info, descent_info, "_local", 
+                                                            axes=(0,0,0,None,None,None))
+            local_state, population = self.do_iteration(signal_t, signal_t_new, transform_arr_m, 
+                                                        descent_state.population, local_state, 
+                                                        measurement_info, descent_info, 
+                                                        "dtme", "_local")
+            descent_state = tree_at(lambda x: x.population.dtme, descent_state, population.dtme)
+
+        descent_state = tree_at(lambda x: x._local, descent_state, local_state)
+        return descent_state, None
+    
+
+
+
+
+
+
+    
+
+    def global_step(self, descent_state, measurement_info, descent_info):
+        """
+        Performs one global iteration of the Common Pulse Retrieval Algorithm. 
+        This means the method updates the population once using all measured data at once.
+        
+        Args:
+            descent_state (Pytree):
+            measurement_info (Pytree):
+            descent_info (Pytree):
+
+        Returns:
+            tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.
+        """
+
+        measured_trace = measurement_info.measured_trace
+        _calculate_trace = Partial(calculate_trace, measured_trace=measured_trace, measurement_info=measurement_info, descent_info=descent_info, local_or_global="_global")
+        
+        signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
+                                                         measurement_info, descent_info, "_global", 
+                                                         axes=(0,None,0,None,None,None))
+
+        global_state = descent_state._global
+        global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, 
+                                                     descent_state.population, global_state, measurement_info, 
+                                                     descent_info, "pulse", "_global")
+        population = normalize_population(population, measurement_info, descent_info, "pulse")
+        descent_state = tree_at(lambda x: x.population.pulse, descent_state, population.pulse)
+
+        if measurement_info.doubleblind==True:
+            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+            trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+            signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
+                                                            measurement_info, descent_info, "_global", 
+                                                            axes=(0,None,0,None,None,None))
+        
+            global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, 
+                                                         descent_state.population, global_state, measurement_info, 
+                                                         descent_info, "gate", "_global")
+            
+            population = normalize_population(population, measurement_info, descent_info, "gate")
+            descent_state = tree_at(lambda x: x.population.gate, descent_state, population.gate)
+
+
+
+
+        if measurement_info.retrieve_dtme==True:
+            signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+            trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+            signal_t_new = self.calculate_S_prime_population(signal_t, measured_trace, mu, 
+                                                            measurement_info, descent_info, "_global", 
+                                                            axes=(0,None,0,None,None,None))
+        
+            global_state, population = self.do_iteration(signal_t, signal_t_new, measurement_info.transform_arr, 
+                                                         descent_state.population, global_state, measurement_info, 
+                                                         descent_info, "dtme", "_global")
+            descent_state = tree_at(lambda x: x.population.dtme, descent_state, population.dtme)
+
+            
+        descent_state = tree_at(lambda x: x._global, descent_state, global_state)
+
+        #signal_t = self.generate_signal_t(descent_state, measurement_info, descent_info)
+        #trace, mu = jax.vmap(_calculate_trace)(signal_t.signal_f)
+        trace_error = jax.vmap(calculate_trace_error, in_axes=(0,0,None))(mu, trace, measured_trace)
+
+        descent_state = tree_at(lambda x: x._global.mu, descent_state, mu)
+        return descent_state, trace_error.reshape(-1,1)
+    
+
+
 
 
 
@@ -148,8 +321,8 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
         
     def create_initial_population(self, population_size, amp_type="gaussian", phase_type="polynomial", no_funcs_amp=5, no_funcs_phase=6):
         population = super().create_initial_population(population_size, amp_type=amp_type, phase_type=phase_type, no_funcs_amp=no_funcs_amp, no_funcs_phase=no_funcs_phase)
-        a = estimate_vectorpotential_scale(self.measurement_info.tau_arr, self.measurement_info.momentum, self.measurement_info.measured_trace)
-        
+        a = estimate_vectorpotential_max_scale(self.measurement_info.tau_arr, self.measurement_info.momentum, self.measurement_info.measured_trace)
+        a = a/4
         amp_type_list = ["gaussian", "lorentzian"]
 
         if (any([amp_type == _amp_type for _amp_type in amp_type_list])==True and self.descent_info.measured_spectrum_is_provided.pulse==True):

@@ -1,0 +1,44 @@
+from pulsedjax.simulate_trace import MakeTrace
+from pulsedjax.simulate_trace import GaussianAmplitude, PolynomialPhase, RandomPhase
+import jax.numpy as jnp
+
+amp0 = GaussianAmplitude(1, 0.2, 0.05)
+phase0 = PolynomialPhase(None, (0,0,0,0))
+phase2 = RandomPhase()
+
+
+mp = MakeTrace(N=128*20, f_max=2)
+
+time, frequency, pulse_t, pulse_f = mp.generate_pulse((amp0,phase2))
+_, frequency_gate, _, pulse_f_gate = mp.generate_pulse((amp0,phase0))
+
+delay = jnp.linspace(time[0], time[-1], 256)
+delay, frequency_trace, trace, spectra = mp.generate_frog(time, frequency, pulse_t, pulse_f, "shg", delay, 
+                                                          cross_correlation=True,
+                                                          gate=(frequency_gate, pulse_f_gate))
+
+
+
+from pulsedjax.frog import COPRA
+
+gp = COPRA(delay, frequency_trace, trace, "shg", cross_correlation=True)
+gate = gp.get_gate_pulse(frequency_gate, pulse_f_gate)
+
+population = gp.create_initial_population(5, "random")
+
+final_result = gp.run(population, 50, 500)
+gp.plot_results(final_result)
+
+
+
+
+
+gp = COPRA(delay, frequency_trace, trace, "shg", cross_correlation="doubleblind")
+
+gp.use_measured_spectrum(spectra.pulse[0], spectra.pulse[1], "pulse")
+gp.use_measured_spectrum(spectra.gate[0], spectra.gate[1], "gate")
+
+population = gp.create_initial_population(5, "random")
+
+final_result = gp.run(population, 50, 500)
+gp.plot_results(final_result)

@@ -1056,18 +1056,19 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         
     """
     
-    def __init__(self, delay_fs, energy_eV, measured_trace, df_PHz=0.01, Ip_eV=jnp.array([0]), retrieve_dtme=False, 
+    def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([0]), retrieve_dtme=False, 
                  cross_correlation="doubleblind", interferometric=False, f_range_nir_pulse=(None,None), f_range_euv_pulse=(None,None), **kwargs):
-        assert jnp.max(delay_fs)-jnp.min(delay_fs) < 1/df_PHz, "Range of time axis should ba larger than delay-range. Also keep in mind that you need to resolve the vectorpotential spectrally."
-        
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
 
         # construct frequency grid 
+        df_PHz = 0.75/(jnp.max(delay_fs)-jnp.min(delay_fs)) # 0.75 makes sure that the time-axis is bigger than the scanned delay
         df = self.convert_frequency_PHz_au(df_PHz, "PHz", "au")
         axis_nir_pulse, axis_euv_pulse = self.make_axis(f_range_nir_pulse, f_range_euv_pulse, df)
-        frequency = axis_euv_pulse.frequency
+
+        # making the main axis this big is necessary, otherwise aliasing issues prevent convergence
+        frequency = jnp.arange(-1*jnp.max(axis_euv_pulse.frequency), jnp.max(axis_euv_pulse.frequency), df)
 
         momentum_au = jnp.sqrt(2*jnp.abs(self.energy_au))*jnp.sign(self.energy_au)
         # I(k)*dk = I(E)*dE
@@ -1096,7 +1097,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                                                              dtme_momentum = self.dtme_momentum,
                                                              retrieve_dtme = self.retrieve_dtme,
                                                              no_channels = self.no_channels,
-                                                             axis_nir = axis_nir_pulse, 
+                                                             axis_nir = axis_nir_pulse,
                                                              axis_euv = axis_euv_pulse)
         
         self.descent_info = self.descent_info.expand(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False, dtme=False))
@@ -1115,8 +1116,8 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         fmax_euv = self.convert_frequency_PHz_au(fmax_euv, "PHz", "au")
 
         frequency_euv = jnp.arange(fmin_euv, fmax_euv, df_au)
-        frequency_nir = frequency_euv - (fmin_euv + fmax_euv)/2 + (fmin_nir + fmax_nir)/2
-
+        frequency_nir = jnp.arange(fmin_nir, fmax_nir, df_au)
+        
         time_nir = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(frequency_nir), jnp.mean(jnp.diff(frequency_nir))))
         time_euv = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(frequency_euv), jnp.mean(jnp.diff(frequency_euv))))
 
@@ -1262,11 +1263,12 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         Returns:
             Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
         """
-        time, frequency = measurement_info.time, measurement_info.frequency
 
         pulse_f_nir_vectorpotential = individual.pulse 
+        pulse_f_nir_vectorpotential = do_interpolation_1d(measurement_info.frequency, measurement_info.axis_nir.frequency, 
+                                                          pulse_f_nir_vectorpotential, method="cubic2")
         pulse_t_nir_vectorpotential = self.ifft(pulse_f_nir_vectorpotential, 
-                                               measurement_info.axis_nir.sk, measurement_info.axis_nir.rn)
+                                               measurement_info.sk, measurement_info.rn)
         
 
 
@@ -1277,7 +1279,9 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         else:
             raise ValueError
 
-        pulse_t_euv = self.ifft(pulse_f_euv, measurement_info.axis_euv.sk, measurement_info.axis_euv.rn)
+        pulse_f_euv = do_interpolation_1d(measurement_info.frequency, measurement_info.axis_euv.frequency, 
+                                          pulse_f_euv, method="linear")
+        pulse_t_euv = self.ifft(pulse_f_euv, measurement_info.sk, measurement_info.rn)
 
 
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
@@ -1289,7 +1293,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                 dtme_position = self.ifft(measurement_info.dtme_momentum, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
 
-        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, frequency, tau_arr, time)
+        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, measurement_info.frequency, tau_arr, measurement_info.time)
         signal_t, signal_f, volkov_phase0, volkov_phase1, dtme_shifted_and_volkov_phase0 = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)        
 
         signal_t = MyNamespace(signal_t = signal_t,
@@ -1338,11 +1342,13 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         fr = super().post_process(descent_state, error_arr)
 
         delay_fs = self.convert_time_fs_au(fr.theta, "au", "fs")
-        time_fs = self.convert_time_fs_au(fr.time, "au", "fs")
+        time_nir = self.convert_time_fs_au(self.measurement_info.axis_nir.time, "au", "fs")
+        time_euv = self.convert_time_fs_au(self.measurement_info.axis_euv.time, "au", "fs")
         frequency_nir = self.convert_frequency_PHz_au(self.measurement_info.axis_nir.frequency, "au", "PHz")
         frequency_euv = self.convert_frequency_PHz_au(self.measurement_info.axis_euv.frequency, "au", "PHz")
 
-        final_result = MyNamespace(theta=delay_fs, time=time_fs, frequency_nir=frequency_nir, frequency_euv=frequency_euv, 
+        final_result = MyNamespace(theta=delay_fs, time_nir=time_nir, time_euv=time_euv, 
+                                   frequency_nir=frequency_nir, frequency_euv=frequency_euv, 
                                    vectorpotential_t=fr.pulse_t, vectorpotential_f=fr.pulse_f,
                                    pulse_t_euv=fr.gate_t, pulse_f_euv=fr.gate_f, 
                                    momentum_au=self.measurement_info.momentum, trace=fr.trace, 
@@ -1355,7 +1361,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
     
     def plot_results(self, final_result):
-        time, frequency_nir, frequency_euv = final_result.time, final_result.frequency_nir, final_result.frequency_euv
+        time_nir, time_euv, frequency_nir, frequency_euv = final_result.time_nir, final_result.time_euv, final_result.frequency_nir, final_result.frequency_euv
         delay_fs, momentum_au = final_result.theta, final_result.momentum_au
         trace, measured_trace = final_result.trace, final_result.measured_trace
         error_arr = final_result.error_arr
@@ -1370,15 +1376,15 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         fig=plt.figure(figsize=(22,16))
         ax1=plt.subplot(2,3,1)
-        ax1.plot(time, np.abs(vectorpotential_t), label="Vectorpotential (Amp)")
-        ax1.plot(time, np.abs(pulse_t_euv), label="EUV-Pulse (Amp)", c="tab:red")
-        ax1.set_xlabel(r"Time [arb. u.]")
+        ax1.plot(time_nir, np.abs(vectorpotential_t), label="Vectorpotential (Amp)")
+        ax1.plot(time_euv, np.abs(pulse_t_euv), label="EUV-Pulse (Amp)", c="tab:red")
+        ax1.set_xlabel(r"Time [fs]")
         ax1.legend(loc=2)
         ax1.set_title("Pulse Time-Domain")
 
         ax2 = ax1.twinx()
-        ax2.plot(time, np.unwrap(np.angle(vectorpotential_t))*1/np.pi, label="Vectorpotential (Phase)", c="tab:orange")
-        ax2.plot(time, np.unwrap(np.angle(pulse_t_euv))*1/np.pi, label="EUV-Pulse (Phase)", c="tab:green")
+        ax2.plot(time_nir, np.unwrap(np.angle(vectorpotential_t))*1/np.pi, label="Vectorpotential (Phase)", c="tab:orange")
+        ax2.plot(time_euv, np.unwrap(np.angle(pulse_t_euv))*1/np.pi, label="EUV-Pulse (Phase)", c="tab:green")
         ax2.set_ylabel(r"Phase [$\pi$]")
         ax2.legend(loc=1)
 
@@ -1387,7 +1393,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         ax1=plt.subplot(2,3,2)
         ax1.plot(frequency_nir, jnp.abs(vectorpotential_f), label="Vectorpotential (Amp)")
         ax1.plot(frequency_euv, np.abs(pulse_f_euv), label="EUV-Pulse (Amp)", c="tab:red")
-        ax1.set_xlabel(r"Frequency [arb. u.]")
+        ax1.set_xlabel(r"Frequency [PHz]")
         ax1.legend(loc=2)
         ax1.set_title("Pulse Frequency-Domain")
 
@@ -1429,7 +1435,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
 
-        local_or_global=None
+        local_or_global = None
 
         if self.descent_info.optimize_calibration_curve._local==True:
             local_or_global="_local"

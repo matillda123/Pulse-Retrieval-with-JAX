@@ -830,6 +830,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
             dtme = self.dtme_momentum
 
         axis_nir = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
+        axis_nir_big = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
         axis_euv = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
 
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
@@ -841,6 +842,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
                                                              retrieve_dtme = False,
                                                              doubleblind = True,
                                                              axis_nir = axis_nir, 
+                                                             axis_nir_big = axis_nir_big, 
                                                              axis_euv = axis_euv)
 
         self.individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=None)
@@ -857,7 +859,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         energy_au_uniform = jnp.linspace(jnp.min(energy_au_nonuniform), jnp.max(energy_au_nonuniform), jnp.size(momentum_au))
         trace = jax.vmap(Partial(do_interpolation_1d, method="cubic2"), 
                                   in_axes=(None,None,1), out_axes=1)(energy_au_uniform, energy_au_nonuniform, trace)
-        trace = trace/jnp.sqrt(0.5*jnp.abs(energy_au_uniform[:,None]))*jnp.sign(energy_au_uniform[:,None])
+        trace = trace/jnp.sqrt(0.5*jnp.abs(energy_au_uniform[:,None]))#*jnp.sign(energy_au_uniform[:,None])
         
         energy_eV_uniform = RetrievePulsesSTREAKING.convert_energy_eV_au(RetrievePulsesSTREAKING, energy_au_uniform, "au", "eV")
 

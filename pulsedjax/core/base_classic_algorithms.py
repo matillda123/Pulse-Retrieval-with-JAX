@@ -16,7 +16,7 @@ from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
 
 
 def normalize_population(population, measurement_info, descent_info, pulse_or_gate):
-    if descent_info.normalize==False:
+    if descent_info.normalize==True:
         if pulse_or_gate=="pulse":
             population_pulse = population.pulse/jnp.linalg.norm(population.pulse,axis=-1)[:,jnp.newaxis]
             population_gate = population.gate

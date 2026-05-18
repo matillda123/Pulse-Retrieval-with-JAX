@@ -1,13 +1,13 @@
 import jax.numpy as jnp
-from pulsedjax.utilities import do_fft
-
-
+from pulsedjax.utilities import do_fft, do_interpolation_1d
+import jax
+from functools import partial as Partial
 
 
 def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # frequency domain
     dtme_shifted_and_volkov_phase0, volkov_phase1 = signal_t.dtme_shifted_and_volkov_phase0, signal_t.volkov_phase1
     dt = jnp.mean(jnp.diff(measurement_info.time))
-    sk, rn = measurement_info.axis_euv.sk, measurement_info.axis_euv.rn
+    sk, rn = measurement_info.sk, measurement_info.rn
     omega = 2*jnp.pi*measurement_info.frequency
     exp_arr = jnp.exp(1j*tau_arr[:,None]*omega[None,:])
 
@@ -15,9 +15,11 @@ def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # f
     delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
     term1 = do_fft(jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1), sk, rn)
-    grad_temp = jnp.einsum("mb, bn, mn -> mn", delta_S_mb, term1, exp_arr)
+    grad = -2*1j*dt*jnp.einsum("mb, bn, mn -> mn", delta_S_mb, term1, exp_arr)
 
-    return -2*1j*dt*grad_temp
+    grad = jax.vmap(Partial(do_interpolation_1d, method="linear"),
+                    in_axes=(None,None,0))(measurement_info.axis_euv.frequency, measurement_info.frequency, grad)
+    return grad
 
 
 
@@ -66,8 +68,8 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
     grad_volkov1 = (momentum[:,None] + jnp.real(pulse_t_nir_vectorpotential)[None,:])
     _term2 = jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1)
     _term2 = jnp.einsum("mk, bk -> mbk", jnp.conjugate(pulse_t_euv_shifted), _term2)
-    #_term2 = jnp.cumsum(_term2[:,:,::-1], axis=-1)[:,:,::-1]
-    _term2 = jnp.cumsum(_term2, axis=-1)
+    #_term2 = jnp.cumsum(_term2[:,:,::-1], axis=-1)[:,:,::-1] 
+    _term2 = jnp.cumsum(_term2, axis=-1) # apparently this is correct and not the flipped version
     term2 = -1*dt**2*jnp.einsum("mbj, bj -> mbj", _term2, grad_volkov1)
 
 
@@ -76,8 +78,9 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
     term3 = term1 + term2
     
     grad = jnp.real(jnp.einsum("mb, mbk -> mk", delta_S_mb, term3))
-    grad = do_fft(grad, measurement_info.axis_nir.sk, measurement_info.axis_nir.rn) 
-
+    grad = do_fft(grad, measurement_info.sk, measurement_info.rn) 
+    grad = jax.vmap(Partial(do_interpolation_1d, method="cubic2"),
+                    in_axes=(None,None,0))(measurement_info.axis_nir.frequency, measurement_info.frequency, grad)
     return -2*grad
 
 

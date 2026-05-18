@@ -135,17 +135,17 @@ class AlgorithmsBASE:
 
         In Classical Algorithms.
         The spectrum will be applied as a projection of the pulse onto an average of itself 
-        and the spectrum of the current guess. This process can be tuned via eta.
+        and the spectrum of the current guess. Setting algorithm.optimize_spectral_phase_directly=True will 
+        as the name suggests optimize the spectral phase directly without a projection.
 
-        In General Optimization Algorithms, providing the specteum will cause an optimization 
-        of the spectral phase only. Therefore eta has no effect, except for LSF.
+        In General Optimization Algorithms, providing the spectrum will cause an optimization 
+        of the spectral phase.
 
         Args:
             frequency: jnp.array, the frequency axis of spectrum
             spectrum: jnp.array, the spectrum
             pulse_or_gate (str): whether the spectrum is from the pulse or the gate-pulse.
-            eta (float): has to be bigger than zero and not larger than one, (1-eta) * abs(pulse_f) + eta * spectral_amplitude
-        
+            
         Returns:
             the class instance
         """
@@ -288,6 +288,8 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         self.momentum_is_being_used = False
 
         self.normalize_after_every_step = True
+        self.norm_val_pulse = 1
+        self.norm_val_gate = 1
 
 
     def set_nonlinear_optimization(self, local_method=False, global_method=False, damping=1e-3, memory=10, solver="lineax"):
@@ -416,11 +418,11 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
         
         self.key, subkey = jax.random.split(self.key, 2)
-        pulse_f_arr = create_population_classic(subkey, shape_pulse, guess_type, self.measurement_info)
+        pulse_f_arr = create_population_classic(subkey, shape_pulse, guess_type, self.measurement_info, "pulse")
 
         if self.doubleblind==True:
             self.key, subkey = jax.random.split(self.key, 2)
-            gate_f_arr = create_population_classic(subkey, shape_gate, guess_type, self.measurement_info)
+            gate_f_arr = create_population_classic(subkey, shape_gate, guess_type, self.measurement_info, "gate")
         else:
             gate_f_arr = None
 
