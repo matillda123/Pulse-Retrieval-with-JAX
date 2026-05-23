@@ -1,4 +1,4 @@
-streaking package
+streaking
 =================
 
 Submodules

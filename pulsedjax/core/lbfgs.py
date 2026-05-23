@@ -17,14 +17,22 @@ def backward_loop(q, i, rho, s, y):
     # s[i] has shape (n,) -> but (C,n) in dtme
     # q has shape (n,) -> but (C,n) in dtme
     # y[i] has shape (n,) .> but (C,n) in dtme
+    # alpha has shape () -> but (C,) in dtme
+
     alpha = rho[i]*jnp.vecdot(s[i], q)
-    q = q - alpha*y[i]
+    y = jnp.swapaxes(y[i], 0, -1)
+    q = q - jnp.swapaxes(alpha*y, 0, -1)
     return q, alpha
 
 def forward_loop(r, i, alpha, rho, s, y):
     """ Constructing the LBFGS direction without materializing the inverse hessian is done through nested vector-multiplications. """
+    # y[i] -> (C,n)
+    # r -> (C,n)
+    # rho[i] -> (C,)
+    
     beta = rho[i]*jnp.vecdot(y[i], r)
-    r = r + s[i] * (alpha[i] - beta)
+    s = jnp.swapaxes(s[i], 0, -1)
+    r = r + jnp.swapaxes(s * (alpha[i] - beta), 0, -1)
     return r, None
 
 
@@ -40,7 +48,7 @@ def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, newton_
 
     n = jnp.shape(grad_prev)[-1] # (n,)
     I = jnp.broadcast_to(jnp.eye(n), jnp.shape(grad_current) + (n,))
-    r = jnp.einsum("...np, n -> ...p", I, q) # this should work with dtme in streaking
+    r = jnp.einsum("...np, ...n -> ...p", I, q) # this should work with dtme in streaking
 
     do_forward = Partial(forward_loop, alpha=alpha, rho=rho, s=s, y=y)
     newton_direction, _ = jax.lax.scan(do_forward, r, m_forward)
@@ -51,8 +59,11 @@ def calculate_quasi_newton_direction(grad_current, grad_prev, rho, s, y, newton_
 def do_lbfgs(grad_current, lbfgs_state, descent_info):
     """ Prepares and calls the LBFGS calculation. """
     grad_prev, newton_direction_prev, step_size_prev = lbfgs_state.grad_prev, lbfgs_state.newton_direction_prev, lbfgs_state.step_size_prev
-
+    
+    step_size_prev = jnp.swapaxes(step_size_prev, 0, -1)
+    newton_direction_prev = jnp.swapaxes(newton_direction_prev, 0, -1)
     s = -1*step_size_prev*newton_direction_prev
+    s = jnp.swapaxes(s, 0, -1)
     y = grad_current - grad_prev
 
     ys = jnp.vecdot(y,s)

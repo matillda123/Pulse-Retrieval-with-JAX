@@ -6,7 +6,7 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesFROG 
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu
+from pulsedjax.core.base_classic_algorithms import LSGPABASE, CPCGPABASE, GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu, initialize_momentum
 
 from pulsedjax.utilities import MyNamespace, scan_helper, get_com, get_sk_rn, calculate_gate, calculate_trace, calculate_trace_error, do_interpolation_1d
 
@@ -125,6 +125,7 @@ class Vanilla(ClassicAlgorithmsBASE, RetrievePulsesFROG):
         _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population=population,
                                                        mu=init_mu_global)
+        self.descent_state = initialize_momentum(self)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)

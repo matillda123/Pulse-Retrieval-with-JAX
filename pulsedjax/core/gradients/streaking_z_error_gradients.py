@@ -28,8 +28,8 @@ def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # f
 
 
 def _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info):
-    if measurement_info.dtme_momentum is None:
-            dtme_momentum = jnp.zeros((measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.size(pulse_t_nir_vectorpotential)))
+    if measurement_info.dtme_momentum is None and measurement_info.retrieve_dtme==False:
+        dtme_momentum = jnp.zeros((measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.size(pulse_t_nir_vectorpotential)))
     else: 
         r = measurement_info.position
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
@@ -85,7 +85,8 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
 
 
 
-
+# the phase doesnt seem to be retrieved correctly, maybe there is something wrong here?
+# i dont think so, the implementation of the formula is fine, maybe its derivation is faulty?
 def Z_gradient_DTME(signal_t, signal_t_new, tau_arr, measurement_info): # momentum domain
     pulse_t_euv_shifted, volkov_phase0, volkov_phase1 = signal_t.pulse_t_euv_shifted, signal_t.volkov_phase0, signal_t.volkov_phase1
     pulse_t_nir_vectorpotential = jnp.real(signal_t.pulse_t_nir_vectorpotential)
@@ -98,12 +99,16 @@ def Z_gradient_DTME(signal_t, signal_t_new, tau_arr, measurement_info): # moment
 
     momentum_shift_term = jnp.exp(-1j*2*jnp.pi*position[:,None]*pulse_t_nir_vectorpotential[None,:])
     Dqb = jnp.exp(1j*2*jnp.pi*position[:,None]*momentum[None,:])
-    grad_temp_q = jnp.einsum("qb, mb, mk, Cbk, bk, qk -> Cmq", Dqb, delta_S_mb, jnp.conj(pulse_t_euv_shifted), 
+    grad_temp_q = jnp.einsum("qb, mb, mk, Cbk, bk, qk -> Cmq", Dqb, delta_S_mb, jnp.conjugate(pulse_t_euv_shifted), 
                              jnp.exp(1j*volkov_phase0), jnp.exp(1j*volkov_phase1), momentum_shift_term)
 
-    grad_temp_b = do_fft(grad_temp_q, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
-    return -2*1j*dt*grad_temp_b # with shape (C,m,b) -> will cauuse issues in some algorihms because its not dimension (m,n)
-
+    grad = -2*1j*dt*do_fft(grad_temp_q, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+    s = jnp.shape(grad) # C,m,b
+    grad = jnp.reshape(grad, (s[0]*s[1], s[2]))
+    _interpolate = Partial(do_interpolation_1d, method="cubic2")
+    grad = jax.vmap(_interpolate, in_axes=(None,None,0))(measurement_info.axis_dtme.momentum, measurement_info.momentum, grad)
+    grad = jnp.reshape(grad, (s[0], s[1], jnp.shape(grad)[-1]))
+    return grad # with shape (C,m,b) 
 
 
 

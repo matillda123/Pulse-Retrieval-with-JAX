@@ -31,7 +31,7 @@ def normalize_population(population, measurement_info, descent_info, pulse_or_ga
         if pulse_or_gate=="pulse":
 
             a = estimate_vectorpotential_max_scale(measurement_info.tau_arr, measurement_info.momentum, measurement_info.measured_trace)
-            out_of_range = (a < jnp.max(jnp.abs(population.pulse), axis=-1))
+            out_of_range = (a < jnp.max(jnp.abs(population.pulse), axis=-1))[:,None]
             a = a*0.025
             pulse_corrected = a*population.pulse/jnp.max(jnp.abs(population.pulse), axis=-1)[:,None]
             population_pulse = out_of_range*pulse_corrected + (1-out_of_range)*population.pulse
@@ -79,7 +79,7 @@ class ClassicalAlgorithmsBASESTREAKING(ClassicAlgorithmsBASE):
         
         if self.measurement_info.retrieve_dtme==True:
             self.key, subkey = jax.random.split(self.key, 2)
-            shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.momentum))
+            shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.axis_dtme.momentum))
             population_dtme = create_population_classic(subkey, shape, guess_type, self.measurement_info, "dtme")
         else:
             population_dtme = None
@@ -142,11 +142,11 @@ class GeneralizedProjectionBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, Gener
 
 
 
-class PtychographicIterativeEngineBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, PtychographicIterativeEngineBASE):
-    __doc__ = PtychographicIterativeEngineBASE.__doc__
+# class PtychographicIterativeEngineBASESTREAKING(ClassicalAlgorithmsBASESTREAKING, PtychographicIterativeEngineBASE):
+#     __doc__ = PtychographicIterativeEngineBASE.__doc__
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
 
 
 
@@ -323,12 +323,10 @@ class GeneralOptimizationBASESTREAKING(GeneralOptimizationBASE):
         population = super().create_initial_population(population_size, amp_type=amp_type, phase_type=phase_type, no_funcs_amp=no_funcs_amp, no_funcs_phase=no_funcs_phase)
         a = estimate_vectorpotential_max_scale(self.measurement_info.tau_arr, self.measurement_info.momentum, self.measurement_info.measured_trace)
         a = a/4
-        amp_type_list = ["gaussian", "lorentzian"]
 
-        if (any([amp_type == _amp_type for _amp_type in amp_type_list])==True and self.descent_info.measured_spectrum_is_provided.pulse==True):
-            population = tree_at(lambda x: x.pulse.amp, population, population.pulse.amp.a*0 + a)
-        else:
-            population = tree_at(lambda x: x.pulse.amp, population, population.pulse.amp*0 + a)
+        if self.descent_info.measured_spectrum_is_provided.pulse==True:
+            population = tree_at(lambda x: x.pulse.amp, population, jnp.zeros((population_size, 1)) + a)
+
         
         population = population.expand(dtme = MyNamespace(amp=None, phase=None))
         

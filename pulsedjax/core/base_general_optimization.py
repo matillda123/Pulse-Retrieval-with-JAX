@@ -57,6 +57,11 @@ def shuffle_pytree(key, pytree, axis):
     return pytree
 
 
+def merge_pytrees(pytree1, pytree2, bool_tree):
+    """ bool_tree selects pytree1 if true and pytree2 if false. """
+    return pytree1*bool_tree + pytree2*(1 + (-1)*bool_tree)
+
+
 class DifferentialEvolutionBASE(GeneralOptimizationBASE):
     """
     Implements a Differential-Evolution Algorithm. 
@@ -159,61 +164,62 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
 
     def make_bin_mask_tree(self, key, pytree, p):
         """ For a given pytree a random binary mask is generated on each leaf, via the probabilty p. """
-        leaves, treedef = jax.tree.flatten(pytree)
-        N = len(leaves)
-        keys = jax.random.split(key, N)
-        masks = [jax.random.choice(keys[i], jnp.array([0, 1]), jnp.shape(leaves[i]), p=jnp.array([1-p, p])) for i in range(N)]
-        masks_tree = jax.tree.unflatten(treedef, masks)
+        keys_tree = make_key_tree(key, pytree)
+
+        def make_bin_mask(key, pytree):
+            return jax.random.choice(key, jnp.array([0, 1]), jnp.shape(pytree), p=jnp.array([1-p, p]))
+        
+        masks_tree = jax.tree.map(make_bin_mask, keys_tree, pytree)
         return masks_tree
 
 
     def make_exp_mask_tree(self, key, pytree, p):
         """ For a given pytree a mask (e.g. of the form 111100000) is generated via the probability p on each row of each leaf. """
-        leaves, treedef = jax.tree.flatten(pytree)
-        N = len(leaves)
-        keys = jax.random.split(key, N)
-        masks = [jax.random.choice(keys[i], 
-                                   jnp.tri(jnp.shape(leaves[i])[1]) , 
-                                   (jnp.shape(leaves[i])[0],), 
-                                   p=p**jnp.arange(jnp.shape(leaves[i])[1])*(1-p)
-                                   ) for i in range(N)]
-        masks_tree = jax.tree.unflatten(treedef, masks)
+        keys_tree = make_key_tree(key, pytree)
+
+        def make_exp_tree(key, pytree):
+            s = jnp.shape(pytree)
+            return jax.random.choice(key, jnp.tri(s[-1]), (s[0],), p=p**jnp.arange(s[-1])*(1-p))
+        
+        masks_tree = jax.tree.map(make_exp_tree, keys_tree, pytree)
         return masks_tree
 
 
     def bin_crossover(self, CR, parent_population, mutant_population, key):
         """ Peforms a binary crossover between two populations via the crossover rate CR. """
         masks = self.make_bin_mask_tree(key, parent_population, CR)
-        population = mutant_population*masks + parent_population*(1 + (-1)*masks)
+        population = jax.vmap(merge_pytrees)(mutant_population, parent_population, masks)
         return population
 
 
     def exp_crossover(self, CR, parent_population, mutant_population, key):
         """ Peforms an exponential crossover between two populations via the crossover rate CR. """
         masks = self.make_exp_mask_tree(key, parent_population, CR)
-        population = mutant_population*masks + parent_population*(1 + (-1)*masks)
+        population = jax.vmap(merge_pytrees)(mutant_population, parent_population, masks)
         return population
 
 
 
     def smooth_crossover(self, CR, parent_population, mutant_population, key):
         """ Similar to an exponential crossover but with a smooth nonbinary transition, which is fascilitated via a tanh function. """
-        leaves, treedef = jax.tree.flatten(parent_population)
-        N = len(leaves)
 
-        key1, key2 = jax.random.split(key, 2)
-        keys1 = jax.random.split(key1, N)
-        keys2 = jax.random.split(key2, N)
+        def make_S_vals(parent_population, key):
+            s = jnp.shape(parent_population)
+            key1, key2 = jax.random.split(key, 2)
+            k_vals = jax.random.uniform(key1, (s[0], 1), minval=-2, maxval=0)
+
+            x = jnp.arange(s[-1])
+            x0 = s[-1]//2
+            p = 1/(jnp.sqrt(2*jnp.pi*CR**2)) * jnp.exp(-1/(2*CR**2)*(x-x0)**2)
+            c_vals = jax.random.choice(key2, x, (s[0], 1), p=p)
+
+            S_vals = self.tanh_term(c_vals, k_vals, x)
+            return S_vals
         
-        k_vals = [jax.random.uniform(keys1[i], (jnp.shape(leaves[i])[0], 1), minval=-2, maxval=0) for i in range(N)]
-        c_vals = [jax.random.choice(keys2[i], 
-                                    jnp.arange(jnp.shape(leaves[i])[1]), 
-                                    (jnp.shape(leaves[i])[0], 1), 
-                                    p = 1/(jnp.sqrt(2*jnp.pi*CR**2))*jnp.exp(-1/(2*CR**2)*(jnp.arange(jnp.shape(leaves[i])[1])-jnp.shape(leaves[i])[1]//2)**2)
-                                    ) for i in range(N)]
-        S_vals = [self.tanh_term(c_vals[i], k_vals[i], jnp.arange(jnp.shape(leaves[i])[1])) for i in range(N)]
-        S_tree = jax.tree.unflatten(treedef, S_vals)
-        population = mutant_population*S_tree + parent_population*(1 + (-1)*S_tree)
+        keys_tree = make_key_tree(key, parent_population)
+        S_tree = jax.tree.map(make_S_vals, parent_population, keys_tree)
+        
+        population = jax.vmap(merge_pytrees)(mutant_population, parent_population, S_tree)
         return population
     
 
@@ -266,17 +272,12 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
         """
 
         if selection_mechanism=="greedy":
-            trial_smaller = (jnp.sign(error_parent - error_trial)+1)//2 # maps to bool-array, true if error_trial < error_parent
+            trial_smaller = (error_trial < error_parent)
             error = error_trial*trial_smaller + error_parent*(1 + (-1)*trial_smaller)
-            mu = mu_trial*trial_smaller + mu_parent*(1 + (-1)*trial_smaller)
-            
-            # leaves, treedef = jax.tree.flatten(population_parent)
-            # trial_smaller_leaves = [trial_smaller[:, jnp.newaxis] for _ in range(len(leaves))]
-            # trial_smaller_tree = jax.tree.unflatten(treedef, trial_smaller_leaves)
-            # tree.map should do the same 
-            trial_smaller_tree = jax.tree.map(lambda x: trial_smaller[:, jnp.newaxis], population_parent)
+            trial_smaller_tree = jax.tree.map(lambda x: trial_smaller, population_parent)
 
-            population = population_trial*trial_smaller_tree + population_parent*(1 + (-1)*trial_smaller_tree)
+            mu = jax.vmap(merge_pytrees)(mu_trial, mu_parent, trial_smaller)
+            population = jax.vmap(merge_pytrees)(population_trial, population_parent, trial_smaller_tree)
 
         elif selection_mechanism=="global":
             N, temperature = descent_info.population_size, descent_info.temperature
@@ -288,18 +289,10 @@ class DifferentialEvolutionBASE(GeneralOptimizationBASE):
             idx_selected = jax.random.choice(key, idx, (N, ), replace=False, p=p_arr)
             error = error_merged[idx_selected]
 
-            mu_merged = jnp.hstack((mu_parent, mu_trial))
+            mu_merged = jnp.concatenate((mu_parent, mu_trial))
             mu = mu_merged[idx_selected]
 
-            # leaves_parent, treedef = jax.tree.flatten(population_parent)
-            # leaves_trial, treedef = jax.tree.flatten(population_trial)
-            # leaves_merged = [jnp.vstack((leaves_parent[i], leaves_trial[i])) for i in range(len(leaves_parent))]  # this can maybe be done with tree.map?
-
-            # leaves_selected = [leaves_merged[i][idx_selected] for i in range(len(leaves_parent))]
-            # population = jax.tree.unflatten(treedef, leaves_selected)
-
-            # tree.map should do the same 
-            population = jax.tree.map(lambda x,y: jnp.vstack((x,y))[idx_selected], population_parent, population_trial)
+            population = jax.tree.map(lambda x,y: jnp.concatenate((x,y))[idx_selected], population_parent, population_trial)
 
             
         else:

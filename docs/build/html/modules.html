@@ -83,7 +83,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
-<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
@@ -129,10 +129,11 @@
 <h1>streaking<a class="headerlink" href="#streaking" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="streaking.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="streaking.html#module-streaking.base_classes_streaking">streaking.base_classes_streaking module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.estimate_vectorpotential_scale"><code class="docutils literal notranslate"><span class="pre">estimate_vectorpotential_scale()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.estimate_vectorpotential_max_scale"><code class="docutils literal notranslate"><span class="pre">estimate_vectorpotential_max_scale()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.normalize_population"><code class="docutils literal notranslate"><span class="pre">normalize_population()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.local_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.local_gamma</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING.global_gamma"><code class="docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING.global_gamma</span></code></a></li>
@@ -163,15 +164,14 @@
 <li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING.no_steps_descent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING.optimize_spectral_phase_directly</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.do_descent_Z_error_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING.do_descent_Z_error_step()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.alpha"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.alpha</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.pie_method"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.pie_method</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING"><code class="docutils literal notranslate"><span class="pre">COPRABASESTREAKING</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING.local_iteration"><code class="docutils literal notranslate"><span class="pre">COPRABASESTREAKING.local_iteration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING.global_step"><code class="docutils literal notranslate"><span class="pre">COPRABASESTREAKING.global_step()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING"><code class="docutils literal notranslate"><span class="pre">COPRABASESTREAKING</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.error_metric"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.error_metric</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.create_initial_population"><code class="docutils literal notranslate"><span class="pre">GeneralOptimizationBASESTREAKING.create_initial_population()</span></code></a></li>
@@ -207,14 +207,11 @@
 <li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.no_steps_descent"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.no_steps_descent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.optimize_spectral_phase_directly"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.optimize_spectral_phase_directly</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.do_descent_Z_error_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.do_descent_Z_error_step()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_gradient_individual()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">GeneralizedProjection.calculate_Z_newton_direction()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA"><code class="docutils literal notranslate"><span class="pre">COPRA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.local_iteration"><code class="docutils literal notranslate"><span class="pre">COPRA.local_iteration()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.global_step"><code class="docutils literal notranslate"><span class="pre">COPRA.global_step()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.get_Z_gradient_individual"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_gradient_individual()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="streaking.html#streaking.classical_algorithms_streaking.COPRA.get_Z_newton_direction"><code class="docutils literal notranslate"><span class="pre">COPRA.get_Z_newton_direction()</span></code></a></li>
 </ul>

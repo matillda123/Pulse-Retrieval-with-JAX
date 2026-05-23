@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesSTREAKING
-from pulsedjax.streaking.base_classes_streaking import GeneralizedProjectionBASESTREAKING, PtychographicIterativeEngineBASESTREAKING, COPRABASESTREAKING
+from pulsedjax.streaking.base_classes_streaking import GeneralizedProjectionBASESTREAKING, COPRABASESTREAKING
 
 from pulsedjax.core.gradients.streaking_z_error_gradients import calculate_Z_gradient
 #from pulsedjax.core.hessians.frog_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error

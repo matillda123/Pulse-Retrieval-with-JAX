@@ -29,7 +29,7 @@ def get_initial_amp(measurement_info, pulse_or_gate):
         elif pulse_or_gate=="gate":
             frequency = measurement_info.axis_euv.frequency
         elif pulse_or_gate=="dtme":
-            frequency = measurement_info.momentum
+            frequency = measurement_info.axis_dtme.momentum
             frequency_temp = measurement_info.momentum
             f0 = 0
         else:
@@ -80,9 +80,12 @@ def random_phase(key, shape, amp):
 
 
 def constant(key, shape):
-    key1, key2 = jax.random.split(key, 2)
-    vals = jax.random.uniform(key1, (shape[0], ), minval=-1, maxval=1) + 1j*jax.random.uniform(key2, (shape[0], ), minval=-1, maxval=1)
-    signal = jnp.outer(vals, jnp.ones(shape[1]))
+    signal = random(key, shape)
+    vals = signal[...,0]
+    signal = jnp.zeros(jnp.shape(signal))
+    signal = jnp.swapaxes(signal, 0, -1)
+    vals = jnp.swapaxes(vals, 0, -1)
+    signal = jnp.swapaxes(signal + vals, 0, -1)
     return signal
 
 
@@ -90,7 +93,8 @@ def constant_phase(key, shape, amp):
     key1, key2 = jax.random.split(key, 2)
     phase = jax.random.uniform(key1, (shape[0], ), minval=-jnp.pi, maxval=jnp.pi)
     amp = amp + jax.random.uniform(key2, shape, minval=-0.05, maxval=0.05)
-    signal = amp*jnp.exp(1j*phase[:,jnp.newaxis])
+    amp = jnp.swapaxes(amp, 0, -1)
+    signal = jnp.swapaxes(amp*jnp.exp(1j*phase), 0, -1)
     return signal
 
 
@@ -187,13 +191,32 @@ def bspline_guess_phase(key, population, shape, measurement_info):
     return key, population
     
 
-def continuous_discrete_guess_phase(key, population, shape, measurement_info):
-    frequency = measurement_info.frequency
+
+def continuous_discrete_guess_phase(key, population, shape, measurement_info, pulse_or_gate):
+    if hasattr(measurement_info, "dtme_momentum")==True:
+        _is_streaking = True
+    else:
+        _is_streaking = False
+
+    if _is_streaking==False:
+        frequency = measurement_info.frequency
+    else:
+        if pulse_or_gate=="pulse":
+            frequency = measurement_info.axis_nir.frequency
+        elif pulse_or_gate=="gate":
+            frequency = measurement_info.axis_euv.frequency
+        elif pulse_or_gate=="dtme":
+            frequency = measurement_info.axis_dtme.momentum
+        else:
+            raise ValueError
+        
     key, subkey = jax.random.split(key, 2)
     keys = jax.random.split(subkey, shape[0])
 
-    phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(keys, shape[1], frequency, 
+    phase = jax.vmap(generate_random_continuous_function, in_axes=(0, None, None, None, None, None))(keys, shape[-1], frequency, 
                                                                                                         -2*jnp.pi, 2*jnp.pi, jnp.ones(jnp.size(frequency)))
+
+    
     population = tree_at(lambda x: x.phase, population, phase, is_leaf=lambda x: x is None)
     return key, population
 
@@ -212,12 +235,30 @@ def gaussian_or_lorentzian_guess(key, population, shape, measurement_info):
 
 
 
-def continuous_discrete_guess_amp(key, population, shape, measurement_info):
+def continuous_discrete_guess_amp(key, population, shape, measurement_info, pulse_or_gate):
     key, subkey = jax.random.split(key, 2)
 
-    amp = get_initial_amp(measurement_info)
+    amp = get_initial_amp(measurement_info, pulse_or_gate)
 
-    noise = jax.random.uniform(subkey, (shape[0], jnp.size(measurement_info.frequency)), minval=-0.05, maxval=0.05)
+    if hasattr(measurement_info, "dtme_momentum")==True:
+            _is_streaking = True
+    else:
+        _is_streaking = False
+
+
+    if _is_streaking==False:
+        frequency = measurement_info.frequency
+    else:
+        if pulse_or_gate=="pulse":
+            frequency = measurement_info.axis_nir.frequency
+        elif pulse_or_gate=="gate":
+            frequency = measurement_info.axis_euv.frequency
+        elif pulse_or_gate =="dtme":
+            frequency = measurement_info.axis_dtme.momentum
+        else:
+            raise ValueError
+
+    noise = jax.random.uniform(subkey, (shape[:-1] +  (jnp.size(frequency),)), minval=-0.05, maxval=0.05)
     amp = amp + noise
     amp = amp/jnp.linalg.norm(amp)
 
@@ -259,7 +300,7 @@ def create_phase(key, phase_type, population, shape, measurement_info, pulse_or_
                                 "sinusoidal": sinusoidal_guess,
                                 "sigmoidal": sigmoidal_guess,
                                 "bsplines": bspline_guess_phase,
-                                "continuous": continuous_discrete_guess_phase,
+                                "continuous": Partial(continuous_discrete_guess_phase, pulse_or_gate=pulse_or_gate),
                                 "random": Partial(_general_phase, phase_type="random"),
                                 "random_phase": Partial(_general_phase, phase_type="random_phase"),
                                 "constant": Partial(_general_phase, phase_type="constant"),
@@ -274,7 +315,7 @@ def create_amp(key, amp_type, population, shape, measurement_info, pulse_or_gate
     amp_guess_func_dict = {"gaussian": gaussian_or_lorentzian_guess,
                             "lorentzian": gaussian_or_lorentzian_guess,
                             "bsplines": bspline_guess_amp,
-                            "continuous": continuous_discrete_guess_amp,
+                            "continuous": Partial(continuous_discrete_guess_amp, pulse_or_gate=pulse_or_gate),
                             "random": Partial(_general_amp, amp_type="random"),
                             "random_phase": Partial(_general_amp, amp_type="random_phase"),
                             "constant": Partial(_general_amp, amp_type="constant"),

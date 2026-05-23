@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>streaking package &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+  <title>streaking &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
@@ -85,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">streaking package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">streaking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
@@ -117,7 +117,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">streaking package</li>
+      <li class="breadcrumb-item active">streaking</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/streaking.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -127,17 +127,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="streaking-package">
-<h1>streaking package<a class="headerlink" href="#streaking-package" title="Link to this heading"></a></h1>
+  <section id="streaking">
+<h1>streaking<a class="headerlink" href="#streaking" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
 <section id="module-streaking.base_classes_streaking">
 <span id="streaking-base-classes-streaking-module"></span><h2>streaking.base_classes_streaking module<a class="headerlink" href="#module-streaking.base_classes_streaking" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="streaking.base_classes_streaking.estimate_vectorpotential_scale">
-<span class="sig-prename descclassname"><span class="pre">streaking.base_classes_streaking.</span></span><span class="sig-name descname"><span class="pre">estimate_vectorpotential_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum_au</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.estimate_vectorpotential_scale" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="streaking.base_classes_streaking.estimate_vectorpotential_max_scale">
+<span class="sig-prename descclassname"><span class="pre">streaking.base_classes_streaking.</span></span><span class="sig-name descname"><span class="pre">estimate_vectorpotential_max_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum_au</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.estimate_vectorpotential_max_scale" title="Link to this definition"></a></dt>
+<dd><p>Approximates the max scale of the vectorpotential in the f-domain, based on the wiggles in the streaaking trace.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="streaking.base_classes_streaking.normalize_population">
+<span class="sig-prename descclassname"><span class="pre">streaking.base_classes_streaking.</span></span><span class="sig-name descname"><span class="pre">normalize_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.normalize_population" title="Link to this definition"></a></dt>
+<dd><p>Forstreaking the absolute scale of the vectorpotential is crucial.
+Thus it is not normalized but just rescaled if the scale grows out of bounds.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING">
@@ -451,45 +459,10 @@ pade_11, pade_01 or pade_02</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.base_classes_streaking.</span></span><span class="sig-name descname"><span class="pre">PtychographicIterativeEngineBASESTREAKING</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING" title="streaking.base_classes_streaking.ClassicalAlgorithmsBASESTREAKING"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicalAlgorithmsBASESTREAKING</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PtychographicIterativeEngineBASE</span></code></p>
-<p>Implements a version of the Ptychographic Iterative Engine (PIE).</p>
-<p>A. Maiden et al., Optica 4, 736-745 (2017)
-T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Science”, PhD Thesis, Bern (2021)</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.alpha">
-<span class="sig-name descname"><span class="pre">alpha</span></span><a class="headerlink" href="#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.alpha" title="Link to this definition"></a></dt>
-<dd><p>a regularization parameter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.pie_method">
-<span class="sig-name descname"><span class="pre">pie_method</span></span><a class="headerlink" href="#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.pie_method" title="Link to this definition"></a></dt>
-<dd><p>specifies the PIE variant. Can be one of None, PIE, ePIE, rPIE. Where None indicates that the pure gradient is used.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None, str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly">
-<span class="sig-name descname"><span class="pre">optimize_spectral_phase_directly</span></span><a class="headerlink" href="#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.do_descent_Z_error_step">
+<span class="sig-name descname"><span class="pre">do_descent_Z_error_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.do_descent_Z_error_step" title="Link to this definition"></a></dt>
+<dd><p>Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate.</p>
 </dd></dl>
 
 </dd></dl>
@@ -505,6 +478,31 @@ T. Schweizer, “Time-Domain Ptychography and its Applications in Ultrafast Scie
 </ol>
 </li>
 </ol>
+<dl class="py method">
+<dt class="sig sig-object py" id="streaking.base_classes_streaking.COPRABASESTREAKING.local_iteration">
+<span class="sig-name descname"><span class="pre">local_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.COPRABASESTREAKING.local_iteration" title="Link to this definition"></a></dt>
+<dd><p>Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="streaking.base_classes_streaking.COPRABASESTREAKING.global_step">
+<span class="sig-name descname"><span class="pre">global_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.base_classes_streaking.COPRABASESTREAKING.global_step" title="Link to this definition"></a></dt>
+<dd><p>Performs one global iteration of the Common Pulse Retrieval Algorithm.
+This means the method updates the population once using all measured data at once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>descent_state</strong> (<em>Pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>Pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>Pytree</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -721,7 +719,7 @@ DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (
 <span id="streaking-classical-algorithms-streaking-module"></span><h2>streaking.classical_algorithms_streaking module<a class="headerlink" href="#module-streaking.classical_algorithms_streaking" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.GeneralizedProjection">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.classical_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_PHz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.GeneralizedProjection" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.classical_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">GeneralizedProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.GeneralizedProjection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GeneralizedProjectionBASESTREAKING</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesSTREAKING</span></code></p>
 <p>Implements the Generalized Projection Algorithm.</p>
 <ol class="upperalpha simple" start="11">
@@ -752,12 +750,6 @@ DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.GeneralizedProjection.do_descent_Z_error_step">
-<span class="sig-name descname"><span class="pre">do_descent_Z_error_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.GeneralizedProjection.do_descent_Z_error_step" title="Link to this definition"></a></dt>
-<dd><p>Does one Z-error descent step. Calls descent_Z_error_step for pulse and or gate.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_gradient_individual">
 <span class="sig-name descname"><span class="pre">calculate_Z_gradient_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.GeneralizedProjection.calculate_Z_gradient_individual" title="Link to this definition"></a></dt>
 <dd><p>Calculates the Z-error gradient for an individual.</p>
@@ -773,7 +765,7 @@ DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (
 
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.COPRA">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.classical_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_PHz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.COPRA" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.classical_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">COPRA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.COPRA" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">COPRABASESTREAKING</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesSTREAKING</span></code></p>
 <p>Implements a version of the Common Pulse Retrieval Algorithm (COPRA).</p>
 <ol class="upperalpha simple" start="14">
@@ -782,31 +774,6 @@ DeepMind et al., The DeepMind JAX Ecosystem, http://github.com/google-deepmind (
 </ol>
 </li>
 </ol>
-<dl class="py method">
-<dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.COPRA.local_iteration">
-<span class="sig-name descname"><span class="pre">local_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_arr_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace_line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.COPRA.local_iteration" title="Link to this definition"></a></dt>
-<dd><p>Peforms one local iteration. Calls do_iteration() with the appropriate (randomized) signal fields.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.COPRA.global_step">
-<span class="sig-name descname"><span class="pre">global_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.COPRA.global_step" title="Link to this definition"></a></dt>
-<dd><p>Performs one global iteration of the Common Pulse Retrieval Algorithm.
-This means the method updates the population once using all measured data at once.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>descent_state</strong> (<em>Pytree</em>)</p></li>
-<li><p><strong>measurement_info</strong> (<em>Pytree</em>)</p></li>
-<li><p><strong>descent_info</strong> (<em>Pytree</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[Pytree, jnp.array], the updated descent state and the current trace errors of the population.</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="streaking.classical_algorithms_streaking.COPRA.get_Z_gradient_individual">
 <span class="sig-name descname"><span class="pre">get_Z_gradient_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.classical_algorithms_streaking.COPRA.get_Z_gradient_individual" title="Link to this definition"></a></dt>
@@ -826,7 +793,7 @@ This means the method updates the population once using all measured data at onc
 <span id="streaking-general-algorithms-streaking-module"></span><h2>streaking.general_algorithms_streaking module<a class="headerlink" href="#module-streaking.general_algorithms_streaking" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.general_algorithms_streaking.DifferentialEvolution">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_PHz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best1_bin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.DifferentialEvolution" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">DifferentialEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best1_bin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_mechanism</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.7</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.DifferentialEvolution" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DifferentialEvolutionBASESTREAKING</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesSTREAKING</span></code></p>
 <p>Implements a Differential-Evolution Algorithm.
 Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for Global Optimization, 2014, <a class="reference external" href="https://www.osti.gov/servlets/purl/1163659">https://www.osti.gov/servlets/purl/1163659</a></p>
@@ -889,7 +856,7 @@ Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for
 
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.general_algorithms_streaking.Evosax">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_PHz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.Evosax" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">Evosax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.Evosax" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">EvosaxBASESTREAKING</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesSTREAKING</span></code></p>
 <p>Employs the evosax package to perform the optimization.</p>
 <p>Robert Tjarko Lange, evosax: JAX-based Evolution Strategies, arXiv preprint arXiv:2212.04180 (2022)</p>
@@ -930,7 +897,7 @@ Based on Qiang, J., Mitchell, C., A Unified Differential Evolution Algorithm for
 
 <dl class="py class">
 <dt class="sig sig-object py" id="streaking.general_algorithms_streaking.AutoDiff">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_PHz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.AutoDiff" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">streaking.general_algorithms_streaking.</span></span><span class="sig-name descname"><span class="pre">AutoDiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay_fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_eV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ip_eV</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0],</span> <span class="pre">dtype=int32)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retrieve_dtme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_correlation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'doubleblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interferometric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#streaking.general_algorithms_streaking.AutoDiff" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AutoDiffBASESTREAKING</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrievePulsesSTREAKING</span></code></p>
 <p>Employs the optimistix package to perform the optimization via Automatic-Differentiation.</p>
 <p>J. Rader, T. Lyons and P.Kidger, Optimistix: modular optimisation in JAX and Equinox, arXiv:2402.09983 (2024)

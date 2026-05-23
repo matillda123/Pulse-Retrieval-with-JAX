@@ -4,7 +4,8 @@ import pytest
 from pulsedjax.twodsi import (DirectReconstruction, GeneralizedProjection, PtychographicIterativeEngine, COPRA, 
                            DifferentialEvolution, Evosax, LSF, AutoDiff)
 
-algorithms_list = [DirectReconstruction, GeneralizedProjection, PtychographicIterativeEngine, COPRA, 
+algorithms_list = [DirectReconstruction, 
+                   GeneralizedProjection, PtychographicIterativeEngine, COPRA, 
                    DifferentialEvolution, Evosax, LSF, AutoDiff]
 
 @pytest.mark.parametrize("algorithm", algorithms_list)

@@ -6,7 +6,7 @@ from functools import partial as Partial
 
 from pulsedjax.core.base_classes_methods import RetrievePulsesCHIRPSCAN
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_S_prime_params, initialize_mu, initialize_momentum
 
 
 from pulsedjax.utilities import MyNamespace, scan_helper, calculate_trace, calculate_trace_error, integrate_signal_1D, do_interpolation_1d
@@ -117,6 +117,7 @@ class MIIPS(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
                                                        traces = jnp.broadcast_to(measurement_info.measured_trace, 
                                                                                  (jnp.shape(population.pulse)[0],) + jnp.shape(measurement_info.measured_trace)),
                                                         mu = init_mu_global)
+        self.descent_state = initialize_momentum(self)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
@@ -222,6 +223,7 @@ class Basic(ClassicAlgorithmsBASE, RetrievePulsesCHIRPSCAN):
         _, init_mu_global = initialize_mu(self, measurement_info, descent_info)
         self.descent_state = self.descent_state.expand(population = population,
                                                        mu = init_mu_global)
+        self.descent_state = initialize_momentum(self)
         descent_state = self.descent_state
 
         do_step = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)

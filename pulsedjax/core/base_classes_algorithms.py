@@ -110,7 +110,6 @@ class AlgorithmsBASE:
 
 
 
-
     def run(self, init_vals, no_iterations=1, **kwargs):
         """ 
         This function is invoked by most solvers to perform the iterative reconstruction. 
@@ -120,7 +119,7 @@ class AlgorithmsBASE:
         self._apply_kwargs_before_running(**kwargs)
         descent_state, do_scan = self.initialize_run(init_vals)
                 
-        self.do_checks_before_running(**kwargs)
+        self.do_checks_before_running()
 
         descent_state, error_arr = run_scan(do_scan, descent_state, no_iterations)
         final_result = self.post_process(descent_state, error_arr)
@@ -179,26 +178,26 @@ class AlgorithmsBASE:
 
 
 
-    def __repr__(self):
-        mydict = self.__dict__
-        keys = mydict.keys()
+    # def __repr__(self):
+    #     mydict = self.__dict__
+    #     keys = mydict.keys()
 
-        myoutput = {}
-        for key in keys:
-            value = mydict[key]
+    #     myoutput = {}
+    #     for key in keys:
+    #         value = mydict[key]
 
-            if isinstance(value, MyNamespace):
-                myoutput[key] = "MyNamespace( ... )"
-            else:
-                if isinstance(value, (jax.Array, np.ndarray)):
-                    myoutput[key] = ["shape=", jnp.shape(jnp.asarray(value)), value.dtype]
-                else:
-                    try:
-                        myoutput[key] = [value, value.dtype]
-                    except:
-                        myoutput[key] = [value, type(value).__name__]
+    #         if isinstance(value, MyNamespace):
+    #             myoutput[key] = "MyNamespace( ... )"
+    #         else:
+    #             if isinstance(value, jax.Array):
+    #                 myoutput[key] = ["shape=", jnp.shape(value), value.dtype]
+    #             else:
+    #                 try:
+    #                     myoutput[key] = [value, value.dtype]
+    #                 except:
+    #                     myoutput[key] = [value, type(value).__name__]
                     
-        return f"{self._name}(" + f"{myoutput}".replace("\'","").replace("\"", "").replace("shape=, ","shape=")[1:-1] + ")"
+    #     return f"{self._name}(" + f"{myoutput}".replace("\'","").replace("\"", "").replace("shape=, ","shape=")[1:-1] + ")"
 
 
 
@@ -519,45 +518,21 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
 
 
 
-    def momentum(self, population_size, eta): # maybe there is a difference with respect to this being done in t or f domain
+    def momentum(self, eta): # maybe there is a difference with respect to this being done in t or f domain
         """ 
         Needs to be called if momentum is meant to be used in the reconstruction. 
 
         Args:
-            population_size (int): is needed for some initialization 
             eta (float): parameter that controls the momentum strength
 
         Returns:
             the class instance
         """
+        self.descent_info = self.descent_info.expand(eta=eta)
+
         if self.momentum_is_being_used==True:
             return self
-        else: # this initialization doesnt work with dtme
-            shape=(population_size, jnp.size(self.measurement_info.frequency))
-            init_arr = jnp.zeros(shape, dtype=jnp.complex64)
-
-            if self.measurement_info.doubleblind==True:
-                gate_init = init_arr
-            else:
-                gate_init = None
-
-            velocity_map_init = MyNamespace(pulse=init_arr, gate=gate_init)
-            update_velocity_map_init = MyNamespace(pulse=init_arr, gate=gate_init)
-
-            if hasattr(self.measurement_info, "retrieve_dtme")==True:
-                if self.measurement_info.retrieve_dtme==True:
-                    shape = (population_size, self.measurement_info.no_channels, jnp.size(self.measurement_info.momentum))
-                    dtme_init = jnp.zeros(shape, dtype=jnp.complex64)
-                else:
-                    dtme_init = None
-
-                velocity_map_init = velocity_map_init.expand(dtme=dtme_init)
-                update_velocity_map_init = update_velocity_map_init.expand(dtme=dtme_init)
-
-            self.descent_info = self.descent_info.expand(eta=eta)
-            self.descent_state = self.descent_state.expand(momentum = MyNamespace(velocity_map=velocity_map_init, 
-                                                                                  update_velocity_map=update_velocity_map_init))
-            
+        else: 
             if self._name=="COPRA" or self._name=="PtychographicIterativeEngine":
                 self._local_step = self.local_step
                 self._global_step = self.global_step
@@ -584,11 +559,9 @@ class ClassicAlgorithmsBASE(AlgorithmsBASE):
         return trace_error, mu, population
     
 
-    # this might be a good idea
+
     # def initialize_classical_algorithm(self, population):
     #     pass
-
-
 
     
     def post_process_create_trace(self, descent_state, measurement_info, descent_info, idx):
@@ -653,7 +626,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
                 N = jnp.size(self.measurement_info.axis_euv.frequency)
                 _spectrum_provided = getattr(self.descent_info.measured_spectrum_is_provided, pulse_or_gate)
             elif pulse_or_gate=="dtme":
-                N = jnp.size(self.measurement_info.momentum)
+                N = jnp.size(self.measurement_info.axis_dtme.momentum)
                 _spectrum_provided = False
 
 
@@ -897,7 +870,7 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
             elif pulse_or_gate=="gate":
                 frequency = measurement_info.axis_euv.frequency
             elif pulse_or_gate =="dtme":
-                frequency = measurement_info.momentum
+                frequency = measurement_info.axis_dtme.momentum
             else:
                 raise ValueError
             
@@ -976,6 +949,34 @@ class GeneralOptimizationBASE(AlgorithmsBASE):
         population = self.get_pulses_f_from_population(population, measurement_info, descent_info)
         error_arr, mu = jax.vmap(self.calculate_error_individual, in_axes=(0, None, None))(population, measurement_info, descent_info)
         return error_arr, mu, population
+
+
+
+
+    def _rule__streaking_spectrum_needs_to_be_provided_before_population_creation(self, descent_state, measurement_info, descent_info):
+        if hasattr(measurement_info, "dtme_momentum"):
+            _is_streaking = True
+        else:
+            _is_streaking = False
+
+        if _is_streaking==True and descent_info.measured_spectrum_is_provided.pulse==True:
+            _is_array = isinstance(descent_state.population.pulse.amp, jax.Array)
+
+            if _is_array==True:
+                _shape_matches = (jnp.shape(descent_state.population.pulse.amp) == (descent_info.population_size,1))
+                _raise_issue = 1 - _shape_matches
+            else:
+                _raise_issue = True
+
+            if _raise_issue == True:
+                raise ValueError("In streaking if one provides a spectrum for the pulse, the spectrum needs to be provided before the population. This is because the shape/structure of the population is dependent on this.")
+
+    
+
+    def do_checks_before_running(self):
+        """ Called by algorithm.run() performs a few checks """
+        super().do_checks_before_running()
+        self._rule__streaking_spectrum_needs_to_be_provided_before_population_creation(self.descent_state, self.measurement_info, self.descent_info)
     
 
 

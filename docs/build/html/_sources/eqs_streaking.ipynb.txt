@@ -119,8 +119,8 @@
    "source": [
     "$\\frac{d S_{mb}^C}{d A_j} = g_1 + g_2$\n",
     "\n",
-    "$g_1 = -1\\cdot dt^2 \\cdot \\begin{cases}\n",
-    "\\sum_k E_{mk} \\cdot e^{-i t_k\\cdot \\left(IP^C + \\frac{k_b^2}{2}\\right)} \\cdot e^{-i\\phi_{bk}}\\cdot\\rho_{bk}^C\\cdot (k_b + A_j) & \\text{if } k \\le j \\le k_{max} \\\\\n",
+    "$g_1 = -1\\cdot dt^2 \\cdot \\sum\\limits_k \\begin{cases}\n",
+    "E_{mk} \\cdot e^{-i t_k\\cdot \\left(IP^C + \\frac{k_b^2}{2}\\right)} \\cdot e^{-i\\phi_{bk}}\\cdot\\rho_{bk}^C\\cdot (k_b + A_j) & \\text{if } k \\le j \\le k_{max} \\\\\n",
     "0 & \\text{else}\n",
     "\\end{cases}$ \n",
     "\n",
@@ -173,7 +173,9 @@
    "source": [
     "## PIE Gradient  \n",
     "\n",
-    "One can take DTME*volkov_phase_factor as object and euv-pulse as probe. Then one can get DTME and A from the object via gradient descent each iteration."
+    "TODO  \n",
+    "\n",
+    "One could use a FROG-CRAB approach and decompose the DTME/Vectorpotential part into its components each iteration and update via usage of the SFA."
    ]
   }
  ],

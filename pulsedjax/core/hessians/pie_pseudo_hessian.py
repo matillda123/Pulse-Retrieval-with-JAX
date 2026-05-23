@@ -12,13 +12,15 @@ def PIE_get_full_pseudo_hessian_all_m(probe, subelement, transform_arr, time, om
         hessian_all_m = jnp.einsum("kn, Nmk, Nmj, jn, Nmn -> Nmkj", Dkn.conj(), probe, probe.conj(), Dkn, subelement)
     
     elif pulse_or_gate=="gate":
-        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
+        N = jnp.size(omega)
+        omega_new = jnp.linspace(jnp.min(omega), jnp.max(omega), 3*N)
+        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(omega_new))/(2*jnp.pi)))
 
-        N = jnp.size(time)
-        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(omega), 1/(2*jnp.pi)*jnp.mean(jnp.diff(omega))))
+        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
         Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N) ?
+        
         H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn_new, phase_matrix, Dkn_new.conj())
-        H = H[:,:,N:,N:]
+        H = H[:,:,N:2*N,N:2*N]
         hessian_all_m = jnp.einsum("Nmju, un, Nmu, Nmi, in, Nmki, Nmn -> Nmkj", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
 
     elif pulse_or_gate=="chirpscan":
@@ -41,13 +43,15 @@ def PIE_get_diagonal_pseudo_hessian_all_m(probe, subelement, transform_arr, time
         hessian_all_m = jnp.einsum("kn, Nmk, Nmk, kn, Nmn -> Nmk", Dkn.conj(), probe, probe.conj(), Dkn, subelement)
 
     elif pulse_or_gate=="gate":
-        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega[jnp.newaxis, jnp.newaxis,:])
+        N = jnp.size(omega)
+        omega_new = jnp.linspace(jnp.min(omega), jnp.max(omega), 3*N)
+        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(3*N, jnp.mean(jnp.diff(omega_new))/(2*jnp.pi)))
 
-        N = jnp.size(time)
-        time_new = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(omega), 1/(2*jnp.pi)*jnp.mean(jnp.diff(omega))))
-        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega[jnp.newaxis,:]))#/jnp.sqrt(N) ?
+        phase_matrix = jnp.exp(-1j*transform_arr[:,:,jnp.newaxis]*omega_new[jnp.newaxis, jnp.newaxis,:])
+        Dkn_new = jnp.exp(1j*(time_new[:,jnp.newaxis]*omega_new[jnp.newaxis,:]))#/jnp.sqrt(N) ?
+
         H = jnp.einsum("kn, Nmn, jn -> Nmkj", Dkn_new, phase_matrix, Dkn_new.conj())
-        H = H[:,:,N:,N:]
+        H = H[:,:,N:2*N,N:2*N]
         hessian_all_m = jnp.einsum("Nmki, in, Nmi, Nmi, in, Nmik, Nmn -> Nmk", H, Dkn, probe.conj(), probe, Dkn.conj(), H.conj(), subelement)
 
     elif pulse_or_gate=="chirpscan":

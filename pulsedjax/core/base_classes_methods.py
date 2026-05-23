@@ -185,8 +185,8 @@ class RetrievePulses:
 
 
     def plot_results(self, final_result, exact_pulse=None):
-        pulse_t, pulse_f, trace = final_result.pulse_t, final_result.pulse_f, final_result.trace
-        gate_t, gate_f = final_result.gate_t, final_result.gate_f
+        pulse_t, pulse_f, trace = final_result.pulses.pulse_t, final_result.pulses.pulse_f, final_result.trace
+        gate_t, gate_f = final_result.pulses.gate_t, final_result.pulses.gate_f
         error_arr = final_result.error_arr
 
         theta, time, frequency, measured_trace = final_result.theta, final_result.time, final_result.frequency, final_result.measured_trace
@@ -327,10 +327,8 @@ class RetrievePulses:
         """ post processing to get the final pulse/gate """
         sk, rn = measurement_info.sk, measurement_info.rn
 
-        if idx==None:
-            idx, population = self.get_idx_best_individual(descent_state.population)
-        else:
-            population = descent_state.population
+        # the returned population is evaluated in the case of parametrized retrievals
+        idx, population = self.get_idx_best_individual(descent_state.population)
 
         individual = self.get_individual_from_idx(idx, population)
         pulse_f = individual.pulse[0]
@@ -340,37 +338,45 @@ class RetrievePulses:
             gate_f = individual.gate[0]
             gate_t = self.ifft(gate_f, sk, rn)
         else:
-            gate_t, gate_f = pulse_t, pulse_f
+            gate_t, gate_f = None, None
 
-        return pulse_t, gate_t, pulse_f, gate_f, idx
+        return MyNamespace(pulse_t=pulse_t, gate_t=gate_t, pulse_f=pulse_f, gate_f=gate_f, idx=idx)
     
 
 
 
 
-    def post_process_center_pulse_and_gate(self, pulse_t, gate_t, pulse_f, gate_f):
+    def post_process_center_pulse_and_gate(self, pulses):
         """ This essentially removes the linear phase. But only approximately since no fits are done. """
-
         sk, rn = self.measurement_info.sk, self.measurement_info.rn
-        pulse_t = center_signal(pulse_t)
-        gate_t = center_signal(gate_t)
-        pulse_f_new, gate_f_new = self.fft(pulse_t, sk, rn), self.fft(gate_t, sk, rn)
+
+        pulse_t = center_signal(pulses.pulse_t)
+        pulse_f_new = self.fft(pulse_t, sk, rn)
 
         if self.descent_info.measured_spectrum_is_provided.pulse==True and self.eta_spectral_amplitude==1:
             amp_f_pulse = self.measurement_info.spectral_amplitude.pulse
         else:
-            amp_f_pulse = jnp.abs(pulse_f)
-
-        if self.descent_info.measured_spectrum_is_provided.gate==True and self.eta_spectral_amplitude==1:
-            amp_f_gate = self.measurement_info.spectral_amplitude.gate
-        else:
-            amp_f_gate = jnp.abs(gate_f)
+            amp_f_pulse = jnp.abs(pulses.pulse_f)
 
         pulse_f = project_onto_amplitude(pulse_f_new, amp_f_pulse)
-        gate_f = project_onto_amplitude(gate_f_new, amp_f_gate)
+        pulse_t = self.ifft(pulse_f, sk, rn)
+        pulses = tree_at(lambda x: x.pulse_t, pulses, pulse_t)
+        pulses = tree_at(lambda x: x.pulse_f, pulses, pulse_f)
 
-        pulse_t, gate_t = self.ifft(pulse_f, sk, rn), self.ifft(gate_f, sk, rn)
-        return pulse_t, gate_t, pulse_f, gate_f
+        if pulses.gate_t is not None:
+            gate_t = center_signal(pulses.gate_t)
+            gate_f_new = self.fft(gate_t, sk, rn)
+            if self.descent_info.measured_spectrum_is_provided.gate==True and self.eta_spectral_amplitude==1:
+                amp_f_gate = self.measurement_info.spectral_amplitude.gate
+            else:
+                amp_f_gate = jnp.abs(pulses.gate_f)
+
+            gate_f = project_onto_amplitude(gate_f_new, amp_f_gate)
+            gate_t = self.ifft(gate_f, sk, rn)
+            pulses = tree_at(lambda x: x.gate_t, pulses, gate_t)
+            pulses = tree_at(lambda x: x.gate_f, pulses, gate_f)
+
+        return pulses
     
 
 
@@ -380,8 +386,9 @@ class RetrievePulses:
         error_arr = jnp.squeeze(error_arr)
         self.descent_state = descent_state
 
-        pulse_t, gate_t, pulse_f, gate_f, idx = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
-        pulse_t, gate_t, pulse_f, gate_f = self.post_process_center_pulse_and_gate(pulse_t, gate_t, pulse_f, gate_f)
+        pulses = self.post_process_get_pulse_and_gate(descent_state, self.measurement_info, self.descent_info)
+        pulses = self.post_process_center_pulse_and_gate(pulses)
+        idx = pulses.idx
         
         trace = self.post_process_create_trace(descent_state, self.measurement_info, self.descent_info, idx)
         measured_trace = self.measurement_info.measured_trace
@@ -401,9 +408,9 @@ class RetrievePulses:
             frequency_exp = frequency
 
         final_result = MyNamespace(theta=theta, time=time, frequency=frequency, frequency_exp = frequency_exp,
-                                 pulse_t=pulse_t, pulse_f=pulse_f, gate_t=gate_t, gate_f=gate_f,
-                                 trace=trace, measured_trace=measured_trace,
-                                 error_arr=error_arr, mu=MyNamespace(_local=local_mu, _global=global_mu))
+                                   pulses=pulses,
+                                   trace=trace, measured_trace=measured_trace,
+                                   error_arr=error_arr, mu=MyNamespace(_local=local_mu, _global=global_mu), idx_best_individual=idx)
         return final_result
     
     
@@ -1057,7 +1064,9 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     """
     
     def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([0]), retrieve_dtme=False, 
-                 cross_correlation="doubleblind", interferometric=False, f_range_nir_pulse=(None,None), f_range_euv_pulse=(None,None), **kwargs):
+                 cross_correlation="doubleblind", interferometric=False, 
+                 f_range_nir_pulse=(None,None), f_range_euv_pulse=(None,None), eV_range_dtme=(None,None), **kwargs):
+        
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
@@ -1066,6 +1075,11 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         df_PHz = 0.75/(jnp.max(delay_fs)-jnp.min(delay_fs)) # 0.75 makes sure that the time-axis is bigger than the scanned delay
         df = self.convert_frequency_PHz_au(df_PHz, "PHz", "au")
         axis_nir_pulse, axis_euv_pulse = self.make_axis(f_range_nir_pulse, f_range_euv_pulse, df)
+
+        if retrieve_dtme==True:
+            axis_dtme = self.make_axis_dtme(eV_range_dtme, jnp.mean(jnp.diff(energy_eV)))
+        else:
+            axis_dtme = self.make_axis_dtme((jnp.min(energy_eV), jnp.max(energy_eV)), jnp.mean(jnp.diff(energy_eV)))
 
         # making the main axis this big is necessary, otherwise aliasing issues prevent convergence
         frequency = jnp.arange(-1*jnp.max(axis_euv_pulse.frequency), jnp.max(axis_euv_pulse.frequency), df)
@@ -1098,7 +1112,8 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                                                              retrieve_dtme = self.retrieve_dtme,
                                                              no_channels = self.no_channels,
                                                              axis_nir = axis_nir_pulse,
-                                                             axis_euv = axis_euv_pulse)
+                                                             axis_euv = axis_euv_pulse,
+                                                             axis_dtme = axis_dtme)
         
         self.descent_info = self.descent_info.expand(measured_spectrum_is_provided = MyNamespace(pulse=False, gate=False, dtme=False))
 
@@ -1128,6 +1143,21 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         axis_euv = MyNamespace(time=time_euv, frequency=frequency_euv, sk=sk_euv, rn=rn_euv)
             
         return axis_nir, axis_euv
+
+
+    def make_axis_dtme(self, eV_range_dtme, dE_eV):
+        emin, emax = eV_range_dtme
+        assert emin is not None and emax is not None, "provide energy range for dtme"
+        N = ((emax-emin)/dE_eV).astype(int)
+        emin = self.convert_energy_eV_au(emin, "eV", "au")
+        emax = self.convert_energy_eV_au(emax, "eV", "au")
+        kmin, kmax = jnp.sqrt(2*jnp.abs(emin))*jnp.sign(emin), jnp.sqrt(2*jnp.abs(emax))*jnp.sign(emax)
+
+        momentum = jnp.linspace(kmin, kmax, N)
+        position = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(momentum), jnp.mean(jnp.diff(momentum))))
+        sk, rn = get_sk_rn(position, momentum)
+        return MyNamespace(momentum=momentum, position=position, sk=sk, rn=rn)
+
 
 
     def convert_time_fs_au(self, time, unit_in, unit_out):
@@ -1162,7 +1192,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        if dtme_momentum.ndims==1:
+        if dtme_momentum.ndim==1:
             dtme_momentum = jnp.asarray([do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)])
         else:
             dtme_momentum = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
@@ -1214,11 +1244,11 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def make_dressed_DTME(self, dtme_position, pulse_t_nir_vectorpotential, measurement_info):
-        if measurement_info.dtme_momentum is None:
+        if measurement_info.dtme_momentum is None and measurement_info.retrieve_dtme==False:
             dtme_momentum = jnp.ones((jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position)))
         else: 
             # this shifting should be done like shifts in time -> with padding and redefinition of axis
-            # but its probably fine because shift is much smaller than total axis?
+            # but its probably fine because shift is much smaller than total axis
             r = measurement_info.position
             sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
@@ -1285,7 +1315,10 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
-            dtme_position = self.ifft(individual.dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+            dtme = individual.dtme
+            _interpolate = Partial(do_interpolation_1d, method="cubic2")
+            dtme = jax.vmap(_interpolate, in_axes=(None,None,0))(measurement_info.momentum, measurement_info.axis_dtme.momentum, dtme)
+            dtme_position = self.ifft(dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
         else: 
             if measurement_info.dtme_momentum is None:
                 dtme_position = jnp.ones(measurement_info.no_channels) # a dummy for vmap to work
@@ -1313,10 +1346,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     def post_process_get_pulse_and_gate(self, descent_state, measurement_info, descent_info, idx=None):
         """ post processing to get the final pulse/gate """
 
-        if idx==None:
-            idx, population = self.get_idx_best_individual(descent_state.population)
-        else:
-            population = descent_state.population
+        idx, population = self.get_idx_best_individual(descent_state.population)
 
         individual = self.get_individual_from_idx(idx, population)
         pulse_f = individual.pulse[0]
@@ -1328,14 +1358,19 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         else:
             gate_t, gate_f = pulse_t, pulse_f
 
-        return pulse_t, gate_t, pulse_f, gate_f, idx
+        if measurement_info.retrieve_dtme==True:
+            dtme = individual.dtme[0]
+        else:
+            dtme = None
+
+        return MyNamespace(pulse_t=pulse_t, gate_t=gate_t, pulse_f=pulse_f, gate_f=gate_f, dtme_momentum=dtme, idx=idx)
 
 
 
-    def post_process_center_pulse_and_gate(self, pulse_t, gate_t, pulse_f, gate_f):
+    def post_process_center_pulse_and_gate(self, pulses):
         # dont center in streaking
         """ This essentially removes the linear phase. But only approximately since no fits are done. """
-        return pulse_t, gate_t, pulse_f, gate_f
+        return pulses
 
 
     def post_process(self, descent_state, error_arr):
@@ -1347,12 +1382,18 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         frequency_nir = self.convert_frequency_PHz_au(self.measurement_info.axis_nir.frequency, "au", "PHz")
         frequency_euv = self.convert_frequency_PHz_au(self.measurement_info.axis_euv.frequency, "au", "PHz")
 
+        pulses = MyNamespace(vectorpotential_t=fr.pulses.pulse_t, pulse_t_euv=fr.pulses.gate_t, 
+                             vectorpotential_f=fr.pulses.pulse_f, pulse_f_euv=fr.pulses.gate_f, 
+                             idx=fr.pulses.idx)
+
         final_result = MyNamespace(theta=delay_fs, time_nir=time_nir, time_euv=time_euv, 
                                    frequency_nir=frequency_nir, frequency_euv=frequency_euv, 
-                                   vectorpotential_t=fr.pulse_t, vectorpotential_f=fr.pulse_f,
-                                   pulse_t_euv=fr.gate_t, pulse_f_euv=fr.gate_f, 
+                                   pulses = pulses,
+                                   momentum_dtme = self.measurement_info.axis_dtme.momentum,
+                                   dtme = fr.pulses.dtme_momentum, 
                                    momentum_au=self.measurement_info.momentum, trace=fr.trace, 
-                                   measured_trace=fr.measured_trace, error_arr=fr.error_arr, mur=fr.mu)
+                                   measured_trace=fr.measured_trace, error_arr=fr.error_arr, mu=fr.mu, 
+                                   idx_best_individual=fr.idx_best_individual)
 
         return final_result
     
@@ -1366,8 +1407,8 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         trace, measured_trace = final_result.trace, final_result.measured_trace
         error_arr = final_result.error_arr
 
-        vectorpotential_t, vectorpotential_f = final_result.vectorpotential_t, final_result.vectorpotential_f
-        pulse_t_euv, pulse_f_euv = final_result.pulse_t_euv, final_result.pulse_f_euv
+        vectorpotential_t, vectorpotential_f = final_result.pulses.vectorpotential_t, final_result.pulses.vectorpotential_f
+        pulse_t_euv, pulse_f_euv = final_result.pulses.pulse_t_euv, final_result.pulses.pulse_f_euv
         
 
         trace = trace/jnp.max(trace)
@@ -1449,6 +1490,29 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
             plt.xlabel("Momentum [a.u.]")
             plt.ylabel("Scaling Factor [arb.u.]")
             plt.title("Calibration Curve")
+            plt.tight_layout()
+            plt.show()
+
+
+        if self.measurement_info.retrieve_dtme==True:
+            fig=plt.figure()
+            plt.subplot(1,2,1)
+            lines_abs = plt.plot(final_result.momentum_dtme, jnp.abs(final_result.dtme).T)
+            for i, line in enumerate(lines_abs):
+                line.set_label(str(i))
+            plt.legend()
+            plt.xlabel("Momentum [a.u.]")
+            plt.ylabel("Magnitude DTME [arb.u.]")
+            
+            plt.subplot(1,2,2)
+            lines_phase = plt.plot(final_result.momentum_dtme, jnp.unwrap(jnp.angle(final_result.dtme)).T)
+            for i, line in enumerate(lines_phase):
+                line.set_label(str(i))
+            plt.legend()
+            plt.xlabel("Momentum [a.u.]")
+            plt.ylabel(r"Phase DTME [$\pi$]")
+
+            plt.suptitle("Dipole transition matrix elements")
             plt.tight_layout()
             plt.show()
 

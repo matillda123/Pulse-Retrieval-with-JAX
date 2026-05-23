@@ -87,6 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
@@ -178,8 +179,8 @@ dt \cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
 \end{cases}\)</span></p>
 <p>Thus the sum over k survives in this term, which together with the sum leads to a cumulative-sum. The entire gradient reads:</p>
 <p><span class="math notranslate nohighlight">\(\frac{d S_{mb}^C}{d A_j} = g_1 + g_2\)</span></p>
-<p><span class="math notranslate nohighlight">\(g_1 = -1\cdot dt^2 \cdot \begin{cases}
-\sum_k E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bk}}\cdot\rho_{bk}^C\cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
+<p><span class="math notranslate nohighlight">\(g_1 = -1\cdot dt^2 \cdot \sum\limits_k \begin{cases}
+E_{mk} \cdot e^{-i t_k\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bk}}\cdot\rho_{bk}^C\cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
 0 &amp; \text{else}
 \end{cases}\)</span></p>
 <p><span class="math notranslate nohighlight">\(g_2 = 2\pi dt \cdot E_{mj} \cdot e^{-i t_j\cdot \left(IP^C + \frac{k_b^2}{2}\right)} \cdot e^{-i\phi_{bj}}\cdot \left(\sum\limits_q D_{bq}\rho_q^C \cdot r_q\cdot e^{i\cdot 2\pi r_q\cdot A_j}\right)\)</span></p>
@@ -203,7 +204,8 @@ dt \cdot (k_b + A_j) &amp; \text{if } k \le j \le k_{max} \\
 </section>
 <section id="pie-gradient">
 <h2>PIE Gradient<a class="headerlink" href="#pie-gradient" title="Link to this heading"></a></h2>
-<p>One can take DTME*volkov_phase_factor as object and euv-pulse as probe. Then one can get DTME and A from the object via gradient descent each iteration.</p>
+<p>TODO</p>
+<p>One could use a FROG-CRAB approach and decompose the DTME/Vectorpotential part into its components each iteration and update via usage of the SFA.</p>
 </section>
 </section>
 

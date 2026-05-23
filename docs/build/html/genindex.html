@@ -82,7 +82,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
-<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
@@ -174,8 +174,6 @@
         <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.alpha">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine attribute)</a>
 </li>
         <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.alpha">(real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine attribute)</a>
-</li>
-        <li><a href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.alpha">(streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING attribute)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.PtychographicIterativeEngine.alpha">(tdp.classic_algorithms_tdp.PtychographicIterativeEngine attribute)</a>
 </li>
@@ -1235,7 +1233,7 @@
       <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.do_descent_Z_error_step">do_descent_Z_error_step() (core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
 
       <ul>
-        <li><a href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.do_descent_Z_error_step">(streaking.classical_algorithms_streaking.GeneralizedProjection method)</a>
+        <li><a href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.do_descent_Z_error_step">(streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING method)</a>
 </li>
       </ul></li>
       <li><a href="utilities.html#utilities.do_fft">do_fft() (in module utilities)</a>
@@ -1300,7 +1298,7 @@
         <li><a href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.error_metric">(streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING attribute)</a>
 </li>
       </ul></li>
-      <li><a href="streaking.html#streaking.base_classes_streaking.estimate_vectorpotential_scale">estimate_vectorpotential_scale() (in module streaking.base_classes_streaking)</a>
+      <li><a href="streaking.html#streaking.base_classes_streaking.estimate_vectorpotential_max_scale">estimate_vectorpotential_max_scale() (in module streaking.base_classes_streaking)</a>
 </li>
       <li><a href="chirp_scan.html#chirp_scan.general_algorithms_chirpscan.Evosax">Evosax (class in chirp_scan.general_algorithms_chirpscan)</a>
 
@@ -1708,7 +1706,7 @@
       <ul>
         <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.global_step">(core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
-        <li><a href="streaking.html#streaking.classical_algorithms_streaking.COPRA.global_step">(streaking.classical_algorithms_streaking.COPRA method)</a>
+        <li><a href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING.global_step">(streaking.base_classes_streaking.COPRABASESTREAKING method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1868,7 +1866,7 @@
       <ul>
         <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE.local_iteration">(core.base_classic_algorithms.PtychographicIterativeEngineBASE method)</a>
 </li>
-        <li><a href="streaking.html#streaking.classical_algorithms_streaking.COPRA.local_iteration">(streaking.classical_algorithms_streaking.COPRA method)</a>
+        <li><a href="streaking.html#streaking.base_classes_streaking.COPRABASESTREAKING.local_iteration">(streaking.base_classes_streaking.COPRABASESTREAKING method)</a>
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.local_newton">local_newton (core.base_classes_algorithms.ClassicAlgorithmsBASE attribute)</a>
@@ -1954,6 +1952,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_axis">make_axis() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
+</li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING.make_axis_dtme">make_axis_dtme() (core.base_classes_methods.RetrievePulsesSTREAKING method)</a>
 </li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.make_bin_mask_tree">make_bin_mask_tree() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
@@ -2287,7 +2287,11 @@
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classic_algorithms.normalize_population">normalize_population() (in module core.base_classic_algorithms)</a>
+
+      <ul>
+        <li><a href="streaking.html#streaking.base_classes_streaking.normalize_population">(in module streaking.base_classes_streaking)</a>
 </li>
+      </ul></li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.LSF.number_of_disection_iterations">number_of_disection_iterations (chirp_scan.classic_algorithms_chirpscan.LSF attribute)</a>
 
       <ul>
@@ -2411,8 +2415,6 @@
 </li>
         <li><a href="streaking.html#streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING.optimize_spectral_phase_directly">(streaking.base_classes_streaking.GeneralizedProjectionBASESTREAKING attribute)</a>
 </li>
-        <li><a href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.optimize_spectral_phase_directly">(streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING attribute)</a>
-</li>
         <li><a href="streaking.html#streaking.classical_algorithms_streaking.GeneralizedProjection.optimize_spectral_phase_directly">(streaking.classical_algorithms_streaking.GeneralizedProjection attribute)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.GeneralizedProjection.optimize_spectral_phase_directly">(tdp.classic_algorithms_tdp.GeneralizedProjection attribute)</a>
@@ -2488,8 +2490,6 @@
         <li><a href="real_fields.twodsi.html#real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine.pie_method">(real_fields.twodsi.classical_algorithms_2dsi_real_fields.PtychographicIterativeEngine attribute)</a>
 </li>
         <li><a href="real_fields.vampire.html#real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine.pie_method">(real_fields.vampire.classical_algorithms_vampire_real_fields.PtychographicIterativeEngine attribute)</a>
-</li>
-        <li><a href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING.pie_method">(streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING attribute)</a>
 </li>
         <li><a href="tdp.html#tdp.classic_algorithms_tdp.PtychographicIterativeEngine.pie_method">(tdp.classic_algorithms_tdp.PtychographicIterativeEngine attribute)</a>
 </li>
@@ -2579,8 +2579,6 @@
 </li>
       </ul></li>
       <li><a href="core.html#core.base_classic_algorithms.PtychographicIterativeEngineBASE">PtychographicIterativeEngineBASE (class in core.base_classic_algorithms)</a>
-</li>
-      <li><a href="streaking.html#streaking.base_classes_streaking.PtychographicIterativeEngineBASESTREAKING">PtychographicIterativeEngineBASESTREAKING (class in streaking.base_classes_streaking)</a>
 </li>
   </ul></td>
 </tr></table>

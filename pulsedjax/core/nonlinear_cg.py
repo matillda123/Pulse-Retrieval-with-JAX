@@ -19,7 +19,8 @@ def get_nonlinear_CG_direction(descent_direction, cg, beta_parameter_version):
     
     # negative one to convert descent_direction to grad or pseudo-newton direction
     beta = get_beta(-1*descent_direction, descent_direction_prev, CG_direction_prev, beta_parameter_version)
-    CG_direction = descent_direction + beta*CG_direction_prev
+    CG_direction_prev = jnp.swapaxes(CG_direction_prev, 0, -1)
+    CG_direction = descent_direction + jnp.swapaxes(beta*CG_direction_prev, 0, -1)
 
     cg = MyNamespace(CG_direction_prev=CG_direction, descent_direction_prev = -1*descent_direction)
     return CG_direction, cg
@@ -40,23 +41,23 @@ def get_beta(grad, grad_prev, descent_direction_prev, beta_parameter_version):
 
 def beta_fletcher_reeves(grad, grad_prev, descent_direction_prev):
     """ Compute beta based on Fletcher-Reeves. """
-    return jnp.sum(jnp.abs(grad)**2)/(jnp.sum(jnp.abs(grad_prev))**2+1e-12)
+    return jnp.sum(jnp.abs(grad)**2, axis=-1)/(jnp.sum(jnp.abs(grad_prev), axis=-1)**2+1e-12)
 
 def beta_polak_ribiere(grad, grad_prev, descent_direction_prev):
     """ Compute beta based one Polak-Ribiere. """
-    return jnp.real(jnp.sum(jnp.conjugate(grad-grad_prev)*grad))/(jnp.sum(jnp.abs(grad_prev))**2+1e-12)
+    return jnp.real(jnp.sum(jnp.conjugate(grad-grad_prev)*grad, axis=-1))/(jnp.sum(jnp.abs(grad_prev), axis=-1)**2+1e-12)
 
 
 def beta_hestenes_stiefel(grad, grad_prev, descent_direction_prev):
     """ Compute beta based on Hestenes-Stiefel. """
     delta_grad=grad-grad_prev
-    return jnp.real(jnp.sum(jnp.conjugate(delta_grad)*grad))/jnp.real(jnp.sum(jnp.conjugate(delta_grad)*descent_direction_prev)+1e-12)
+    return jnp.real(jnp.sum(jnp.conjugate(delta_grad)*grad, axis=-1))/jnp.real(jnp.sum(jnp.conjugate(delta_grad)*descent_direction_prev, axis=-1)+1e-12)
 
 
 def beta_dai_yuan(grad, grad_prev, descent_direction_prev):
     """ Compute beta based on Dai-Yuan. """
     delta_grad=grad-grad_prev
-    return jnp.sum(jnp.abs(grad)**2)/jnp.real(jnp.sum(jnp.conjugate(delta_grad)*descent_direction_prev)+1e-12)
+    return jnp.sum(jnp.abs(grad)**2, axis=-1)/jnp.real(jnp.sum(jnp.conjugate(delta_grad)*descent_direction_prev, axis=-1)+1e-12)
 
 
 def beta_average(grad, grad_prev, descent_direction_prev):

@@ -372,7 +372,7 @@ class MakeTrace(MakePulseBase):
                                             energy_range, N, cut_off_val, interpolate_fft_conform)
         gate = self.maketrace.get_gate_pulse(frequency, gate_f)
 
-        if DTME!=(None,None):
+        if DTME[1] is not None:
             dtme = self.maketrace.get_DTME(DTME[0], DTME[1])
 
 
@@ -830,8 +830,8 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
             dtme = self.dtme_momentum
 
         axis_nir = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
-        axis_nir_big = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
         axis_euv = MyNamespace(time=self.time, frequency=self.frequency, sk=self.sk, rn=self.rn)
+        axis_dtme = MyNamespace(momentum=self.momentum_au, position=self.position_au, sk=self.sk_position_momentum, rn=self.rn_position_momentum)
 
         self.measurement_info = self.measurement_info.expand(momentum = self.momentum_au,
                                                              position = self.position_au,
@@ -842,8 +842,8 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
                                                              retrieve_dtme = False,
                                                              doubleblind = True,
                                                              axis_nir = axis_nir, 
-                                                             axis_nir_big = axis_nir_big, 
-                                                             axis_euv = axis_euv)
+                                                             axis_euv = axis_euv,
+                                                             axis_dtme = axis_dtme)
 
         self.individual = MyNamespace(pulse=pulse_f_nir_vectorpotential, gate=self.gate_f, dtme=None)
         return self.individual, self.measurement_info, self.theta

@@ -6,7 +6,7 @@ from equinox import tree_at
 
 from pulsedjax.core.base_classes_methods import RetrievePulses2DSI
 from pulsedjax.core.base_classes_algorithms import ClassicAlgorithmsBASE
-from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_mu
+from pulsedjax.core.base_classic_algorithms import GeneralizedProjectionBASE, PtychographicIterativeEngineBASE, COPRABASE, LSFBASE, initialize_mu, initialize_momentum
 from pulsedjax.utilities import MyNamespace, scan_helper, center_signal, do_interpolation_1d, integrate_signal_1D, calculate_trace, calculate_trace_error
 
 from pulsedjax.core.gradients.twodsi_z_error_gradients import calculate_Z_gradient
@@ -180,10 +180,12 @@ class DirectReconstruction(ClassicAlgorithmsBASE, RetrievePulses2DSI):
                                                        group_delay = init_arr, 
                                                        spectral_phase = init_arr,
                                                        mu=init_mu_global)
+        self.descent_state = initialize_momentum(self)
+        descent_state = self.descent_state
 
         do_scan = Partial(self.step, measurement_info=measurement_info, descent_info=descent_info)
         do_scan = Partial(scan_helper, actual_function=do_scan, number_of_args=1, number_of_xs=0)
-        return self.descent_state, do_scan
+        return descent_state, do_scan
 
 
 

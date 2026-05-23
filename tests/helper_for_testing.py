@@ -4,9 +4,22 @@ import pulsedjax.tdp
 import pulsedjax.vampire
 import pulsedjax.twodsi
 import pulsedjax.chirp_scan
+import pulsedjax.streaking
 
-from pulsedjax.utilities import MyNamespace
+from pulsedjax.twodsi import DirectReconstruction
+from pulsedjax.core.base_general_optimization import EvosaxBASE
+
+from pulsedjax.simulate_trace import MakeTrace, GaussianAmplitude, PolynomialPhase
+from pulsedjax.utilities import MyNamespace, do_interpolation_1d
+from pulsedjax import get_spectral_filter
 import jax.numpy as jnp
+
+import refractiveindex
+
+from evosax.algorithms import DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC
+from optax import adam, lbfgs
+from optimistix import LBFGS, LevenbergMarquardt, GradientDescent
+            
 
 
 
@@ -30,7 +43,7 @@ class pulsedjax_testing:
         else:
             self.package = getattr(pulsedjax, method)
         
-        if method!="chirp_scan" and method!="twodsi":
+        if method!="chirp_scan" and method!="twodsi" and method!="streaking":
             self.CPCGPA = getattr(self.package, "CPCGPA")
             self.LSGPA = getattr(self.package, "LSGPA")
         else:
@@ -38,12 +51,16 @@ class pulsedjax_testing:
             self.LSGPA = None
 
         self.GP = getattr(self.package, "GeneralizedProjection")
-        self.PIE = getattr(self.package, "PtychographicIterativeEngine") 
         self.COPRA = getattr(self.package, "COPRA")
+        if method!="streaking":
+            self.PIE = getattr(self.package, "PtychographicIterativeEngine") 
+            self.LSF = getattr(self.package, "LSF")
+        else:
+            self.PIE = None
+            self.LSF = None
 
         self.DE = getattr(self.package, "DifferentialEvolution")
         self.Evosax = getattr(self.package, "Evosax")
-        self.LSF = getattr(self.package, "LSF")
         self.AutoDiff = getattr(self.package, "AutoDiff")
 
         if any([algorithm == i for i in (pulsedjax.frog.Vanilla, self.LSGPA, self.CPCGPA, self.PIE)]):
@@ -68,7 +85,6 @@ class pulsedjax_testing:
     def make_method_kwargs(self, i, frequency, method):
         """ Creates a dict with method parameters, given hardcoded lists of options. """
 
-        from pulsedjax import get_spectral_filter
         spectral_filter1 = get_spectral_filter("gaussian", frequency, (1, 0.25, 0.01, 1))
         spectral_filter2 = get_spectral_filter("lorentzian", frequency, (1, 0.26, 0.01, 1))
 
@@ -77,7 +93,6 @@ class pulsedjax_testing:
         tau_interferometer = 5
 
         phase_type = "material"
-        import refractiveindex
         chirp_parameters = refractiveindex.RefractiveIndexMaterial(shelf="main", book="SiO2", page="Malitson")
 
         cross_correlation = [False, True, "doubleblind", False, "doubleblind"]
@@ -118,6 +133,11 @@ class pulsedjax_testing:
             method_kwargs = dict(phase_type = phase_type,
                                 chirp_parameters = chirp_parameters,
                                 nonlinear_method = nonlinear_method[i])
+        elif method=="streaking":
+            Ip_eV = [jnp.asarray([0]), jnp.asarray([0,0]), jnp.asarray([0,0,0]), jnp.asarray([0]), jnp.asarray([0,0])]
+            dtme = [jnp.ones((1,jnp.size(frequency))), jnp.ones((2,jnp.size(frequency))),jnp.ones((3,jnp.size(frequency))),jnp.ones((1,jnp.size(frequency))),jnp.ones((2,jnp.size(frequency)))]
+            retrieve_dtme = [False, True, False, True, False]
+            method_kwargs = dict(Ip_eV=Ip_eV[i], DTME=(frequency, dtme[i]), retrieve_dtme=retrieve_dtme[i], nonlinear_method=None)
         else:
             raise ValueError
         
@@ -146,7 +166,7 @@ class pulsedjax_testing:
         options_calibration_curve_local = [True, False, False, True, False]
         options_calibration_curve_global = [False, True, False, True, False]
 
-        if self.real_fields==True:
+        if self.real_fields==True or self.method=="streaking":
             options_newton = [False, "lbfgs", False, False, "lbfgs"]
 
 
@@ -197,7 +217,6 @@ class pulsedjax_testing:
         
 
         elif algorithm == self.Evosax:
-            from evosax.algorithms import DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC
             options_evo = [DifferentialEvolution, DiffusionEvolution, CMA_ES, Open_ES, ESMC]
             run_kwargs = dict(solver = options_evo[i],
                               local_optimize_calibration_curve = options_calibration_curve_local[i],
@@ -205,8 +224,6 @@ class pulsedjax_testing:
         
 
         elif algorithm == self.AutoDiff:
-            from optax import adam, lbfgs
-            from optimistix import LBFGS, LevenbergMarquardt, GradientDescent
             options_ad_solver = [adam(learning_rate=0.1), lbfgs(learning_rate=0.1), LBFGS(1,1), LevenbergMarquardt(1,1), GradientDescent(0.1,1,1)]
             options_ad_alternating = [True, False, False, True, True]
             run_kwargs = dict(solver = options_ad_solver[i],
@@ -280,8 +297,6 @@ class pulsedjax_testing:
 
 
     def interpolate_spectral_filter_onto_new_frequency(self, frequency, frequency_trace, method, method_kwargs):
-        from pulsedjax.utilities import do_interpolation_1d
-
         if method=="tdp":
             spectral_filter = do_interpolation_1d(frequency_trace, frequency, method_kwargs["spectral_filter"])
             method_kwargs["spectral_filter"] = spectral_filter
@@ -301,12 +316,10 @@ class pulsedjax_testing:
 
 
     def get_pulse(self):
-        from pulsedjax.simulate_trace import MakeTrace, GaussianAmplitude, PolynomialPhase
-
         amp = GaussianAmplitude(1, 0.25, 0.1, 1)
         phase = PolynomialPhase(None, (0,0))
 
-        pm = MakeTrace(N=128*6, f_max=1)
+        pm = MakeTrace(N=128*2, f_max=1)
         time, frequency, pulse_t, pulse_f = pm.generate_pulse((amp, phase))
 
         return pm, (time, frequency, pulse_t, pulse_f)
@@ -323,11 +336,13 @@ class pulsedjax_testing:
                             tdp = pm.generate_tdp,
                             chirp_scan = pm.generate_chirpscan,
                             twodsi = pm.generate_2dsi,
-                            vampire = pm.generate_vampire)
+                            vampire = pm.generate_vampire,
+                            streaking = pm.generate_streaking)
 
 
 
-        theta = jnp.linspace(-10, 10, 128)
+        N=32
+        theta = jnp.linspace(-5, 5, N)
 
         method_kwargs_temp = method_kwargs.copy()
         nonlinear_method = method_kwargs_temp.pop("nonlinear_method")
@@ -335,14 +350,19 @@ class pulsedjax_testing:
         if method=="chirp_scan":
             theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
                                                                             real_fields=self.real_fields,
-                                                                            N=128, plot_stuff=False, 
+                                                                            N=N, plot_stuff=False, 
                                                                             frequency_range=(jnp.min(frequency), jnp.max(frequency)),
                                                                             f_range_fields=(jnp.min(frequency), jnp.max(frequency)),
                                                                             **method_kwargs_temp)
+        elif method=="streaking":
+            method_kwargs_temp.pop("retrieve_dtme")
+            theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, (pulse_t, pulse_f), (pulse_t, pulse_f), theta, 
+                                                                            N=N, plot_stuff=False, energy_range=(0,50), **method_kwargs_temp)
+
         else:
             theta, frequency_trace, trace, spectra = generate_trace[method](time, frequency, pulse_t, pulse_f, nonlinear_method, theta, 
                                                                             gate=(frequency, pulse_f), real_fields=self.real_fields,
-                                                                            N=128, plot_stuff=False, 
+                                                                            N=N, plot_stuff=False, 
                                                                             frequency_range=(jnp.min(frequency), jnp.max(frequency)),
                                                                             f_range_fields=(jnp.min(frequency), jnp.max(frequency)),
                                                                             **method_kwargs_temp)
@@ -363,22 +383,37 @@ class pulsedjax_testing:
             method_kwargs = {"f_range_fields": (jnp.min(frequency), jnp.max(frequency)),
                              "f_range_pulse": (jnp.min(frequency), jnp.max(frequency)), 
                              **method_kwargs}
+            
+        if self.method=="streaking":
+            method_kwargs = {"f_range_nir_pulse": (jnp.min(frequency), jnp.max(frequency)),
+                             "f_range_euv_pulse": (jnp.min(frequency), jnp.max(frequency)),
+                             "eV_range_dtme": (jnp.min(frequency), jnp.max(frequency)), 
+                             **method_kwargs}
+            method_kwargs.pop("nonlinear_method")
+            DTME = method_kwargs.pop("DTME")
 
         population_kwargs = a_parameters.population_kwargs
         run_kwargs = a_parameters.run_kwargs
         run_args = a_parameters.run_args
+        
+        myalgorithm = algorithm(theta, frequency, trace, central_frequency=(0,0), **method_kwargs)
 
-        if algorithm == pulsedjax.twodsi.DirectReconstruction:
+        if isinstance(myalgorithm, DirectReconstruction):
             population_size = 1
             a_parameters = a_parameters.expand(use_spectra=True)
+        elif isinstance(myalgorithm, EvosaxBASE):
+            population_size = 4
         else:
-            population_size = 6
+            population_size = 2
 
-        myalgorithm = algorithm(theta, frequency, trace, central_frequency=(0,0), **method_kwargs)
-        population = myalgorithm.create_initial_population(population_size, **population_kwargs)
 
         if myalgorithm.cross_correlation==True:
             myalgorithm.get_gate_pulse(m_parameters.spectra.pulse[0], m_parameters.spectra.pulse[1])
+        
+        if self.method=="streaking": # needed because retrieve_dtme is not present in other methods
+            if myalgorithm.retrieve_dtme==False and DTME[1] is not None:
+                myalgorithm.get_DTME(DTME[0], DTME[1])
+
 
         if a_parameters.use_spectra==True:
             frequency_spectrum_pulse, spectrum_pulse = m_parameters.spectra.pulse[0], m_parameters.spectra.pulse[1]
@@ -389,11 +424,12 @@ class pulsedjax_testing:
                 myalgorithm.use_measured_spectrum(frequency_spectrum_gate, spectrum_gate, "gate")
 
         if a_parameters.use_momentum==True:
-            myalgorithm.momentum(population_size, 0.5)
+            myalgorithm.momentum(0.5)
 
+        population = myalgorithm.create_initial_population(population_size, **population_kwargs)
         run_args = (population, ) + run_args
         final_result = myalgorithm.run(*run_args, **run_kwargs)
-
+        
 
 
 
@@ -404,6 +440,7 @@ def run_test(i, method, algorithm, real_fields=False):
     The goal of these tests is just that the final algorithms actually run. 
     They are not checking if the results are actually sensible.
     """
+    print(f"running test No. {i}")
     test = pulsedjax_testing(method, algorithm, real_fields)
     m_parameters = test.make_m_parameters(i, method)
     a_parameters = test.make_a_parameters(i, algorithm)
