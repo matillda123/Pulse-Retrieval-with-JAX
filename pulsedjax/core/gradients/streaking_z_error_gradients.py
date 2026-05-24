@@ -36,7 +36,7 @@ def _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t
 
         momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)
         dtme_position = dtme_position[:,None,:]*jnp.exp(-1j*2*jnp.pi*r[None,None,:]*momentum_shift[None,:,None]) 
-        dtme_position = dtme_position*r[None,None,:]
+        dtme_position = 1j*2*jnp.pi*dtme_position*r[None,None,:]
 
         dr = jnp.mean(jnp.diff(r))
         phase_correction = jnp.exp(1j*2*jnp.pi*dr*momentum_shift)
@@ -61,24 +61,21 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
     dt = jnp.mean(jnp.diff(measurement_info.time))
     momentum = measurement_info.momentum
     
-    term1 = 2*jnp.pi*dt*jnp.einsum("mk, Cbk, Cbk, bk -> mbk", jnp.conjugate(pulse_t_euv_shifted), 
-                                   jnp.conjugate(gradient_dtme_Cbk), jnp.exp(1j*volkov_phase0), jnp.exp(1j*volkov_phase1))
+    term1 = -1j*dt*jnp.einsum("mk, Cbk, Cbk, bk -> mbk", pulse_t_euv_shifted, gradient_dtme_Cbk, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1))
 
-
-    grad_volkov1 = (momentum[:,None] + jnp.real(pulse_t_nir_vectorpotential)[None,:])
-    _term2 = jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1)
-    _term2 = jnp.einsum("mk, bk -> mbk", jnp.conjugate(pulse_t_euv_shifted), _term2)
-    #_term2 = jnp.cumsum(_term2[:,:,::-1], axis=-1)[:,:,::-1] 
-    _term2 = jnp.cumsum(_term2, axis=-1) # apparently this is correct and not the flipped version
-    term2 = -1*dt**2*jnp.einsum("mbj, bj -> mbj", _term2, grad_volkov1)
+    grad_volkov1 = dt*(momentum[:,None] + jnp.real(pulse_t_nir_vectorpotential)[None,:])
+    _term2 = dtme_shifted_and_volkov_phase0*jnp.exp(-1j*volkov_phase1)
+    _term2 = jnp.einsum("mk, bk -> mbk", pulse_t_euv_shifted, _term2)
+    _term2 = jnp.cumsum(_term2, axis=-1)
+    term2 = -1*dt**jnp.einsum("mbj, bj -> mbj", _term2, grad_volkov1)
 
 
     delta_S_mq = signal_t_new - signal_t.signal_t
     delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
-    term3 = term1 + term2
+    term3 = jnp.conjugate(term1 + term2)
     
-    grad = jnp.real(jnp.einsum("mb, mbk -> mk", delta_S_mb, term3))
-    grad = do_fft(grad, measurement_info.sk, measurement_info.rn) 
+    grad = jnp.real(jnp.einsum("mb, mbk -> mk", delta_S_mb, term3)) 
+    grad = do_fft(grad, measurement_info.sk, measurement_info.rn) # -> this is fine because its done on the big grid -> negative frequencies exist explicitely
     grad = jax.vmap(Partial(do_interpolation_1d, method="cubic2"),
                     in_axes=(None,None,0))(measurement_info.axis_nir.frequency, measurement_info.frequency, grad)
     return -2*grad

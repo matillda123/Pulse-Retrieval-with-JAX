@@ -648,8 +648,8 @@ def calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_pr
         tuple[jnp.array, Pytree]
         
     """
-    hessian = jnp.sum(hessian_m, axis=1)
-    grad = jnp.sum(grad_m, axis=1)
+    hessian = jnp.sum(hessian_m, axis=-2)
+    grad = jnp.sum(grad_m, axis=-2)
 
     if full_or_diagonal=="full":
         idx = jax.vmap(jnp.diag_indices_from)(hessian)
@@ -658,7 +658,11 @@ def calculate_newton_direction(grad_m, hessian_m, lambda_lm, newton_direction_pr
         newton_direction = solve_linear_system(hessian, grad, newton_direction_prev, solver)
 
     elif full_or_diagonal=="diagonal":
-        hessian = hessian + lambda_lm*jnp.max(jnp.abs(hessian), axis=1)[:, jnp.newaxis]
+        # swapaxes is needed because of broadcasting issues if one uses dtme in streaking
+        # not needed in full because full is not available for streaking
+        damping = lambda_lm*jnp.max(jnp.abs(hessian), axis=-1) 
+        hessian = jnp.swapaxes(hessian, 0, -1) + jnp.swapaxes(damping, 0, -1)
+        hessian = jnp.swapaxes(hessian, 0, -1)
         newton_direction = grad/hessian
 
     else:

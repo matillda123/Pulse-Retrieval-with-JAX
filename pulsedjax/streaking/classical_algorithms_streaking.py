@@ -4,7 +4,7 @@ from pulsedjax.core.base_classes_methods import RetrievePulsesSTREAKING
 from pulsedjax.streaking.base_classes_streaking import GeneralizedProjectionBASESTREAKING, COPRABASESTREAKING
 
 from pulsedjax.core.gradients.streaking_z_error_gradients import calculate_Z_gradient
-#from pulsedjax.core.hessians.frog_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
+from pulsedjax.core.hessians.streaking_z_error_pseudo_hessian import get_pseudo_newton_direction_Z_error
 
 
 
@@ -24,9 +24,8 @@ class GeneralizedProjection(GeneralizedProjectionBASESTREAKING, RetrievePulsesST
 
     def calculate_Z_newton_direction(self, grad, signal_t_new, signal_t, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        raise NotImplementedError("Streaking is already super-expensive to retrieve, dont do this.")
-
+        return get_pseudo_newton_direction_Z_error(grad, signal_t, signal_t_new, tau_arr, descent_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
+    
 
 
 
@@ -50,8 +49,6 @@ class COPRA(COPRABASESTREAKING, RetrievePulsesSTREAKING):
 
 
 
-    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, local_or_global_state, measurement_info, descent_info, 
-                                           full_or_diagonal, pulse_or_gate):
+    def get_Z_newton_direction(self, grad, signal_t, signal_t_new, tau_arr, local_or_global_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate):
         """ Calculates the Z-error newton direction for a population. """
-
-        raise NotImplementedError
+        return get_pseudo_newton_direction_Z_error(grad, signal_t, signal_t_new, tau_arr, local_or_global_state, measurement_info, descent_info, full_or_diagonal, pulse_or_gate)
