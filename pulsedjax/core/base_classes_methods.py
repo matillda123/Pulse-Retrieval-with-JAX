@@ -1066,6 +1066,9 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     def __init__(self, delay_fs, energy_eV, measured_trace, Ip_eV=jnp.array([0]), retrieve_dtme=False, 
                  cross_correlation="doubleblind", interferometric=False, 
                  f_range_nir_pulse=(None,None), f_range_euv_pulse=(None,None), eV_range_dtme=(None,None), **kwargs):
+
+        if interferometric!=False:
+            print("Interferometric doesnt do anything. Its just kept around because why not.")
         
         delay = self.convert_time_fs_au(delay_fs, "fs", "au")
         self.energy_au = self.convert_energy_eV_au(energy_eV, "eV", "au")
@@ -1091,8 +1094,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         measured_trace = measured_trace * momentum_au
         self.momentum_au = jnp.linspace(jnp.min(momentum_au), jnp.max(momentum_au), jnp.size(momentum_au)) # this requires interpolation of trace
-        measured_trace = jax.vmap(Partial(do_interpolation_1d, method="cubic2"), 
-                                  in_axes=(None,None,0))(0.5*self.momentum_au**2, self.energy_au, measured_trace)
+        measured_trace = do_interpolation_1d(0.5*self.momentum_au**2, self.energy_au, measured_trace, method="cubic2")
 
         self.position_au = jnp.fft.fftshift(jnp.fft.fftfreq(jnp.size(self.momentum_au), jnp.mean(jnp.diff(self.momentum_au))))
         self.sk_position_momentum, self.rn_position_momentum = get_sk_rn(self.position_au, self.momentum_au)
@@ -1148,6 +1150,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
     def make_axis_dtme(self, eV_range_dtme, dE_eV):
         emin, emax = eV_range_dtme
         assert emin is not None and emax is not None, "provide energy range for dtme"
+
         N = ((emax-emin)/dE_eV).astype(int)
         emin = self.convert_energy_eV_au(emin, "eV", "au")
         emax = self.convert_energy_eV_au(emax, "eV", "au")
@@ -1192,10 +1195,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        if dtme_momentum.ndim==1:
-            dtme_momentum = jnp.asarray([do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)])
-        else:
-            dtme_momentum = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
+        dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
         self.dtme_momentum = dtme_momentum
         self.measurement_info = self.measurement_info.expand(dtme_momentum = self.dtme_momentum)
         return self.dtme_momentum
@@ -1244,9 +1244,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def make_dressed_DTME(self, dtme_position, pulse_t_nir_vectorpotential, measurement_info):
-        if measurement_info.dtme_momentum is None and measurement_info.retrieve_dtme==False:
-            dtme_momentum = jnp.ones((jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position)))
-        else: 
+        if measurement_info.retrieve_dtme==True or measurement_info.dtme_momentum is not None: 
             # this shifting should be done like shifts in time -> with padding and redefinition of axis
             # but its probably fine because shift is much smaller than total axis
             r = measurement_info.position
@@ -1262,6 +1260,11 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
             dr = jnp.mean(jnp.diff(r))
             phase_correction = jnp.exp(1j*2*jnp.pi*dr*momentum_shift)
             dtme_momentum = dtme_momentum*phase_correction[:,None]
+        else:
+            if measurement_info.dtme_momentum is None:
+                dtme_momentum = jnp.ones((jnp.size(pulse_t_nir_vectorpotential), jnp.size(dtme_position)))
+            else:
+                raise ValueError("this shouldnt be reachable")
 
         return dtme_momentum.T # transpose to go from (k,b) to (b,k)
 
@@ -1316,8 +1319,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
         if measurement_info.retrieve_dtme == True: # maybe one can optimize for this if nir and euv spectra are provided?
             dtme = individual.dtme
-            _interpolate = Partial(do_interpolation_1d, method="cubic2")
-            dtme = jax.vmap(_interpolate, in_axes=(None,None,0))(measurement_info.momentum, measurement_info.axis_dtme.momentum, dtme)
+            dtme = do_interpolation_1d(measurement_info.momentum, measurement_info.axis_dtme.momentum, dtme, method="cubic2")
             dtme_position = self.ifft(dtme, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
         else: 
             if measurement_info.dtme_momentum is None:

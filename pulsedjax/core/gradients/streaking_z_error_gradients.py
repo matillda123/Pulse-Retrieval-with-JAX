@@ -17,8 +17,7 @@ def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # f
     term1 = do_fft(jnp.conjugate(dtme_shifted_and_volkov_phase0)*jnp.exp(1j*volkov_phase1), sk, rn)
     grad = -2*1j*dt*jnp.einsum("mb, bn, mn -> mn", delta_S_mb, term1, exp_arr)
 
-    grad = jax.vmap(Partial(do_interpolation_1d, method="linear"),
-                    in_axes=(None,None,0))(measurement_info.axis_euv.frequency, measurement_info.frequency, grad)
+    grad = do_interpolation_1d(measurement_info.axis_euv.frequency, measurement_info.frequency, grad, method="linear")
     return grad
 
 
@@ -28,9 +27,7 @@ def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # f
 
 
 def _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info):
-    if measurement_info.dtme_momentum is None and measurement_info.retrieve_dtme==False:
-        dtme_momentum = jnp.zeros((measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.size(pulse_t_nir_vectorpotential)))
-    else: 
+    if measurement_info.retrieve_dtme==True or measurement_info.dtme_momentum is not None: 
         r = measurement_info.position
         sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
 
@@ -44,7 +41,12 @@ def _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t
 
         dtme_momentum = do_fft(dtme_position, sk, rn)
         dtme_momentum = jnp.transpose(dtme_momentum, (0,2,1)) # -> such that output is (C,b,k)
-
+    else:
+        if measurement_info.dtme_momentum is None:
+            dtme_momentum = jnp.zeros((measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.size(pulse_t_nir_vectorpotential)))
+        else:
+            raise ValueError("this shouldnt be reachable")
+        
     return dtme_momentum
 
 
@@ -76,8 +78,7 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
     
     grad = jnp.real(jnp.einsum("mb, mbk -> mk", delta_S_mb, term3)) 
     grad = do_fft(grad, measurement_info.sk, measurement_info.rn) # -> this is fine because its done on the big grid -> negative frequencies exist explicitely
-    grad = jax.vmap(Partial(do_interpolation_1d, method="cubic2"),
-                    in_axes=(None,None,0))(measurement_info.axis_nir.frequency, measurement_info.frequency, grad)
+    grad = do_interpolation_1d(measurement_info.axis_nir.frequency, measurement_info.frequency, grad, method="cubic2")
     return -2*grad
 
 
@@ -100,11 +101,7 @@ def Z_gradient_DTME(signal_t, signal_t_new, tau_arr, measurement_info): # moment
                              jnp.exp(1j*volkov_phase0), jnp.exp(1j*volkov_phase1), momentum_shift_term)
 
     grad = -2*1j*dt*do_fft(grad_temp_q, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
-    s = jnp.shape(grad) # C,m,b
-    grad = jnp.reshape(grad, (s[0]*s[1], s[2]))
-    _interpolate = Partial(do_interpolation_1d, method="cubic2")
-    grad = jax.vmap(_interpolate, in_axes=(None,None,0))(measurement_info.axis_dtme.momentum, measurement_info.momentum, grad)
-    grad = jnp.reshape(grad, (s[0], s[1], jnp.shape(grad)[-1]))
+    grad = do_interpolation_1d(measurement_info.axis_dtme.momentum, measurement_info.momentum, grad, method="cubic2")
     return grad # with shape (C,m,b) 
 
 

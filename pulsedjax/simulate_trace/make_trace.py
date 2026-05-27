@@ -535,10 +535,10 @@ class MakeTraceBASE:
             frequency_interpolate = np.linspace(fmin, fmax, self.N)
 
 
-        trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(frequency_interpolate, self.frequency, self.trace)
+        trace_interpolate = self.do_interpolation(frequency_interpolate, self.frequency, self.trace)
 
         if is_delay_based==True:
-            trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,1))(time_interpolate, self.theta, trace_interpolate)
+            trace_interpolate = self.do_interpolation(time_interpolate, self.theta, trace_interpolate, axis=0)
             trace_interpolate = np.abs(trace_interpolate).T
         else:
             trace_interpolate = np.abs(trace_interpolate)
@@ -810,10 +810,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     
 
     def get_DTME(self, momentum_au, dtme_momentum):
-        if dtme_momentum.ndim==1:
-            dtme_momentum = jnp.asarray([self.do_interpolation(self.momentum_au, momentum_au, dtme_momentum)])
-        else:
-            dtme_momentum = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(self.momentum_au, momentum_au, dtme_momentum)
+        dtme_momentum = self.do_interpolation(self.momentum_au, momentum_au, dtme_momentum)
         self.dtme_momentum = dtme_momentum
         return self.dtme_momentum
     
@@ -897,7 +894,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
         time_interpolate = self.theta
         momentum_interpolate = np.linspace(kmin, kmax, self.N)
 
-        trace_interpolate = jax.vmap(self.do_interpolation, in_axes=(None,None,0))(momentum_interpolate, self.momentum_au, self.trace)
+        trace_interpolate = self.do_interpolation(momentum_interpolate, self.momentum_au, self.trace)
         trace_interpolate = np.abs(trace_interpolate).T
 
         frequency_pulse_spectrum, spectrum_pulse = interpolate_spectrum(self.frequency, self.pulse_f, self.N, self.do_interpolation)

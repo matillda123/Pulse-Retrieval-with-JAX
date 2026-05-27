@@ -2,6 +2,7 @@ import jax.numpy as jnp
 import jax
 
 import numpy as np
+from functools import partial as Partial
 
 import lineax as lx
 import equinox
@@ -334,20 +335,26 @@ def get_sk_rn(time, frequency):
 
 
 
-def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12):
+def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12, axis=-1):
     """
     Wraps around interpax.interp1d and jnp.interp
     """
 
-    if method=="linear" and jnp.issubdtype(y.dtype, jnp.complexfloating):
-        # y_real = jnp.interp(x_new, x, jnp.real(y), left=extrap, right=extrap)
-        # y_imag = jnp.interp(x_new, x, jnp.imag(y), left=extrap, right=extrap)
-        # y_new = y_real + 1j*y_imag
-        y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
-    elif method=="linear" and jnp.issubdtype(y.dtype, jnp.floating):
-        y_new = jnp.interp(x_new, x, y, left=extrap, right=extrap)
+    if method=="linear":
+        _interpolate = Partial(jnp.interp, left=extrap, right=extrap)
     else:
-        y_new = interp1d(x_new, x, y, method=method, extrap=extrap)
+        _interpolate = Partial(interp1d, method=method, extrap=extrap)
+
+    if y.ndim==1:
+        y_new = _interpolate(x_new, x, y)
+    else:
+        y = jnp.swapaxes(y, axis, -1)
+        s = y.shape
+        y = y.reshape((np.prod(s[:-1]), ) + (s[-1], ))
+        y_new = jax.vmap(_interpolate, in_axes=(None,None,0))(x_new, x, y)
+        y_new = jnp.reshape(y_new, s[:-1] + (jnp.size(x_new), ))
+        y = jnp.swapaxes(y, axis, -1)
+
     return y_new
 
 

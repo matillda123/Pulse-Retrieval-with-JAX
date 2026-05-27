@@ -1,7 +1,8 @@
 import jax.numpy as jnp
-from pulsedjax.utilities import do_fft, do_interpolation_1d, calculate_newton_direction
+from pulsedjax.utilities import do_fft, do_interpolation_1d, calculate_newton_direction, scan_helper
 import jax
 from functools import partial as Partial
+
 
 
 def Z_pseudo_hessian_diagonal_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # frequency domain
@@ -13,13 +14,12 @@ def Z_pseudo_hessian_diagonal_EUV_pulse(signal_t, signal_t_new, tau_arr, measure
 
     # exp_arrs cancel on diagonal -> no explicit m dependence
 
-    _term = jnp.einsum("kn, Nbk, Nbk -> Nbn", Dkn, dtme_shifted_and_volkov_phase0, jnp.exp(-1j*volkov_phase1))
+    _term = jnp.einsum("kn, Nbk, Nbk -> Nn", Dkn, dtme_shifted_and_volkov_phase0, jnp.exp(-1j*volkov_phase1))
+    Uzz_diag = 0.5*dt**2*jnp.abs(_term)**2 # is the same for each m 
 
-    _interpolate = Partial(do_interpolation_1d, x_new=measurement_info.axis_euv.frequency, x=measurement_info.frequency, method="linear")
-    _term = jax.vmap(jax.vmap(_interpolate))(_term)
-
-    Uzz_diag = 0.5*dt**2*jnp.abs(_term)**2 # is the same for each m
+    Uzz_diag = do_interpolation_1d(measurement_info.axis_euv.frequency, measurement_info.frequency, Uzz_diag, method="linear")
     Uzz_diag = jnp.broadcast_to(Uzz_diag, (jnp.size(tau_arr), ) + jnp.shape(Uzz_diag))
+    Uzz_diag = jnp.transpose(Uzz_diag, (1,0,2))
     return Uzz_diag # has shape (N,m,n)
 
 
@@ -30,28 +30,31 @@ def Z_pseudo_hessian_diagonal_EUV_pulse(signal_t, signal_t_new, tau_arr, measure
 
 
 def _get_derivatives_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info, gradient_or_hessian):
-    if measurement_info.dtme_momentum is None and measurement_info.retrieve_dtme==False:
-        dtme_momentum = jnp.zeros((jnp.shape(pulse_t_nir_vectorpotential)[0], measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.size(pulse_t_nir_vectorpotential)))
-    else: 
+    if measurement_info.retrieve_dtme==True or measurement_info.dtme_momentum is not None:  
         r = measurement_info.position
-        sk, rn = measurement_info.sk_position_momentum, measurement_info.rn_position_momentum
+        dr = jnp.mean(jnp.diff(r))
 
-        momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)
-        dtme_position = dtme_position[:,:,None,:]*jnp.exp(-1j*2*jnp.pi*r[None,None,None,:]*momentum_shift[:,None,:,None]) 
+        momentum_shift = -1*jnp.real(pulse_t_nir_vectorpotential)[:,None,:,None]
+        r = r[None,None,None,:]
+        dtme_position = dtme_position[:,:,None,:]*jnp.exp(-1j*2*jnp.pi*r*momentum_shift) 
 
         if gradient_or_hessian=="gradient":
-            dtme_position = 1j*2*jnp.pi*dtme_position*r[None,None,None,:]
+            dtme_position = 1j*2*jnp.pi*dtme_position*r
         elif gradient_or_hessian=="hessian":
-             dtme_position = -1*4*jnp.pi**2*dtme_position*(r[None,None,None,:])**2
+             dtme_position = -1*4*jnp.pi**2*dtme_position*r**2
         else:
             raise ValueError
 
-        dr = jnp.mean(jnp.diff(r))
         phase_correction = jnp.exp(1j*2*jnp.pi*dr*momentum_shift)
-        dtme_position = dtme_position*phase_correction[:,None,:,None]
+        dtme_position = dtme_position*phase_correction
 
-        dtme_momentum = do_fft(dtme_position, sk, rn)
-        dtme_momentum = jnp.transpose(dtme_momentum, (0,1,3,2)) # -> such that output is (N,C,b,k)
+        dtme_momentum = do_fft(dtme_position, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+        dtme_momentum = jnp.swapaxes(dtme_momentum, -2, -1) # -> such that output is (N,C,b,k)
+    else:
+        if measurement_info.dtme_momentum is None:
+            dtme_momentum = jnp.zeros((jnp.shape(pulse_t_nir_vectorpotential)[0], measurement_info.no_channels, jnp.size(measurement_info.momentum), jnp.shape(pulse_t_nir_vectorpotential)[-1]))
+        else:
+            raise ValueError("this shouldnt be reachable")
 
     return dtme_momentum
 
@@ -70,44 +73,49 @@ def Z_pseudo_hessian_diagonal_vectorpotential(signal_t, signal_t_new, tau_arr, m
     momentum = measurement_info.momentum
     
     gradient_dtme_NCbk = _get_derivatives_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info, "gradient")    
-    term1 = jnp.einsum("Nmk, NCbk, Cbk, Nbk -> Nmbk", pulse_t_euv_shifted, gradient_dtme_NCbk, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1))
 
+
+    term1 = jnp.einsum("Nmk, NCbk, NCbk, Nbk -> Nmk", pulse_t_euv_shifted, gradient_dtme_NCbk, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1))
+    
     grad_volkov1 = dt*(momentum[None,:,None] + jnp.real(pulse_t_nir_vectorpotential)[:,None,:])
     _term2 = dtme_shifted_and_volkov_phase0*jnp.exp(-1j*volkov_phase1)
     _term2 = jnp.einsum("Nmk, Nbk -> Nmbk", pulse_t_euv_shifted, _term2)
     _term2 = jnp.cumsum(_term2, axis=-1)
-    term2 = -1j*jnp.einsum("Nmbj, Nbj -> Nmbj", _term2, grad_volkov1)
+    term2 = -1j*jnp.einsum("Nmbj, Nbj -> Nmj", _term2, grad_volkov1)
 
     term_12 = do_fft(term1 + term2, measurement_info.sk, measurement_info.rn)
-    Uzz_diag = dt**2*jnp.einsum("Nmbn -> Nmn", jnp.real(jnp.abs(term_12)**2)) # jnp.real is included because for the full hessian it would be necessary
+    Uzz_diag = dt**2*jnp.real(jnp.abs(term_12)**2) # jnp.real is included because for the full hessian it would be necessary
+    hessian_diag = Uzz_diag
+
+
+    # # calulating this is to expensive. -> only gauss newton is calulated
+    # delta_S_mq = signal_t_new - signal_t.signal_t
+    # delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
+    # Dkn = jnp.exp(1j*time[:,None]*omega[None,:])
+
+    # term1 = dt*(momentum[None,:,None] + jnp.real(pulse_t_nir_vectorpotential)[:,None,:])
+    # term1 = jnp.einsum("Nbk, Nbj, Nmb -> Nmkj", jnp.conjugate(term1), jnp.conjugate(term1), delta_S_mb)
+    # term1 = jnp.diag(jnp.ones(jnp.size(time))*dt**2) + 1j*term1 # pulse because of conjugates
+
+    # _term1 = jnp.einsum("Nmk, Nbk, Nbk, Nmb -> Nmk", jnp.conjugate(pulse_t_euv_shifted), jnp.conjugate(dtme_shifted_and_volkov_phase0), jnp.exp(1j*volkov_phase1), delta_S_mb)
+    # _term1 = jnp.cumsum(_term1, axis=-1)
+    # term1 = -1*dt*jnp.einsum("kn, nj, Nmkj, Nmj, Nmk -> Nmn", jnp.conjugate(Dkn), Dkn.T, term1, _term1, _term1) # for full hessian use kn, pj, ...
+
     
+    # term2_0 = dt*(momentum[None,:,None] + jnp.real(pulse_t_nir_vectorpotential)[:,None,:])
+    # term2_1 = jnp.einsum("Nmk, NCbk, Nbk, NCbk -> Nmbk", pulse_t_euv_shifted, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1), gradient_dtme_NCbk)
+    # term2_1 = jnp.cumsum(term2_1, axis=-1)
+    # term2_01 = -1*dt*jnp.einsum("kn, nj, Nbj, Nmbk, Nmb -> Nmn", jnp.conjugate(Dkn), Dkn.T, jnp.conjugate(term2_0), jnp.conjugate(term2_1), delta_S_mb) # for full hessian use kn, pj, ...
 
+    # # there is a delta_jj' -> the contractions with the fourier matrix are one -> time domain is the same as frequency domain here?
+    # hessian_dtme_NCbk = _get_derivatives_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info, "hessian")
+    # term2_2 = -1*dt*jnp.einsum("Nmk, NCbk, Nbk, NCbk, Nmb -> Nmk", jnp.conjugate(pulse_t_euv_shifted), jnp.exp(1j*volkov_phase0), jnp.exp(1j*volkov_phase1), jnp.conjugate(hessian_dtme_NCbk), delta_S_mb) # for full hessian use kn, pj, ...
+    # term2 = term2_01 - 1j*term2_2
 
-    Dkn = jnp.exp(1j*time[:,None]*omega[None,:])
+    # Vzz_diag = jnp.real(term1 + term2)
 
-    term1 = dt*(momentum[None,:,None] + jnp.real(pulse_t_nir_vectorpotential)[:,None,:])
-    term1 = jnp.einsum("Nbk, Nbj -> Nbkj", term1, term1)
-    term1 = jnp.diag(jnp.ones(jnp.size(time))*dt**2) - 1j*term1
-
-    _term1 = jnp.einsum("Nmk, Nbk, Nbk -> Nmbk", pulse_t_euv_shifted, dtme_shifted_and_volkov_phase0, jnp.exp(-1j*volkov_phase1))
-    _term1 = jnp.cumsum(_term1, axis=-1)
-    term1 = -1*dt*jnp.einsum("kn, nj, Nbkj, Nmbj, Nmbk -> Nmbn", Dkn, jnp.conjugate(Dkn).T, term1, _term1, _term1) # for full hessian use kn, pj, ...
-
-
-    term2 = dt*(momentum[None,None,:,None,None] + jnp.real(pulse_t_nir_vectorpotential)[:,None,None,:,None])*gradient_dtme_NCbk[:,:,:,:,None]
-    term2 = term2 + jnp.transpose(term2, (0,1,2,4,3))
-    hessian_dtme_NCbk = _get_derivatives_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info, "hessian")
-    idx = jnp.arange(jnp.size(time))
-    term2 = term2.at[..., idx,idx].add(1j*hessian_dtme_NCbk)
-    term2 = -1*dt*jnp.einsum("kn, nj, Nmk, Cbk, Nbk, NCbkj -> Nmbn", Dkn, jnp.conjugate(Dkn).T, pulse_t_euv_shifted, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1), term2) # for full hessian use kn, pj, ...
-
-    delta_S_mq = signal_t_new - signal_t.signal_t
-    delta_S_mb = do_fft(delta_S_mq, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
-    Vzz_diag = jnp.real(jnp.einsum("Nmbn, Nmb -> Nmn", jnp.conjugate(term1 + term2), delta_S_mb))
-
-    hessian_diag = Uzz_diag - Vzz_diag
-    _interpolate = Partial(do_interpolation_1d, x_new=measurement_info.axis_nir.frequency, x=measurement_info.frequency, method="cubic2")
-    hessian_diag = jax.vmap(jax.vmap(_interpolate))(hessian_diag)
+    # hessian_diag = Uzz_diag - Vzz_diag
+    hessian_diag = do_interpolation_1d(measurement_info.axis_nir.frequency, measurement_info.frequency, hessian_diag, method="cubic2")
     return hessian_diag
 
 
@@ -126,9 +134,12 @@ def Z_pseudo_hessian_diagonal_DTME(signal_t, signal_t_new, tau_arr, measurement_
     momentum_shift = jnp.exp(1j*2*jnp.pi*r[None,:,None]*jnp.real(pulse_t_nir_vectorpotential)[:,None,:])
 
     term1 = jnp.einsum("aq, qb, Nqk -> Nkab", Dbq, Dqb, momentum_shift)
-    term2 = jnp.einsum("Nmk, Cbk, Nbk, Nkab -> NCmab", pulse_t_euv_shifted, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1), term1)
+    term2 = jnp.einsum("Nmk, NCbk, Nbk, Nkab -> NCmab", pulse_t_euv_shifted, jnp.exp(-1j*volkov_phase0), jnp.exp(-1j*volkov_phase1), term1)
     Uzz_diag = 0.5*dt**2*jnp.einsum("NCmab -> NCma", jnp.abs(term2)**2)
-    return Uzz_diag # has shape (N,C,m,b)
+    hessian_diag = Uzz_diag
+
+    hessian_diag = do_interpolation_1d(measurement_info.axis_dtme.momentum, momentum, hessian_diag, method="cubic2")
+    return hessian_diag # has shape (N,C,m,b)
 
 
 

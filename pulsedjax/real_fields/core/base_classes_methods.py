@@ -105,7 +105,8 @@ class RetrievePulsesRealFields(RetrievePulses):
     
 
 
-    def interpolate_signal_f(self, signal_f, measurement_info, axis_in, axis_out, batch_axes=-2):
+    # if this throws an error because of batch_axes one needs to use axis from do_interpolation_1d as a replacement
+    def interpolate_signal_f(self, signal_f, measurement_info, axis_in, axis_out):
         axis_dict = {"main": measurement_info.frequency,
                      "exp": measurement_info.frequency_exp,
                      "big": measurement_info.frequency_big}
@@ -113,20 +114,15 @@ class RetrievePulsesRealFields(RetrievePulses):
         frequency_1 = axis_dict[axis_in]
         frequency_2 = axis_dict[axis_out]
         
-        interpolate = Partial(do_interpolation_1d, method="linear")
         if signal_f.ndim==0:
             raise ValueError
-        elif signal_f.ndim==1:
-            signal_f = interpolate(frequency_2, frequency_1, signal_f)
         else:
-            signal_f = jax.vmap(interpolate, 
-                                in_axes = (None,None,batch_axes), 
-                                out_axes = batch_axes)(frequency_2, frequency_1, signal_f)
+            signal_f = do_interpolation_1d(frequency_2, frequency_1, signal_f, method="linear")
         
         return signal_f
 
 
-    def interpolate_signal_t(self, signal_t, measurement_info, axis_in, axis_out, batch_axes=-2):
+    def interpolate_signal_t(self, signal_t, measurement_info, axis_in, axis_out):
         axis_dict = {"main": (measurement_info.sk, measurement_info.rn),
                      "exp": (measurement_info.sk_exp, measurement_info.rn_exp),
                      "big": (measurement_info.sk_big, measurement_info.rn_big)}
@@ -135,7 +131,7 @@ class RetrievePulsesRealFields(RetrievePulses):
         sk_2, rn_2 = axis_dict[axis_out]
 
         signal_f = self.fft(signal_t, sk_1, rn_1)
-        signal_f = self.interpolate_signal_f(signal_f, measurement_info, axis_in, axis_out, batch_axes=batch_axes)
+        signal_f = self.interpolate_signal_f(signal_f, measurement_info, axis_in, axis_out)
         signal_t = self.ifft(signal_f, sk_2, rn_2)
         return signal_t, signal_f
     
@@ -345,7 +341,7 @@ class RetrievePulsesCHIRPSCANwithRealFields(RetrievePulsesRealFields, RetrievePu
         Overwriting its creation would be possible but a bit cumbersome. 
         """
         frequency, frequency_big = self.measurement_info.frequency, self.measurement_info.frequency_big
-        self.phase_matrix = jax.vmap(do_interpolation_1d, in_axes=(None,None,0))(frequency_big, frequency, self.phase_matrix)
+        self.phase_matrix = do_interpolation_1d(frequency_big, frequency, self.phase_matrix, method="cubic2")
         self.transform_arr = self.phase_matrix
         self.measurement_info = tree_at(lambda x: x.phase_matrix, self.measurement_info, self.phase_matrix)
         self.measurement_info = tree_at(lambda x: x.transform_arr, self.measurement_info, self.transform_arr)
