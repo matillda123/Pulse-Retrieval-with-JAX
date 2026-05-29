@@ -810,6 +810,7 @@ class MakeTraceSTREAKING(MakeTraceBASE, RetrievePulsesSTREAKING):
     
 
     def get_DTME(self, momentum_au, dtme_momentum):
+        dtme_momentum = jnp.atleast_2d(dtme_momentum)
         dtme_momentum = self.do_interpolation(self.momentum_au, momentum_au, dtme_momentum)
         self.dtme_momentum = dtme_momentum
         return self.dtme_momentum

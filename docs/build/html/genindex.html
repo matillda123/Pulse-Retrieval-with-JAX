@@ -70,7 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions and Gradients)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions, Z-Gradients and Z-Pseudo-Hessians)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -1225,7 +1225,11 @@
       <li><a href="core.html#core.base_classic_algorithms.LSFBASE.do_bisection_search">do_bisection_search() (core.base_classic_algorithms.LSFBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.do_checks_before_running">do_checks_before_running() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
+
+      <ul>
+        <li><a href="core.html#core.base_classes_algorithms.GeneralOptimizationBASE.do_checks_before_running">(core.base_classes_algorithms.GeneralOptimizationBASE method)</a>
 </li>
+      </ul></li>
       <li><a href="core.html#core.base_general_optimization.DifferentialEvolutionBASE.do_crossover">do_crossover() (core.base_general_optimization.DifferentialEvolutionBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classic_algorithms.GeneralizedProjectionBASE.do_descent_Z_error">do_descent_Z_error() (core.base_classic_algorithms.GeneralizedProjectionBASE method)</a>
@@ -1741,6 +1745,8 @@
 </li>
       <li><a href="core.html#core.base_classic_algorithms.initialize_linesearch_info">initialize_linesearch_info() (in module core.base_classic_algorithms)</a>
 </li>
+      <li><a href="core.html#core.base_classic_algorithms.initialize_momentum">initialize_momentum() (in module core.base_classic_algorithms)</a>
+</li>
       <li><a href="utilities.html#utilities.initialize_mu">initialize_mu() (in module utilities)</a>
 </li>
       <li><a href="core.html#core.base_classic_algorithms.initialize_newton_info">initialize_newton_info() (in module core.base_classic_algorithms)</a>
@@ -2025,6 +2031,8 @@
         <li><a href="streaking.html#streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING.merge_population_from_amp_and_phase">(streaking.base_classes_streaking.GeneralOptimizationBASESTREAKING method)</a>
 </li>
       </ul></li>
+      <li><a href="core.html#core.base_general_optimization.merge_pytrees">merge_pytrees() (in module core.base_general_optimization)</a>
+</li>
       <li><a href="chirp_scan.html#chirp_scan.classic_algorithms_chirpscan.MIIPS">MIIPS (class in chirp_scan.classic_algorithms_chirpscan)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.RandomPhase.minval_phase">minval_phase (simulate_trace.make_pulse.RandomPhase attribute)</a>

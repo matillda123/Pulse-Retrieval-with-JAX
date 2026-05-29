@@ -1195,6 +1195,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
 
 
     def get_DTME(self, momentum_au, dtme_momentum):
+        dtme_momentum = jnp.atleast_2d(dtme_momentum)
         dtme_momentum = do_interpolation_1d(self.momentum_au, momentum_au, dtme_momentum)
         self.dtme_momentum = dtme_momentum
         self.measurement_info = self.measurement_info.expand(dtme_momentum = self.dtme_momentum)

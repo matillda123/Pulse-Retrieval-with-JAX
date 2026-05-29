@@ -60,18 +60,20 @@
 <li class="toctree-l1"><a class="reference internal" href="pytree_structure.html">Structure of utilized Pytrees</a></li>
 <li class="toctree-l1"><a class="reference internal" href="definitions_and_formulas.html">Definitions and Formulas</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eqs_general_definitions.html">General Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">PIE - Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html#pie-pseudo-hessian">PIE - Pseudo Hessian</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html">Update nonlinear Signal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime_and_polyak.html#adaptive-stepsize">Adaptive Stepsize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Definitions and Gradients for Attosecond-Streaking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="definitions_and_formulas_z_error.html">Z-Error Gradient and Pseudo-Hessian</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html">FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_frog.html#interferometric-frog">Interferometric FROG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_chirpscan.html">Chirp-Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html">Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_tdp.html#interferometric-time-domain-ptychography">Interferometric Time-Domain-Ptychography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_twodsi.html">Two-Dimensional Spectral-Shearing Interferometry (2D-SI)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eqs_vampire.html">VAMPIRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_pie_grad_hessian.html">Ptychographic Iterative Engine (Gradients and Hessians)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_s_prime.html">Update nonlinear Signal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_polyak.html">Adaptive Stepsize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eqs_streaking.html">Attosecond Streaking (Definitions, Z-Gradients and Z-Pseudo-Hessians)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="literature.html">Literature</a></li>
@@ -83,6 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tdp.html">tdp</a></li>
 <li class="toctree-l1"><a class="reference internal" href="twodsi.html">twodsi</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vampire.html">vampire</a></li>
+<li class="toctree-l1"><a class="reference internal" href="streaking.html">streaking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulate_trace.html">simulate_trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="real_fields.html">real_fields</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="real_fields.chirp_scan.html">real_fields.chirp_scan</a></li>
@@ -129,7 +132,7 @@
 <p>As the title suggests in this section a series of rarely required but available use-cases are described.</p>
 <section id="real-fields">
 <h2>Real-Fields<a class="headerlink" href="#real-fields" title="Link to this heading"></a></h2>
-<p>Generally in ultrafast pulse retrieval it is sufficient (and convenient) to describe the pulses as complex fields. However this comes at a drawback. Complex-valued fields are not hermitian. Thus the pulses they describe do not possess negative frequencies and are thus not able to describe nonlinear processes involving difference-frequency generation. This includes explicit DFG-Traces or measurement techniques like <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/blob/main/examples/6_simulate_and_retrieve_TREX.py">TREX</a> <span id="id1">[<a class="reference internal" href="literature.html#id33" title="Maximilian Kubullek, Miguel A. Silva-Toledo, Roland E. Mainz, Fabian Scheiba, Rafael de Q. Garcia, Felix Ritzkowsky, Giulio Maria Rossi, and Franz X. Kärtner. Complete electric field characterization of ultrashort multicolor pulses. Ultrafast Science, 5():0081, 2025. doi:10.34133/ultrafastscience.0081.">33</a>]</span>, which simultaneously measure multiple nonlinear signals.<br />
+<p>Generally in ultrafast pulse retrieval it is sufficient (and convenient) to describe the pulses as complex fields. However this comes at a drawback. Complex-valued fields are not hermitian. Thus the pulses they describe do not possess negative frequencies and are thus not able to describe nonlinear processes involving difference-frequency generation. This includes explicit DFG-Traces or measurement techniques like <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/blob/main/examples/6_simulate_and_retrieve_TREX.py">TREX</a> <span id="id1">[<a class="reference internal" href="literature.html#id33" title="Maximilian Kubullek, Miguel A. Silva-Toledo, Roland E. Mainz, Fabian Scheiba, Rafael de Q. Garcia, Felix Ritzkowsky, Giulio Maria Rossi, and Franz X. Kärtner. Complete electric field characterization of ultrashort multicolor pulses. Ultrafast Science, 5():0081, 2025. doi:10.34133/ultrafastscience.0081.">35</a>]</span>, which simultaneously measure multiple nonlinear signals.<br />
 In order to solve this the <code class="docutils literal notranslate"><span class="pre">pulsedjax.real_fields</span></code> module explicitely uses real-valued fields to calculate nonlinear signals. Unfortunately the presence of negative frequencies in real-valued signals requires the usage of a large frequency axis, which increases computational demand. In order to avoid convergence issues, the pulses are only defined on a user-specified frequency range. However repetitive interpolation between different frequency axis utilizes additional computational ressources.</p>
 <p>Below is a usage example of an SHG-FROG with real fields and the AutoDiff-Solver. The only actual difference is the user-specified input <code class="docutils literal notranslate"><span class="pre">f_range_pulse</span> <span class="pre">=</span> <span class="pre">(fmin,</span> <span class="pre">fmax)</span></code> as well as <code class="docutils literal notranslate"><span class="pre">f_range_fields</span> <span class="pre">=</span> <span class="pre">(fmin,</span> <span class="pre">fmax)</span></code> and optionally <code class="docutils literal notranslate"><span class="pre">f_max_all_fields</span> <span class="pre">=</span> <span class="pre">fmax</span></code>. Where <code class="docutils literal notranslate"><span class="pre">f_range_pulse</span></code> describes the frequency interval in which the pulse (and gate-pulse) are located, <code class="docutils literal notranslate"><span class="pre">f_range_fields</span></code> describes the frequency interval in which the relevant nonlinear signals are located, and <code class="docutils literal notranslate"><span class="pre">f_max_all_fields</span></code> is the largest frequency to be considered when the nonlinear signals are calculated.</p>
 <div class="cell docutils container">
@@ -218,7 +221,7 @@ Below is an example of an algorithm composed of <code class="docutils literal no
 </section>
 <section id="differentiability-and-jax-equinox-transformations">
 <h2>Differentiability and JAX/Equinox-Transformations<a class="headerlink" href="#differentiability-and-jax-equinox-transformations" title="Link to this heading"></a></h2>
-<p>Even though the algorithms were not meant/built to be differentiable, they appear to be so, if they are part of a pure function. This fact may in principle be used to optimize the parameters of an algorithm via automatic-differentiation. An example for this can be found <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/blob/main/examples/11_optimize_stepsize.py">here</a>.</p>
+<p>Even though the algorithms were not meant/built to be differentiable, they appear to be so, if they are part of a pure function. This fact may in principle be used to optimize the parameters of an algorithm via automatic-differentiation. An example for this can be found <a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/blob/main/examples/9_optimize_stepsize.py">here</a>.</p>
 <p>Furthermore this means that if the algorithms are part of pure functions, they should be compatible with all JAX/Equinox-transformations.</p>
 </section>
 <section id="adding-new-methods">
