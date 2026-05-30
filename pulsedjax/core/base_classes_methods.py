@@ -1075,7 +1075,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
         self.Ip_au = self.convert_energy_eV_au(Ip_eV, "eV", "au")
 
         # construct frequency grid 
-        df_PHz = 0.75/(jnp.max(delay_fs)-jnp.min(delay_fs)) # 0.75 makes sure that the time-axis is bigger than the scanned delay
+        df_PHz = 0.5/(jnp.max(delay_fs)-jnp.min(delay_fs)) # 0.5 makes sure that the time-axis is bigger than the scanned delay
         df = self.convert_frequency_PHz_au(df_PHz, "PHz", "au")
         axis_nir_pulse, axis_euv_pulse = self.make_axis(f_range_nir_pulse, f_range_euv_pulse, df)
 
