@@ -1,7 +1,7 @@
-streaking
-=========
+core
+====
 
 .. toctree::
    :maxdepth: 4
 
-   streaking
+   core

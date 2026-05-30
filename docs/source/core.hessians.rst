@@ -28,6 +28,14 @@ core.hessians.pie\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
+core.hessians.streaking\_z\_error\_pseudo\_hessian module
+---------------------------------------------------------
+
+.. automodule:: core.hessians.streaking_z_error_pseudo_hessian
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 core.hessians.tdp\_z\_error\_pseudo\_hessian module
 ---------------------------------------------------
 
