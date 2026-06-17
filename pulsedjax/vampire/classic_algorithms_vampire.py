@@ -43,13 +43,13 @@ class CPCGPA(CPCGPABASE, RetrievePulsesVAMPIRE):
     
     def calculate_gate(self, gate_pulse, measurement_info):
         tau, nonlinear_method = measurement_info.tau_interferometer, measurement_info.nonlinear_method
-        sk, rn, frequency, time = measurement_info.sk, measurement_info.rn, measurement_info.frequency, measurement_info.time
+        sk, rn, frequency = measurement_info.sk, measurement_info.rn, measurement_info.frequency
         
         # this will be wrong if i change apply phase to expect signals in f domain
         #gate_pulse_f = self.fft(gate_pulse, sk, rn)
         gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
 
-        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]))
         gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
         return calculate_gate(gate_pulses, nonlinear_method)
 
@@ -103,7 +103,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     # def reverse_transform_grad(self, signal, tau_arr, measurement_info):
     #     frequency, time = measurement_info.frequency, measurement_info.time
-    #     signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
+    #     signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr)
     #     return signal
 
     # def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):

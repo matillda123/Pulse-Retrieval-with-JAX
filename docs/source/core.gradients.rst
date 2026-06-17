@@ -1,4 +1,4 @@
-core.gradients
+core.gradients package
 ======================
 
 Submodules

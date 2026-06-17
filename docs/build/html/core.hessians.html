@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="utilities" href="utilities.html" />
-    <link rel="prev" title="core.gradients" href="core.gradients.html" /> 
+    <link rel="prev" title="core.gradients package" href="core.gradients.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -95,8 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="core.html">core</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="core.html">core package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">core.hessians package</a></li>
 </ul>
 </li>
@@ -117,7 +117,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="core.html">core</a></li>
+          <li class="breadcrumb-item"><a href="core.html">core package</a></li>
       <li class="breadcrumb-item active">core.hessians package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/core.hessians.rst.txt" rel="nofollow"> View page source</a>
@@ -417,6 +417,50 @@ The direction is calculated in the time domain.</p>
 </dd></dl>
 
 </section>
+<section id="module-core.hessians.streaking_z_error_pseudo_hessian">
+<span id="core-hessians-streaking-z-error-pseudo-hessian-module"></span><h2>core.hessians.streaking_z_error_pseudo_hessian module<a class="headerlink" href="#module-core.hessians.streaking_z_error_pseudo_hessian" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_EUV_pulse">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.streaking_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">Z_pseudo_hessian_diagonal_EUV_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/hessians/streaking_z_error_pseudo_hessian.py#L8-L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_EUV_pulse" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_vectorpotential">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.streaking_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">Z_pseudo_hessian_diagonal_vectorpotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/hessians/streaking_z_error_pseudo_hessian.py#L65-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_vectorpotential" title="Link to this definition"></a></dt>
+<dd><p>Loads of product and chain rule in this one :D</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_DTME">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.streaking_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">Z_pseudo_hessian_diagonal_DTME</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/hessians/streaking_z_error_pseudo_hessian.py#L126-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_DTME" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.hessians.streaking_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">
+<span class="sig-prename descclassname"><span class="pre">core.hessians.streaking_z_error_pseudo_hessian.</span></span><span class="sig-name descname"><span class="pre">get_pseudo_newton_direction_Z_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grad_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descent_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_or_diagonal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/hessians/streaking_z_error_pseudo_hessian.py#L150-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.hessians.streaking_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error" title="Link to this definition"></a></dt>
+<dd><p>Calculates the pseudo-newton direction for the Z-error of a FROG measurement.
+The direction is calculated in the frequency domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grad_m</strong> (<em>jnp.array</em>) – the current Z-error gradient</p></li>
+<li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
+<li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the time delays</p></li>
+<li><p><strong>descent_state</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>measurement_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>descent_info</strong> (<em>pytree</em>)</p></li>
+<li><p><strong>full_or_diagonal</strong> (<em>str</em>) – calculate using the full or diagonal pseudo hessian?</p></li>
+<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the direction is calculated for the pulse or the gate-pulse</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[jnp.array, Pytree], the pseudo-newton direction and the updated newton_state</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-core.hessians.tdp_z_error_pseudo_hessian">
 <span id="core-hessians-tdp-z-error-pseudo-hessian-module"></span><h2>core.hessians.tdp_z_error_pseudo_hessian module<a class="headerlink" href="#module-core.hessians.tdp_z_error_pseudo_hessian" title="Link to this heading"></a></h2>
 <dl class="py function">
@@ -598,7 +642,7 @@ The direction is calculated in the frequency domain.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="core.gradients.html" class="btn btn-neutral float-left" title="core.gradients" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core.gradients.html" class="btn btn-neutral float-left" title="core.gradients package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="utilities.html" class="btn btn-neutral float-right" title="utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

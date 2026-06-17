@@ -32,7 +32,7 @@ def normalize_population(population, measurement_info, descent_info, pulse_or_ga
 
             a = estimate_vectorpotential_max_scale(measurement_info.tau_arr, measurement_info.momentum, measurement_info.measured_trace)
             out_of_range = (a < jnp.max(jnp.abs(population.pulse), axis=-1))[:,None]
-            a = a*0.025
+            a = a*0.1
             pulse_corrected = a*population.pulse/jnp.max(jnp.abs(population.pulse), axis=-1)[:,None]
             population_pulse = out_of_range*pulse_corrected + (1-out_of_range)*population.pulse
             population_gate = population.gate

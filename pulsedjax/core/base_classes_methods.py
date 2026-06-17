@@ -438,88 +438,39 @@ class RetrievePulses:
 
 
 
-
-
-
-
-
-
-
-
-class RetrievePulsesFROG(RetrievePulses):
+class RetrievePulsesDELAYSCAN(RetrievePulses):
     """
-    The reconstruction class for FROG. Inherits from RetrievePulses.
-
-    R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
-
-    Attributes:
-        tau_arr (jnp.array): the delays
-        gate (jnp.array): the gate-pulse (if its known).
-        transform_arr (jnp.array): an alias for tau_arr
-        idtheta (jnp.array): an array with indices for tau_arr
-        dt (float):
-        df (float):
-        sk (jnp.array): correction values for FFT->DFT
-        rn (jnp.array): correction values for FFT->DFT
-        cross_correlation (bool):
-        interferometric (bool): 
+    A base class for all delay based methods.
 
     """
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
-        
-        super().__init__(nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, *args, **kwargs):
+        super().__init__(nonlinear_method, *args, **kwargs)
 
         self.tau_arr, self.time, self.frequency, self.measured_trace = self.get_data(delay, frequency, measured_trace)
         self.gate = jnp.zeros(jnp.size(self.time))
 
         self.transform_arr = self.tau_arr
-        
         self.measurement_info = self.measurement_info.expand(tau_arr = self.tau_arr,
                                                              measured_trace = self.measured_trace,
                                                              gate = self.gate,
                                                              transform_arr = self.transform_arr,
                                                              theta = self.theta)
-        
 
 
-    def create_initial_population_doublepulse(self, population_size, **kwargs):
-        """ 
-        Calls initial_guess_doublepulse.make_population_doublepulse to create an initial guess.
-        The guess is in the time domain. Assumes an autocorrelation FROG.
-        
-        Args:
-            population_size (int):
-            **kwargs: passed to make_population_doublepulse()
-
-        Returns:
-            Pytree, the initial population
-
-        """
-        measurement_info = self.measurement_info
-        assert measurement_info.doubleblind==False, "Only implemented for doubleblind=False"
-        
-        self.key, subkey = jax.random.split(self.key, 2)
-
-        tau_arr, frequency, measured_trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
-        nonlinear_method = measurement_info.nonlinear_method
-        pulse_f_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, **kwargs)
-
-        population = MyNamespace(pulse=pulse_f_arr, gate=None)
-        return population
-        
-    
-
-
-    def shift_signal_in_time(self, signal, tau, frequency, sk, rn): # change this to a precomuped and the applied phase matrix
+    # in principle this could work with signal_f as input, since signals are stored in f-domain
+    # but the padding in the time domain is essentially a sinc interpolation in f-domain
+    #   -> isnt readily avialable and apparently slower?
+    def shift_signal_in_time(self, signal, tau, frequency, sk, rn):
         """ The Fourier-Shift theorem. """
         signal_f = self.fft(signal, sk, rn)
-        signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*frequency*tau)
+        tau_frequency = tau[:,None]*frequency[None,:]
+        signal_f = signal_f*jnp.exp(-1j*2*jnp.pi*tau_frequency[...,:,:])
         signal = self.ifft(signal_f, sk, rn)
         return signal
 
     
-    # time is an uncesseray input -> not used but redefined -> can be removed
-    def calculate_shifted_signal(self, signal, frequency, tau_arr, time, in_axes=(None, 0, None, None, None)):
+    def calculate_shifted_signal(self, signal, frequency, tau_arr):
         """ The Fourier-Shift theorem applied to a list of signals. """
 
         N = jnp.size(frequency)
@@ -527,6 +478,7 @@ class RetrievePulsesFROG(RetrievePulses):
         # padding on the right side is technically not necessary, but makes things numerically more stable.
         # padding on left side is definitely needed. Dont remove
         pad_arr = [(0,0)]*(signal.ndim-1) + [(N,N)]
+        
         signal = jnp.pad(signal, pad_arr)
             
         # due to padding f, t, sk and rn need to be redefined 
@@ -535,181 +487,14 @@ class RetrievePulsesFROG(RetrievePulses):
         sk, rn = get_sk_rn(time, frequency)
 
         # the frequency axis is not centered around zero, this causes a global phase in the fourier shift 
-        # this phase-factor compensates this global phase
+        # phase_correction compensates this global phase
         df = jnp.mean(jnp.diff(frequency))
         phase_correction = jnp.exp(1j*2*jnp.pi*df*tau_arr)
+        
+        signal_shifted = self.shift_signal_in_time(signal, tau_arr, frequency, sk, rn)
 
-        signal_shifted = jax.vmap(self.shift_signal_in_time, in_axes=in_axes)(signal, tau_arr, frequency, sk, rn)
         signal_shifted = signal_shifted*phase_correction[... , :, None]
         return signal_shifted[ ... , N:2*N] 
-
-
-
-
-    def calculate_signal_t(self, individual, tau_arr, measurement_info):
-        """
-        Calculates the signal field of a FROG in the time domain. 
-
-        Args:
-            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
-            tau_arr (jnp.array): the delays
-            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
-
-        Returns:
-            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
-        """
-
-        time, frequency = measurement_info.time, measurement_info.frequency
-        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
-        frogmethod = measurement_info.nonlinear_method
-
-        pulse_f, gate = individual.pulse, individual.gate
-        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
-        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr, time)
-
-        if cross_correlation==True:
-            gate_t = measurement_info.gate
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr, time)
-            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
-
-        elif doubleblind==True:
-            gate_t = self.ifft(gate, measurement_info.sk, measurement_info.rn)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr, time)
-            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
-
-        else:
-            gate_pulse_shifted, gate_t = None, None
-            gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
-
-
-        if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
-        elif interferometric==True:
-            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
-        else:
-            signal_t = pulse_t*gate_shifted
-            
-        signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
-
-        # can only happen in collinear setup -> what leaks? pulse, shifted_pulse, both?
-        # needs to be incorporated into gradient -> but is nonlinear method independent -> nice :)
-        # the leakage, factor could maybe be obtained like the calibration curve?
-        # if has_leakage==True:
-        #     signal_f = signal_f + measurement_info.leakage_factor*pulse_f
-        #     signal_t = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
-
-
-        signal_t = MyNamespace(signal_t = signal_t, 
-                               signal_f = signal_f, 
-                               pulse_t_shifted = pulse_t_shifted, 
-                               gate_shifted = gate_shifted, 
-                               gate_pulse_shifted = gate_pulse_shifted,
-                               pulse_t = pulse_t)
-        return signal_t
-
-
-
-
-
-
-
-
-
-class RetrievePulsesTDP(RetrievePulsesFROG):
-    """
-    The reconstruction class for Time-Domain-Ptychography.
-
-    D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
-
-    Attributes:
-        spectral_filter (jnp.array): the spectral filter in the gate arm.
-
-    """
-
-    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter=None, **kwargs):
-        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
-
-        if spectral_filter==None:
-            self.spectral_filter = jnp.ones(jnp.size(self.frequency))
-            print("If spectral_filter=None, then TDP is the same as FROG.")
-        else:
-            self.spectral_filter = spectral_filter
-
-        self.measurement_info = self.measurement_info.expand(spectral_filter=self.spectral_filter)
-        
-
-
-    def apply_spectral_filter(self, signal, spectral_filter, sk, rn): # here the ffts are probably also unnecessary
-        """ Apply a spectral filter to a signal. """
-        signal_f = self.fft(signal, sk, rn)
-        signal_f = signal_f*spectral_filter
-        signal = self.ifft(signal_f, sk, rn)
-        return signal
-    
-
-
-    def calculate_signal_t(self, individual, tau_arr, measurement_info):
-        """
-        Calculates the signal field of TDP in the time domain. 
-
-        Args:
-            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
-            tau_arr (jnp.array): the delays
-            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
-
-        Returns:
-            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
-        """
-
-        time, frequency = measurement_info.time, measurement_info.frequency
-        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
-        frogmethod = measurement_info.nonlinear_method
-
-        spectral_filter, sk, rn = measurement_info.spectral_filter, measurement_info.sk, measurement_info.rn
-
-        pulse_f, gate_f = individual.pulse, individual.gate
-        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
-        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr, time)
-
-        if cross_correlation==True:
-            gate_t = measurement_info.gate
-            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr, time)
-            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
-
-        elif doubleblind==True:
-            gate_t = self.ifft(gate_f, measurement_info.sk, measurement_info.rn)
-            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr, time)
-            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
-
-        else:
-            gate_pulse_shifted, gate_t = None, None
-            pulse_t_shifted = self.apply_spectral_filter(pulse_t_shifted, spectral_filter, sk, rn)
-            gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
-
-
-        if interferometric==True and cross_correlation==False and doubleblind==False:
-            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
-        elif interferometric==True:
-            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
-        else:
-            signal_t = pulse_t*gate_shifted
-            
-        signal_f = self.fft(signal_t, sk, rn)
-        signal_t = MyNamespace(signal_t = signal_t, 
-                               signal_f = signal_f, 
-                               pulse_t_shifted = pulse_t_shifted, 
-                               gate_shifted = gate_shifted, 
-                               gate_pulse_shifted = gate_pulse_shifted,
-                               pulse_t = pulse_t)
-        return signal_t
-
-
-
-
-
-
 
 
 
@@ -733,7 +518,6 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
         phase_matrix (jnp.array): a 2D-array with the phase values applied to pulse
         parameters (tuple): parameters for the chirp function
         transform_arr (jnp.array): an alias for phase_matrix
-        idtheta (jnp.array): indices for theta
 
     """
     
@@ -822,7 +606,228 @@ class RetrievePulsesCHIRPSCAN(RetrievePulses):
 
 
 
-class RetrievePulses2DSI(RetrievePulsesFROG):
+
+
+
+
+
+
+
+class RetrievePulsesFROG(RetrievePulsesDELAYSCAN):
+    """
+    The reconstruction class for FROG.
+
+    R. Trebino, "Frequency-Resolved Optical Gating: The Measurement of Ultrashort Laser Pulses", 10.1007/978-1-4615-1181-6 (2000)
+
+    Attributes:
+        tau_arr (jnp.array): the delays
+        gate (jnp.array): the gate-pulse (if its known).
+        transform_arr (jnp.array): an alias for tau_arr
+        idtheta (jnp.array): an array with indices for tau_arr
+        dt (float):
+        df (float):
+        sk (jnp.array): correction values for FFT->DFT
+        rn (jnp.array): correction values for FFT->DFT
+        cross_correlation (bool):
+        interferometric (bool): 
+
+    """
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, cross_correlation=False, interferometric=False, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, cross_correlation=cross_correlation, interferometric=interferometric, **kwargs)
+
+
+
+    def create_initial_population_doublepulse(self, population_size, **kwargs):
+        """ 
+        Calls initial_guess_doublepulse.make_population_doublepulse to create an initial guess.
+        The guess is in the time domain. Assumes an autocorrelation FROG.
+        
+        Args:
+            population_size (int):
+            **kwargs: passed to make_population_doublepulse()
+
+        Returns:
+            Pytree, the initial population
+
+        """
+        measurement_info = self.measurement_info
+        assert measurement_info.doubleblind==False, "Only implemented for doubleblind=False"
+        
+        self.key, subkey = jax.random.split(self.key, 2)
+
+        tau_arr, frequency, measured_trace = measurement_info.tau_arr, measurement_info.frequency, measurement_info.measured_trace
+        nonlinear_method = measurement_info.nonlinear_method
+        pulse_f_arr = make_population_doublepulse(subkey, population_size, tau_arr, frequency, measured_trace, nonlinear_method, **kwargs)
+
+        population = MyNamespace(pulse=pulse_f_arr, gate=None)
+        return population
+        
+
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field of a FROG in the time domain. 
+
+        Args:
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
+            tau_arr (jnp.array): the delays
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
+        time, frequency = measurement_info.time, measurement_info.frequency
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
+        frogmethod = measurement_info.nonlinear_method
+
+        pulse_f, gate = individual.pulse, individual.gate
+        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr)
+
+        if cross_correlation==True:
+            gate_t = measurement_info.gate
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr)
+            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
+
+        elif doubleblind==True:
+            gate_t = self.ifft(gate, measurement_info.sk, measurement_info.rn)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency, tau_arr)
+            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
+
+        else:
+            gate_pulse_shifted, gate_t = None, None
+            gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
+
+
+        if interferometric==True and cross_correlation==False and doubleblind==False:
+            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
+        elif interferometric==True:
+            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
+        else:
+            signal_t = pulse_t*gate_shifted
+            
+        signal_f = self.fft(signal_t, measurement_info.sk, measurement_info.rn)
+
+        # can only happen in collinear setup -> what leaks? pulse, shifted_pulse, both?
+        # needs to be incorporated into gradient -> but is nonlinear method independent -> nice :)
+        # the leakage, factor could maybe be obtained like the calibration curve?
+        # if has_leakage==True:
+        #     signal_f = signal_f + measurement_info.leakage_factor*pulse_f
+        #     signal_t = self.ifft(signal_f, measurement_info.sk, measurement_info.rn)
+
+
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               signal_f = signal_f, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = pulse_t)
+        return signal_t
+
+
+
+
+
+
+
+
+
+class RetrievePulsesTDP(RetrievePulsesDELAYSCAN):
+    """
+    The reconstruction class for Time-Domain-Ptychography.
+
+    D. Spangenberg et al., Phys. Rev. A 91, 021803(R), 10.1103/PhysRevA.91.021803 (2015)
+
+    Attributes:
+        spectral_filter (jnp.array): the spectral filter in the gate arm.
+
+    """
+
+    def __init__(self, delay, frequency, measured_trace, nonlinear_method, spectral_filter=None, **kwargs):
+        super().__init__(delay, frequency, measured_trace, nonlinear_method, **kwargs)
+
+        if spectral_filter==None:
+            self.spectral_filter = jnp.ones(jnp.size(self.frequency))
+            print("If spectral_filter=None, then TDP is the same as FROG.")
+        else:
+            self.spectral_filter = spectral_filter
+
+        self.measurement_info = self.measurement_info.expand(spectral_filter=self.spectral_filter)
+        
+
+
+    def apply_spectral_filter(self, signal, spectral_filter, sk, rn): # here the ffts are probably also unnecessary
+        """ Apply a spectral filter to a signal. """
+        signal_f = self.fft(signal, sk, rn)
+        signal_f = signal_f*spectral_filter
+        signal = self.ifft(signal_f, sk, rn)
+        return signal
+    
+
+
+    def calculate_signal_t(self, individual, tau_arr, measurement_info):
+        """
+        Calculates the signal field of TDP in the time domain. 
+
+        Args:
+            individual (Pytree): a population containing only one member. (jax.vmap over whole population)
+            tau_arr (jnp.array): the delays
+            measurement_info (Pytree): contains the measurement parameters (e.g. nonlinear method, interferometric, ... )
+
+        Returns:
+            Pytree, contains the signal field in the time domain as well as the fields used to calculate it.
+        """
+
+        time, frequency = measurement_info.time, measurement_info.frequency
+        cross_correlation, doubleblind, interferometric = measurement_info.cross_correlation, measurement_info.doubleblind, measurement_info.interferometric
+        frogmethod = measurement_info.nonlinear_method
+
+        spectral_filter, sk, rn = measurement_info.spectral_filter, measurement_info.sk, measurement_info.rn
+
+        pulse_f, gate_f = individual.pulse, individual.gate
+        pulse_t = self.ifft(pulse_f, measurement_info.sk, measurement_info.rn)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency, tau_arr)
+
+        if cross_correlation==True:
+            gate_t = measurement_info.gate
+            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr)
+            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
+
+        elif doubleblind==True:
+            gate_t = self.ifft(gate_f, measurement_info.sk, measurement_info.rn)
+            gate_pulse = self.apply_spectral_filter(gate_t, spectral_filter, sk, rn)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_pulse, frequency, tau_arr)
+            gate_shifted = calculate_gate(gate_pulse_shifted, frogmethod)
+
+        else:
+            gate_pulse_shifted, gate_t = None, None
+            pulse_t_shifted = self.apply_spectral_filter(pulse_t_shifted, spectral_filter, sk, rn)
+            gate_shifted = calculate_gate(pulse_t_shifted, frogmethod)
+
+
+        if interferometric==True and cross_correlation==False and doubleblind==False:
+            signal_t = (pulse_t + pulse_t_shifted)*calculate_gate(pulse_t + pulse_t_shifted, frogmethod)
+        elif interferometric==True:
+            signal_t = (pulse_t + gate_pulse_shifted)*calculate_gate(pulse_t + gate_pulse_shifted, frogmethod)
+        else:
+            signal_t = pulse_t*gate_shifted
+            
+        signal_f = self.fft(signal_t, sk, rn)
+        signal_t = MyNamespace(signal_t = signal_t, 
+                               signal_f = signal_f, 
+                               pulse_t_shifted = pulse_t_shifted, 
+                               gate_shifted = gate_shifted, 
+                               gate_pulse_shifted = gate_pulse_shifted,
+                               pulse_t = pulse_t)
+        return signal_t
+
+
+
+
+class RetrievePulses2DSI(RetrievePulsesDELAYSCAN):
     """
     The reconstruction class for 2DSI.
 
@@ -905,9 +910,9 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
         gate1, gate2 = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter1, 
                                                   measurement_info.spectral_filter2, sk, rn)
         
-        gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr, time)
+        gate2_shifted = self.calculate_shifted_signal(gate2, frequency, tau_arr)
         tau = measurement_info.tau_pulse_anc1
-        gate1 = self.calculate_shifted_signal(gate1, frequency, jnp.asarray([tau]), time)
+        gate1 = self.calculate_shifted_signal(gate1, frequency, jnp.asarray([tau]))
         gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate(gate_pulses, nonlinear_method)
 
@@ -924,7 +929,7 @@ class RetrievePulses2DSI(RetrievePulsesFROG):
 
 
 
-class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
+class RetrievePulsesVAMPIRE(RetrievePulsesDELAYSCAN):
     """
     The reconstruction class for VAMPIRE.
 
@@ -1022,10 +1027,10 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
         gate_disp = self.apply_phase(gate_t, measurement_info, sk, rn) 
 
         tau = measurement_info.tau_interferometer
-        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency, jnp.asarray([tau]), time)
+        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency, jnp.asarray([tau]))
 
         gate_pulses = jnp.squeeze(gate_t_shifted) + gate_disp
-        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency, tau_arr, time)
+        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency, tau_arr)
         gate = calculate_gate(gate_pulses, nonlinear_method)
 
         signal_t = pulse_t*gate
@@ -1043,7 +1048,7 @@ class RetrievePulsesVAMPIRE(RetrievePulsesFROG):
 
 
 
-class RetrievePulsesSTREAKING(RetrievePulsesFROG):
+class RetrievePulsesSTREAKING(RetrievePulsesDELAYSCAN):
     """
     The reconstruction class for Attosecond Streaking. Implements the single- and multi-channel Strong-Field-Approximation.
     All axis (time, frequency, ... ) are converted to atomic units for convenience and because that standard with the Strong-Field-Approximation. 
@@ -1329,7 +1334,7 @@ class RetrievePulsesSTREAKING(RetrievePulsesFROG):
                 dtme_position = self.ifft(measurement_info.dtme_momentum, measurement_info.sk_position_momentum, measurement_info.rn_position_momentum)
 
 
-        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, measurement_info.frequency, tau_arr, measurement_info.time)
+        pulse_t_euv_shifted = self.calculate_shifted_signal(pulse_t_euv, measurement_info.frequency, tau_arr)
         signal_t, signal_f, volkov_phase0, volkov_phase1, dtme_shifted_and_volkov_phase0 = self.make_streaking_amplitude(dtme_position, pulse_t_nir_vectorpotential, pulse_t_euv_shifted, measurement_info)        
 
         signal_t = MyNamespace(signal_t = signal_t,

@@ -234,7 +234,7 @@ class PtychographicIterativeEngine(PtychographicIterativeEngineBASE, RetrievePul
 
     # def reverse_transform_grad(self, signal, tau_arr, measurement_info):
     #     frequency, time = measurement_info.frequency, measurement_info.time
-    #     signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr, time, in_axes=(0, 0, None, None, None))
+    #     signal = self.calculate_shifted_signal(signal, frequency, -1*tau_arr)
     #     return signal
 
     # def modify_grad_for_gate_pulse(self, grad_all_m, gate_pulse_shifted, nonlinear_method):

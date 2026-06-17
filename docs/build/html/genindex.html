@@ -92,8 +92,8 @@
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="core.html">core</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core.html">core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core.gradients.html">core.gradients package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
@@ -638,7 +638,7 @@
 </li>
       <li><a href="core.html#core.construct_s_prime.calculate_S_prime_projection">calculate_S_prime_projection() (in module core.construct_s_prime)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.calculate_shifted_signal">calculate_shifted_signal() (core.base_classes_methods.RetrievePulsesFROG method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesDELAYSCAN.calculate_shifted_signal">calculate_shifted_signal() (core.base_classes_methods.RetrievePulsesDELAYSCAN method)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulses2DSI.calculate_signal_t">calculate_signal_t() (core.base_classes_methods.RetrievePulses2DSI method)</a>
 
@@ -674,6 +674,8 @@
 
       <ul>
         <li><a href="core.gradients.html#core.gradients.frog_z_error_gradients.calculate_Z_gradient">(in module core.gradients.frog_z_error_gradients)</a>
+</li>
+        <li><a href="core.gradients.html#core.gradients.streaking_z_error_gradients.calculate_Z_gradient">(in module core.gradients.streaking_z_error_gradients)</a>
 </li>
         <li><a href="core.gradients.html#core.gradients.tdp_z_error_gradients.calculate_Z_gradient">(in module core.gradients.tdp_z_error_gradients)</a>
 </li>
@@ -939,6 +941,13 @@
 </li>
       </ul></li>
       <li>
+    core.gradients.streaking_z_error_gradients
+
+      <ul>
+        <li><a href="core.gradients.html#module-core.gradients.streaking_z_error_gradients">module</a>
+</li>
+      </ul></li>
+      <li>
     core.gradients.tdp_z_error_gradients
 
       <ul>
@@ -985,6 +994,13 @@
 
       <ul>
         <li><a href="core.hessians.html#module-core.hessians.pie_pseudo_hessian">module</a>
+</li>
+      </ul></li>
+      <li>
+    core.hessians.streaking_z_error_pseudo_hessian
+
+      <ul>
+        <li><a href="core.hessians.html#module-core.hessians.streaking_z_error_pseudo_hessian">module</a>
 </li>
       </ul></li>
       <li>
@@ -1547,10 +1563,10 @@
 </li>
       <li><a href="core.html#core.bsplines_1d.get_m_ij">get_m_ij() (in module core.bsplines_1d)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simulate_trace.html#simulate_trace.make_pulse.MakePulse.get_multi_pulse">get_multi_pulse() (simulate_trace.make_pulse.MakePulse method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#core.nonlinear_cg.get_nonlinear_CG_direction">get_nonlinear_CG_direction() (in module core.nonlinear_cg)</a>
 </li>
       <li><a href="simulate_trace.html#simulate_trace.make_trace.MakeTrace2DSI.get_parameters_to_make_signal_t">get_parameters_to_make_signal_t() (simulate_trace.make_trace.MakeTrace2DSI method)</a>
@@ -1589,6 +1605,8 @@
 
       <ul>
         <li><a href="core.hessians.html#core.hessians.frog_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">(in module core.hessians.frog_z_error_pseudo_hessian)</a>
+</li>
+        <li><a href="core.hessians.html#core.hessians.streaking_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">(in module core.hessians.streaking_z_error_pseudo_hessian)</a>
 </li>
         <li><a href="core.hessians.html#core.hessians.tdp_z_error_pseudo_hessian.get_pseudo_newton_direction_Z_error">(in module core.hessians.tdp_z_error_pseudo_hessian)</a>
 </li>
@@ -1719,12 +1737,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN.idtheta">idtheta (core.base_classes_methods.RetrievePulsesCHIRPSCAN attribute)</a>
-
-      <ul>
-        <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.idtheta">(core.base_classes_methods.RetrievePulsesFROG attribute)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.idtheta">idtheta (core.base_classes_methods.RetrievePulsesFROG attribute)</a>
 </li>
-      </ul></li>
       <li><a href="core.html#core.base_classes_algorithms.AlgorithmsBASE.ifft">ifft() (core.base_classes_algorithms.AlgorithmsBASE method)</a>
 </li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.impose_constraints">impose_constraints() (core.base_classic_algorithms.CPCGPABASE method)</a>
@@ -2071,6 +2085,8 @@
 </li>
         <li><a href="core.gradients.html#module-core.gradients.frog_z_error_gradients">core.gradients.frog_z_error_gradients</a>
 </li>
+        <li><a href="core.gradients.html#module-core.gradients.streaking_z_error_gradients">core.gradients.streaking_z_error_gradients</a>
+</li>
         <li><a href="core.gradients.html#module-core.gradients.tdp_z_error_gradients">core.gradients.tdp_z_error_gradients</a>
 </li>
         <li><a href="core.gradients.html#module-core.gradients.twodsi_z_error_gradients">core.gradients.twodsi_z_error_gradients</a>
@@ -2084,6 +2100,8 @@
         <li><a href="core.hessians.html#module-core.hessians.frog_z_error_pseudo_hessian">core.hessians.frog_z_error_pseudo_hessian</a>
 </li>
         <li><a href="core.hessians.html#module-core.hessians.pie_pseudo_hessian">core.hessians.pie_pseudo_hessian</a>
+</li>
+        <li><a href="core.hessians.html#module-core.hessians.streaking_z_error_pseudo_hessian">core.hessians.streaking_z_error_pseudo_hessian</a>
 </li>
         <li><a href="core.hessians.html#module-core.hessians.tdp_z_error_pseudo_hessian">core.hessians.tdp_z_error_pseudo_hessian</a>
 </li>
@@ -2796,6 +2814,8 @@
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesCHIRPSCAN">RetrievePulsesCHIRPSCAN (class in core.base_classes_methods)</a>
 </li>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesDELAYSCAN">RetrievePulsesDELAYSCAN (class in core.base_classes_methods)</a>
+</li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG">RetrievePulsesFROG (class in core.base_classes_methods)</a>
 </li>
       <li><a href="core.html#core.base_classes_methods.RetrievePulsesSTREAKING">RetrievePulsesSTREAKING (class in core.base_classes_methods)</a>
@@ -2884,7 +2904,7 @@
 </li>
       <li><a href="core.html#core.base_classic_algorithms.CPCGPABASE.shift_rows">shift_rows() (core.base_classic_algorithms.CPCGPABASE method)</a>
 </li>
-      <li><a href="core.html#core.base_classes_methods.RetrievePulsesFROG.shift_signal_in_time">shift_signal_in_time() (core.base_classes_methods.RetrievePulsesFROG method)</a>
+      <li><a href="core.html#core.base_classes_methods.RetrievePulsesDELAYSCAN.shift_signal_in_time">shift_signal_in_time() (core.base_classes_methods.RetrievePulsesDELAYSCAN method)</a>
 </li>
       <li><a href="core.html#core.base_classes_algorithms.ClassicAlgorithmsBASE.shuffle_data_along_m">shuffle_data_along_m() (core.base_classes_algorithms.ClassicAlgorithmsBASE method)</a>
 </li>
@@ -3417,6 +3437,10 @@
         <li><a href="core.gradients.html#core.gradients.twodsi_z_error_gradients.Z_gradient_cross_correlation_pulse">(in module core.gradients.twodsi_z_error_gradients)</a>
 </li>
       </ul></li>
+      <li><a href="core.gradients.html#core.gradients.streaking_z_error_gradients.Z_gradient_DTME">Z_gradient_DTME() (in module core.gradients.streaking_z_error_gradients)</a>
+</li>
+      <li><a href="core.gradients.html#core.gradients.streaking_z_error_gradients.Z_gradient_EUV_pulse">Z_gradient_EUV_pulse() (in module core.gradients.streaking_z_error_gradients)</a>
+</li>
       <li><a href="core.gradients.html#core.gradients.chirpscan_z_error_gradients.Z_gradient_nhg">Z_gradient_nhg() (in module core.gradients.chirpscan_z_error_gradients)</a>
 
       <ul>
@@ -3508,6 +3532,14 @@
       <li><a href="core.gradients.html#core.gradients.frog_z_error_gradients.Z_gradient_thg_interferometric_cross_correlation_pulse">Z_gradient_thg_interferometric_cross_correlation_pulse() (in module core.gradients.frog_z_error_gradients)</a>
 </li>
       <li><a href="core.gradients.html#core.gradients.twodsi_z_error_gradients.Z_gradient_thg_pulse">Z_gradient_thg_pulse() (in module core.gradients.twodsi_z_error_gradients)</a>
+</li>
+      <li><a href="core.gradients.html#core.gradients.streaking_z_error_gradients.Z_gradient_vectorpotential">Z_gradient_vectorpotential() (in module core.gradients.streaking_z_error_gradients)</a>
+</li>
+      <li><a href="core.hessians.html#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_DTME">Z_pseudo_hessian_diagonal_DTME() (in module core.hessians.streaking_z_error_pseudo_hessian)</a>
+</li>
+      <li><a href="core.hessians.html#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_EUV_pulse">Z_pseudo_hessian_diagonal_EUV_pulse() (in module core.hessians.streaking_z_error_pseudo_hessian)</a>
+</li>
+      <li><a href="core.hessians.html#core.hessians.streaking_z_error_pseudo_hessian.Z_pseudo_hessian_diagonal_vectorpotential">Z_pseudo_hessian_diagonal_vectorpotential() (in module core.hessians.streaking_z_error_pseudo_hessian)</a>
 </li>
       <li><a href="core.html#core.stepsize.zoom_interpolation">zoom_interpolation() (in module core.stepsize)</a>
 </li>

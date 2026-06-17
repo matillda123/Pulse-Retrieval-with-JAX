@@ -74,9 +74,9 @@ class CPCGPA(RetrievePulsesVAMPIREwithRealFields, _CPCGPA):
 
     def calculate_gate(self, gate_pulse, measurement_info):
         tau, nonlinear_method = measurement_info.tau_interferometer, measurement_info.nonlinear_method
-        sk, rn, frequency, time = measurement_info.sk_big, measurement_info.rn_big, measurement_info.frequency_big, measurement_info.time_big
+        sk, rn, frequency = measurement_info.sk_big, measurement_info.rn_big, measurement_info.frequency_big
         gate_disp = self.apply_phase(gate_pulse, measurement_info, sk, rn) 
-        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]), time)
+        gate_pulse = self.calculate_shifted_signal(gate_pulse, frequency, jnp.asarray([tau]))
         gate_pulses = jnp.squeeze(gate_pulse) + gate_disp
         return calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
     

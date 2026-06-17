@@ -24,8 +24,6 @@ def Z_gradient_EUV_pulse(signal_t, signal_t_new, tau_arr, measurement_info): # f
 
 
 
-
-
 def _get_gradient_of_dtme_with_respect_to_vectorpotential(dtme_position, pulse_t_nir_vectorpotential, measurement_info):
     if measurement_info.retrieve_dtme==True or measurement_info.dtme_momentum is not None: 
         r = measurement_info.position
@@ -83,8 +81,6 @@ def Z_gradient_vectorpotential(signal_t, signal_t_new, tau_arr, measurement_info
 
 
 
-# the phase doesnt seem to be retrieved correctly, maybe there is something wrong here?
-# i dont think so, the implementation of the formula is fine, maybe its derivation is faulty?
 def Z_gradient_DTME(signal_t, signal_t_new, tau_arr, measurement_info): # momentum domain
     pulse_t_euv_shifted, volkov_phase0, volkov_phase1 = signal_t.pulse_t_euv_shifted, signal_t.volkov_phase0, signal_t.volkov_phase1
     pulse_t_nir_vectorpotential = jnp.real(signal_t.pulse_t_nir_vectorpotential)

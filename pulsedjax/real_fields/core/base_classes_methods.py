@@ -190,18 +190,18 @@ class RetrievePulsesFROGwithRealFields(RetrievePulsesRealFields, RetrievePulsesF
         pulse_t = self.ifft(pulse_f, measurement_info.sk_big, measurement_info.rn_big)
         
 
-        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr, time_big)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr)
 
         if cross_correlation==True:
             gate_t = measurement_info.gate
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
             gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
             gate_t = self.ifft(gate_f, measurement_info.sk_big, measurement_info.rn_big)
 
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         else:
@@ -278,20 +278,20 @@ class RetrievePulsesTDPwithRealFields(RetrievePulsesRealFields, RetrievePulsesTD
         pulse_t = self.ifft(pulse_f, sk_big, rn_big)
 
 
-        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr, time_big)
+        pulse_t_shifted = self.calculate_shifted_signal(pulse_t, frequency_big, tau_arr)
 
         if cross_correlation==True:
             # might break
             gate_t = self.apply_spectral_filter(measurement_info.gate, measurement_info.spectral_filter, sk_big, rn_big)
             
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         elif doubleblind==True:
             gate_f = self.interpolate_signal_f(gate_f, measurement_info, "main", "big")
             gate_t = self.ifft(gate_f, sk_big, rn_big)
             gate_t = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter, sk_big, rn_big)
-            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr, time_big)
+            gate_pulse_shifted = self.calculate_shifted_signal(gate_t, frequency_big, tau_arr)
             gate_shifted = calculate_gate_with_Real_Fields(gate_pulse_shifted, frogmethod)
 
         else:
@@ -438,9 +438,9 @@ class RetrievePulses2DSIwithRealFields(RetrievePulsesRealFields, RetrievePulses2
         gate1, gate2 = self.apply_spectral_filter(gate_t, measurement_info.spectral_filter1, 
                                                   measurement_info.spectral_filter2, sk_big, rn_big)
             
-        gate2_shifted = self.calculate_shifted_signal(gate2, frequency_big, tau_arr, time_big)
+        gate2_shifted = self.calculate_shifted_signal(gate2, frequency_big, tau_arr)
         tau = measurement_info.tau_pulse_anc1
-        gate1 = self.calculate_shifted_signal(gate1, frequency_big, jnp.asarray([tau]), time_big)
+        gate1 = self.calculate_shifted_signal(gate1, frequency_big, jnp.asarray([tau]))
         gate_pulses = jnp.squeeze(gate1) + gate2_shifted
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
@@ -515,10 +515,10 @@ class RetrievePulsesVAMPIREwithRealFields(RetrievePulsesRealFields, RetrievePuls
         gate_disp = self.apply_phase(gate_t, measurement_info, sk_big, rn_big) 
 
         tau = measurement_info.tau_interferometer
-        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency_big, jnp.asarray([tau]), time_big)
+        gate_t_shifted = self.calculate_shifted_signal(gate_t, frequency_big, jnp.asarray([tau]))
 
         gate_pulses = jnp.squeeze(gate_t_shifted) + gate_disp
-        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency_big, tau_arr, time_big)
+        gate_pulses = self.calculate_shifted_signal(gate_pulses, frequency_big, tau_arr)
         gate = calculate_gate_with_Real_Fields(gate_pulses, nonlinear_method)
 
         signal_t = jnp.real(pulse_t)*gate

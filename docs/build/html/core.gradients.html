@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>core.gradients &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
+  <title>core.gradients package &mdash; PulsedJAX: Pulse-Retrieval-with-JAX 2025 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="core.hessians package" href="core.hessians.html" />
-    <link rel="prev" title="core" href="core.html" /> 
+    <link rel="prev" title="core package" href="core.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -95,8 +95,8 @@
 <li class="toctree-l2"><a class="reference internal" href="real_fields.vampire.html">real_fields.vampire</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="core.html">core</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">core.gradients</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="core.html">core package</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">core.gradients package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="core.hessians.html">core.hessians package</a></li>
 </ul>
 </li>
@@ -117,8 +117,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="core.html">core</a></li>
-      <li class="breadcrumb-item active">core.gradients</li>
+          <li class="breadcrumb-item"><a href="core.html">core package</a></li>
+      <li class="breadcrumb-item active">core.gradients package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/core.gradients.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -128,8 +128,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="core-gradients">
-<h1>core.gradients<a class="headerlink" href="#core-gradients" title="Link to this heading"></a></h1>
+  <section id="core-gradients-package">
+<h1>core.gradients package<a class="headerlink" href="#core-gradients-package" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
@@ -329,8 +329,46 @@ The gradient is calculated in the frequency domain.</p>
 </dd></dl>
 
 </section>
-<section id="core-gradients-gradients-via-ad-module">
-<h2>core.gradients.gradients_via_AD module<a class="headerlink" href="#core-gradients-gradients-via-ad-module" title="Link to this heading"></a></h2>
+<section id="module-core.gradients.streaking_z_error_gradients">
+<span id="core-gradients-streaking-z-error-gradients-module"></span><h2>core.gradients.streaking_z_error_gradients module<a class="headerlink" href="#module-core.gradients.streaking_z_error_gradients" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="core.gradients.streaking_z_error_gradients.Z_gradient_EUV_pulse">
+<span class="sig-prename descclassname"><span class="pre">core.gradients.streaking_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">Z_gradient_EUV_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/gradients/streaking_z_error_gradients.py#L7-L21"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.gradients.streaking_z_error_gradients.Z_gradient_EUV_pulse" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.gradients.streaking_z_error_gradients.Z_gradient_vectorpotential">
+<span class="sig-prename descclassname"><span class="pre">core.gradients.streaking_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">Z_gradient_vectorpotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/gradients/streaking_z_error_gradients.py#L52-L80"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.gradients.streaking_z_error_gradients.Z_gradient_vectorpotential" title="Link to this definition"></a></dt>
+<dd><p>Grad contains product-rule. Thus two terms are calculcated and then added up.
+First the part where A appears in the shift of the DTME, then the part where A appears in the volkov phase.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.gradients.streaking_z_error_gradients.Z_gradient_DTME">
+<span class="sig-prename descclassname"><span class="pre">core.gradients.streaking_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">Z_gradient_DTME</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/gradients/streaking_z_error_gradients.py#L84-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.gradients.streaking_z_error_gradients.Z_gradient_DTME" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.gradients.streaking_z_error_gradients.calculate_Z_gradient">
+<span class="sig-prename descclassname"><span class="pre">core.gradients.streaking_z_error_gradients.</span></span><span class="sig-name descname"><span class="pre">calculate_Z_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signal_t_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_or_gate</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/matillda123/Pulse-Retrieval-with-JAX/tree/main/pulsedjax/core/gradients/streaking_z_error_gradients.py#L106-L125"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#core.gradients.streaking_z_error_gradients.calculate_Z_gradient" title="Link to this definition"></a></dt>
+<dd><p>Calculates the Z-error gradient with respect to the pulse, gate-pulse or the DTME for a given Streaking measurement.
+The gradient is calculated in the frequency domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_t</strong> (<em>jnp.array</em>) – the current signal field</p></li>
+<li><p><strong>signal_t_new</strong> (<em>jnp.array</em>) – the current signal field projected onto the measured intensity</p></li>
+<li><p><strong>tau_arr</strong> (<em>jnp.array</em>) – the delays</p></li>
+<li><p><strong>measurement_info</strong> (<em>Pytree</em>) – contains measurement data and parameters</p></li>
+<li><p><strong>pulse_or_gate</strong> (<em>str</em>) – whether the gradient is calculated with respect to the pulse or the gate-pulse</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>jnp.array, the Z-error gradient</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-core.gradients.tdp_z_error_gradients">
 <span id="core-gradients-tdp-z-error-gradients-module"></span><h2>core.gradients.tdp_z_error_gradients module<a class="headerlink" href="#module-core.gradients.tdp_z_error_gradients" title="Link to this heading"></a></h2>
@@ -487,7 +525,7 @@ The gradient is calculated in the frequency domain.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="core.html" class="btn btn-neutral float-left" title="core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="core.html" class="btn btn-neutral float-left" title="core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="core.hessians.html" class="btn btn-neutral float-right" title="core.hessians package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

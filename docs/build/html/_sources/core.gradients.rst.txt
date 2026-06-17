@@ -1,4 +1,4 @@
-core.gradients
+core.gradients package
 ======================
 
 Submodules
@@ -20,10 +20,10 @@ core.gradients.frog\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.gradients\_via\_AD module
-----------------------------------------
+core.gradients.streaking\_z\_error\_gradients module
+----------------------------------------------------
 
-.. automodule:: core.gradients.gradients_via_AD
+.. automodule:: core.gradients.streaking_z_error_gradients
    :members:
    :show-inheritance:
    :undoc-members:

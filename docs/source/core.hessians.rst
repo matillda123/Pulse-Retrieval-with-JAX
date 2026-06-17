@@ -1,4 +1,4 @@
-core.hessians
+core.hessians package
 =====================
 
 Submodules

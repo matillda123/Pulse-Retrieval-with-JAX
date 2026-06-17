@@ -347,7 +347,7 @@ def do_interpolation_1d(x_new, x, y, method="cubic", extrap=1e-12, axis=-1):
 
     if y.ndim==1:
         y_new = _interpolate(x_new, x, y)
-    else:
+    else: # interpolate over axis axis
         y = jnp.swapaxes(y, axis, -1)
         s = y.shape
         y = y.reshape((np.prod(s[:-1]), ) + (s[-1], ))
@@ -518,6 +518,8 @@ def calculate_mu(trace, measured_trace, measurement_info, descent_info, local_or
     else:
         if getattr(descent_info.optimize_calibration_curve, local_or_global)==True:
             mu = _calculate_mu_f(trace, measured_trace)
+        elif getattr(descent_info.optimize_calibration_curve, local_or_global)=="constant":
+            mu = 1.0
         else:
             mu = _calculate_mu(trace, measured_trace)
     return mu
