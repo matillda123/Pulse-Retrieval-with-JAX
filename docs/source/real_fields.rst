@@ -16,7 +16,7 @@ Subpackages
 Submodules
 ----------
 
-real\_fields.base\_classes\_methods module
+real\_fields.base\_classes\_methods
 ------------------------------------------
 
 .. automodule:: real_fields.base_classes_methods

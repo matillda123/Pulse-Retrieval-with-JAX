@@ -4,7 +4,7 @@ real\_fields.frog
 Submodules
 ----------
 
-real\_fields.frog.classical\_algorithms\_frog\_real\_fields module
+real\_fields.frog.classical\_algorithms\_frog\_real\_fields
 ------------------------------------------------------------------
 
 .. automodule:: real_fields.frog.classical_algorithms_frog_real_fields
@@ -12,7 +12,7 @@ real\_fields.frog.classical\_algorithms\_frog\_real\_fields module
    :show-inheritance:
    :undoc-members:
 
-real\_fields.frog.general\_algorithms\_frog\_real\_fields module
+real\_fields.frog.general\_algorithms\_frog\_real\_fields
 ----------------------------------------------------------------
 
 .. automodule:: real_fields.frog.general_algorithms_frog_real_fields

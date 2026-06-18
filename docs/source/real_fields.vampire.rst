@@ -4,7 +4,7 @@ real\_fields.vampire
 Submodules
 ----------
 
-real\_fields.vampire.classical\_algorithms\_vampire\_real\_fields module
+real\_fields.vampire.classical\_algorithms\_vampire\_real\_fields
 ------------------------------------------------------------------------
 
 .. automodule:: real_fields.vampire.classical_algorithms_vampire_real_fields
@@ -12,7 +12,7 @@ real\_fields.vampire.classical\_algorithms\_vampire\_real\_fields module
    :show-inheritance:
    :undoc-members:
 
-real\_fields.vampire.general\_algorithms\_vampire\_real\_fields module
+real\_fields.vampire.general\_algorithms\_vampire\_real\_fields
 ----------------------------------------------------------------------
 
 .. automodule:: real_fields.vampire.general_algorithms_vampire_real_fields

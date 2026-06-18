@@ -4,7 +4,7 @@ real\_fields.twodsi
 Submodules
 ----------
 
-real\_fields.twodsi.classical\_algorithms\_2dsi\_real\_fields module
+real\_fields.twodsi.classical\_algorithms\_2dsi\_real\_fields
 --------------------------------------------------------------------
 
 .. automodule:: real_fields.twodsi.classical_algorithms_2dsi_real_fields
@@ -12,7 +12,7 @@ real\_fields.twodsi.classical\_algorithms\_2dsi\_real\_fields module
    :show-inheritance:
    :undoc-members:
 
-real\_fields.twodsi.general\_algorithms\_2dsi\_real\_fields module
+real\_fields.twodsi.general\_algorithms\_2dsi\_real\_fields
 ------------------------------------------------------------------
 
 .. automodule:: real_fields.twodsi.general_algorithms_2dsi_real_fields
