@@ -1,10 +1,10 @@
-core.gradients package
+core.gradients
 ======================
 
 Submodules
 ----------
 
-core.gradients.chirpscan\_z\_error\_gradients module
+core.gradients.chirpscan\_z\_error\_gradients
 ----------------------------------------------------
 
 .. automodule:: core.gradients.chirpscan_z_error_gradients
@@ -12,7 +12,7 @@ core.gradients.chirpscan\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.frog\_z\_error\_gradients module
+core.gradients.frog\_z\_error\_gradients
 -----------------------------------------------
 
 .. automodule:: core.gradients.frog_z_error_gradients
@@ -20,7 +20,7 @@ core.gradients.frog\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.streaking\_z\_error\_gradients module
+core.gradients.streaking\_z\_error\_gradients
 ----------------------------------------------------
 
 .. automodule:: core.gradients.streaking_z_error_gradients
@@ -28,7 +28,7 @@ core.gradients.streaking\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.tdp\_z\_error\_gradients module
+core.gradients.tdp\_z\_error\_gradients
 ----------------------------------------------
 
 .. automodule:: core.gradients.tdp_z_error_gradients
@@ -36,7 +36,7 @@ core.gradients.tdp\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.twodsi\_z\_error\_gradients module
+core.gradients.twodsi\_z\_error\_gradients
 -------------------------------------------------
 
 .. automodule:: core.gradients.twodsi_z_error_gradients
@@ -44,7 +44,7 @@ core.gradients.twodsi\_z\_error\_gradients module
    :show-inheritance:
    :undoc-members:
 
-core.gradients.vampire\_z\_error\_gradients module
+core.gradients.vampire\_z\_error\_gradients
 --------------------------------------------------
 
 .. automodule:: core.gradients.vampire_z_error_gradients

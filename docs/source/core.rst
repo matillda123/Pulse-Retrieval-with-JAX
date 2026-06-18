@@ -13,7 +13,7 @@ Subpackages
 Submodules
 ----------
 
-core.base\_classes\_algorithms module
+core.base\_classes\_algorithms
 -------------------------------------
 
 .. automodule:: core.base_classes_algorithms
@@ -21,7 +21,7 @@ core.base\_classes\_algorithms module
    :show-inheritance:
    :undoc-members:
 
-core.base\_classes\_methods module
+core.base\_classes\_methods
 ----------------------------------
 
 .. automodule:: core.base_classes_methods
@@ -29,7 +29,7 @@ core.base\_classes\_methods module
    :show-inheritance:
    :undoc-members:
 
-core.base\_classic\_algorithms module
+core.base\_classic\_algorithms
 -------------------------------------
 
 .. automodule:: core.base_classic_algorithms
@@ -37,7 +37,7 @@ core.base\_classic\_algorithms module
    :show-inheritance:
    :undoc-members:
 
-core.base\_general\_optimization module
+core.base\_general\_optimization
 ---------------------------------------
 
 .. automodule:: core.base_general_optimization
@@ -45,7 +45,7 @@ core.base\_general\_optimization module
    :show-inheritance:
    :undoc-members:
 
-core.bsplines\_1d module
+core.bsplines\_1d
 ------------------------
 
 .. automodule:: core.bsplines_1d
@@ -53,7 +53,7 @@ core.bsplines\_1d module
    :show-inheritance:
    :undoc-members:
 
-core.construct\_s\_prime module
+core.construct\_s\_prime
 -------------------------------
 
 .. automodule:: core.construct_s_prime
@@ -61,7 +61,7 @@ core.construct\_s\_prime module
    :show-inheritance:
    :undoc-members:
 
-core.create\_population module
+core.create\_population
 ------------------------------
 
 .. automodule:: core.create_population
@@ -69,7 +69,7 @@ core.create\_population module
    :show-inheritance:
    :undoc-members:
 
-core.initial\_guess\_doublepulse module
+core.initial\_guess\_doublepulse
 ---------------------------------------
 
 .. automodule:: core.initial_guess_doublepulse
@@ -77,7 +77,7 @@ core.initial\_guess\_doublepulse module
    :show-inheritance:
    :undoc-members:
 
-core.lbfgs module
+core.lbfgs
 -----------------
 
 .. automodule:: core.lbfgs
@@ -85,7 +85,7 @@ core.lbfgs module
    :show-inheritance:
    :undoc-members:
 
-core.nonlinear\_cg module
+core.nonlinear\_cg
 -------------------------
 
 .. automodule:: core.nonlinear_cg
@@ -93,7 +93,7 @@ core.nonlinear\_cg module
    :show-inheritance:
    :undoc-members:
 
-core.phase\_matrix\_funcs module
+core.phase\_matrix\_funcs
 --------------------------------
 
 .. automodule:: core.phase_matrix_funcs
@@ -101,7 +101,7 @@ core.phase\_matrix\_funcs module
    :show-inheritance:
    :undoc-members:
 
-core.spectral\_filter\_funcs module
+core.spectral\_filter\_funcs
 -----------------------------------
 
 .. automodule:: core.spectral_filter_funcs
@@ -109,7 +109,7 @@ core.spectral\_filter\_funcs module
    :show-inheritance:
    :undoc-members:
 
-core.stepsize module
+core.stepsize
 --------------------
 
 .. automodule:: core.stepsize

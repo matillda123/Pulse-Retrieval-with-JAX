@@ -1,10 +1,10 @@
-core.hessians package
+core.hessians
 =====================
 
 Submodules
 ----------
 
-core.hessians.chirpscan\_z\_error\_pseudo\_hessian module
+core.hessians.chirpscan\_z\_error\_pseudo\_hessian
 ---------------------------------------------------------
 
 .. automodule:: core.hessians.chirpscan_z_error_pseudo_hessian
@@ -12,7 +12,7 @@ core.hessians.chirpscan\_z\_error\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.frog\_z\_error\_pseudo\_hessian module
+core.hessians.frog\_z\_error\_pseudo\_hessian
 ----------------------------------------------------
 
 .. automodule:: core.hessians.frog_z_error_pseudo_hessian
@@ -20,7 +20,7 @@ core.hessians.frog\_z\_error\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.pie\_pseudo\_hessian module
+core.hessians.pie\_pseudo\_hessian
 -----------------------------------------
 
 .. automodule:: core.hessians.pie_pseudo_hessian
@@ -28,7 +28,7 @@ core.hessians.pie\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.streaking\_z\_error\_pseudo\_hessian module
+core.hessians.streaking\_z\_error\_pseudo\_hessian
 ---------------------------------------------------------
 
 .. automodule:: core.hessians.streaking_z_error_pseudo_hessian
@@ -36,7 +36,7 @@ core.hessians.streaking\_z\_error\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.tdp\_z\_error\_pseudo\_hessian module
+core.hessians.tdp\_z\_error\_pseudo\_hessian
 ---------------------------------------------------
 
 .. automodule:: core.hessians.tdp_z_error_pseudo_hessian
@@ -44,7 +44,7 @@ core.hessians.tdp\_z\_error\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.twodsi\_z\_error\_pseudo\_hessian module
+core.hessians.twodsi\_z\_error\_pseudo\_hessian
 ------------------------------------------------------
 
 .. automodule:: core.hessians.twodsi_z_error_pseudo_hessian
@@ -52,7 +52,7 @@ core.hessians.twodsi\_z\_error\_pseudo\_hessian module
    :show-inheritance:
    :undoc-members:
 
-core.hessians.vampire\_z\_error\_pseudo\_hessian module
+core.hessians.vampire\_z\_error\_pseudo\_hessian
 -------------------------------------------------------
 
 .. automodule:: core.hessians.vampire_z_error_pseudo_hessian
